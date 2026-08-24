@@ -1,0 +1,1086 @@
+{
+  "WIF": {
+    "dexId": 506,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0506.png",
+    "at": "2026-08-24T16:26:17.505Z"
+  },
+  "AAOI": {
+    "dexId": 2,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0002.png",
+    "at": "2026-08-24T16:27:09.084Z"
+  },
+  "AAPL": {
+    "dexId": 1,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0001.png",
+    "at": "2026-08-24T16:27:12.889Z"
+  },
+  "NVDA": {
+    "dexId": 4,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0004.png",
+    "at": "2026-08-24T16:27:48.451Z"
+  },
+  "ABCL": {
+    "dexId": 3,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0003.png",
+    "at": "2026-08-24T16:27:50.876Z"
+  },
+  "ADBE": {
+    "dexId": 5,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0005.png",
+    "at": "2026-08-24T16:28:34.441Z"
+  },
+  "AEHR": {
+    "dexId": 6,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0006.png",
+    "at": "2026-08-24T16:28:35.848Z"
+  },
+  "TSLA": {
+    "dexId": 7,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0007.png",
+    "at": "2026-08-24T16:29:09.696Z"
+  },
+  "ALAB": {
+    "dexId": 9,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0009.png",
+    "at": "2026-08-24T16:29:45.251Z"
+  },
+  "AEIS": {
+    "dexId": 8,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0008.png",
+    "at": "2026-08-24T16:29:46.077Z"
+  },
+  "AMAT": {
+    "dexId": 11,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0011.png",
+    "at": "2026-08-24T16:30:26.142Z"
+  },
+  "AMD": {
+    "dexId": 10,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0010.png",
+    "at": "2026-08-24T16:30:27.216Z"
+  },
+  "COIN": {
+    "dexId": 13,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0013.png",
+    "at": "2026-08-24T16:31:06.250Z"
+  },
+  "AMBA": {
+    "dexId": 12,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0012.png",
+    "at": "2026-08-24T16:31:07.741Z"
+  },
+  "AMC": {
+    "dexId": 14,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0014.png",
+    "at": "2026-08-24T16:31:44.002Z"
+  },
+  "AMKR": {
+    "dexId": 15,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0015.png",
+    "at": "2026-08-24T16:31:47.547Z"
+  },
+  "META": {
+    "dexId": 16,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0016.png",
+    "at": "2026-08-24T16:32:20.351Z"
+  },
+  "ANET": {
+    "dexId": 17,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0017.png",
+    "at": "2026-08-24T16:32:22.147Z"
+  },
+  "PLTR": {
+    "dexId": 19,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0019.png",
+    "at": "2026-08-24T16:33:00.853Z"
+  },
+  "APLD": {
+    "dexId": 18,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0018.png",
+    "at": "2026-08-24T16:33:01.043Z"
+  },
+  "APP": {
+    "dexId": 20,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0020.png",
+    "at": "2026-08-24T16:33:48.178Z"
+  },
+  "NFLX": {
+    "dexId": 21,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0021.png",
+    "at": "2026-08-24T16:33:57.652Z"
+  },
+  "ASML": {
+    "dexId": 22,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0022.png",
+    "at": "2026-08-24T16:34:23.708Z"
+  },
+  "AMZN": {
+    "dexId": 23,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0023.png",
+    "at": "2026-08-24T16:34:36.951Z"
+  },
+  "ASTS": {
+    "dexId": 24,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0024.png",
+    "at": "2026-08-24T16:35:10.424Z"
+  },
+  "AUR": {
+    "dexId": 25,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0025.png",
+    "at": "2026-08-24T16:35:17.649Z"
+  },
+  "AVAV": {
+    "dexId": 26,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0026.png",
+    "at": "2026-08-24T16:35:44.828Z"
+  },
+  "AVGO": {
+    "dexId": 27,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0027.png",
+    "at": "2026-08-24T16:35:54.482Z"
+  },
+  "AXON": {
+    "dexId": 28,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0028.png",
+    "at": "2026-08-24T16:36:19.377Z"
+  },
+  "AXTI": {
+    "dexId": 29,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0029.png",
+    "at": "2026-08-24T16:36:30.544Z"
+  },
+  "BA": {
+    "dexId": 30,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0030.png",
+    "at": "2026-08-24T16:36:55.413Z"
+  },
+  "BABA": {
+    "dexId": 31,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0031.png",
+    "at": "2026-08-24T16:37:07.377Z"
+  },
+  "BB": {
+    "dexId": 32,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0032.png",
+    "at": "2026-08-24T16:37:34.325Z"
+  },
+  "BE": {
+    "dexId": 33,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0033.png",
+    "at": "2026-08-24T16:37:41.872Z"
+  },
+  "BND": {
+    "dexId": 34,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0034.png",
+    "at": "2026-08-24T16:38:15.537Z"
+  },
+  "BULL": {
+    "dexId": 35,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0035.png",
+    "at": "2026-08-24T16:38:21.795Z"
+  },
+  "CBRS": {
+    "dexId": 36,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0036.png",
+    "at": "2026-08-24T16:38:53.155Z"
+  },
+  "GOOGL": {
+    "dexId": 37,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0037.png",
+    "at": "2026-08-24T16:38:59.747Z"
+  },
+  "CCL": {
+    "dexId": 38,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0038.png",
+    "at": "2026-08-24T16:39:31.112Z"
+  },
+  "COST": {
+    "dexId": 39,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0039.png",
+    "at": "2026-08-24T16:39:39.863Z"
+  },
+  "CEG": {
+    "dexId": 40,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0040.png",
+    "at": "2026-08-24T16:40:09.336Z"
+  },
+  "MSTR": {
+    "dexId": 41,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0041.png",
+    "at": "2026-08-24T16:40:13.430Z"
+  },
+  "CELH": {
+    "dexId": 42,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0042.png",
+    "at": "2026-08-24T16:40:48.935Z"
+  },
+  "CIEN": {
+    "dexId": 43,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0043.png",
+    "at": "2026-08-24T16:40:52.436Z"
+  },
+  "CLS": {
+    "dexId": 45,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0045.png",
+    "at": "2026-08-24T16:41:30.135Z"
+  },
+  "CLOV": {
+    "dexId": 44,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0044.png",
+    "at": "2026-08-24T16:41:35.164Z"
+  },
+  "CLSK": {
+    "dexId": 46,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0046.png",
+    "at": "2026-08-24T16:42:07.316Z"
+  },
+  "COHR": {
+    "dexId": 47,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0047.png",
+    "at": "2026-08-24T16:42:15.937Z"
+  },
+  "MSFT": {
+    "dexId": 48,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0048.png",
+    "at": "2026-08-24T16:42:45.363Z"
+  },
+  "CRCL": {
+    "dexId": 49,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0049.png",
+    "at": "2026-08-24T16:42:52.470Z"
+  },
+  "CRDO": {
+    "dexId": 50,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0050.png",
+    "at": "2026-08-24T16:43:21.714Z"
+  },
+  "CRM": {
+    "dexId": 51,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0051.png",
+    "at": "2026-08-24T16:43:27.339Z"
+  },
+  "CRWD": {
+    "dexId": 52,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0052.png",
+    "at": "2026-08-24T16:43:58.779Z"
+  },
+  "CRWV": {
+    "dexId": 53,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0053.png",
+    "at": "2026-08-24T16:44:08.428Z"
+  },
+  "CSCO": {
+    "dexId": 54,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0054.png",
+    "at": "2026-08-24T16:44:37.898Z"
+  },
+  "CTSH": {
+    "dexId": 55,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0055.png",
+    "at": "2026-08-24T16:44:40.809Z"
+  },
+  "CVNA": {
+    "dexId": 56,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0056.png",
+    "at": "2026-08-24T16:45:15.071Z"
+  },
+  "DDOG": {
+    "dexId": 57,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0057.png",
+    "at": "2026-08-24T16:45:17.562Z"
+  },
+  "DELL": {
+    "dexId": 58,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0058.png",
+    "at": "2026-08-24T16:45:54.326Z"
+  },
+  "DJT": {
+    "dexId": 59,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0059.png",
+    "at": "2026-08-24T16:46:00.170Z"
+  },
+  "DOCN": {
+    "dexId": 60,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0060.png",
+    "at": "2026-08-24T16:46:37.378Z"
+  },
+  "ELF": {
+    "dexId": 61,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0061.png",
+    "at": "2026-08-24T16:46:39.851Z"
+  },
+  "EWT": {
+    "dexId": 62,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0062.png",
+    "at": "2026-08-24T16:47:16.260Z"
+  },
+  "EWY": {
+    "dexId": 63,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0063.png",
+    "at": "2026-08-24T16:47:19.241Z"
+  },
+  "F": {
+    "dexId": 64,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0064.png",
+    "at": "2026-08-24T16:47:54.793Z"
+  },
+  "FICO": {
+    "dexId": 65,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0065.png",
+    "at": "2026-08-24T16:47:57.270Z"
+  },
+  "FIG": {
+    "dexId": 66,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0066.png",
+    "at": "2026-08-24T16:48:32.096Z"
+  },
+  "FISV": {
+    "dexId": 67,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\characters\\0067.png",
+    "at": "2026-08-24T16:48:42.046Z"
+  },
+  "FIX": {
+    "dexId": 68,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "FLY": {
+    "dexId": 70,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "FTNT": {
+    "dexId": 71,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "FUTU": {
+    "dexId": 72,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "GE": {
+    "dexId": 73,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "GEV": {
+    "dexId": 74,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "GLD": {
+    "dexId": 75,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "GLW": {
+    "dexId": 76,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "GLXY": {
+    "dexId": 77,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "GME": {
+    "dexId": 78,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "HII": {
+    "dexId": 79,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "HIMS": {
+    "dexId": 80,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "HPE": {
+    "dexId": 81,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "HWM": {
+    "dexId": 82,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "IBM": {
+    "dexId": 83,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "IBRX": {
+    "dexId": 84,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "INDA": {
+    "dexId": 85,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "INFQ": {
+    "dexId": 86,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "INOD": {
+    "dexId": 87,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "INTC": {
+    "dexId": 88,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "INTU": {
+    "dexId": 89,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "IONQ": {
+    "dexId": 90,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "IREN": {
+    "dexId": 91,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "JBL": {
+    "dexId": 92,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "JNJ": {
+    "dexId": 93,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "JOBY": {
+    "dexId": 94,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "KLAC": {
+    "dexId": 95,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "KSS": {
+    "dexId": 96,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "KTOS": {
+    "dexId": 97,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "LHX": {
+    "dexId": 98,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "LITE": {
+    "dexId": 99,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "LLY": {
+    "dexId": 100,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "LMT": {
+    "dexId": 101,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "LRCX": {
+    "dexId": 102,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "LULU": {
+    "dexId": 103,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "LUNR": {
+    "dexId": 104,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "MDB": {
+    "dexId": 105,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "MOD": {
+    "dexId": 106,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "MPWR": {
+    "dexId": 114,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "MRNA": {
+    "dexId": 123,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "MRVL": {
+    "dexId": 129,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "MTSI": {
+    "dexId": 130,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "MU": {
+    "dexId": 131,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "MXL": {
+    "dexId": 147,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "NAVN": {
+    "dexId": 149,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "NBIS": {
+    "dexId": 154,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "NET": {
+    "dexId": 166,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "NNE": {
+    "dexId": 168,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "NOW": {
+    "dexId": 170,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "NU": {
+    "dexId": 171,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "NVTS": {
+    "dexId": 181,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "OKLO": {
+    "dexId": 183,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "ON": {
+    "dexId": 193,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "ONTO": {
+    "dexId": 215,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "ORCL": {
+    "dexId": 223,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "OUST": {
+    "dexId": 246,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "P": {
+    "dexId": 253,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "PANW": {
+    "dexId": 270,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "PATH": {
+    "dexId": 271,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "PENG": {
+    "dexId": 272,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "PFE": {
+    "dexId": 280,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "PL": {
+    "dexId": 298,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "POET": {
+    "dexId": 328,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "POWL": {
+    "dexId": 330,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "PR": {
+    "dexId": 335,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "PWR": {
+    "dexId": 336,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "QBTS": {
+    "dexId": 339,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "QCOM": {
+    "dexId": 340,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "QQQ": {
+    "dexId": 350,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "QUBT": {
+    "dexId": 361,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "RBLX": {
+    "dexId": 380,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "RCAT": {
+    "dexId": 381,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "RDDT": {
+    "dexId": 418,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "RDW": {
+    "dexId": 419,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "RGTI": {
+    "dexId": 422,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "RIVN": {
+    "dexId": 423,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "RKLB": {
+    "dexId": 436,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "RUN": {
+    "dexId": 451,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SATS": {
+    "dexId": 453,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SCHD": {
+    "dexId": 454,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SGOV": {
+    "dexId": 455,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SHOP": {
+    "dexId": 456,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SHY": {
+    "dexId": 459,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SIMO": {
+    "dexId": 460,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SKHY": {
+    "dexId": 465,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SLS": {
+    "dexId": 469,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SLV": {
+    "dexId": 475,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SMCI": {
+    "dexId": 497,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SMH": {
+    "dexId": 524,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SMR": {
+    "dexId": 529,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SNAP": {
+    "dexId": 535,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SNDK": {
+    "dexId": 536,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SNOW": {
+    "dexId": 543,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SOFI": {
+    "dexId": 544,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SOUN": {
+    "dexId": 592,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SOXX": {
+    "dexId": 600,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SPCX": {
+    "dexId": 601,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SPMO": {
+    "dexId": 602,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SPY": {
+    "dexId": 604,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "TE": {
+    "dexId": 652,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "TEAM": {
+    "dexId": 662,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "TEM": {
+    "dexId": 663,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "TER": {
+    "dexId": 673,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "TSEM": {
+    "dexId": 688,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "TSM": {
+    "dexId": 694,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "TTD": {
+    "dexId": 704,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "TTWO": {
+    "dexId": 706,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "UMC": {
+    "dexId": 712,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "UNH": {
+    "dexId": 714,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "UPS": {
+    "dexId": 727,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "USAR": {
+    "dexId": 730,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0039\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "USO": {
+    "dexId": 734,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0369\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "VICR": {
+    "dexId": 740,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0369\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "VRT": {
+    "dexId": 742,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0369\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "VSAT": {
+    "dexId": 743,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0369\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "VST": {
+    "dexId": 744,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0369\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "VTI": {
+    "dexId": 746,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0369\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "WDAY": {
+    "dexId": 749,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0699\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "WDC": {
+    "dexId": 750,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0699\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "WULF": {
+    "dexId": 751,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0699\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "WYFI": {
+    "dexId": 755,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.0699\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "XLK": {
+    "dexId": 756,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "XNDU": {
+    "dexId": 757,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "XOM": {
+    "dexId": 769,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "ZM": {
+    "dexId": 776,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "ZS": {
+    "dexId": 781,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "FLNC": {
+    "dexId": 69,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SHIB": {
+    "dexId": 262,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "DOGE": {
+    "dexId": 133,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "PEPE": {
+    "dexId": 537,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "FLOKI": {
+    "dexId": 745,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "BONK": {
+    "dexId": 229,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "BABYDOGE": {
+    "dexId": 261,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "ELON": {
+    "dexId": 228,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "AKITA": {
+    "dexId": 264,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "KISHU": {
+    "dexId": 263,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SAMO": {
+    "dexId": 210,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "NEIRO": {
+    "dexId": 676,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "MYRO": {
+    "dexId": 209,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "WOJAK": {
+    "dexId": 235,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "MOG": {
+    "dexId": 432,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "POPCAT": {
+    "dexId": 300,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "BRETT": {
+    "dexId": 186,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "TURBO": {
+    "dexId": 324,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "MEME": {
+    "dexId": 137,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SLERF": {
+    "dexId": 289,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "WEN": {
+    "dexId": 174,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "BOME": {
+    "dexId": 765,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "GIGA": {
+    "dexId": 297,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "MICHI": {
+    "dexId": 678,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "PONKE": {
+    "dexId": 766,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "GOAT": {
+    "dexId": 672,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "CHILLGUY": {
+    "dexId": 759,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "FWOG": {
+    "dexId": 194,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "MOODENG": {
+    "dexId": 450,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "PNUT": {
+    "dexId": 417,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "PENGU": {
+    "dexId": 393,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "HARAMBE": {
+    "dexId": 675,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "DEGEN": {
+    "dexId": 559,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SNEK": {
+    "dexId": 560,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "TOSHI": {
+    "dexId": 677,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SPX": {
+    "dexId": 126,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "FARTCOIN": {
+    "dexId": 110,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "ACT": {
+    "dexId": 518,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "AI16Z": {
+    "dexId": 375,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "LADYS": {
+    "dexId": 431,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "VOLT": {
+    "dexId": 309,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "DOG": {
+    "dexId": 310,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "RATS": {
+    "dexId": 660,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "ORDI": {
+    "dexId": 140,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "MEW": {
+    "dexId": 301,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "HIGHER": {
+    "dexId": 334,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "BOBO": {
+    "dexId": 760,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "APU": {
+    "dexId": 656,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "KEYCAT": {
+    "dexId": 725,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "HOSICO": {
+    "dexId": 726,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "GOKU": {
+    "dexId": 674,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "SIGMA": {
+    "dexId": 288,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "MUMU": {
+    "dexId": 287,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "USELESS": {
+    "dexId": 132,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "COQ": {
+    "dexId": 256,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "KIBA": {
+    "dexId": 507,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "TROLL": {
+    "dexId": 302,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "PUMP": {
+    "dexId": 219,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "CROC": {
+    "dexId": 552,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  },
+  "QUACK": {
+    "dexId": 580,
+    "error": "edit 402: {\"error\":{\"message\":\"Insufficient balance. Estimated cost: $0.0330, Available: $-0.1029\",\"type\":\"insufficient_balance\",\"estimated_cost\":0.033}}"
+  }
+}

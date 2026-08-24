@@ -1,0 +1,14 @@
+{
+  "type": "module",
+  "name": "stockmonsters-reskin",
+  "private": true,
+  "description": "Stockmonsters art pipeline — generate 194×7 sprites from SPRITE-BRIEF.md",
+  "scripts": {
+    "sprites": "node generate-sprites.js",
+    "sprites:fronts": "node generate-sprites.js --stage fronts",
+    "sprites:dry": "node generate-sprites.js --dry-run"
+  },
+  "dependencies": {
+    "sharp": "^0.34.2"
+  }
+}

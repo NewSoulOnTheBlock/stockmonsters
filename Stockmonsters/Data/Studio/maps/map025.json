@@ -1,0 +1,57 @@
+{
+  "klass": "Map",
+  "id": 25,
+  "dbSymbol": "map025",
+  "stepsAverage": 30,
+  "bgm": {
+    "name": "Bicycle.ogg",
+    "volume": 100,
+    "pitch": 100
+  },
+  "bgs": {
+    "name": "",
+    "volume": 100,
+    "pitch": 100
+  },
+  "tiledFilename": "025 Margin Bridge",
+  "mtime": 1787586908109,
+  "sha1": "",
+  "tileMetadata": {
+    "width": 48,
+    "height": 40,
+    "tilesets": [
+      {
+        "firstGlobalId": 1,
+        "source": "../Tilesets/TECH-borders.tsx"
+      },
+      {
+        "firstGlobalId": 361,
+        "source": "../Tilesets/TECH-Assets.tsx"
+      },
+      {
+        "firstGlobalId": 8041,
+        "source": "../Tilesets/systemtags.tsx"
+      },
+      {
+        "firstGlobalId": 8169,
+        "source": "../Tilesets/TECH-Nature.tsx"
+      },
+      {
+        "firstGlobalId": 11620,
+        "source": "../Tilesets/passages.tsx"
+      },
+      {
+        "firstGlobalId": 11636,
+        "source": "../Tilesets/TECH-Buildings.tsx"
+      },
+      {
+        "firstGlobalId": 36212,
+        "source": "../Tilesets/TECH-Mounts.tsx"
+      },
+      {
+        "firstGlobalId": 47252,
+        "source": "../Tilesets/TECH-Animations.tsx"
+      }
+    ]
+  }
+}

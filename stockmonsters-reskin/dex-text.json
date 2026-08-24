@@ -1,0 +1,778 @@
+{
+  "1": {
+    "species": "Blossom Crown Stockmonster",
+    "description": "Applion's mane glows like light through spring blossoms. It rarely raises its voice, trusting that calm strength outlasts every rival that shouts. Traders know it as $AAPL, tied to Apple."
+  },
+  "2": {
+    "species": "Fibre Coil Stockmonster",
+    "description": "Pulses of light race down Optolisk's braided glass body faster than sound. Watching a pulse travel its full length is said to bring good luck to traders. Traders know it as $AAOI, tied to Applied Optoelectronics."
+  },
+  "3": {
+    "species": "Antibody Stockmonster",
+    "description": "Abcellyx's forked tail hunts down anything foreign to its body and locks on without missing. Researchers study its aim in hopes of teaching medicine the same precision. Traders know it as $ABCL, tied to Abcellera Biologics."
+  },
+  "4": {
+    "species": "Compute Dragon Stockmonster",
+    "description": "Nvidrake grows hungrier the harder it thinks. Its fin-ridges glow brighter under heavy load, and in the deepest data centers its green fire never truly goes out. Traders know it as $NVDA, tied to NVIDIA."
+  },
+  "5": {
+    "species": "Canvas Wing Stockmonster",
+    "description": "No two people ever see the same pattern on Adobemoth's wings twice. It reshuffles the layers of its markings constantly, as if endlessly revising a design only it can see. Traders know it as $ADBE, tied to Adobe."
+  },
+  "6": {
+    "species": "Burn-In Stockmonster",
+    "description": "Aehrion bakes anything it grips between its plates, testing whether it can survive the heat. Only what comes out the other side earns its respect. Traders know it as $AEHR, tied to Aehr."
+  },
+  "7": {
+    "species": "Storm Cell Stockmonster",
+    "description": "A gathering storm is the first sign that Teslazar is losing its temper. Its battery-cell spine charges for minutes before it finally releases everything at once. Traders know it as $TSLA, tied to Tesla."
+  },
+  "8": {
+    "species": "Power Cell Stockmonster",
+    "description": "Aegisurge charges headfirst into danger, discharging its horns on impact. Herds of them are used to jump-start entire facilities after a blackout. Traders know it as $AEIS, tied to Advanced Energy."
+  },
+  "9": {
+    "species": "Interconnect Stockmonster",
+    "description": "The traces across Alabyrinth's shell form a different maze every time it molts. Signals sent across its back always find the shortest path, no matter how tangled the pattern looks. Traders know it as $ALAB, tied to Astera Labs, Inc.."
+  },
+  "10": {
+    "species": "Core Vent Stockmonster",
+    "description": "Amdeon vents excess heat through the ridges along its spine mid-flight, letting it push harder for longer than rivals twice its size. Traders know it as $AMD, tied to AMD."
+  },
+  "11": {
+    "species": "Deposition Stockmonster",
+    "description": "Amatherium layers thin films over anything it touches, one atom at a time. It works so patiently that a finished coat can take days to notice forming. Traders know it as $AMAT, tied to Applied Materials."
+  },
+  "12": {
+    "species": "Aperture Stockmonster",
+    "description": "Ambaraven's irises widen and narrow on their own, adjusting to catch the faintest motion in total darkness. Nothing crosses its field of view unnoticed. Traders know it as $AMBA, tied to Ambarella."
+  },
+  "13": {
+    "species": "Speculation Stockmonster",
+    "description": "Coinraith has no true shape of its own; it is built entirely from coins in motion. The more people chase it, the larger and brighter it becomes. Traders know it as $COIN, tied to Coinbase."
+  },
+  "14": {
+    "species": "Cinema Stockmonster",
+    "description": "Amcthulhu stirs only when the lights go down. Its single projector eye throws stories across the wall of any room it settles into. Traders know it as $AMC, tied to AMC Entertainment."
+  },
+  "15": {
+    "species": "Packaging Stockmonster",
+    "description": "Amkorax wraps anything smaller than itself in a protective shell of its own making, sealing it in gold wire before it will let the item out of its sight. Traders know it as $AMKR, tied to Amkor Technology."
+  },
+  "16": {
+    "species": "Mirror Mask Stockmonster",
+    "description": "Metamorph borrows a different face for every person who looks at it, never settling on one for long. Only its infinity-loop horns stay the same no matter which mask it wears. Traders know it as $META, tied to Meta Platforms."
+  },
+  "17": {
+    "species": "Switching Stockmonster",
+    "description": "Anetheron sorts everything that passes its beak without ever slowing its stride. A single flock can reroute an entire storm of traffic without dropping a feather. Traders know it as $ANET, tied to Arista."
+  },
+  "18": {
+    "species": "Prairie Hydra Stockmonster",
+    "description": "Aplidra grows a new head wherever the ground is flat and the power is cheap. Farmers say the prairie hums for miles around wherever one has settled. Traders know it as $APLD, tied to Applied Digital."
+  },
+  "19": {
+    "species": "All-Seeing Stockmonster",
+    "description": "Every surface of Palantheon's obsidian body is another eye, and it is said to watch every one of them at the same time. Few enjoy being looked at by all of them at once. Traders know it as $PLTR, tied to Palantir Technologies."
+  },
+  "20": {
+    "species": "Impression Stockmonster",
+    "description": "Appallon's tail ticks upward every time someone glances its way, and it grins wider with every count. It is never quite as harmless as that grin suggests. Traders know it as $APP, tied to AppLovin."
+  },
+  "21": {
+    "species": "Episode Stockmonster",
+    "description": "Each feather down Netflixis's tail is a different episode of the same unbroken story. Trainers who start counting them rarely stop before the whole night is gone. Traders know it as $NFLX, tied to Netflix."
+  },
+  "22": {
+    "species": "Ultraviolet Stockmonster",
+    "description": "Asmolith stands motionless for hours, its single eye focused to a hairline slit. When it finally opens fully, the light it casts can etch patterns onto solid stone. Traders know it as $ASML, tied to ASML Holding NV."
+  },
+  "23": {
+    "species": "Warehouse Stockmonster",
+    "description": "Amazorgon's coils contain entire warehouses, and its conveyor-belt scales never stop moving. Something ordered from deep inside its body can reach your doorstep the very next day. Traders know it as $AMZN, tied to Amazon."
+  },
+  "24": {
+    "species": "Orbital Stockmonster",
+    "description": "Astraseraph unfurls its panel-wings only once it reaches open sky, casting a moving shadow visible from the ground. Every wing is another relay for a signal with nowhere else to go. Traders know it as $ASTS, tied to AST SpaceMobile."
+  },
+  "25": {
+    "species": "Autonomous Stockmonster",
+    "description": "A ring of shifting light circles Auroryx's head at all times, mapping every obstacle before it arrives. It has never once needed a passenger to tell it where to go. Traders know it as $AUR, tied to Aurora Innovation."
+  },
+  "26": {
+    "species": "Loitering Stockmonster",
+    "description": "Avavulture can hang motionless in the sky for entire days without landing. It waits so patiently that most creatures below forget it is even there. Traders know it as $AVAV, tied to AeroVironment."
+  },
+  "27": {
+    "species": "Switching Matrix Stockmonster",
+    "description": "Every cable in Avgoliath's beard carries a different signal, and it can reroute all of them without breaking stride. Few creatures its size move data as calmly as it moves itself. Traders know it as $AVGO, tied to Broadcom."
+  },
+  "28": {
+    "species": "Non-Lethal Stockmonster",
+    "description": "A crackling arc leaps between Axonyx's horns whenever it needs to end a confrontation quickly. It has learned to make its point without ever needing to make it twice. Traders know it as $AXON, tied to Axon."
+  },
+  "29": {
+    "species": "Refraction Stockmonster",
+    "description": "Light bends strangely around Axtiger's crystalline stripes, scattering into colors that don't match its surroundings. Hunters say you can spot one from its rainbow long before you see its shape. Traders know it as $AXTI, tied to AXT."
+  },
+  "30": {
+    "species": "Fuselage Stockmonster",
+    "description": "Boewyrm has flown the same long routes for so many decades that its plating has gone dull with weather. It is slow to take off, but nothing keeps it from the sky for long. Traders know it as $BA, tied to Boeing."
+  },
+  "31": {
+    "species": "Merchant Stockmonster",
+    "description": "Babaroc's wings never stop carrying goods from one place to another. An entire bazaar's worth of cargo rides on its back at any given moment, and somehow it never once drops a crate. Traders know it as $BABA, tied to Alibaba."
+  },
+  "32": {
+    "species": "Briar Stockmonster",
+    "description": "Blackbriar's hide bristles with thorns shaped like tiny keys, and anything that grabs it without permission gets a nasty surprise. Old-timers still swear by how hard it is to break through. Traders know it as $BB, tied to Blackberry."
+  },
+  "33": {
+    "species": "Kindling Stockmonster",
+    "description": "Bloomkindle's ribs glow like embers that never quite burn out, fed by a quiet flame instead of open fire. It can keep a whole room warm for days on almost nothing. Traders know it as $BE, tied to Bloom Energy."
+  },
+  "34": {
+    "species": "Laddered Stockmonster",
+    "description": "Bondwarden moves so slowly that trainers sometimes mistake it for a rock. It has outlived every predator that ever tried to rush it, one patient season at a time. Traders know it as $BND, tied to Vanguard Total Bond Market ETF."
+  },
+  "35": {
+    "species": "Bulwark Stockmonster",
+    "description": "Once Bullwark plants its hooves, nothing has ever managed to push it backward. It simply lowers its shielded brow and waits for whatever is pushing to give up first. Traders know it as $BULL, tied to Webull."
+  },
+  "36": {
+    "species": "Wafer-Scale Stockmonster",
+    "description": "Cerebraxis's entire hull is a single unbroken fold of coral, glowing faintly blue when it thinks hard. Smaller creatures like it precisely because it never has to be cut apart to grow. Traders know it as $CBRS, tied to Cerebras Systems."
+  },
+  "37": {
+    "species": "Index Stockmonster",
+    "description": "Googolem has read everything that has ever been written down, and it answers before the question is finished. Moss grows over the older stones it hasn't needed in a while. Traders know it as $GOOGL, tied to Alphabet Class A."
+  },
+  "38": {
+    "species": "Cruise Stockmonster",
+    "description": "Carnivyre never travels alone; its decks are always lit and full of passengers watching the horizon. Barnacles from a hundred ports cling to its hull like souvenirs. Traders know it as $CCL, tied to Carnival Corporation."
+  },
+  "39": {
+    "species": "Bulk Stockmonster",
+    "description": "Costaurus won't let anything ride on its shoulders without a tag through its nose to prove they belong there. Once it recognizes you, it will carry twice what any other beast can manage. Traders know it as $COST, tied to Costco."
+  },
+  "40": {
+    "species": "Reactor Stockmonster",
+    "description": "A steady warmth radiates from Constellyon's chest at all hours, undimmed by weather or season. The star map across its pelt is said to trace the exact layout of the grid it powers. Traders know it as $CEG, tied to Constellation Energy."
+  },
+  "41": {
+    "species": "Hoarding Stockmonster",
+    "description": "Microstryx has perched on the same enormous coin for years and refuses to move, no matter how the winds change. It has never once been seen letting go of anything. Traders know it as $MSTR, tied to Strategy Inc.."
+  },
+  "42": {
+    "species": "Caffeinated Stockmonster",
+    "description": "Celsyrax's heartbeat is visible through its own chest, hammering far faster than its size should allow. It cannot sit still for more than a few seconds at a time. Traders know it as $CELH, tied to Celsius."
+  },
+  "43": {
+    "species": "Transoceanic Stockmonster",
+    "description": "Cienath's body stretches across entire ocean floors, glowing faintly at even intervals along its length. Sailors say a single flicker down its length can carry a message around the world. Traders know it as $CIEN, tied to Ciena."
+  },
+  "44": {
+    "species": "Lucky Leaf Stockmonster",
+    "description": "Clovyre grows an extra leaf for every misfortune it helps a trainer avoid. No two are ever seen with the same number of leaves twice. Traders know it as $CLOV, tied to Clover Health Investments."
+  },
+  "45": {
+    "species": "Assembly Stockmonster",
+    "description": "Celestrix places each part exactly where it belongs without ever appearing to rush. Its clean white feathers never seem to pick up so much as a speck of dust. Traders know it as $CLS, tied to Celestica."
+  },
+  "46": {
+    "species": "Hash-Rate Stockmonster",
+    "description": "Lightning arcs constantly between Sparkraken's submerged tentacles, and the water around it never stops steaming. It works hardest when nobody else can stand the heat. Traders know it as $CLSK, tied to CleanSpark."
+  },
+  "47": {
+    "species": "Prism Stockmonster",
+    "description": "A single beam of white light travels between the tines of Cohryst's antlers, unbroken no matter how far they spread. Its light never scatters, even in total darkness. Traders know it as $COHR, tied to Coherent."
+  },
+  "48": {
+    "species": "Windowed Stockmonster",
+    "description": "A steady light shines from the four panes across Microsoftus's chest, and has for longer than any trainer alive can remember. It is rarely the fastest in a fight, but it is the hardest to ever truly retire. Traders know it as $MSFT, tied to Microsoft."
+  },
+  "49": {
+    "species": "Stable Ring Stockmonster",
+    "description": "Circulith is a perfect circle no matter how hard something tries to knock it off balance. Its core never wobbles, which is exactly why so many others choose to shelter near it. Traders know it as $CRCL, tied to Circle Internet Group."
+  },
+  "50": {
+    "species": "Retimer Stockmonster",
+    "description": "Credoryx's scales copy whatever pattern arrives at its head and pass it cleanly down to its tail, cleaning up the signal along the way. Nothing it repeats ever arrives distorted. Traders know it as $CRDO, tied to Credo Technology Group."
+  },
+  "51": {
+    "species": "Riddle Stockmonster",
+    "description": "Salesphinx will not let a trainer pass until it has asked exactly the right question. Scrolls of old conversations drift in its cloud-like mane, and it never forgets a single one. Traders know it as $CRM, tied to Salesforce."
+  },
+  "52": {
+    "species": "Intrusion Stockmonster",
+    "description": "Crowdstryker can sense an intruder the instant it crosses a boundary that isn't its own. Its talons ignite the moment it locks onto something that doesn't belong. Traders know it as $CRWD, tied to CrowdStrike Holdings."
+  },
+  "53": {
+    "species": "Rack-Weaving Stockmonster",
+    "description": "Coreweaver spins entire racks of processors into a single sprawling web, cooling mist trailing off its legs as it works. The bigger the web grows, the faster it can think. Traders know it as $CRWV, tied to CoreWeave."
+  },
+  "54": {
+    "species": "Routing Stockmonster",
+    "description": "Ciscolossus has stood in the same spot for so long that moss has crept across its oldest shoulders. New ports are still added every year, and every single one still works. Traders know it as $CSCO, tied to Cisco Systems."
+  },
+  "55": {
+    "species": "Advisory Stockmonster",
+    "description": "Cognizarch keeps a dozen hands busy at once, each one carrying out a different task for a different client. It never seems to notice which hand belongs to which job. Traders know it as $CTSH, tied to Cognizant."
+  },
+  "56": {
+    "species": "Vending Stockmonster",
+    "description": "Carvanaught's glass torso is stacked floor to ceiling with vehicles, each one waiting for the right buyer. Insert the right token, and one of them rolls right out. Traders know it as $CVNA, tied to Carvana."
+  },
+  "57": {
+    "species": "Telemetry Stockmonster",
+    "description": "Datahound's three eyes never blink at the same time, each one watching a different kind of trouble. Its collar glows brighter the moment something starts to go wrong. Traders know it as $DDOG, tied to Datadog."
+  },
+  "58": {
+    "species": "Modular Stockmonster",
+    "description": "Dellemental can rebuild its own body from spare chassis mid-battle, swapping out damaged parts without ever slowing down. No two configurations of it look quite the same. Traders know it as $DELL, tied to Dell."
+  },
+  "59": {
+    "species": "Broadcast Stockmonster",
+    "description": "Djtitan's voice carries for miles from the tower-crown atop its head, and it is never once heard speaking quietly. Whatever it says, it says loudly enough for everyone to hear. Traders know it as $DJT, tied to Trump Media & Technology Group."
+  },
+  "60": {
+    "species": "Droplet Stockmonster",
+    "description": "Docnereid darts through the shallows faster than almost anything its size, spinning up a new droplet of itself whenever a project needs one. It never asks for more room than it needs. Traders know it as $DOCN, tied to DigitalOcean."
+  },
+  "61": {
+    "species": "Pigment Stockmonster",
+    "description": "Elfyre's wings shift color with its mood, swirling through an entire palette before most trainers can name the first shade. It never wears the same look for very long. Traders know it as $ELF, tied to e.l.f. Beauty."
+  },
+  "62": {
+    "species": "Terraced Stockmonster",
+    "description": "Formosaur's shell is shaped like an entire island, with terraces built into its back that never stop humming with activity. Ships pass wide around it out of respect. Traders know it as $EWT, tied to iShares MSCI Taiwan Capped ETF."
+  },
+  "63": {
+    "species": "Heavy Industry Stockmonster",
+    "description": "Hanguldra's scales are forged in shipyards on one flank and etched with memory circuits on the other. It is equally comfortable building a hull or a chip. Traders know it as $EWY, tied to iShares MSCI South Korea fund."
+  },
+  "64": {
+    "species": "Work Stockmonster",
+    "description": "Fordrake has more dents than any trainer can count, and it is still out working every single one of them off. It has never once refused a job because of the weather. Traders know it as $F, tied to Ford Motor."
+  },
+  "65": {
+    "species": "Scoring Stockmonster",
+    "description": "A glowing three-digit glyph burns steadily on Ficolith's forehead, and it changes the moment it finishes judging you. Nobody has ever managed to argue the number down. Traders know it as $FICO, tied to Fair Isaac."
+  },
+  "66": {
+    "species": "Vector Stockmonster",
+    "description": "Figmaw is never satisfied with its own outline, and its fingers are always mid-stroke redrawing some part of itself. Turn away for a second and its shape has already changed. Traders know it as $FIG, tied to Figma."
+  },
+  "67": {
+    "species": "Payment Rail Stockmonster",
+    "description": "Fiservok is rarely noticed, but its wings carry more transactions in a day than most creatures see in a lifetime. It shows up everywhere and is thanked almost nowhere. Traders know it as $FISV, tied to Fiserv."
+  },
+  "68": {
+    "species": "Ducted Stockmonster",
+    "description": "Fixarach's limbs stretch through the walls of entire buildings, keeping every room at exactly the temperature it should be. Nobody sees it work, but everybody notices when it stops. Traders know it as $FIX, tied to Comfort Systems."
+  },
+  "69": {
+    "species": "Surge Stockmonster",
+    "description": "Fluencer soaks up a sudden surge of power the instant it appears, holding onto it patiently until something nearby actually needs it. It never wastes a single spark. Traders know it as $FLNC, tied to Fluence Energy."
+  },
+  "70": {
+    "species": "Liftoff Stockmonster",
+    "description": "Fireflyre's tail ignites in a brilliant amber flash the instant it launches, and within seconds it is already gone. Blink at the wrong moment and you'll miss its whole flight. Traders know it as $FLY, tied to Firefly Aerospace Inc.."
+  },
+  "71": {
+    "species": "Firewall Stockmonster",
+    "description": "Fortinaut's claws clamp shut the instant something crosses its plating uninvited, and they do not open again until the threat is gone. Its shell has never once been breached. Traders know it as $FTNT, tied to Fortinet."
+  },
+  "72": {
+    "species": "Order-Book Stockmonster",
+    "description": "Futuros moves so fast that its own trades sometimes settle after it has already left. Its mane ripples with every order placed nearby, whether or not it was the one to place it. Traders know it as $FUTU, tied to Futu Holdings."
+  },
+  "73": {
+    "species": "Turbine Stockmonster",
+    "description": "Geleviathan's turbine heart has powered through more than a century without ever fully cooling down. Its jet-engine shoulders still roar louder than nearly anything built since. Traders know it as $GE, tied to General Electric."
+  },
+  "74": {
+    "species": "Vortex Stockmonster",
+    "description": "Gevortex's three wings spin so steadily that the sky itself seems to turn around it. It never stops moving, even on the stillest days. Traders know it as $GEV, tied to GE Vernova."
+  },
+  "75": {
+    "species": "Vault Stockmonster",
+    "description": "Gildrake sleeps so deeply that most trainers assume it is simply a statue. It only stirs when everything else around it starts to fall apart. Traders know it as $GLD, tied to SPDR Gold Trust."
+  },
+  "76": {
+    "species": "Tempered Stockmonster",
+    "description": "Glasswyrm's scales look impossibly fragile, but nothing has ever managed to crack them. Any blow aimed at it simply refracts away in a burst of scattered light. Traders know it as $GLW, tied to Corning."
+  },
+  "77": {
+    "species": "Star-Field Stockmonster",
+    "description": "Galaxeon's body is made of drifting dust that never quite settles into a fixed shape. Looking too long into its coils feels like staring into open space. Traders know it as $GLXY, tied to Galaxy Digital Inc.."
+  },
+  "78": {
+    "species": "Attention Stockmonster",
+    "description": "Gmemeleon grows stronger the more eyes are on it, cycling wildly through colors the instant a crowd gathers. Look away, and it fades right back to normal. Traders know it as $GME, tied to GameStop."
+  },
+  "79": {
+    "species": "Shipyard Stockmonster",
+    "description": "Hulliath's shoulders are built from the same plating used on the largest carriers afloat, and it drags a half-finished hull behind it wherever it goes. Traders know it as $HII, tied to Huntington Ingalls."
+  },
+  "80": {
+    "species": "Discreet Stockmonster",
+    "description": "Himsalve approaches quietly and treats whatever ails you without ever drawing attention to the visit. Its caduceus markings glow faintly only for the trainer it's currently helping. Traders know it as $HIMS, tied to Hims & Hers Health."
+  },
+  "81": {
+    "species": "Enterprise Stockmonster",
+    "description": "Hpegasus never seems to tire no matter how heavy the load on its back. Its server-blade feathers are replaced one at a time, so it never has to stop flying to molt. Traders know it as $HPE, tied to HP Enterprise."
+  },
+  "82": {
+    "species": "Forged Stockmonster",
+    "description": "Every joint in Howmetheus's body is engineered to bend exactly as far as it needs to and no farther. It is astonishingly light for something that has never once been known to break. Traders know it as $HWM, tied to Howmet Aerospace."
+  },
+  "83": {
+    "species": "Mainframe Stockmonster",
+    "description": "Ibmoloch has stood since before most other Stockmonsters were named, its torso carved with runes few can still read. It answers slowly, but it has never once answered wrong. Traders know it as $IBM, tied to IBM."
+  },
+  "84": {
+    "species": "Immune Stockmonster",
+    "description": "Ibrexis's mane is made of clustered cells that learn to recognize an invader on sight. Once it locks onto a target, it teaches the whole body to fight back. Traders know it as $IBRX, tied to ImmunityBio,."
+  },
+  "85": {
+    "species": "Subcontinent Stockmonster",
+    "description": "Indavatar carries an entire region's worth of industry across its many arms without ever seeming to strain. Its saffron hide is said to shift slightly with each passing season of growth. Traders know it as $INDA, tied to iShares MSCI India ETF."
+  },
+  "86": {
+    "species": "Lattice Stockmonster",
+    "description": "Every strand of Inflequin's mane holds a single atom perfectly still in place. It moves with total precision, never disturbing the delicate lattice it carries. Traders know it as $INFQ, tied to Infleqtion."
+  },
+  "87": {
+    "species": "Annotation Stockmonster",
+    "description": "Inodrone is really thousands of tiny drones flying in perfect formation, each one tagging something new the moment it's seen. From a distance, the whole swarm looks like a single white bird. Traders know it as $INOD, tied to Innodata."
+  },
+  "88": {
+    "species": "Legacy Stockmonster",
+    "description": "Intelisk's scales have cracked with age, and its glow has dimmed from what it once was. It is still enormous enough that few dare challenge it outright. Traders know it as $INTC, tied to Intel."
+  },
+  "89": {
+    "species": "Ledger Stockmonster",
+    "description": "Intuivore's tongue can snatch a receipt out of the air before it hits the ground. It swells noticeably every spring, gorged on an entire season's worth of paperwork. Traders know it as $INTU, tied to Intuit."
+  },
+  "90": {
+    "species": "Trapped-Ion Stockmonster",
+    "description": "Ionquark holds individual particles suspended perfectly still within its wings, cooled by threads of laser light. The slightest disturbance and the whole delicate pattern collapses. Traders know it as $IONQ, tied to IonQ."
+  },
+  "91": {
+    "species": "Immersion Stockmonster",
+    "description": "Irendra's three heads stay fully submerged at all times, kept cold enough that they never slow down from overheating. It works hardest in the coldest water it can find. Traders know it as $IREN, tied to IREN Limited."
+  },
+  "92": {
+    "species": "Pack-Mule Stockmonster",
+    "description": "Jabilisk will carry whatever crate is bolted onto it without complaint, swapping cargo for a hundred different clients in a single week. It has never once asked what's inside. Traders know it as $JBL, tied to Jabil Inc.."
+  },
+  "93": {
+    "species": "Apothecary Stockmonster",
+    "description": "Johnsonyx keeps a different remedy wrapped around each of its many arms, ready for almost any ailment a trainer might bring. Its bandaged hide has treated more patients than it can count. Traders know it as $JNJ, tied to Johnson & Johnson."
+  },
+  "94": {
+    "species": "Rotor Stockmonster",
+    "description": "Jobyrd's six plumes spin so quietly that most trainers only notice it once it's already overhead. It prefers short hops between rooftops to any long journey on the ground. Traders know it as $JOBY, tied to Joby Aviation."
+  },
+  "95": {
+    "species": "Defect-Scanning Stockmonster",
+    "description": "Klacolyth's eyes sweep back and forth in a fixed grid pattern, catching flaws too small for almost anything else to notice. Its whiskers twitch the instant it finds one. Traders know it as $KLAC, tied to KLA."
+  },
+  "96": {
+    "species": "Department Stockmonster",
+    "description": "Kohlossus's mane is woven from discount banners that never quite stop fluttering, no matter the season. It moves floor to floor at an unhurried, dependable pace. Traders know it as $KSS, tied to Kohls Corporation."
+  },
+  "97": {
+    "species": "Target Stockmonster",
+    "description": "Kratossus throws itself into danger without a second thought, treating every risk as one more test to survive. It has been rebuilt more times than any trainer can count, and it keeps coming back. Traders know it as $KTOS, tied to Kratos Defense & Security Solutions."
+  },
+  "98": {
+    "species": "Encrypted Stockmonster",
+    "description": "Harrixen's crest picks up signals no other creature can decode, and it hears every one of them clearly. What it chooses to repeat is always carefully guarded. Traders know it as $LHX, tied to L3Harris."
+  },
+  "99": {
+    "species": "Transceiver Stockmonster",
+    "description": "Lumenthra's bells pulse in a steady rhythm that never quite repeats the same way twice. Its trailing tendrils carry that light for miles through open water. Traders know it as $LITE, tied to Lumentum."
+  },
+  "100": {
+    "species": "Elixir Stockmonster",
+    "description": "A vial coiled deep in Llyxir's chest is said to hold a remedy for almost anything. Trainers who catch a glimpse of its warm red glow report feeling better almost immediately. Traders know it as $LLY, tied to Eli Lilly."
+  },
+  "101": {
+    "species": "Stealth Stockmonster",
+    "description": "Lockheedra's faceted plates scatter almost anything used to try to find it, and it is rarely seen until it wants to be. Even trainers who study it closely say it seems to vanish at the edges. Traders know it as $LMT, tied to Lockheed."
+  },
+  "102": {
+    "species": "Etching Stockmonster",
+    "description": "Lrcyclops carves patterns finer than a hair's width with a single jet of plasma from its fist. Its own plating is scarred all over from decades of its own precise work. Traders know it as $LRCX, tied to Lam Research Corp."
+  },
+  "103": {
+    "species": "Flexible Stockmonster",
+    "description": "Lululyth can bend itself into shapes that seem to defy its own bones. Its woven fur stretches with it without ever losing its shape once it settles back. Traders know it as $LULU, tied to Lululemon."
+  },
+  "104": {
+    "species": "Lunar Stockmonster",
+    "description": "Lunarch's mane is dusted grey from landings no other creature has managed. It touches down gently in places most would consider impossible to reach at all. Traders know it as $LUNR, tied to Intuitive Machines."
+  },
+  "105": {
+    "species": "Document Stockmonster",
+    "description": "Mongodrake reshapes its entire body to fit around whatever it's guarding, never forcing its hoard into a rigid form. Its flexible coils can wrap around almost any shape handed to it. Traders know it as $MDB, tied to MongoDB."
+  },
+  "106": {
+    "species": "Heat-Exchange Stockmonster",
+    "description": "Modrake exhales a steady stream of cool air instead of flame, drawing heat away from anything overheating nearby. Its frill spreads wider the hotter the work gets. Traders know it as $MOD, tied to Modine."
+  },
+  "107": {
+    "species": "Monolithic Stockmonster",
+    "description": "Monolithan's entire body is a single unbroken block, with nothing to separate or fail on its own. It is small, but nothing has ever managed to split it apart. Traders know it as $MPWR, tied to Monolithic Power Systems."
+  },
+  "108": {
+    "species": "Messenger Stockmonster",
+    "description": "Modernyx carries instructions coiled through its entire body, rewriting whatever it touches to follow them. What it teaches usually takes hold within days. Traders know it as $MRNA, tied to Moderna."
+  },
+  "109": {
+    "species": "Controller Stockmonster",
+    "description": "Marvellon's tail spirals with data it's currently routing, and the runes along its flanks glow brighter the busier it gets. It never seems to lose track of where anything is stored. Traders know it as $MRVL, tied to Marvell Technology."
+  },
+  "110": {
+    "species": "Microwave Stockmonster",
+    "description": "Mtsiren's song ripples outward as microwaves rather than sound, audible only to those tuned to catch it. Its collar dish always points toward whoever it's speaking to. Traders know it as $FARTCOIN, tied to Fartcoin."
+  },
+  "111": {
+    "species": "Memory-Cell Stockmonster",
+    "description": "Micronoth's tusks are built from countless hexagonal cells, each one holding a tiny fragment of memory. Its hide grows another dense layer every season. Traders know it as $MU, tied to Micron Technology."
+  },
+  "112": {
+    "species": "Broadband Stockmonster",
+    "description": "Maxlinyx's fins amplify the faintest signal into something strong enough to travel for miles. It moves so thin and fast through the water that it's rarely seen twice in the same place. Traders know it as $MXL, tied to MaxLinear."
+  },
+  "113": {
+    "species": "Itinerary Stockmonster",
+    "description": "Navnomad's wings are etched with a constantly updating itinerary, and it is never seen resting in one place for long. It seems happiest mid-journey, never quite arriving. Traders know it as $NAVN, tied to Navan."
+  },
+  "114": {
+    "species": "Nebula Stockmonster",
+    "description": "Nebulisk's coils are built from clustered processors salvaged from something much older than itself. It carries the scars of that old empire quietly, glowing violet in the places it was rebuilt. Traders know it as $MPWR, tied to Monolithic Power Systems."
+  },
+  "115": {
+    "species": "Edge-Cloud Stockmonster",
+    "description": "Netcumulus positions itself directly between danger and whatever it's protecting, its vaporous body absorbing the impact before it ever reaches the other side. Traders know it as $NET, tied to Cloudflare."
+  },
+  "116": {
+    "species": "Containment Stockmonster",
+    "description": "Nanonuke is small enough to carry, but its containment shell holds far more potential than its size suggests. Trainers are warned never to underestimate how much power sits quietly inside it. Traders know it as $NNE, tied to Nano Nuclear Energy."
+  },
+  "117": {
+    "species": "Workflow Stockmonster",
+    "description": "Nowarden will not take a single step until the ticket-plate ahead of it has been properly resolved. Once it does move, the whole line behind it advances in perfect order. Traders know it as $NOW, tied to ServiceNow."
+  },
+  "118": {
+    "species": "Digital Bank Stockmonster",
+    "description": "Nuvora moves through its territory with an ease that older, heavier creatures can't match. It has quietly claimed ground across an entire region without anyone noticing it happen. Traders know it as $NU, tied to Nu."
+  },
+  "119": {
+    "species": "Fast-Switching Stockmonster",
+    "description": "Navitusk's tusks switch on and off faster than the eye can follow, discharging in short violent bursts. It is compact, but nothing about its charge feels small. Traders know it as $NVTS, tied to Navitas Semiconductor."
+  },
+  "120": {
+    "species": "Fast-Reactor Stockmonster",
+    "description": "Oklonyx's tail burns fuel that most other creatures have already discarded as spent. Trainers argue fiercely over whether that fire is a marvel or a risk, and Oklonyx never seems to care either way. Traders know it as $OKLO, tied to Oklo."
+  },
+  "121": {
+    "species": "Flicker Stockmonster",
+    "description": "Onyxide's spots flicker on and off in patterns too fast to follow, each flicker a tiny decision made and discarded in an instant. In full darkness, only the flickers give it away at all. Traders know it as $ON, tied to ON Semiconductor."
+  },
+  "122": {
+    "species": "Inspection Stockmonster",
+    "description": "Ontolith's wings shimmer with fine interference patterns that shift the instant something on them is even slightly out of place. It notices flaws that nothing else would ever catch. Traders know it as $ONTO, tied to Onto Innovation."
+  },
+  "123": {
+    "species": "Query Stockmonster",
+    "description": "Oraclysm answers only in questions of its own, each one drawn from the endless tablets circling its halo. Trainers say it always seems to already know what you were going to ask. Traders know it as $MRNA, tied to Moderna."
+  },
+  "124": {
+    "species": "Point-Cloud Stockmonster",
+    "description": "Oustrider doesn't see shapes the way most creatures do; its spinning crown builds the world out of countless individual points. It can map a pitch-black room in seconds. Traders know it as $OUST, tied to Ouster."
+  },
+  "125": {
+    "species": "Purifying Stockmonster",
+    "description": "Purion's body is so clear that trainers sometimes look straight through it by accident. Whatever passes through comes out cleaner than when it went in. Traders know it as $P, tied to Everpure."
+  },
+  "126": {
+    "species": "Gatekeeper Stockmonster",
+    "description": "Panwarden's single eye never blinks, inspecting everything that tries to pass its gate-shaped shield. It has never once let something through without checking first. Traders know it as $SPX, tied to SPX6900."
+  },
+  "127": {
+    "species": "Automation Stockmonster",
+    "description": "Pathyrion performs the exact same motion over and over without the slightest variation, never tiring and never once getting it wrong. Trainers find it strangely soothing to watch. Traders know it as $PATH, tied to UiPath."
+  },
+  "128": {
+    "species": "Memory-Module Stockmonster",
+    "description": "Pengulith waddles slowly across the ice, but once it plants itself in place, nothing has ever managed to move it. Its chestplate hums quietly with everything it's currently holding. Traders know it as $PENG, tied to Penguin Solutions."
+  },
+  "129": {
+    "species": "Capsule Stockmonster",
+    "description": "Pfyre's segmented body isn't flashy, but there is hardly a household anywhere that hasn't encountered one at some point. It goes about its work quietly and rarely draws attention. Traders know it as $MRVL, tied to Marvell Technology."
+  },
+  "130": {
+    "species": "Imaging Stockmonster",
+    "description": "Planetheon is really a whole flock flying in such tight formation that it looks like a single bird. Together they photograph every inch of the world at least once a day. Traders know it as $MTSI, tied to MACOM."
+  },
+  "131": {
+    "species": "Waveguide Stockmonster",
+    "description": "Poetheon's wings are etched so finely that light itself seems to hum as it passes through them. It hovers in place surrounded by its own quiet halo of color. Traders know it as $MU, tied to Micron Technology."
+  },
+  "132": {
+    "species": "Switchgear Stockmonster",
+    "description": "Powlvolt's hide is built from breaker plates that snap open at the first sign of danger. Once it commits to a charge, nothing has ever managed to stop it partway through. Traders know it as $USELESS, tied to Useless Coin."
+  },
+  "133": {
+    "species": "Shale Stockmonster",
+    "description": "Permyre burrows patiently through ancient rock, its hide taking on a crude-black sheen the deeper it goes. It has been tunneling the same formation for longer than most trainers have been alive. Traders know it as $DOGE, tied to Dogecoin."
+  },
+  "134": {
+    "species": "Lineworker Stockmonster",
+    "description": "Quantasurge's limbs stretch tower to tower, stringing power clear across the horizon without ever seeming to tire. It works in every kind of weather without complaint. Traders know it as $PWR, tied to Quanta."
+  },
+  "135": {
+    "species": "Annealing Stockmonster",
+    "description": "Qubitwyrm's coiled body slowly settles into whatever shape costs it the least energy to hold. Left alone long enough, it always finds the calmest possible position. Traders know it as $QBTS, tied to D-Wave Quantum."
+  },
+  "136": {
+    "species": "Modem Stockmonster",
+    "description": "Qcomet's whiskers trail a streak of signal behind it wherever it runs, faint blue fire marking exactly where it's been. It rarely stays in one cell of its territory for long. Traders know it as $QCOM, tied to Qualcomm."
+  },
+  "137": {
+    "species": "Hundred-Wing Stockmonster",
+    "description": "Every one of Nasdrake's hundred wings beats to a slightly different rhythm, yet somehow the whole creature flies as one. Lose a wing and it barely seems to notice. Traders know it as $MEME, tied to Memecoin."
+  },
+  "138": {
+    "species": "Superposed Stockmonster",
+    "description": "Qubitron seems to exist in two poses simultaneously until the moment someone actually looks at it. Trainers who try to sketch it always end up with two different drawings. Traders know it as $QUBT, tied to Quantum Computing."
+  },
+  "139": {
+    "species": "Blocky Stockmonster",
+    "description": "Robloxis rebuilds its entire body out of simple blocks whenever it wants a new shape, and it never seems to run out of new ones to try. Younger trainers are drawn to it instantly. Traders know it as $RBLX, tied to Roblox."
+  },
+  "140": {
+    "species": "Quadrotor Stockmonster",
+    "description": "Rcatamount's four whiskers spin fast enough to hold it perfectly steady in open air. It hunts in short, sudden bursts rather than long chases. Traders know it as $ORDI, tied to Ordi."
+  },
+  "141": {
+    "species": "Upvote Stockmonster",
+    "description": "Rddtroll grows visibly stronger the longer an argument around it goes on. Its many mouths rarely agree with each other, but it seems to enjoy the noise regardless. Traders know it as $RDDT, tied to Reddit."
+  },
+  "142": {
+    "species": "Orbital Assembly Stockmonster",
+    "description": "Redwyrm's arms never stop working, even in the vacuum of orbit, slowly assembling more of its own body piece by piece. It has no need to ever return to solid ground. Traders know it as $RDW, tied to Redwire."
+  },
+  "143": {
+    "species": "Cryostat Stockmonster",
+    "description": "Rigetyphon hangs motionless in deep cold, its chandelier-like body glittering with frost. The moment it warms even slightly, whatever it was holding onto slips away. Traders know it as $RGTI, tied to Rigetti Computing."
+  },
+  "144": {
+    "species": "Wilderness Stockmonster",
+    "description": "Rivyathan's four limbs power it over terrain that would stop almost anything else cold. Its rack-like ridges are always loaded for one more trip further out. Traders know it as $RIVN, tied to Rivian Automotive."
+  },
+  "145": {
+    "species": "Launch Stockmonster",
+    "description": "Rocketyr's carbon-black body is barely visible until it ignites, and then the plume behind it is impossible to miss. It launches more often than almost anything its size. Traders know it as $RKLB, tied to Rocket Lab."
+  },
+  "146": {
+    "species": "Solar Stockmonster",
+    "description": "Sunrunner's antlers slowly turn to follow the sun across the sky all day long. Wherever it chooses to stand, the ground stays noticeably warm long after it moves on. Traders know it as $RUN, tied to Sunrun."
+  },
+  "147": {
+    "species": "Echo Stockmonster",
+    "description": "Echosatyr's antlers catch a signal from high overhead and repeat it back exactly as it was received. It never adds anything of its own to what it passes along. Traders know it as $MXL, tied to MaxLinear."
+  },
+  "148": {
+    "species": "Dividend Stockmonster",
+    "description": "Dividrake sheds one golden scale like clockwork every quarter, no matter what else is happening around it. Trainers who wait patiently are always rewarded on schedule. Traders know it as $SCHD, tied to Schwab US Dividend Equity ETF."
+  },
+  "149": {
+    "species": "Inert Stockmonster",
+    "description": "Sgovault barely moves at all, content to simply hold what it's given for a short while before releasing it right on schedule. Nothing about it is exciting, and that's exactly the point. Traders know it as $NAVN, tied to Navan."
+  },
+  "150": {
+    "species": "Storefront Stockmonster",
+    "description": "Shopifyre can build an entire storefront out of its own plumage within moments of landing. Wherever it settles next, a new shop simply appears. Traders know it as $SHOP, tied to Shopify."
+  },
+  "151": {
+    "species": "Short-Duration Stockmonster",
+    "description": "Shyren keeps close to the shallows, rarely straying into deeper, riskier water. It's timid, but trainers who want something steady and close at hand seek it out often. Traders know it as $SHY, tied to iShares 1-3 Year Treasury Bond ETF."
+  },
+  "152": {
+    "species": "Flash Channel Stockmonster",
+    "description": "Each of Simotion's nine tails manages a separate channel of memory, moving in perfect coordination without ever tangling. It is neat and precise in everything it does. Traders know it as $SIMO, tied to Silicon Motion."
+  },
+  "153": {
+    "species": "Stacked Memory Stockmonster",
+    "description": "Skhydra's nine heads are each stacked layer upon layer, and it can access all of them at once without favoring a single one. Losing a head barely slows the rest down. Traders know it as $SKHY, tied to SK hynix."
+  },
+  "154": {
+    "species": "Clinical Trial Stockmonster",
+    "description": "Slserum's core flickers faintly, uncertain, like a hope that hasn't decided whether to catch yet. Trainers who raise one carefully sometimes see that flicker steady into something real. Traders know it as $NBIS, tied to Nebius Group."
+  },
+  "155": {
+    "species": "Mirror Stockmonster",
+    "description": "Silvyrm's scales serve two purposes at once, prized equally by industry and by those who simply value the shine. It reflects back exactly what's put in front of it. Traders know it as $SLV, tied to iShares Silver Trust."
+  },
+  "156": {
+    "species": "Server Rack Stockmonster",
+    "description": "Smcimera's body is built from mismatched racks bolted together as needed, and its fan-eyes never stop spinning. It looks assembled in a hurry, but it rarely breaks down. Traders know it as $SMCI, tied to Super Micro Computer."
+  },
+  "157": {
+    "species": "Cyclical Stockmonster",
+    "description": "Smhelix's coils alternate between tightly wound and loosely slack in a rhythm that never quite stops. Trainers who study its pattern long enough learn to predict its next turn. Traders know it as $SMH, tied to VanEck Semiconductor ETF."
+  },
+  "158": {
+    "species": "Modular Reactor Stockmonster",
+    "description": "Smrcore's shell looks small enough to fit in one hand, but the core hidden within is far larger than it appears. It moves slowly, entirely unbothered by its own quiet power. Traders know it as $SMR, tied to NuScale Power."
+  },
+  "159": {
+    "species": "Vanishing Stockmonster",
+    "description": "Snapjaw never lingers once it's been spotted, fading from view within ten seconds no matter what. Trainers who want a good look have to be quick about it. Traders know it as $SNAP, tied to Snap."
+  },
+  "160": {
+    "species": "Flash Storage Stockmonster",
+    "description": "Sandwyrm burrows tirelessly through dune after dune, each grain of sand a tiny fragment of storage. It never seems to run out of ground left to cover. Traders know it as $SNDK, tied to Sandisk."
+  },
+  "161": {
+    "species": "Frozen Data Stockmonster",
+    "description": "Snowyrm's crystalline facets each hold a sliver of light frozen in place, ready to be released the instant it's needed. Nothing stored within it ever seems to fade. Traders know it as $SNOW, tied to Snowflake."
+  },
+  "162": {
+    "species": "Refinancing Stockmonster",
+    "description": "Sofinix periodically burns away its old plumage entirely, letting new feathers grow in cleaner and lighter than before. It treats every fresh start as an improvement on the last. Traders know it as $SOFI, tied to SoFi Technologies."
+  },
+  "163": {
+    "species": "Waveform Stockmonster",
+    "description": "Soundhowl's breath is visible as a shifting waveform whenever it howls, and its ears can pinpoint a single voice in a crowded room. It never mishears a command. Traders know it as $SOUN, tied to SoundHound AI."
+  },
+  "164": {
+    "species": "Sector Stockmonster",
+    "description": "Soxxolith is really an entire industry compressed into a single standing stone. Damage to one slab barely registers against the strength of the whole. Traders know it as $SOXX, tied to iShares Semiconductor ETF."
+  },
+  "165": {
+    "species": "Reusable Stockmonster",
+    "description": "Spacexodus returns from every launch scorched but whole, its wings guiding it down to land exactly where it took off. It is ready to fly again almost immediately. Traders know it as $SPCX, tied to Space Exploration Technologies."
+  },
+  "166": {
+    "species": "Momentum Stockmonster",
+    "description": "Momentyr never seems to slow down once it starts moving, trailing a blur of afterimages behind it. Trainers say it's easier to keep up with once it's already running. Traders know it as $NET, tied to Cloudflare."
+  },
+  "167": {
+    "species": "Market Stockmonster",
+    "description": "Spyrant's five hundred eyes each watch a different corner of the field, but they all move as one. When it shifts direction, nearly everything nearby shifts with it. Traders know it as $SPY, tied to SPDR S&P 500 ETF Trust."
+  },
+  "168": {
+    "species": "Raw Energy Stockmonster",
+    "description": "Tenergon hasn't fully settled into a shape yet, its molten-copper body still raw at the edges. Trainers who catch one early say it's impossible to predict what it will become. Traders know it as $NNE, tied to Nano Nuclear Energy."
+  },
+  "169": {
+    "species": "Shared Workspace Stockmonster",
+    "description": "Atlassiant holds an entire shared sky steady overhead so that everyone beneath it can keep working together. Glyphs representing each teammate orbit slowly around its shoulders. Traders know it as $TEAM, tied to Atlassian."
+  },
+  "170": {
+    "species": "Diagnostic Stockmonster",
+    "description": "Tempusguard reads the constellation of data across its own flank to predict how a situation will unfold before it happens. It is rarely wrong, and it never enjoys being right. Traders know it as $NOW, tied to ServiceNow."
+  },
+  "171": {
+    "species": "Testing Stockmonster",
+    "description": "Teradon probes every seam of whatever it examines with needle-fine fingers, and a light on its chest flashes the verdict instantly. Nothing gets past it unexamined. Traders know it as $NU, tied to Nu."
+  },
+  "172": {
+    "species": "Specialty Foundry Stockmonster",
+    "description": "Tsemtitan's chest burns like a kiln built for jobs too particular for larger foundries to bother with. It takes on the odd, difficult work that others turn away. Traders know it as $TSEM, tied to Tower Semiconductor."
+  },
+  "173": {
+    "species": "Foundry Stockmonster",
+    "description": "Every scale on Foundrake is a finished wafer forged in the furnace of its own heart. Nearly every other Stockmonster in the tech world owes at least one part of itself to something Foundrake made. Traders know it as $TSM, tied to Taiwan Semiconductor."
+  },
+  "174": {
+    "species": "Auction Stockmonster",
+    "description": "Tradewraith only appears the instant an auction opens, bids flickering faster across its shroud than any eye can track. The moment the auction closes, it's already gone. Traders know it as $WEN, tied to Wen."
+  },
+  "175": {
+    "species": "Two-Headed Stockmonster",
+    "description": "One of Takewyrm's heads moves with careful, cinematic grace while the other lunges into total chaos. Somehow the two have learned to work as a single creature. Traders know it as $TTWO, tied to Take-Two Interactive."
+  },
+  "176": {
+    "species": "Legacy Node Stockmonster",
+    "description": "Umcron's shell shows its age plainly, but it has never once let a client down. It moves at its own unhurried pace and always finishes the job. Traders know it as $UMC, tied to United Microelectronics."
+  },
+  "177": {
+    "species": "Coverage Stockmonster",
+    "description": "Unhydra grows a new head for every plan it offers, and trainers say cutting one down only seems to summon an extra bill. It is best handled carefully, and read closely. Traders know it as $UNH, tied to UnitedHealth."
+  },
+  "178": {
+    "species": "Parcel Stockmonster",
+    "description": "Upsurge carries its parcel-shell at a steady, relentless pace and has never once been recorded arriving late. Snow, rain, or heat barely seem to register with it. Traders know it as $UPS, tied to UPS."
+  },
+  "179": {
+    "species": "Rare-Earth Stockmonster",
+    "description": "Usaronyx's veins glow faintly through solid stone, tracing the path of magnetic material found in almost nothing else. It is scarce enough that trainers consider finding one a real event. Traders know it as $USAR, tied to USA Rare Earth."
+  },
+  "180": {
+    "species": "Crude Stockmonster",
+    "description": "Usoleviath's rainbow-slick hide ripples the moment a rumor spreads, rising or sinking long before the truth of it is known. It reacts to whispers as much as to anything real. Traders know it as $USO, tied to United States Oil Fund."
+  },
+  "181": {
+    "species": "Converter Stockmonster",
+    "description": "Vicroar's mane crackles constantly with converted current, and its roar is louder than almost anything its size should produce. It never seems to run quiet. Traders know it as $NVTS, tied to Navitas Semiconductor."
+  },
+  "182": {
+    "species": "Cooling Stockmonster",
+    "description": "Vertivore drinks in heat the way other creatures drink water, its fins never satisfied no matter how much it absorbs. Rooms nearby feel noticeably cooler once it settles in. Traders know it as $VRT, tied to Vertiv."
+  },
+  "183": {
+    "species": "Connection Stockmonster",
+    "description": "Viasatyr's dish-shaped horns stay locked on the horizon at all times, beaming a steady connection to wherever it's needed most. It rarely moves once it finds the right angle. Traders know it as $OKLO, tied to Oklo."
+  },
+  "184": {
+    "species": "Grid Stockmonster",
+    "description": "Vistrike's horns hum with current even on a clear day, and a single strike from them can light up an entire grid. It stays calm until demand spikes suddenly. Traders know it as $VST, tied to Vistra."
+  },
+  "185": {
+    "species": "Total-Market Stockmonster",
+    "description": "Vtitan fuses every sector into one enormous, unhurried body, rarely reacting sharply to any single piece of news. Trainers who raise one appreciate how little it ever seems to worry. Traders know it as $VTI, tied to Vanguard Total Stock Market ETF."
+  },
+  "186": {
+    "species": "Timekeeper Stockmonster",
+    "description": "Wdaywalker's hourglass torso empties and refills on a schedule it never misses, no matter what else is happening around it. Payday always arrives exactly on time. Traders know it as $BRETT, tied to Based Brett."
+  },
+  "187": {
+    "species": "Platter Stockmonster",
+    "description": "Wdcache curls protectively around a hoard of spinning platters, each one holding more than it looks like it should. It rarely lets any of it out of its sight. Traders know it as $WDC, tied to Western Digital."
+  },
+  "188": {
+    "species": "Nuclear-Powered Stockmonster",
+    "description": "Terawulf's breath comes out as a constant plume of cooling vapor, and its eyes burn a steady terawatt-blue in the dark. It runs hot enough that it never truly stops moving. Traders know it as $WULF, tied to TeraWulf."
+  },
+  "189": {
+    "species": "Filament Stockmonster",
+    "description": "Wyfiber threads its glowing body between buildings so smoothly that most trainers never notice it's even there. It carries far more than its slender shape suggests. Traders know it as $WYFI, tied to WhiteFiber."
+  },
+  "190": {
+    "species": "Megacap Stockmonster",
+    "description": "Each of Xlkraken's tentacles belongs to a different giant of the tech world, all moving together beneath the same dark surface. Its ink is said to be made of pure data. Traders know it as $XLK, tied to Technology Select Sector SPDR."
+  },
+  "191": {
+    "species": "Squeezed-Light Stockmonster",
+    "description": "Xanaduir's plumage seems to flicker between real and imagined depending on how closely it's observed. Trainers who look away and back again are never quite sure what they saw. Traders know it as $XNDU, tied to Xanadu Quantum."
+  },
+  "192": {
+    "species": "Refinery Stockmonster",
+    "description": "Xomoloch's crown burns with a flare that has never gone out in living memory. It is unbothered by nearly everything, fed steadily on crude drawn from deep below. Traders know it as $XOM, tied to ExxonMobil."
+  },
+  "193": {
+    "species": "Video Grid Stockmonster",
+    "description": "Zoomorph appears as a grid of floating panes, each one showing a different face at the same moment. It's never quite clear which pane is truly speaking. Traders know it as $ON, tied to ON Semiconductor."
+  },
+  "194": {
+    "species": "Zero-Trust Stockmonster",
+    "description": "Zsceptre checks the identity of anything that touches even one of its scales, no matter how many times it's already been checked before. Nothing gets a free pass twice. Traders know it as $FWOG, tied to Fwog."
+  }
+}

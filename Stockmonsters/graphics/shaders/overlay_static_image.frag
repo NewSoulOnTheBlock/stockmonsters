@@ -1,0 +1,135 @@
+// Uniform keeping track of the blend mode
+// 0: normal (mix)
+// 1: add
+// 2: subtract
+// 3: multiply
+// 4: overlay
+// 5: screen
+uniform int blend_mode;
+
+// Compatibility with other SpritesetMap shaders
+
+const vec3 lumaF = vec3(.299, .587, .114);
+
+uniform vec4 color;
+uniform vec4 tone;
+
+// Uniform keeping track of base texture
+uniform sampler2D texture;
+
+// Uniform keeping track of addtional texture 1
+uniform sampler2D extra_texture;
+
+// Uniform keeping track of the time variable
+uniform float time;
+// Uniform keeping track of the opacity variable
+uniform float opacity;
+// Uniform keeping track of the factor by which the distance should be multiplied
+uniform float dist_factor;
+
+// The position offset of the overlay on the map, in normalized coordinates
+uniform vec2 position;
+// The resolution of the viewport or screen, in pixels
+uniform vec2 resolution;
+// The resolution of the overlay image/texture, in pixels
+uniform vec2 image_resolution;
+// Uniform keeping track of whether the overlay is affixed to the map
+uniform bool map_affix;
+// Factor by which the image resolution should be multiplied, to make sure the image is affixed to map
+uniform float zoom;
+
+// Constant keeping track of a small number for comparison purposes
+const float SMALL_NUMBER = 0.0001;
+// Constant keeping track of the UV coordinates of the center of the screen
+const vec2 CENTER = vec2(0.5, 0.5);
+
+varying vec2 v_factor_npot;
+
+#ifdef GL_ES
+uniform vec2 extra_texture_factor_npot;
+#else
+const vec2 extra_texture_factor_npot = vec2(1.0, 1.0);
+#endif
+
+// Function to compute the overlay blend mode effect
+vec4 overlay_blend_mode(vec4 base, vec4 blend1){
+  vec4 limit = step(0.5, base);
+  return mix(2.0 * base * blend1, 1.0 - 2.0 * (1.0 - base) * (1.0 - blend1), limit);
+}
+
+// Function to compute the screen blend mode effect
+vec4 screen(vec4 base, vec4 blend){
+  return 1.0 - (1.0 - base) * (1.0 - blend);
+}
+
+// Function to computer the distance to center to leave the middle of the screen free
+float compute_distance(vec2 pixPos, vec2 to){
+  vec2 result = pixPos - to;
+ return length(result);
+}
+
+// Function to compute the correct UV coordinates for the overlay to remain affixed to the map
+vec2 resolve_overlay_uv(vec2 pixPos){
+  vec2 adjust = resolution / image_resolution / zoom;
+  vec2 displacement = (pixPos - vec2(position.x, -position.y));
+  return displacement * adjust;
+}
+
+// static_image preset
+vec4 static_image(vec2 pixPos){
+  // Modulate alpha channel according to distance to center and a factor so we can see the player
+  float dist = min(max(compute_distance(pixPos / v_factor_npot, CENTER) * dist_factor, 0.0), 1.0);
+  vec2 static_image_uv = pixPos * extra_texture_factor_npot / v_factor_npot;
+  vec4 texture;
+
+  if(!map_affix) texture = vec4(texture2D(extra_texture, static_image_uv));
+  else texture = texture2D(extra_texture, resolve_overlay_uv(static_image_uv));
+
+  return vec4(texture.rgb, min(dist, texture.a));
+}
+
+// Account for opacity in blend modes
+vec3 blend(vec3 frag, vec3 overlay, float overlay_opacity)
+{
+  float base_opacity = 1.0 - overlay_opacity;
+  return step(SMALL_NUMBER, float(blend_mode==0)) * mix(frag, overlay, overlay_opacity)
+      +   step(SMALL_NUMBER, float(blend_mode==1)) * (frag * base_opacity + (overlay + frag) * overlay_opacity)
+      +   step(SMALL_NUMBER, float(blend_mode==2)) * (frag * base_opacity + (overlay - frag) * overlay_opacity)
+      +   step(SMALL_NUMBER, float(blend_mode==3)) * (frag * base_opacity + (overlay * frag) * overlay_opacity)
+      +   step(SMALL_NUMBER, float(blend_mode==4)) * overlay_blend_mode(vec4(frag,1.0),vec4(overlay.rgb, overlay_opacity)).rgb
+      +   step(SMALL_NUMBER, float(blend_mode==5)) * screen(vec4(frag,1.0),vec4(overlay.rgb, overlay_opacity)).rgb;
+}
+
+// Account for blend mode
+// 0: normal (mix)
+// 1: add
+// 2: subtract
+// 3: multiply
+// 4: overlay
+// 5: screen
+vec4 account_for_blend_mode(vec4 frag, vec4 overlay)
+{
+  float overlay_opacity = opacity * overlay.a;
+  return vec4(blend(frag.rgb, overlay.rgb, overlay_opacity),frag.a);
+}
+
+// Entry point function
+void main() {
+  // Load the base texture
+  vec4 frag = texture2D(texture, gl_TexCoord[0].xy);
+
+  // Process overlay preset function + blend mode
+  vec4 overlay = static_image(vec2(gl_TexCoord[0].x,1.0 - gl_TexCoord[0].y));
+  frag = account_for_blend_mode(frag, overlay);
+
+  // Compatibility with color_process
+  frag.rgb = mix(frag.rgb, color.rgb, color.a);
+
+  // Compatibility with tone_process
+  float luma = dot(frag.rgb, lumaF);
+  frag.rgb = mix(frag.rgb, vec3(luma), tone.a);
+  frag.rgb += tone.rgb;
+
+  // gl_FragColor serves as our output
+  gl_FragColor = frag;
+}

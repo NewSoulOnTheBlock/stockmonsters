@@ -1,0 +1,302 @@
+{
+  "DOGE": {
+    "dexId": 133,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0133.png",
+    "at": "2026-08-24T16:09:39.972Z"
+  },
+  "SHIB": {
+    "dexId": 262,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0262.png",
+    "at": "2026-08-24T16:09:41.350Z"
+  },
+  "PEPE": {
+    "dexId": 537,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0537.png",
+    "at": "2026-08-24T16:09:49.042Z"
+  },
+  "FLOKI": {
+    "dexId": 745,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0745.png",
+    "at": "2026-08-24T16:09:52.453Z"
+  },
+  "BONK": {
+    "dexId": 229,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0229.png",
+    "at": "2026-08-24T16:09:57.887Z"
+  },
+  "BABYDOGE": {
+    "dexId": 261,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0261.png",
+    "at": "2026-08-24T16:10:01.192Z"
+  },
+  "ELON": {
+    "dexId": 228,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0228.png",
+    "at": "2026-08-24T16:10:06.881Z"
+  },
+  "AKITA": {
+    "dexId": 264,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0264.png",
+    "at": "2026-08-24T16:10:10.476Z"
+  },
+  "KISHU": {
+    "dexId": 263,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0263.png",
+    "at": "2026-08-24T16:10:13.822Z"
+  },
+  "SAMO": {
+    "dexId": 210,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0210.png",
+    "at": "2026-08-24T16:10:19.678Z"
+  },
+  "MYRO": {
+    "dexId": 209,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0209.png",
+    "at": "2026-08-24T16:10:22.591Z"
+  },
+  "NEIRO": {
+    "dexId": 676,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0676.png",
+    "at": "2026-08-24T16:10:28.715Z"
+  },
+  "WOJAK": {
+    "dexId": 235,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0235.png",
+    "at": "2026-08-24T16:10:31.341Z"
+  },
+  "BRETT": {
+    "dexId": 186,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0186.png",
+    "at": "2026-08-24T16:10:40.394Z"
+  },
+  "MOG": {
+    "dexId": 432,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0432.png",
+    "at": "2026-08-24T16:10:47.977Z"
+  },
+  "POPCAT": {
+    "dexId": 300,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0300.png",
+    "at": "2026-08-24T16:10:53.472Z"
+  },
+  "TURBO": {
+    "dexId": 324,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0324.png",
+    "at": "2026-08-24T16:10:57.076Z"
+  },
+  "MEME": {
+    "dexId": 137,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0137.png",
+    "at": "2026-08-24T16:11:02.389Z"
+  },
+  "WEN": {
+    "dexId": 174,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0174.png",
+    "at": "2026-08-24T16:11:05.890Z"
+  },
+  "SLERF": {
+    "dexId": 289,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0289.png",
+    "at": "2026-08-24T16:11:11.323Z"
+  },
+  "BOME": {
+    "dexId": 765,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0765.png",
+    "at": "2026-08-24T16:11:14.859Z"
+  },
+  "GIGA": {
+    "dexId": 297,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0297.png",
+    "at": "2026-08-24T16:11:20.220Z"
+  },
+  "PONKE": {
+    "dexId": 766,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0766.png",
+    "at": "2026-08-24T16:11:23.418Z"
+  },
+  "MICHI": {
+    "dexId": 678,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0678.png",
+    "at": "2026-08-24T16:11:29.085Z"
+  },
+  "GOAT": {
+    "dexId": 672,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0672.png",
+    "at": "2026-08-24T16:11:32.319Z"
+  },
+  "PNUT": {
+    "dexId": 417,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0417.png",
+    "at": "2026-08-24T16:11:37.828Z"
+  },
+  "CHILLGUY": {
+    "dexId": 759,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0759.png",
+    "at": "2026-08-24T16:11:38.888Z"
+  },
+  "FWOG": {
+    "dexId": 194,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0194.png",
+    "at": "2026-08-24T16:11:46.571Z"
+  },
+  "MOODENG": {
+    "dexId": 450,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0450.png",
+    "at": "2026-08-24T16:11:47.448Z"
+  },
+  "PENGU": {
+    "dexId": 393,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0393.png",
+    "at": "2026-08-24T16:11:53.276Z"
+  },
+  "HARAMBE": {
+    "dexId": 675,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0675.png",
+    "at": "2026-08-24T16:11:56.019Z"
+  },
+  "DEGEN": {
+    "dexId": 559,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0559.png",
+    "at": "2026-08-24T16:12:03.912Z"
+  },
+  "SNEK": {
+    "dexId": 560,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0560.png",
+    "at": "2026-08-24T16:12:06.735Z"
+  },
+  "TOSHI": {
+    "dexId": 677,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0677.png",
+    "at": "2026-08-24T16:12:15.009Z"
+  },
+  "SPX": {
+    "dexId": 126,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0126.png",
+    "at": "2026-08-24T16:12:15.416Z"
+  },
+  "FARTCOIN": {
+    "dexId": 110,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0110.png",
+    "at": "2026-08-24T16:12:25.860Z"
+  },
+  "ACT": {
+    "dexId": 518,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0518.png",
+    "at": "2026-08-24T16:12:26.400Z"
+  },
+  "AI16Z": {
+    "dexId": 375,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0375.png",
+    "at": "2026-08-24T16:12:34.970Z"
+  },
+  "LADYS": {
+    "dexId": 431,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0431.png",
+    "at": "2026-08-24T16:12:35.270Z"
+  },
+  "VOLT": {
+    "dexId": 309,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0309.png",
+    "at": "2026-08-24T16:12:44.603Z"
+  },
+  "DOG": {
+    "dexId": 310,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0310.png",
+    "at": "2026-08-24T16:12:44.619Z"
+  },
+  "RATS": {
+    "dexId": 660,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0660.png",
+    "at": "2026-08-24T16:12:52.512Z"
+  },
+  "ORDI": {
+    "dexId": 140,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0140.png",
+    "at": "2026-08-24T16:12:53.595Z"
+  },
+  "MEW": {
+    "dexId": 301,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0301.png",
+    "at": "2026-08-24T16:13:01.963Z"
+  },
+  "HIGHER": {
+    "dexId": 334,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0334.png",
+    "at": "2026-08-24T16:13:02.533Z"
+  },
+  "APU": {
+    "dexId": 656,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0656.png",
+    "at": "2026-08-24T16:13:09.892Z"
+  },
+  "BOBO": {
+    "dexId": 760,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0760.png",
+    "at": "2026-08-24T16:13:10.881Z"
+  },
+  "KEYCAT": {
+    "dexId": 725,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0725.png",
+    "at": "2026-08-24T16:13:18.825Z"
+  },
+  "HOSICO": {
+    "dexId": 726,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0726.png",
+    "at": "2026-08-24T16:13:19.538Z"
+  },
+  "GOKU": {
+    "dexId": 674,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0674.png",
+    "at": "2026-08-24T16:13:27.949Z"
+  },
+  "SIGMA": {
+    "dexId": 288,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0288.png",
+    "at": "2026-08-24T16:13:28.182Z"
+  },
+  "MUMU": {
+    "dexId": 287,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0287.png",
+    "at": "2026-08-24T16:13:36.893Z"
+  },
+  "USELESS": {
+    "dexId": 132,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0132.png",
+    "at": "2026-08-24T16:13:37.036Z"
+  },
+  "COQ": {
+    "dexId": 256,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0256.png",
+    "at": "2026-08-24T16:13:45.678Z"
+  },
+  "KIBA": {
+    "dexId": 507,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0507.png",
+    "at": "2026-08-24T16:13:45.868Z"
+  },
+  "CROC": {
+    "dexId": 552,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0552.png",
+    "at": "2026-08-24T16:13:53.045Z"
+  },
+  "TROLL": {
+    "dexId": 302,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0302.png",
+    "at": "2026-08-24T16:13:54.487Z"
+  },
+  "PUMP": {
+    "dexId": 219,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0219.png",
+    "at": "2026-08-24T16:14:02.033Z"
+  },
+  "QUACK": {
+    "dexId": 580,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0580.png",
+    "at": "2026-08-24T16:14:03.292Z"
+  },
+  "WIF": {
+    "dexId": 506,
+    "path": "C:\\Users\\roota\\Downloads\\Stockmonsters\\graphics\\pokedex\\pokefront\\0506.png",
+    "at": "2026-08-24T16:14:11.008Z"
+  }
+}

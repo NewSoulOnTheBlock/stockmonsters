@@ -1,0 +1,7 @@
+node_modules/
+Stockmonsters/Release/
+Stockmonsters/Saves/
+Stockmonsters/.tiledmcp/
+*.log
+.DS_Store
+Thumbs.db
