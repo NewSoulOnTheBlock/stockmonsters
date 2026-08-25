@@ -327,6 +327,15 @@ Everything below is committed and was verified by running it.
   (green/amber/red, stepped animation), damage flash, status tag. Channel:
   `inject(ctx, WebSocketToken)` + `socket.on(...)` — the documented custom
   event path in beta.33.
+- **NPCs curated 198 -> 56 and visually varied** (user: too many, all the
+  same sprite). `tools/extract-npcs.py` now filters PSDK's demo-project
+  tutorial NPCs (they explain engine commands: library/photostudio/
+  gamecorner), lines still naming unreskinned Nintendo species, internal
+  identifier names (NPC_foo, BattleOrdering), and scenery events (radio,
+  bin, TV) that would render as people; then caps per map (hub 8, most 6).
+  `npcs.ts` assigns each NPC one of the 43 human Pipoya sheets via FNV-1a
+  over map:x,y:name — stable per NPC for every client and across restarts
+  (32 distinct sprites in use).
 - Verified: `RPG_TYPE=mmorpg npx vite build` green, 63 vitest green,
   production `server.mjs` smoke test serves picker catalog (49), generated
   ow sheets, and a "woka"-free page.

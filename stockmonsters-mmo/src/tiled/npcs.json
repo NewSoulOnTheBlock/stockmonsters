@@ -1,221 +1,69 @@
 [
  {
-  "map": "hub",
-  "x": 38,
-  "y": 40,
-  "name": "Cashier 2",
-  "lines": [
-   "Welcome! I'm selling Balls for less than next door...",
-   "I can assure you of their quality!",
-   "The paint might be peeled a bit, but you won't be disappointed in those Balls!",
-   "These are goods which fell of the truck, but still, it's high quality!"
-  ]
- },
- {
-  "map": "hub",
-  "x": 37,
-  "y": 39,
-  "name": "Cashier 1",
-  "lines": [
-   "You have nothing to sell!"
-  ]
- },
- {
-  "map": "hub",
-  "x": 40,
-  "y": 46,
-  "name": "Item",
-  "lines": [
-   "As this item is on the ground, you can use the \"pick_item\" command to have the event deleted afterward."
-  ]
- },
- {
-  "map": "hub",
-  "x": 34,
-  "y": 38,
-  "name": "invisible_Item",
-  "lines": [
-   "As this item has the \"invisible_\" tag at the beginning of its name, it does not have a shadow and can be detected by the Drowsing Machine."
-  ]
- },
- {
-  "map": "hub",
-  "x": 24,
-  "y": 28,
-  "name": "Move Reminder",
-  "lines": [
-   "Hello!",
-   "If you want, I can teach one of your companions a move they might have forget during their growth.",
-   "Nothing suited you?",
-   "I'm sure your Stockmonster will be stronger this way!",
-   "Unfortunately, there is nothing to teach to your Stockmonster...",
-   "You can sometimes come across unsuspected moves!"
-  ]
- },
- {
-  "map": "hub",
-  "x": 26,
-  "y": 28,
-  "name": "Move Tutor",
-  "lines": [
-   "I can teach a very useful move to help you catch Stockmonster.",
-   "Are you interested?",
-   "To which Stockmonster do you want to teach it?",
-   "This move always leaves at least 1 HP to its target.",
-   "It's a must-have for any self-respecting Trainer, if you want my opinion.",
-   "Unfortunately, I can't teach this move to your Stockmonster..."
-  ]
- },
- {
-  "map": "hub",
+  "map": "basement",
   "x": 16,
-  "y": 34,
-  "name": "SirMalo",
+  "y": 20,
+  "name": "???",
   "lines": [
-   "Well, !",
-   "Just for the record, there is 16 Intriguing Stones in this demo.",
-   "And I see you have... [STONE] of these!",
-   "... I know someone who used the console!",
-   "It's very good to learn how to use it!",
-   "But be sure not to spoil you the game experience and the fun learning moment we're offering with this demo."
+   "Now the only thing left is to bind this to that and...",
+   "Are you crazy, scaring people like that without announcing yourself?!",
+   "I almost had a heart attack...",
+   "Alright, okay, I'm calm now...",
+   "? It does ring a bell...",
+   "The name's Scorbutics, but you can call me Scor."
   ]
  },
  {
-  "map": "hub",
-  "x": 31,
-  "y": 33,
-  "name": "Roughneck",
+  "map": "basement",
+  "x": 43,
+  "y": 48,
+  "name": null,
   "lines": [
-   "Who's daddy's little good boy?",
-   "Erm, it's not what it looks like..!",
-   "Rockruff, use Growl!",
-   "Good!"
+   "The television flickers strangely..."
   ]
  },
  {
-  "map": "hub",
-  "x": 32,
-  "y": 33,
-  "name": "Rockruff",
+  "map": "basement",
+  "x": 44,
+  "y": 48,
+  "name": null,
   "lines": [
-   "Would you like to pet the Rockruff?",
-   "Ruff! Ruff!",
-   "Rockruff seems disappointed..."
+   "The television flickers strangely..."
   ]
  },
  {
-  "map": "hub",
-  "x": 28,
-  "y": 36,
-  "name": "Jules",
+  "map": "basement",
+  "x": 41,
+  "y": 50,
+  "name": "Scor",
   "lines": [
-   "Do you know about this chick who fell off the other side of the guardrail not long ago, behind the Tower?",
-   "No kidding, dying like that is wack, not even badass or something...",
-   "Some people are saying her ghost haunts the grounds at night since her death.",
-   "If I died the same way, I'd be too salty not to haunt the area.",
-   "But well, revenants don't exist, the only ghosts are the Stockmonster, right..?"
+   "Ah, there you are.",
+   "The general lights of this basement and all the devices in here are out of power.",
+   "Only the basement's secondary lights are still on, as they're connected to an auxiliary generator...",
+   "I'm sure you'll agree with me: it makes no sense to plug a television to an auxiliary generator.",
+   "So we can deduce the problem is caused by this television..",
+   "I have my own theory, but I prefer to keep it to myself for now."
   ]
  },
  {
-  "map": "hub",
-  "x": 22,
-  "y": 38,
-  "name": "EasterEggOWO",
+  "map": "basement",
+  "x": 44,
+  "y": 53,
+  "name": "Scor",
   "lines": [
-   "It's a promotional poster. A slogan is written on it.",
-   "\"You wanna be the very best, like no one ever was."
+   "Oh, well, thanks for visiting me!",
+   "I'm working on a top-secret project, so I can't speak about it here...",
+   "Please come back to see me again when you have some time, it's quite lonely here."
   ]
  },
  {
-  "map": "hub",
-  "x": 34,
-  "y": 43,
-  "name": "Give item",
+  "map": "battlearena",
+  "x": 18,
+  "y": 12,
+  "name": null,
   "lines": [
-   "Here, we encourage young Trainers to catch lots and lots of Stockmonster!",
-   "I'm going to use the \"give_item\" command to give you 10 Balls.",
-   "The Tower brims with a great variety of Stockmonster to catch.",
-   "So don't hesitate to launch a lot of these in all directions!"
-  ]
- },
- {
-  "map": "hub",
-  "x": 35,
-  "y": 47,
-  "name": "Silently give an item",
-  "lines": [
-   "Hey, psst...",
-   "I'm gonna slip you something on the down low...",
-   "I put it directly in your bag using the \"$bag.add_item\" command.",
-   ".[WAIT 20].[WAIT 20].[WAIT 20]"
-  ]
- },
- {
-  "map": "elevator-1",
-  "x": 10,
-  "y": 16,
-  "name": "Hostess",
-  "lines": [
-   "We are currently on floor .",
-   "We are already on that floor?!",
-   "Certainly.",
-   "Certainly."
-  ]
- },
- {
-  "map": "river",
-  "x": 33,
-  "y": 40,
-  "name": "Scientist",
-  "lines": [
-   "I study the diversity of the wildlife in each floor.",
-   "By the way, this patch of grass is particular as the Stockmonster in it always attack in groups of two!",
-   "Apparently it's due to a specific setup of the encounter group."
-  ]
- },
- {
-  "map": "river",
-  "x": 29,
-  "y": 39,
-  "name": "Fisherman",
-  "lines": [
-   "I don't know if you already know, but it's possible to fish from a bridge!",
-   "I see you don't have any fishing rod! Here, take these!",
-   "Moreover, as I'm considered on the bridge, you'll be able to pass under me.",
-   "And if you try to talk to me while surfing, I won't answer you!"
-  ]
- },
- {
-  "map": "river",
-  "x": 31,
-  "y": 16,
-  "name": "Chansey",
-  "lines": [
-   "Chan-chansey!",
-   "Chansey heals your team.[WAIT 90]"
-  ]
- },
- {
-  "map": "river",
-  "x": 31,
-  "y": 24,
-  "name": "$The Legend Guy",
-  "lines": [
-   "A legend says that the one who succeed in ascending the waterfall will be granted a stone of inestimable value.",
-   "For that, Waterfall is needed.",
-   "I think I saw a dropped HM Surf at the other side of the bridge, but to reach it, you need the HM Cut... which I'll generously give you!",
-   "Can you believe if it's actually real?"
-  ]
- },
- {
-  "map": "river",
-  "x": 23,
-  "y": 39,
-  "name": "$surf_swimmer",
-  "lines": [
-   "I definitely prefer to swim in this water than in the floor just above...",
-   "To add to that, there's the waterfall here!",
-   "Talking about that, are you interested in the HM Waterfall?"
+   "A voice resonates in your mind...",
+   "\"This door serves no purpose and is there just to look pretty.\""
   ]
  },
  {
@@ -234,38 +82,6 @@
  },
  {
   "map": "beach",
-  "x": 20,
-  "y": 20,
-  "name": "Wingull",
-  "lines": [
-   "Wiiii! Wiiii! Wiiiin![WAIT 60]"
-  ]
- },
- {
-  "map": "beach",
-  "x": 31,
-  "y": 16,
-  "name": "Chansey",
-  "lines": [
-   "Chan-chansey!",
-   "Chansey heals your team.[WAIT 90]"
-  ]
- },
- {
-  "map": "beach",
-  "x": 23,
-  "y": 23,
-  "name": "EV005",
-  "lines": [
-   "I like to play in puddles!",
-   "When you walk in a Puddle Systemtag, a little ripple appears!",
-   "Maybe you saw that, but the ripple doesn't leave the water. It's because the animation is made to be displayed under this puddle!",
-   "So the puddle must be transparent! The nice lady who admires herself will explain this to you!",
-   "Plop... Plop. Hehe!"
-  ]
- },
- {
-  "map": "beach",
   "x": 26,
   "y": 26,
   "name": "Fisherman",
@@ -280,264 +96,12 @@
  },
  {
   "map": "beach",
-  "x": 34,
-  "y": 23,
-  "name": "EV007",
-  "lines": [
-   "I love to walk on the sand!",
-   "It leaves footprints everywhere!",
-   "But this sand is infested with wild Stockmonster hiding in it..."
-  ]
- },
- {
-  "map": "beach",
-  "x": 38,
-  "y": 33,
-  "name": "NPC_whirlpool",
-  "lines": [
-   "I really enjoy this small isolated islet.",
-   "Rare are those who visit me, so I always make sure to reward them!",
-   "Do you want me to teach the move Whirlpool to one of your Stockmonster?",
-   "To which Stockmonster should I teach it?",
-   "It seems like your [POKE] already knows Whirlpool...",
-   "Alright, let's teach Whirlpool to your [POKE]."
-  ]
- },
- {
-  "map": "beach",
   "x": 27,
   "y": 28,
   "name": null,
   "lines": [
    "I'm warming up before challenging the rapids!",
    "As I have the \"surf_\" tag in my name, I can't leave the water and I correctly interact with it."
-  ]
- },
- {
-  "map": "cave",
-  "x": 35,
-  "y": 33,
-  "name": "Aerun",
-  "lines": [
-   "Do you need me to reset the position of the unplaced boulders?",
-   "Alrighty, lessgo!",
-   "No problem, come back if you're stuck!",
-   "Else, you can exit this floor and come back, it'll do the same thing.",
-   "Just a quick reminder: a boulder placed is a boulder that won't reset!"
-  ]
- },
- {
-  "map": "cave",
-  "x": 28,
-  "y": 32,
-  "name": "EV030",
-  "lines": [
-   "Hello, young Maker.",
-   "Now, I can teach this to anyone or anything interested, whatever their morphology.",
-   "I wish to share my wisdom with you, or at the very least, to one of your Stockmonster.",
-   "Would you be interested in having me teach Rock Climb to one of your Stockmonster?",
-   "To which Stockmonster should I teach it?",
-   "It seems like your [POKE] already knows Rock Climb..."
-  ]
- },
- {
-  "map": "cave",
-  "x": 31,
-  "y": 16,
-  "name": "Chansey",
-  "lines": [
-   "Chan-chansey!",
-   "Chansey heals your team.[WAIT 90]"
-  ]
- },
- {
-  "map": "marsh",
-  "x": 26,
-  "y": 42,
-  "name": "$ Worker",
-  "lines": [
-   "I saw a colorful stone not long ago...",
-   "But I can't find it anymore!",
-   "Maybe somebody picked it before I could..."
-  ]
- },
- {
-  "map": "marsh",
-  "x": 31,
-  "y": 16,
-  "name": "Chansey",
-  "lines": [
-   "Chan-chansey!",
-   "Chansey heals your team.[WAIT 90]"
-  ]
- },
- {
-  "map": "marsh",
-  "x": 35,
-  "y": 19,
-  "name": "$Hypochondriac scientist",
-  "lines": [
-   "How can I collect all these ashes without getting my hands dirty...?",
-   "Can I help you, young ?",
-   "...",
-   "You're interested by this \"collecting ashes\" thing I mumbled?",
-   "These ashes, heavier than air, fall and stick to grass, giving those a grayish tint.",
-   "They are are very useful to those you can use all their fingers, but also to scientists like me!"
-  ]
- },
- {
-  "map": "marsh",
-  "x": 24,
-  "y": 23,
-  "name": "Parasol Lady",
-  "lines": [
-   "I like to step on this muddy puddle with my boots.",
-   "It's not like the mud over there, in which you sink in an instant!"
-  ]
- },
- {
-  "map": "marsh",
-  "x": 30,
-  "y": 26,
-  "name": "Farmer",
-  "lines": [
-   "I'm trying to collect soot for the speccy four-eyes over there.",
-   "But trying to catch ash bare-handed is definitely not effective at all!"
-  ]
- },
- {
-  "map": "marsh",
-  "x": 42,
-  "y": 21,
-  "name": "Bug catcher",
-  "lines": [
-   "Shush!",
-   "I'm trying to catch a wild Skorupi, don't make them flee!"
-  ]
- },
- {
-  "map": "marsh",
-  "x": 44,
-  "y": 37,
-  "name": "Black Belt",
-  "lines": [
-   "...[WAIT 30]",
-   "I'm in full meditation mode to hone my muscles.",
-   "The unbearable heat toughens my mind.",
-   "Don't disturb my exercise, please."
-  ]
- },
- {
-  "map": "tundra",
-  "x": 31,
-  "y": 16,
-  "name": "Chansey",
-  "lines": [
-   "Chan-chansey!",
-   "Chansey heals your team.[WAIT 90]"
-  ]
- },
- {
-  "map": "tundra",
-  "x": 42,
-  "y": 28,
-  "name": "Ice Rock",
-  "lines": [
-   "The rock is covered with a thick layer of ice.",
-   "A certain species of Stockmonster could evolve around it.",
-   "But it seems like it can't be found on this Island..."
-  ]
- },
- {
-  "map": "tundra",
-  "x": 43,
-  "y": 28,
-  "name": "Ice Rock",
-  "lines": [
-   "The rock is covered with a thick layer of ice.",
-   "A certain species of Stockmonster could evolve around it.",
-   "But it seems like it can't be found on this Island..."
-  ]
- },
- {
-  "map": "tundra",
-  "x": 32,
-  "y": 25,
-  "name": "Man",
-  "lines": [
-   "It's very chilly here!",
-   "And with that, I'm under the impression I'm constantly observed..."
-  ]
- },
- {
-  "map": "tundra",
-  "x": 26,
-  "y": 38,
-  "name": "Skier",
-  "lines": [
-   "The powder snow is top quality to ski!",
-   "On the other hand, I won't try to go on this ice just below...",
-   "Once you've started, it's impossible to stop!"
-  ]
- },
- {
-  "map": "cyclingroad",
-  "x": 39,
-  "y": 21,
-  "name": "EV012",
-  "lines": [
-   "This Cycling Road is on a slope.",
-   "Also, an obscure and unfathomable force keeps anyone from going on it without a bike...",
-   "Surely these damn developers have something to do with that!"
-  ]
- },
- {
-  "map": "cyclingroad",
-  "x": 25,
-  "y": 39,
-  "name": "Running Boy",
-  "lines": [
-   "Oh, well done, you found me!",
-   "Try it and you'll see!"
-  ]
- },
- {
-  "map": "cyclingroad",
-  "x": 41,
-  "y": 32,
-  "name": "Biker 2",
-  "lines": [
-   "You must.[WAIT 20].[WAIT 20]. never.[WAIT 20].[WAIT 20]. stop.[WAIT 20].[WAIT 20]. pedaling!"
-  ]
- },
- {
-  "map": "cyclingroad",
-  "x": 45,
-  "y": 40,
-  "name": "Biker 3",
-  "lines": [
-   "I really enjoy letting myself go with the speed!",
-   "But to get back on the slope, you must strain your legs a lot..."
-  ]
- },
- {
-  "map": "cyclingroad",
-  "x": 19,
-  "y": 40,
-  "name": "Ninja",
-  "lines": [
-   "You can climb these big boulders by jumping on them with an Acro Bike.",
-   "If you do a wheelie and stay still, you'll start bunny hopping!"
-  ]
- },
- {
-  "map": "cyclingroad",
-  "x": 21,
-  "y": 32,
-  "name": "Hiker",
-  "lines": [
-   "The rocky ramps you see over there make you jump very far with your bike.",
-   "If you take it at high speed, you'll go even further!"
   ]
  },
  {
@@ -552,52 +116,54 @@
  },
  {
   "map": "cyclingroad",
-  "x": 34,
-  "y": 48,
-  "name": "EV025",
+  "x": 21,
+  "y": 32,
+  "name": "Hiker",
   "lines": [
-   "I lack some acceleration with my hog to cross these mudslide...",
-   "If only I had a Mach Bike!"
+   "The rocky ramps you see over there make you jump very far with your bike.",
+   "If you take it at high speed, you'll go even further!"
   ]
  },
  {
   "map": "cyclingroad",
-  "x": 31,
-  "y": 19,
-  "name": "$Bike Maniac",
+  "x": 25,
+  "y": 39,
+  "name": "Running Boy",
   "lines": [
-   "Hello young mountain biker!",
-   "Here, take these, I'm always bringing spare bikes for my spare bikes, in case they fail me.",
-   "For your information, the Mach Bike is the fastest of the two and will allow you to cross obstacles that require a high speed.",
-   "The Acro Bike is slower, but you can do some sick tricks with it, and cross some obstacles that require agility!",
-   "Well, go have fun now!"
+   "Oh, well done, you found me!",
+   "Try it and you'll see!"
   ]
  },
  {
-  "map": "rockethq",
-  "x": 42,
-  "y": 32,
-  "name": "Rocket Grunt 2",
+  "map": "cyclingroad",
+  "x": 19,
+  "y": 40,
+  "name": "Ninja",
   "lines": [
-   "Ahah! Well done, you did a good job.",
-   "As promised...",
-   "I'll never have any use for it anyway.",
-   "You can rummage in my machines' events if you want to.",
-   "It's quite complex, but you can create very cool puzzles with it!"
+   "You can climb these big boulders by jumping on them with an Acro Bike.",
+   "If you do a wheelie and stay still, you'll start bunny hopping!"
   ]
  },
  {
-  "map": "rockethq",
-  "x": 27,
-  "y": 22,
-  "name": "Reset sign",
+  "map": "cyclingroad",
+  "x": 45,
+  "y": 40,
+  "name": "Biker 3",
   "lines": [
-   "There is a message next to a button...",
-   "\"To reset the green switch, press the button.\"",
-   "You can't resist the urge to press the button.",
-   "...",
-   "You are not stuck anymore.",
-   "Nothing happens."
+   "I really enjoy letting myself go with the speed!",
+   "But to get back on the slope, you must strain your legs a lot..."
+  ]
+ },
+ {
+  "map": "elevator-1",
+  "x": 10,
+  "y": 16,
+  "name": "Hostess",
+  "lines": [
+   "We are currently on floor .",
+   "We are already on that floor?!",
+   "Certainly.",
+   "Certainly."
   ]
  },
  {
@@ -613,986 +179,63 @@
   ]
  },
  {
-  "map": "labo",
-  "x": 21,
-  "y": 17,
-  "name": "Professor Elm",
+  "map": "exterior",
+  "x": 24,
+  "y": 31,
+  "name": "Timelord",
   "lines": [
-   "Hi, young Trainer!",
-   "My dear friend, Mr. Stockmonster, just sent me this Egg.",
-   "Unfortunately, I'm stuck in this Laboratory, and if I were to keep it, I'm afraid it wouldn't hatch soon...",
-   "Could you look after it, please?",
-   "Wonderful!",
-   "received an Egg from Professor Elm![WAIT 150]"
+   "The problem of time isn't one to begin with...",
+   "I knew you'd come... You see, I possess powers beyond anything you could ever imagine.",
+   "Warping time is child's play for me...",
+   "I can share it with you if you want.",
+   "For instance, I'm able to change the frame of reference of time in our reality.",
+   "I can choose to swap time to a real clock, so your PC's, or a virtual clock."
   ]
  },
  {
-  "map": "labo",
-  "x": 27,
-  "y": 22,
-  "name": "Rename",
-  "lines": [
-   "Hello, young Maker!",
-   "I am the official Name Rater!",
-   "Want me to rate the nicknames of your Stockmonster?",
-   "Which Stockmonster's nickname should I critique?",
-   "Now, now. That is merely an Egg! An Egg can go by no other name!",
-   "[POKE], is it? Hmm... That is a decent nickname!"
-  ]
- },
- {
-  "map": "labo",
-  "x": 41,
-  "y": 25,
-  "name": "Hidden Power",
-  "lines": [
-   "I’ll tell you what type your Stockmonster’s Hidden Power will be.",
-   "My own hidden power lets me do that.",
-   "If this Stockmonster were to learn [MOVE], the move’s type would be [POWER].",
-   "If you want to know, ask me, and I’ll activate my hidden power for you."
-  ]
- },
- {
-  "map": "labo",
-  "x": 44,
-  "y": 17,
-  "name": null,
-  "lines": [
-   "Woo-hoo-hoo!",
-   "I can mimic any Stockmonster's cry!",
-   "You'll have to wait a bit more before I can mimic this Stockmonster's cry...",
-   "That's the cry of [POKE]! Woo-hoo-hoo![WAIT 50]",
-   "What a nice melody!"
-  ]
- },
- {
-  "map": "labo",
-  "x": 18,
-  "y": 25,
-  "name": "Rotom (wash)",
-  "lines": [
-   "It’s a washing machine.",
-   "Do you want to let Rotom out of its Ball?",
-   "Oh? [POKE] appears as if it wants to go into the motor.",
-   "Allow it to enter the motor?",
-   "[POKE] entered the motor.",
-   "[POKE] reluctantly gave up on entering the washing machine’s motor..."
-  ]
- },
- {
-  "map": "labo",
-  "x": 19,
-  "y": 25,
-  "name": "Rotom (heat)",
-  "lines": [
-   "It’s a microwave oven.",
-   "Do you want to let Rotom out of its Ball?",
-   "Oh? [POKE] appears as if it wants to go into the motor.",
-   "Allow it to enter the motor?",
-   "[POKE] entered the motor.",
-   "[POKE] reluctantly gave up on entering the rotary fan’s motor..."
-  ]
- },
- {
-  "map": "labo",
-  "x": 20,
-  "y": 25,
-  "name": "Rotom (mow)",
-  "lines": [
-   "It’s a lawn mower.",
-   "Do you want to let Rotom out of its Ball?",
-   "Oh? [POKE] appears as if it wants to go into the motor.",
-   "Allow it to enter the motor?",
-   "[POKE] entered the motor.",
-   "[POKE] reluctantly gave up on entering the rotary fan’s motor..."
-  ]
- },
- {
-  "map": "labo",
-  "x": 21,
-  "y": 25,
-  "name": "Rotom (frost)",
-  "lines": [
-   "It’s a refrigerator.",
-   "Do you want to let Rotom out of its Ball?",
-   "Oh? [POKE] appears as if it wants to go into the motor.",
-   "Allow it to enter the motor?",
-   "[POKE] entered the motor.",
-   "[POKE] reluctantly gave up on entering the rotary fan’s motor..."
-  ]
- },
- {
-  "map": "labo",
-  "x": 22,
-  "y": 25,
-  "name": "Rotom (fan)",
-  "lines": [
-   "It’s a rotary fan.",
-   "Do you want to let Rotom out of its Ball?",
-   "Oh? [POKE] appears as if it wants to go into the motor.",
-   "Allow it to enter the motor?",
-   "[POKE] entered the motor.",
-   "[POKE] reluctantly gave up on entering the rotary fan’s motor..."
-  ]
- },
- {
-  "map": "labo",
-  "x": 23,
-  "y": 25,
-  "name": null,
-  "lines": [
-   "Remarkably, Rotom has the ability to enter and merge with special motors.",
-   "Fascinating how it can integrate all kinds of machines!",
-   "Oh, I see you have one with you!",
-   "It even has a special form!",
-   "It looks like you master everything there is to know about this wonderful Stockmonster.",
-   "You should take a look at the devices behind me!"
-  ]
- },
- {
-  "map": "labo",
+  "map": "exterior",
   "x": 43,
-  "y": 25,
-  "name": null,
+  "y": 43,
+  "name": "Berry lady",
   "lines": [
-   "I'm a big fan of Porygon and its family!",
-   "I heard they sometimes prefered to be kept in the Storage System rather than with their Trainer...",
-   "Do you have a Porygon or one of its evolution in your PC?",
-   "Amazing! It must feel at ease.",
-   "Hmm... Too bad."
+   "The Oran Berry plant has grown very fast, it puts a smile on my face!",
+   "With that said, there's still some time left until the Sitrus Berries grow into maturity...",
+   "Oh sorry, I didn't hear you there, I was too lost in thought about these Berry trees!",
+   "You see, StockmonsterSDK is capable of directly managing Berries and their growth.",
+   "It's recommended to directly initialize the Berry trees inside your introduction.",
+   "As does this demo!"
   ]
  },
  {
-  "map": "labo",
-  "x": 40,
-  "y": 22,
-  "name": "Check if shiny",
+  "map": "exterior",
+  "x": 25,
+  "y": 47,
+  "name": "The Rumor Guy",
   "lines": [
-   "I'm a Shinies fanatic!",
-   "You know, shiny Stockmonster have an unusual coloration.",
-   "Have you ever caught one?",
-   "Oh! Splendid!",
-   "Look...[WAIT 60] Would you give it to me?",
-   "..."
+   "There's a rumor going around about the Tower, apparently it took years to build it.",
+   "Those rumors also say that in the beginning, it was supposed to be a small region, but their conceptors thought it was too ambitious...",
+   "But some other rumors say that apparently, this region project wasn't given up on!",
+   "But, well, those are rumors at the end of the day..."
   ]
  },
  {
-  "map": "labo",
-  "x": 37,
-  "y": 21,
-  "name": "Professor Birch",
-  "lines": [
-   "So, how’s your Ledger coming along?:",
-   "I can easily check the number of Stockmonster you've seen or caught with the variables 2 and 3.:",
-   "Hmm, let's see...",
-   "Excellent! You've seen more than 40 Stockmonster on the Island![WAIT 400]:",
-   "You seem to be good at collecting Stockmonster!:",
-   "As promised, here's my Intriguing Stone.:"
-  ]
- },
- {
-  "map": "labo",
-  "x": 30,
-  "y": 27,
-  "name": "give PKMN in PC",
-  "lines": [
-   "I'm not allowed to use my Heliolisk here because it could damage the equipment...",
-   "It's a bit special because I taught it Flamethrower!",
-   "That suits it perfectly because it's red as fire.",
-   "Would you train it for me?",
-   "So cool!",
-   "received Heliolisk![WAIT 240]"
-  ]
- },
- {
-  "map": "labo",
-  "x": 32,
-  "y": 22,
-  "name": "Professor Rowan",
-  "lines": [
-   "Hello! I can see you're intrigued by that machine right there...:",
-   "As you can see, it displays 3 Balls.:",
-   "Each one contains a special Stockmonster.:",
-   "Chose the one you like best, I'll give it to you!:"
-  ]
- },
- {
-  "map": "labo",
-  "x": 17,
-  "y": 27,
-  "name": "Dustbin",
-  "lines": [
-   "It's empty..."
-  ]
- },
- {
-  "map": "labo",
-  "x": 18,
-  "y": 16,
-  "name": "Dustbin",
-  "lines": [
-   "It's empty..."
-  ]
- },
- {
-  "map": "labo",
-  "x": 34,
-  "y": 23,
-  "name": "Professor Rowan",
-  "lines": [
-   "Hello! I can see you're intrigued by that machine right there...:",
-   "As you can see, it displays 3 Balls.:",
-   "Each one contains a special Stockmonster.:",
-   "Chose the one you like best, I'll give it to you!:"
-  ]
- },
- {
-  "map": "labo",
+  "map": "exterior",
   "x": 24,
-  "y": 17,
-  "name": "Bill",
+  "y": 62,
+  "name": "Sailor",
   "lines": [
-   "I found this funny Stockmonster in the Rocky Cavern.:",
-   "I'm more into programming rather than battling, so I can give it to you.:",
-   "received Klink from Bill![WAIT 240]",
-   "As I used \"store_pokemon\", this Klink was directly stored into your PC!:"
+   "You already want to leave ?",
+   "I'm not ready at all to weigh anchor!"
   ]
  },
  {
-  "map": "labo",
-  "x": 19,
-  "y": 19,
-  "name": "Add_rename",
-  "lines": [
-   "The Laboratory staff called me to get rid of all those Bug Stockmonster nibbling the power cables.",
-   "But I don't even know what to do with all of those I catch!",
-   "Would you like a free Bug Stockmonster?",
-   "received Caterpie![WAIT 240]",
-   "I used the command \"add_pokemon\", which simply adds a Stockmonster to your party, without asking you if you want to rename it.",
-   "But I think there's an old man who can rename your Stockmonster in the middle of this room."
-  ]
- },
- {
-  "map": "labo",
-  "x": 39,
-  "y": 16,
-  "name": "Professor Oak",
-  "lines": [
-   "Hello and welcome.[WAIT 10].[WAIT 10].[WAIT 10]:",
-   "Sorry, I'm used to introduce myself this way to new Trainers...:",
-   "Would like me to show you my introduction from the beginning?:",
-   "Well then...:",
-   "I understand... Please come see me if you want to relive your first steps as a Trainer.:"
-  ]
- },
- {
-  "map": "library",
-  "x": 27,
-  "y": 15,
-  "name": "Window position",
-  "lines": [
-   "Note: you can display messages on other parts of the screen (top, middle, bottom, left, right, custom coordinates...) with \"position_overwrite\"."
-  ]
- },
- {
-  "map": "library",
-  "x": 32,
-  "y": 23,
-  "name": "Lookto",
-  "lines": [
-   "Welcome to the Tower's Library!",
-   "[lookto=9]:On your left: books...",
-   "[lookto=8]:And on your right too!",
-   "[lookto=11]:Thanks to \"[lookto=N]\", I can make you look towards any event!"
-  ]
- },
- {
-  "map": "library",
-  "x": 31,
-  "y": 21,
-  "name": "Refering names",
-  "lines": [
-   "Hello ! You're the  of this demo!",
-   "I can display your name by putting \"\\\" in my message.",
-   "By the way, I can adapt to your gender with \"\\\" to display two different words depending on the appearance you chose.",
-   "I know the names of your Stockmonster as well!",
-   "For instance, the first Stockmonster of your Party is ."
-  ]
- },
- {
-  "map": "library",
+  "map": "exterior",
   "x": 33,
-  "y": 22,
-  "name": "Money",
+  "y": 63,
+  "name": "Lass",
   "lines": [
-   "Hello! I can see you currently have $.",
-   "I know it thanks to the \"\\\" command, that displays a variable inside a message.",
-   "In this case, I made the temporary variable 26 equal to the money you have.",
-   "But I can also display it on a separate window, like that, by writing \"\\\" anywhere in my message.",
-   "Well, this is completely useless here because you can rent all the books for free!"
-  ]
- },
- {
-  "map": "library",
-  "x": 39,
-  "y": 16,
-  "name": "Colors",
-  "lines": [
-   "I'm looking for a book about rainbows. Crazy what you can do with \"\\\"!",
-   "You can color your text in many ways.",
-   "Everything is managed in the \"_colors.png\" file located in the Windowskins folder.",
-   "The first line is for the colors of outlines (not very functional...).",
-   "The middle line is for the colors of the text.",
-   "And the third line is for the colors of the shadows!"
-  ]
- },
- {
-  "map": "library",
-  "x": 46,
-  "y": 25,
-  "name": "Image",
-  "lines": [
-   "Oh, your Bag has a mg[pocket-keys,picture]Key Items Pocket!",
-   "mg[713,icon]It is perfect to store a",
-   "Did you see it? Thanks to \"\\mg[...]\", I can display pictures in a message, and they even can come from subfolders!"
-  ]
- },
- {
-  "map": "library",
-  "x": 46,
-  "y": 18,
-  "name": "Steven Stone;face=160,steven_sma",
-  "lines": [
-   "Since I'm a real celebrity, my messages display my name and my portrait!",
-   "To do that, I use \"\" and \"[face]\" in my message.",
-   "By the way, to be even more classy, I can even have a different windowskin for my name."
-  ]
- },
- {
-  "map": "library",
-  "x": 27,
-  "y": 21,
-  "name": "Map picture",
-  "lines": [
-   "I found a great command to display the map of the location you're in within a message! Take a look...",
-   "[city=city/library]:Library",
-   "It's thanks to \"[city=]\" that I can display this kind of message, coupled with a change of windowskin.",
-   "Well, it's not very useful for the library..."
-  ]
- },
- {
-  "map": "library",
-  "x": 20,
-  "y": 24,
-  "name": "More than 4 choices",
-  "lines": [
-   "General knowledge test.",
-   "Question 1:",
-   "Correct![WAIT 40]",
-   "Question 2:",
-   "Correct![WAIT 40]",
-   "Question 3:"
-  ]
- },
- {
-  "map": "library",
-  "x": 40,
-  "y": 22,
-  "name": "Choice on top",
-  "lines": [
-   "Did you know you can display the choice window somewhere else than on the bottom right?",
-   "Oh... I thought I could teach you something.",
-   "To do that, you need to trigger switch number 26.",
-   "Glad I could help!",
-   "What? If you didn't know and now you do, it must have been useful, right?",
-   "By the way, you can insert colors within your choices, like in any other message, with \"\\\"."
-  ]
- },
- {
-  "map": "library",
-  "x": 31,
-  "y": 24,
-  "name": "Virtual key",
-  "lines": [
-   "Press  to open the menu.",
-   "This message uses \"\\\" to display a key in a dynamic way."
-  ]
- },
- {
-  "map": "library",
-  "x": 17,
-  "y": 27,
-  "name": "Dustbin",
-  "lines": [
-   "It's empty..."
-  ]
- },
- {
-  "map": "library",
-  "x": 22,
-  "y": 24,
-  "name": "Bookshelf",
-  "lines": [
-   "The shelves are filled with books about Stockmonster."
-  ]
- },
- {
-  "map": "library",
-  "x": 23,
-  "y": 24,
-  "name": "Bookshelf",
-  "lines": [
-   "The shelves are filled with books about Stockmonster."
-  ]
- },
- {
-  "map": "library",
-  "x": 41,
-  "y": 16,
-  "name": "Bookshelf",
-  "lines": [
-   "The shelves are filled with books about Stockmonster."
-  ]
- },
- {
-  "map": "library",
-  "x": 42,
-  "y": 16,
-  "name": "Bookshelf",
-  "lines": [
-   "The shelves are filled with books about Stockmonster."
-  ]
- },
- {
-  "map": "library",
-  "x": 44,
-  "y": 15,
-  "name": "Bookshelf",
-  "lines": [
-   "It's StockmonsterSDK's documentation!"
-  ]
- },
- {
-  "map": "library",
-  "x": 45,
-  "y": 16,
-  "name": "Bookshelf",
-  "lines": [
-   "There are tons of books about the Ruby language."
-  ]
- },
- {
-  "map": "library",
-  "x": 38,
-  "y": 16,
-  "name": "Bookshelf",
-  "lines": [
-   "It's a book collection about graphic design."
-  ]
- },
- {
-  "map": "library",
-  "x": 25,
-  "y": 21,
-  "name": "Book",
-  "lines": [
-   "It's a repository on tongue twisters."
-  ]
- },
- {
-  "map": "library",
-  "x": 26,
-  "y": 22,
-  "name": "Books",
-  "lines": [
-   "A pile of publications about pixel art."
-  ]
- },
- {
-  "map": "library",
-  "x": 24,
-  "y": 19,
-  "name": "EV031",
-  "lines": [
-   "A pile of publications about event-making."
-  ]
- },
- {
-  "map": "library",
-  "x": 23,
-  "y": 16,
-  "name": "Bookshelf",
-  "lines": [
-   "There is a big book named \"Vademecum of the Project Manager\", by Aerun."
-  ]
- },
- {
-  "map": "library",
-  "x": 19,
-  "y": 16,
-  "name": "Bookshelf",
-  "lines": [
-   "There is a dusty manual titled \"Fangames and Law\", by SirMalo."
-  ]
- },
- {
-  "map": "library",
-  "x": 22,
-  "y": 16,
-  "name": "Bookshelf",
-  "lines": [
-   "The shelves are filled with books about Stockmonster."
-  ]
- },
- {
-  "map": "library",
-  "x": 26,
-  "y": 16,
-  "name": "Bookshelf",
-  "lines": [
-   "The shelves are filled with books about Stockmonster."
-  ]
- },
- {
-  "map": "library",
-  "x": 37,
-  "y": 16,
-  "name": "Vending Machine",
-  "lines": [
-   "It's a vending machine.",
-   "Clang!",
-   "A bottle of  dropped down.",
-   "Received: .[WAIT 80]",
-   "put the  bottle",
-   "Not enough money..."
-  ]
- },
- {
-  "map": "library",
-  "x": 41,
-  "y": 24,
-  "name": "Bookshelf",
-  "lines": [
-   "There is a complete collection of mangas about a Trainer and his partners Poliwhirl, Bulbasaur and Pikachu."
-  ]
- },
- {
-  "map": "library",
-  "x": 42,
-  "y": 24,
-  "name": "Bookshelf",
-  "lines": [
-   "There is a complete collection of mangas about a Trainer and his partners Poliwhirl, Bulbasaur and Pikachu."
-  ]
- },
- {
-  "map": "library",
-  "x": 36,
-  "y": 27,
-  "name": "Dynamic text",
-  "lines": [
-   "The big clock in the middle of the Library gives me the hour at any time of the day. For instance, it's currently [HOUR].",
-   "If I can say it with such confidence, it's because the \"text.set_variable\" command allows me to store a complex variable and to transcribe it inside a message.",
-   "I know SirMalo often uses it, especially when he gives their starter Stockmonster to newcomers."
-  ]
- },
- {
-  "map": "library",
-  "x": 25,
-  "y": 17,
-  "name": "Autoskip",
-  "lines": [
-   "Who's annoying me while I'm reading?",
-   "What? You didn't hear what I just said?",
-   "That's normal, I used the \"auto_skip\" command, which closes the message window as soon as the text is over.",
-   "To give enough time to read the message, you can combine it with the \"[WAIT]\" command!",
-   "I believe the guy wearing glasses on our left knows more about this subject."
-  ]
- },
- {
-  "map": "library",
-  "x": 20,
-  "y": 25,
-  "name": "$ Tester",
-  "lines": [
-   "A... tongue-twister sentence?",
-   "I try to pass the test, but it's really hard!",
-   "Here, give it a try."
-  ]
- },
- {
-  "map": "library",
-  "x": 30,
-  "y": 22,
-  "name": "Books",
-  "lines": [
-   "A pile of books with strange writing.",
-   "The title is in a language you don't seem to know.",
-   "Learn unown.",
-   "Despite all your efforts, you are unable to decipher it."
-  ]
- },
- {
-  "map": "library",
-  "x": 24,
-  "y": 22,
-  "name": "Message speed",
-  "lines": [
-   "pd[1]How much lunch could a Munchlax munch if a Munchlax could munch lunch?",
-   "I'm reading a collection of sentences that are quite hard to pronounce, so I use the \"\\pd[N]\" command to read them slowly."
-  ]
- },
- {
-  "map": "library",
-  "x": 20,
-  "y": 16,
-  "name": "Wait",
-  "lines": [
-   "Which book will I take[WAIT 15].[WAIT 15].[WAIT 15].[WAIT 45]",
-   "I need time to think, so I insert \"[WAIT N]\" in my message to take a break."
-  ]
- },
- {
-  "map": "library",
-  "x": 24,
-  "y": 16,
-  "name": "Book align",
-  "lines": [
-   "[align=center]:Guide:",
-   "Adding \"[align=]\" in a message justifies the text to the left or to the right, or centers it."
-  ]
- },
- {
-  "map": "library",
-  "x": 44,
-  "y": 24,
-  "name": "Bold italic",
-  "lines": [
-   "[align=center]:Guide:",
-   "The \"\\\" command puts the text in bold"
-  ]
- },
- {
-  "map": "library",
-  "x": 18,
-  "y": 25,
-  "name": "Big text",
-  "lines": [
-   "Z[WAIT 15]z[WAIT 15]Z[WAIT 15]z[WAIT 15]Z[WAIT 15]z[WAIT 15]Z[WAIT 15]z[WAIT 15]...",
-   "[align=center]:\\^AAAAH!!!",
-   "You woke me up and made me scream while we're in a library!",
-   "So, where was I... [WAIT 45]Oh, yes!",
-   "Z[WAIT 15]z[WAIT 15]Z[WAIT 15]z[WAIT 15]Z[WAIT 15]z[WAIT 15]Z[WAIT 15]z[WAIT 15]..."
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 22,
-  "y": 24,
-  "name": "Move follower",
-  "lines": [
-   "I can teach a little trick to following Stockmonster.",
-   "But only one Stockmonster would have to follow you...",
-   "You can ask the Pokéfan seated on the right to change the number of following Stockmonster and come back!",
-   "Check that.",
-   "[POKE], do a backstep!",
-   "Now, jump!"
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 40,
-  "y": 16,
-  "name": null,
-  "lines": [
-   "A green light flashes across the screen."
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 39,
-  "y": 16,
-  "name": "Animate from charset",
-  "lines": [
-   "The machine right there has a little animated screen.",
-   "I installed the \"animate_from_charset\" command on it to animate it easily.",
-   "You can directly put it inside the autonomous movement settings of an event, but also in a distinct event as well.",
-   "Use this command to animate one or several lines of an event's character.",
-   "You just need to indicate which lines to animate and the total duration of the animation!",
-   "You can even loop the animation (\"repeat: true\") or reverse it (\"reverse: true\")."
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 36,
-  "y": 21,
-  "name": "Runner",
-  "lines": [
-   "I'm training for a marathon.",
-   "My Croagunk is following me because I put the nametag \"[follow=ID]\" in its name and I filled in my ID."
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 35,
-  "y": 21,
-  "name": "[follow=13]",
-  "lines": [
-   "Croaaa!"
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 27,
-  "y": 23,
-  "name": "LGPE follow-me",
-  "lines": [
-   "Hi!",
-   "Would you like me to?",
-   "Let me just change a little something...[WAIT 60]",
-   "Now, you can simply select the Stockmonster you want in your Party menu.",
-   "Each to their own, after all.",
-   "Tired of the \"Let's Go\" mode?"
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 18,
-  "y": 16,
-  "name": "$Human follower",
-  "lines": [
-   "I study people's travel habits.",
-   "Can I follow you for a while?",
-   "I notice you're already followed.",
-   "Would you like to keep your Stockmonster outside or recall them?",
-   "Ok!",
-   "Ok!"
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 46,
-  "y": 16,
-  "name": "Nuri Yuri",
-  "lines": [
-   "I like hanging out in this place.:",
-   "If you answer all my questions, I'll give you a pretty trinket!:",
-   "Are you in?:",
-   "Question 1:",
-   "Wrong!",
-   "Wrong!"
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 42,
-  "y": 23,
-  "name": "[sprite=off] Mug",
-  "lines": [
-   "As this mug doesn't need to have an event graphics, its name has the nametag \"[sprite=off]\"."
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 18,
-  "y": 24,
-  "name": "Kirlia",
-  "lines": [
-   "My Kirlia can teleport objects and people!",
-   "It's thanks to its move Teleport, but also with the \"$game_player.moveto\" command.",
-   "Unlike the basic warping command, \"moveto\" doesn't reinitialize the map or the music.",
-   "It's quite handy in some situations.",
-   "Do you want to try it yourself?",
-   "Kirlia, use Teleport!"
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 18,
-  "y": 25,
-  "name": "Kirlia",
-  "lines": [
-   "Kiii ![WAIT 50]"
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 26,
-  "y": 16,
-  "name": "$ Beauty",
-  "lines": [
-   "Hello!",
-   "I've got the nametag $ in my event's name, so my graphics stay the same on all the pages of my event.",
-   "What do you think about that?"
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 46,
-  "y": 24,
-  "name": null,
-  "lines": [
-   "I asked my Ghost Stockmonster to make me half-transparent like him!",
-   "I also used the nametag § to delete my shadow.",
-   "Sheesh!"
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 30,
-  "y": 22,
-  "name": "Follow-me",
-  "lines": [
-   "I see you enabled the \"Let's Go\" mode for followers.",
-   "If you want to make some manipulations on followers based on the HGSS versions, I need to disable it first.",
-   "All right! I disable the system then.",
-   "Very fine.",
-   "So, do your Stockmonster enjoy the walk?",
-   "Do you want to change somehting?"
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 28,
-  "y": 22,
-  "name": "[sprite=off] Mug",
-  "lines": [
-   "Since this mug's graphics are already on the tileset, it has the nametag \"[sprite=off]\"."
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 34,
-  "y": 26,
-  "name": "Event height",
-  "lines": [
-   "I train my Tynamo so that it levitates very high.",
-   "With its Ability Levitate, it has no weakness!",
-   "The technic might look quite complex, but if you read the comments in the event carrefully, you'll get it.",
-   "Check that.",
-   "Nice!",
-   "Now, back down."
-  ]
- },
- {
-  "map": "photostudio",
-  "x": 35,
-  "y": 26,
-  "name": "Tynamo",
-  "lines": [
-   "Namo, Namo![WAIT 50]"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 28,
-  "y": 16,
-  "name": "invisible_coins",
-  "lines": [
-   "found 25 Coins!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 19,
-  "y": 23,
-  "name": "invisible_coins",
-  "lines": [
-   "found 25 Coins!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 36,
-  "y": 20,
-  "name": "invisible_coins",
-  "lines": [
-   "found 25 Coins!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 17,
-  "y": 17,
-  "name": "invisible_coins",
-  "lines": [
-   "found 25 Coins!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 36,
-  "y": 16,
-  "name": "invisible_coins",
-  "lines": [
-   "found 100 Coins! It's a day of celebration!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 17,
-  "y": 16,
-  "name": null,
-  "lines": [
-   "Mining Game: Activated!",
-   "What do you want to do?",
-   "This machine was set with the following parameters:",
-   "You have played [NB_LAUNCH] time(s), won [NB_WIN] time(s), and lost [NB_LOSE] time(s).",
-   "You have hit with the pickaxe [NB_PICKAXE] time(s), with the mace [NB_MACE] time(s), and with the dynamite [NB_DYNAMITE] time(s).",
-   "You have hit with the pickaxe [NB_PICKAXE] time(s) and with the mace [NB_MACE] time(s)."
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 32,
-  "y": 23,
-  "name": null,
-  "lines": [
-   "Do you want to play Voltorb Flip? A game costs 5 Coins.",
-   "You don't have enough Coins.",
-   "You need a Coin Case to play!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 18,
-  "y": 16,
-  "name": null,
-  "lines": [
-   "Mining Game: activated!",
-   "What do you want to do?",
-   "This machine was set with the following parameters:",
-   "You have played [NB_LAUNCH] time(s), won [NB_WIN] time(s), and lost [NB_LOSE] time(s).",
-   "You have hit with the pickaxe [NB_PICKAXE] time(s), with the mace [NB_MACE] time(s), and with the dynamite [NB_DYNAMITE] time(s).",
-   "You have hit with the pickaxe [NB_PICKAXE] time(s) and with the mace [NB_MACE] time(s)."
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 19,
-  "y": 16,
-  "name": null,
-  "lines": [
-   "Mining Game: activated!",
-   "What do you want to do?",
-   "This machine was set with the following parameters:",
-   "You have played [NB_LAUNCH] time(s), won [NB_WIN] time(s), and lost [NB_LOSE] time(s).",
-   "You have hit with the pickaxe [NB_PICKAXE] time(s), with the mace [NB_MACE] time(s), and with the dynamite [NB_DYNAMITE] time(s).",
-   "You have hit with the pickaxe [NB_PICKAXE] time(s) and with the mace [NB_MACE] time(s)."
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 20,
-  "y": 16,
-  "name": null,
-  "lines": [
-   "Mining Game: activated!",
-   "What do you want to do?",
-   "This machine was set with the following parameters:",
-   "You have played [NB_LAUNCH] time(s), won [NB_WIN] time(s), and lost [NB_LOSE] time(s).",
-   "You have hit with the pickaxe [NB_PICKAXE] time(s), with the mace [NB_MACE] time(s), and with the dynamite [NB_DYNAMITE] time(s).",
-   "You have hit with the pickaxe [NB_PICKAXE] time(s) and with the mace [NB_MACE] time(s)."
+   "I was told by a friend that we can't fish on the dock.",
+   "Something about a \"Sea System Tag\" not applied, or something like that..."
   ]
  },
  {
@@ -1652,498 +295,311 @@
   ]
  },
  {
-  "map": "gamecorner",
-  "x": 31,
-  "y": 23,
-  "name": "Voltorb Flip Side",
+  "map": "hub",
+  "x": 24,
+  "y": 28,
+  "name": "Move Reminder",
   "lines": [
-   "Do you want to play Voltorb Flip? A game costs 5 Coins.",
-   "You don't have enough Coins.",
-   "You need a Coin Case to play!"
+   "Hello!",
+   "If you want, I can teach one of your companions a move they might have forget during their growth.",
+   "Nothing suited you?",
+   "I'm sure your Stockmonster will be stronger this way!",
+   "Unfortunately, there is nothing to teach to your Stockmonster...",
+   "You can sometimes come across unsuspected moves!"
   ]
  },
  {
-  "map": "gamecorner",
-  "x": 31,
-  "y": 22,
-  "name": "Voltorb Flip Side",
+  "map": "hub",
+  "x": 26,
+  "y": 28,
+  "name": "Move Tutor",
   "lines": [
-   "Do you want to play Voltorb Flip? A game costs 5 Coins.",
-   "You don't have enough Coins.",
-   "You need a Coin Case to play!"
+   "I can teach a very useful move to help you catch Stockmonster.",
+   "Are you interested?",
+   "To which Stockmonster do you want to teach it?",
+   "This move always leaves at least 1 HP to its target.",
+   "It's a must-have for any self-respecting Trainer, if you want my opinion.",
+   "Unfortunately, I can't teach this move to your Stockmonster..."
   ]
  },
  {
-  "map": "gamecorner",
+  "map": "hub",
+  "x": 31,
+  "y": 33,
+  "name": "Roughneck",
+  "lines": [
+   "Who's daddy's little good boy?",
+   "Erm, it's not what it looks like..!",
+   "Rockruff, use Growl!",
+   "Good!"
+  ]
+ },
+ {
+  "map": "hub",
   "x": 32,
-  "y": 22,
-  "name": "Voltorb Flip Side",
+  "y": 33,
+  "name": "Rockruff",
   "lines": [
-   "Do you want to play Voltorb Flip? A game costs 5 Coins.",
-   "You don't have enough Coins.",
-   "You need a Coin Case to play!"
+   "Would you like to pet the Rockruff?",
+   "Ruff! Ruff!",
+   "Rockruff seems disappointed..."
   ]
  },
  {
-  "map": "gamecorner",
-  "x": 33,
-  "y": 22,
-  "name": "Voltorb Flip Side",
+  "map": "hub",
+  "x": 28,
+  "y": 36,
+  "name": "Jules",
   "lines": [
-   "Do you want to play Voltorb Flip? A game costs 5 Coins.",
-   "You don't have enough Coins.",
-   "You need a Coin Case to play!"
+   "Do you know about this chick who fell off the other side of the guardrail not long ago, behind the Tower?",
+   "No kidding, dying like that is wack, not even badass or something...",
+   "Some people are saying her ghost haunts the grounds at night since her death.",
+   "If I died the same way, I'd be too salty not to haunt the area.",
+   "But well, revenants don't exist, the only ghosts are the Stockmonster, right..?"
   ]
  },
  {
-  "map": "gamecorner",
-  "x": 33,
-  "y": 23,
-  "name": "Voltorb Flip Side",
-  "lines": [
-   "Do you want to play Voltorb Flip? A game costs 5 Coins.",
-   "You don't have enough Coins.",
-   "You need a Coin Case to play!"
-  ]
- },
- {
-  "map": "gamecorner",
+  "map": "hub",
   "x": 22,
-  "y": 16,
-  "name": null,
+  "y": 38,
+  "name": "EasterEggOWO",
   "lines": [
-   "Do you want to play Ruins of Alph?",
-   "You have completed Puzzle number 1!",
-   "For your first win, we offer you 500 Coins!"
+   "It's a promotional poster. A slogan is written on it.",
+   "\"You wanna be the very best, like no one ever was."
   ]
  },
  {
-  "map": "gamecorner",
-  "x": 23,
-  "y": 16,
-  "name": null,
-  "lines": [
-   "Do you want to play Ruins of Alph?",
-   "You have completed Puzzle number 2!",
-   "For your first win, we offer you 500 Coins!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 24,
-  "y": 16,
-  "name": null,
-  "lines": [
-   "Do you want to play Ruins of Alph?",
-   "You have completed Puzzle number 3!",
-   "For your first win, we offer you 500 Coins!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 25,
-  "y": 16,
-  "name": null,
-  "lines": [
-   "Do you want to play Ruins of Alph?",
-   "You have completed Puzzle number 4!",
-   "For your first win, we offer you 500 Coins!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 39,
-  "y": 16,
-  "name": "Slot machine",
-  "lines": [
-   "Do you want to play the Slot machine?",
-   "You don't have enough Coins.",
-   "You need a Coin Case to play!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 40,
-  "y": 16,
-  "name": "Slot machine",
-  "lines": [
-   "Do you want to play the Slot machine?",
-   "You don't have enough Coins.",
-   "You need a Coin Case to play!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 41,
-  "y": 16,
-  "name": "Slot machine",
-  "lines": [
-   "Do you want to play the Slot machine?",
-   "You don't have enough Coins.",
-   "You need a Coin Case to play!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 42,
-  "y": 16,
-  "name": "Slot machine",
-  "lines": [
-   "Do you want to play the Slot machine?",
-   "You don't have enough Coins.",
-   "You need a Coin Case to play!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 46,
-  "y": 17,
-  "name": "Walven",
-  "lines": [
-   "Wh-what? The machines turn off after one use? You don't want to mess it up...",
-   "Oh excuse-me, was I blocking you?",
-   "It looks like you have an Explorer Kit.",
-   "Hm? Oh, you've heard about me?",
-   "How is your stay going so far?",
-   "Great! We gave our all so you can enjoy it!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 21,
-  "y": 27,
-  "name": "Rich Boy",
-  "lines": [
-   "I'm on a date with my fiancée, but it looks like she's not liking this place that much..."
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 23,
-  "y": 27,
-  "name": "Lady",
-  "lines": [
-   "I'm on a date with my fiancé, but to be honest, I'd had prefer a picnic on the Prairie Stream..."
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 31,
-  "y": 16,
-  "name": "$Game Corner Waiter",
-  "lines": [
-   "Welcome, dear Player, to our humble institution.",
-   "How can I help you?",
-   "All right.",
-   "Which one would you like?",
-   "Your Coins.",
-   "I'm sorry, it looks like you don't have enough money for this purchase..."
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 36,
-  "y": 22,
-  "name": "Hostess2",
-  "lines": [
-   "Hello, and welcome to our Prize Corner!",
-   "We exchange Coins for remarkable Stockmonster, trained with love and in compliance with international law...",
-   "Which Stockmonster would you like?",
-   "A Bagon for 1000 Coins.",
-   "Thank you for your purchase!",
-   "Sorry, but it looks like you don't have enough Coins..."
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 28,
-  "y": 22,
-  "name": "Hostess1",
-  "lines": [
-   "Hello, and welcome to our Prize Corner!",
-   "We exchange Coins for fantastic prize!",
-   "Which prize would you like?",
-   "A Rare Candy for 500 Coins.",
-   "Thank you for your purchase!",
-   "Sorry, but it looks like you don't have enough Coins..."
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 40,
-  "y": 17,
-  "name": "EV044",
-  "lines": [
-   "If I hit the jackpot, I'll finally be able to leave Team Rocket and go settle in the Totodile Islands!",
-   "...",
-   "Darn, I missed again!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 18,
-  "y": 27,
-  "name": "invisible_coins",
-  "lines": [
-   "found 25 Coins!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 26,
-  "y": 24,
-  "name": "invisible_coins",
-  "lines": [
-   "found 25 Coins!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 44,
-  "y": 26,
-  "name": "invisible_coins",
-  "lines": [
-   "found 25 Coins!"
-  ]
- },
- {
-  "map": "gamecorner",
-  "x": 47,
-  "y": 19,
-  "name": "invisible_coins",
-  "lines": [
-   "found 25 Coins!"
-  ]
- },
- {
-  "map": "battlearena",
-  "x": 13,
-  "y": 24,
-  "name": "BattleOrdering",
-  "lines": [
-   "Hello and welcome to the battle reservation terminal!",
-   "Do you want to reserve a specific battle?",
-   "Which battle do you want to reserve?",
-   "Excellent choice, we're programming your battle in the shortest possible time.",
-   "Please head to the stage.",
-   "But before, please select the two Stockmonster you will be fighting with."
-  ]
- },
- {
-  "map": "battlearena",
-  "x": 18,
-  "y": 12,
-  "name": null,
-  "lines": [
-   "A voice resonates in your mind...",
-   "\"This door serves no purpose and is there just to look pretty.\""
-  ]
- },
- {
-  "map": "wifi",
-  "x": 13,
-  "y": 14,
-  "name": "OnlineDirectTradeDown",
-  "lines": [
-   "Hello, and welcome to the Online Trade counter!",
-   "Unfortunately, we're unable to propose this feature at the time, but we hope to be able to offer it to you one day."
-  ]
- },
- {
-  "map": "wifi",
-  "x": 21,
-  "y": 14,
-  "name": "OnlineBattleDown",
-  "lines": [
-   "Hello, and welcome to the Online Battle counter!",
-   "Unfortunately, we're unable to propose this feature at the time, but we hope to be able to offer it to you one day."
-  ]
- },
- {
-  "map": "wifi",
-  "x": 13,
-  "y": 17,
-  "name": "$ Trading npc",
-  "lines": [
-   "Hey! I caught a weird Stockmonster that was hiding behind the servers of the Laboratory, but I don't really trust it...",
-   "Do you have a Boldore to trade me?",
-   "Huh! It was supposed to evolve!",
-   ".[WAIT 20].[WAIT 20].[WAIT 20]",
-   "You gave it an Everstone?!",
-   "That's pretty vicious!"
-  ]
- },
- {
-  "map": "wifi",
-  "x": 17,
-  "y": 14,
-  "name": "GTS",
-  "lines": [
-   "Hello, and welcome to the GTS counter!",
-   "This state-of-the-art system will allow you to trade any Stockmonster with any user of this demo!",
-   "If you are using this system for your own fangame, Maker, please check the responsible code for the necessary procedure to adapt this feature to your game!",
-   "Do you want to access the GTS?",
-   "Alright!",
-   "No problem, please come back if you change your mind!"
-  ]
- },
- {
-  "map": "wifi",
-  "x": 11,
-  "y": 16,
-  "name": "EV008",
-  "lines": [
-   "I'm going to prank my friend by trading him a Machoke with an Everstone for his Haunter."
-  ]
- },
- {
-  "map": "wifi",
-  "x": 12,
-  "y": 16,
-  "name": "EV009",
-  "lines": [
-   "I'll trick my friend by sending him a Haunter holding an Everstone for his Machoke, this way I'll be the only one with a powerful Stockmonster!"
-  ]
- },
- {
-  "map": "exterior",
-  "x": 26,
-  "y": 44,
-  "name": "$ Limited Pokemon Seller",
-  "lines": [
-   "I'm planning to sell some of my farm's Stockmonster as I have too many, but the Tower's Staff has yet to give me the official approval...",
-   "Come back again later if you're interested!"
-  ]
- },
- {
-  "map": "exterior",
-  "x": 43,
-  "y": 43,
-  "name": "Berry lady",
-  "lines": [
-   "The Oran Berry plant has grown very fast, it puts a smile on my face!",
-   "With that said, there's still some time left until the Sitrus Berries grow into maturity...",
-   "Oh sorry, I didn't hear you there, I was too lost in thought about these Berry trees!",
-   "You see, StockmonsterSDK is capable of directly managing Berries and their growth.",
-   "It's recommended to directly initialize the Berry trees inside your introduction.",
-   "As does this demo!"
-  ]
- },
- {
-  "map": "exterior",
+  "map": "hub",
   "x": 37,
-  "y": 44,
-  "name": "$ Limited Items Seller",
+  "y": 39,
+  "name": "Cashier 1",
   "lines": [
-   "I have some very rare and useful items to sell, but I was told to wait for the last comer to go to the Tower..."
+   "You have nothing to sell!"
   ]
  },
  {
-  "map": "exterior",
+  "map": "hub",
+  "x": 38,
+  "y": 40,
+  "name": "Cashier 2",
+  "lines": [
+   "Welcome! I'm selling Balls for less than next door...",
+   "I can assure you of their quality!",
+   "The paint might be peeled a bit, but you won't be disappointed in those Balls!",
+   "These are goods which fell of the truck, but still, it's high quality!"
+  ]
+ },
+ {
+  "map": "labo",
+  "x": 27,
+  "y": 22,
+  "name": "Rename",
+  "lines": [
+   "Hello, young Maker!",
+   "I am the official Name Rater!",
+   "Want me to rate the nicknames of your Stockmonster?",
+   "Which Stockmonster's nickname should I critique?",
+   "Now, now. That is merely an Egg! An Egg can go by no other name!",
+   "[POKE], is it? Hmm... That is a decent nickname!"
+  ]
+ },
+ {
+  "map": "labo",
+  "x": 18,
+  "y": 25,
+  "name": "Rotom (wash)",
+  "lines": [
+   "It’s a washing machine.",
+   "Do you want to let Rotom out of its Ball?",
+   "Oh? [POKE] appears as if it wants to go into the motor.",
+   "Allow it to enter the motor?",
+   "[POKE] entered the motor.",
+   "[POKE] reluctantly gave up on entering the washing machine’s motor..."
+  ]
+ },
+ {
+  "map": "labo",
+  "x": 19,
+  "y": 25,
+  "name": "Rotom (heat)",
+  "lines": [
+   "It’s a microwave oven.",
+   "Do you want to let Rotom out of its Ball?",
+   "Oh? [POKE] appears as if it wants to go into the motor.",
+   "Allow it to enter the motor?",
+   "[POKE] entered the motor.",
+   "[POKE] reluctantly gave up on entering the rotary fan’s motor..."
+  ]
+ },
+ {
+  "map": "labo",
+  "x": 21,
+  "y": 25,
+  "name": "Rotom (frost)",
+  "lines": [
+   "It’s a refrigerator.",
+   "Do you want to let Rotom out of its Ball?",
+   "Oh? [POKE] appears as if it wants to go into the motor.",
+   "Allow it to enter the motor?",
+   "[POKE] entered the motor.",
+   "[POKE] reluctantly gave up on entering the rotary fan’s motor..."
+  ]
+ },
+ {
+  "map": "labo",
+  "x": 41,
+  "y": 25,
+  "name": "Hidden Power",
+  "lines": [
+   "I’ll tell you what type your Stockmonster’s Hidden Power will be.",
+   "My own hidden power lets me do that.",
+   "If this Stockmonster were to learn [MOVE], the move’s type would be [POWER].",
+   "If you want to know, ask me, and I’ll activate my hidden power for you."
+  ]
+ },
+ {
+  "map": "library",
   "x": 39,
-  "y": 44,
-  "name": "$ Limited TMs Seller",
+  "y": 16,
+  "name": "Colors",
   "lines": [
-   "Hello, budding strategist!",
-   "I sell some furiously mind-busting TMs, the kind of move necessary to transform a Quagsire into the best of stallers!",
-   ".[WAIT 20].[WAIT 20].[WAIT 60]",
-   "You do understand what I'm saying, right?",
-   "Ah, this puts a smile on my face!",
-   "Oh, sorry then, I got all fired up over nothing,"
+   "I'm looking for a book about rainbows. Crazy what you can do with \"\\\"!",
+   "You can color your text in many ways.",
+   "Everything is managed in the \"_colors.png\" file located in the Windowskins folder.",
+   "The first line is for the colors of outlines (not very functional...).",
+   "The middle line is for the colors of the text.",
+   "And the third line is for the colors of the shadows!"
   ]
  },
  {
-  "map": "exterior",
-  "x": 25,
-  "y": 47,
-  "name": "The Rumor Guy",
+  "map": "library",
+  "x": 31,
+  "y": 21,
+  "name": "Refering names",
   "lines": [
-   "There's a rumor going around about the Tower, apparently it took years to build it.",
-   "Those rumors also say that in the beginning, it was supposed to be a small region, but their conceptors thought it was too ambitious...",
-   "But some other rumors say that apparently, this region project wasn't given up on!",
-   "But, well, those are rumors at the end of the day..."
+   "Hello ! You're the of this demo!",
+   "I can display your name by putting \"\\\" in my message.",
+   "By the way, I can adapt to your gender with \"\\\" to display two different words depending on the appearance you chose.",
+   "I know the names of your Stockmonster as well!",
+   "For instance, the first Stockmonster of your Party is ."
   ]
  },
  {
-  "map": "exterior",
+  "map": "library",
+  "x": 30,
+  "y": 22,
+  "name": "Books",
+  "lines": [
+   "A pile of books with strange writing.",
+   "The title is in a language you don't seem to know.",
+   "Learn unown.",
+   "Despite all your efforts, you are unable to decipher it."
+  ]
+ },
+ {
+  "map": "library",
+  "x": 46,
+  "y": 25,
+  "name": "Image",
+  "lines": [
+   "Oh, your Bag has a mg[pocket-keys,picture]Key Items Pocket!",
+   "mg[713,icon]It is perfect to store a",
+   "Did you see it? Thanks to \"\\mg[...]\", I can display pictures in a message, and they even can come from subfolders!"
+  ]
+ },
+ {
+  "map": "marsh",
+  "x": 42,
+  "y": 21,
+  "name": "Bug catcher",
+  "lines": [
+   "Shush!",
+   "I'm trying to catch a wild Skorupi, don't make them flee!"
+  ]
+ },
+ {
+  "map": "marsh",
   "x": 24,
-  "y": 31,
-  "name": "Timelord",
+  "y": 23,
+  "name": "Parasol Lady",
   "lines": [
-   "The problem of time isn't one to begin with...",
-   "I knew you'd come... You see, I possess powers beyond anything you could ever imagine.",
-   "Warping time is child's play for me...",
-   "I can share it with you if you want.",
-   "For instance, I'm able to change the frame of reference of time in our reality.",
-   "I can choose to swap time to a real clock, so your PC's, or a virtual clock."
+   "I like to step on this muddy puddle with my boots.",
+   "It's not like the mud over there, in which you sink in an instant!"
   ]
  },
  {
-  "map": "exterior",
-  "x": 24,
-  "y": 62,
-  "name": "Sailor",
+  "map": "marsh",
+  "x": 30,
+  "y": 26,
+  "name": "Farmer",
   "lines": [
-   "You already want to leave ?",
-   "I'm not ready at all to weigh anchor!"
+   "I'm trying to collect soot for the speccy four-eyes over there.",
+   "But trying to catch ash bare-handed is definitely not effective at all!"
   ]
  },
  {
-  "map": "exterior",
+  "map": "photostudio",
+  "x": 46,
+  "y": 16,
+  "name": "Nuri Yuri",
+  "lines": [
+   "I like hanging out in this place.:",
+   "If you answer all my questions, I'll give you a pretty trinket!:",
+   "Are you in?:",
+   "Question 1:",
+   "Wrong!",
+   "Wrong!"
+  ]
+ },
+ {
+  "map": "photostudio",
+  "x": 30,
+  "y": 22,
+  "name": "Follow-me",
+  "lines": [
+   "I see you enabled the \"Let's Go\" mode for followers.",
+   "If you want to make some manipulations on followers based on the HGSS versions, I need to disable it first.",
+   "All right! I disable the system then.",
+   "Very fine.",
+   "So, do your Stockmonster enjoy the walk?",
+   "Do you want to change somehting?"
+  ]
+ },
+ {
+  "map": "photostudio",
+  "x": 22,
+  "y": 24,
+  "name": "Move follower",
+  "lines": [
+   "I can teach a little trick to following Stockmonster.",
+   "But only one Stockmonster would have to follow you...",
+   "You can ask the Pokéfan seated on the right to change the number of following Stockmonster and come back!",
+   "Check that.",
+   "[POKE], do a backstep!",
+   "Now, jump!"
+  ]
+ },
+ {
+  "map": "river",
+  "x": 29,
+  "y": 39,
+  "name": "Fisherman",
+  "lines": [
+   "I don't know if you already know, but it's possible to fish from a bridge!",
+   "I see you don't have any fishing rod! Here, take these!",
+   "Moreover, as I'm considered on the bridge, you'll be able to pass under me.",
+   "And if you try to talk to me while surfing, I won't answer you!"
+  ]
+ },
+ {
+  "map": "river",
   "x": 33,
-  "y": 63,
-  "name": "Lass",
+  "y": 40,
+  "name": "Scientist",
   "lines": [
-   "I was told by a friend that we can't fish on the dock.",
-   "Something about a \"Sea System Tag\" not applied, or something like that..."
-  ]
- },
- {
-  "map": "exterior",
-  "x": 24,
-  "y": 44,
-  "name": "$ Unlimited Magikarp Seller",
-  "lines": [
-   "Didn't you get to the Tower yet?",
-   "Hello young fisherman in the making!",
-   "Here's my stock of...",
-   "Stop by it and come see me again so I can show my catches!",
-   "Too bad! Wait, you didn't go to the Tower yet?",
-   "Stop by it and come see me again so I can show my catches!"
-  ]
- },
- {
-  "map": "route",
-  "x": 15,
-  "y": 30,
-  "name": "Metapod",
-  "lines": [
-   "Ziaaaaoum[WAIT 60]",
-   "You've awakened the Bug Stockmonster!"
-  ]
- },
- {
-  "map": "route",
-  "x": 16,
-  "y": 30,
-  "name": "Kakuna",
-  "lines": [
-   "...[WAIT 90]",
-   "You've awakened the Bug Stockmonster!"
-  ]
- },
- {
-  "map": "route",
-  "x": 28,
-  "y": 32,
-  "name": "The Item Searcher",
-  "lines": [
-   "Do you know how to hide an item and make it searchable using the Dowsing Machine?",
-   "To do that, the name of the event needs to start with \"invisible_\" or be exactly named \"OBJ_INVISIBLE\".",
-   "Hello, young explorer!",
-   "Everyone on this Island calls me the \"Item Finder,\" name of which was given to me for the countless hours I spent searching rarities in the wild...",
-   "... with the help of my marvelous Dowsing Machine!",
-   "... Wait... You have one too?"
+   "I study the diversity of the wildlife in each floor.",
+   "By the way, this patch of grass is particular as the Stockmonster in it always attack in groups of two!",
+   "Apparently it's due to a specific setup of the encounter group."
   ]
  },
  {
@@ -2161,102 +617,60 @@
   ]
  },
  {
-  "map": "route",
-  "x": 24,
-  "y": 30,
-  "name": "Chansey",
+  "map": "tundra",
+  "x": 32,
+  "y": 25,
+  "name": "Man",
   "lines": [
-   "Chan-chansey!",
-   "Chansey heals your team.[WAIT 90]"
+   "It's very chilly here!",
+   "And with that, I'm under the impression I'm constantly observed..."
   ]
  },
  {
-  "map": "basement",
-  "x": 16,
-  "y": 20,
-  "name": "???",
+  "map": "tundra",
+  "x": 42,
+  "y": 28,
+  "name": "Ice Rock",
   "lines": [
-   "Now the only thing left is to bind this to that and...",
-   "Are you crazy, scaring people like that without announcing yourself?!",
-   "I almost had a heart attack...",
-   "Alright, okay, I'm calm now...",
-   "? It does ring a bell...",
-   "The name's Scorbutics, but you can call me Scor."
+   "The rock is covered with a thick layer of ice.",
+   "A certain species of Stockmonster could evolve around it.",
+   "But it seems like it can't be found on this Island..."
   ]
  },
  {
-  "map": "basement",
+  "map": "tundra",
   "x": 43,
-  "y": 48,
-  "name": null,
+  "y": 28,
+  "name": "Ice Rock",
   "lines": [
-   "The television flickers strangely..."
+   "The rock is covered with a thick layer of ice.",
+   "A certain species of Stockmonster could evolve around it.",
+   "But it seems like it can't be found on this Island..."
   ]
  },
  {
-  "map": "basement",
-  "x": 44,
-  "y": 48,
-  "name": null,
+  "map": "tundra",
+  "x": 26,
+  "y": 38,
+  "name": "Skier",
   "lines": [
-   "The television flickers strangely..."
+   "The powder snow is top quality to ski!",
+   "On the other hand, I won't try to go on this ice just below...",
+   "Once you've started, it's impossible to stop!"
   ]
  },
  {
-  "map": "basement",
-  "x": 40,
-  "y": 48,
-  "name": "Radio",
+  "map": "wifi",
+  "x": 17,
+  "y": 14,
+  "name": "GTS",
   "lines": [
-   "An old radio. It seems like it doesn't have any charge left."
-  ]
- },
- {
-  "map": "basement",
-  "x": 45,
-  "y": 48,
-  "name": "Trash bin",
-  "lines": [
-   "Dumpster diving is such a weird obsession...",
-   "Do you believe all dumpsters contain things?",
-   "Well, sorry not sorry, this one does not.",
-   "It does not contain any interesting item, but it contains words.",
-   "A lot of words.",
-   "... Oh, wait, there's a CD at the bottom of the dumpster."
-  ]
- },
- {
-  "map": "basement",
-  "x": 45,
-  "y": 53,
-  "name": "Laptop",
-  "lines": [
-   "A laptop."
-  ]
- },
- {
-  "map": "basement",
-  "x": 41,
-  "y": 50,
-  "name": "Scor",
-  "lines": [
-   "Ah, there you are.",
-   "The general lights of this basement and all the devices in here are out of power.",
-   "Only the basement's secondary lights are still on, as they're connected to an auxiliary generator...",
-   "I'm sure you'll agree with me: it makes no sense to plug a television to an auxiliary generator.",
-   "So we can deduce the problem is caused by this television..",
-   "I have my own theory, but I prefer to keep it to myself for now."
-  ]
- },
- {
-  "map": "basement",
-  "x": 44,
-  "y": 53,
-  "name": "Scor",
-  "lines": [
-   "Oh, well, , thanks for visiting me!",
-   "I'm working on a top-secret project, so I can't speak about it here...",
-   "Please come back to see me again when you have some time, it's quite lonely here."
+   "Hello, and welcome to the GTS counter!",
+   "This state-of-the-art system will allow you to trade any Stockmonster with any user of this demo!",
+   "If you are using this system for your own fangame, Maker, please check the responsible code for the necessary procedure to adapt this feature to your game!",
+   "Do you want to access the GTS?",
+   "Alright!",
+   "No problem, please come back if you change your mind!"
   ]
  }
 ]
