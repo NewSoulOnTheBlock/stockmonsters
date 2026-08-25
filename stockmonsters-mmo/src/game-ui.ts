@@ -8,6 +8,7 @@ import { mountCharacterDesigner } from "./character-designer";
 import { mountMarketplace, openMarketplace } from "./marketplace";
 import { closeCharacterDesigner, isCharacterDesignerOpen } from "./character-designer";
 import { mountMapBrowser, openMapBrowser } from "./map-browser";
+import { mountExitHints } from "./exit-hints";
 
 /*
  * Everything the player sees on top of the map: zoom, HUD, chat, battle scene,
@@ -139,6 +140,7 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
   mountHud(engine, socket);
   mountMarketplace(engine, socket);
   mountMapBrowser(engine, socket);
+  mountExitHints(engine);
 
   // The title screen's NFT/settings buttons enter the world first and then ask
   // for a panel; the in-game window is the single owner of each.
