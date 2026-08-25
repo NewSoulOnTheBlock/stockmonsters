@@ -393,7 +393,10 @@
             primary.textContent = "SIGNING\u2026";
             var accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
             var address = accounts[0];
-            var nonce = (await (await fetch("/auth/nonce")).json()).nonce;
+            var nonceRes = await fetch("/auth/nonce");
+            if (!nonceRes.ok) throw new Error("login service unavailable (" + nonceRes.status + ")");
+            var nonce = (await nonceRes.json()).nonce;
+            if (!nonce) throw new Error("login service returned no nonce");
             var message = "Stockmonsters login\nAddress: " + address + "\nNonce: " + nonce;
             var signature = await window.ethereum.request({
               method: "personal_sign", params: [message, address]
@@ -403,12 +406,20 @@
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ address: address, message: message, signature: signature })
             });
-            if (!res.ok) throw new Error("verification failed");
+            if (!res.ok) {
+              var why = await res.json().catch(function () { return {}; });
+              throw new Error(why.error || ("verification failed (" + res.status + ")"));
+            }
             localStorage.setItem("sm-wallet", JSON.stringify(await res.json()));
             render();
           } catch (err) {
             primary.textContent = previous;
-            walletLine.textContent = "Connection cancelled.";
+            // Say what actually happened: a rejected signature and a dead
+            // login service are very different problems for the player.
+            walletLine.textContent =
+              (err && (err.code === 4001 || /user rejected|denied/i.test(err.message || "")))
+                ? "Signature rejected."
+                : "Login failed: " + ((err && err.message) || "unknown error");
           }
         }
 
