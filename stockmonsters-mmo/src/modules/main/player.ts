@@ -2,12 +2,12 @@ import { RpgPlayer, type RpgPlayerHooks } from '@rpgjs/server'
 
 export const player: RpgPlayerHooks = {
     onConnected(player: RpgPlayer) {
-        // Centre of the Hub's floor area (tile 28,37), found by scanning the
-        // imported map — the geometric centre of the 64x64 grid is empty void.
-        // The real spawn comes from PSDK's map data once events are ported.
+        // Tile 29,42 — open floor by the gear emblem, verified against the
+        // passages layer. The real spawn comes from PSDK's map data once
+        // events are ported.
         player.changeMap('hub', {
-            x: 912,
-            y: 1200
+            x: 944,
+            y: 1360
         })
         player.name = 'Trader'
         player.setGraphic('hero')

@@ -124,6 +124,66 @@ async function importTileset(tsxPath, seen) {
   writeFileSync(join(OUT, basename(tsxPath)), xml)
 }
 
+
+/**
+ * Reads the passages layer and returns merged collision rects in map pixels,
+ * or null when the map has no passages layer.
+ */
+function extractCollision(xml, id) {
+  const ts = xml.match(/<tileset firstgid="(\d+)"[^>]*source="[^"]*passages\.tsx"\s*\/>/)
+  const layer = xml.match(
+    /<layer[^>]*name="passages"[^>]*width="(\d+)"[^>]*height="(\d+)"[^>]*>[\s\S]*?<data[^>]*>([\s\S]*?)<\/data>/,
+  )
+  if (!ts || !layer) return null
+  const first = Number(ts[1])
+  const [w, h] = [Number(layer[1]), Number(layer[2])]
+  const gids = layer[3].trim().split(/[\s,]+/).map(Number)
+
+  let directional = 0
+  const blocked = gids.map((gid) => {
+    if (gid === 0) return false
+    const local = gid - first
+    if (local >= 1 && local <= 14) {
+      directional++
+      return false
+    }
+    return true // local 0 never occurs as a gid>0 cell; 15 and phantoms block
+  })
+  if (directional) {
+    console.warn(
+      `  ! ${id}: ${directional} per-edge passage tiles treated as passable — ` +
+        'collision there needs manual attention',
+    )
+  }
+
+  // Greedy merge: horizontal runs per row, then vertically join equal runs.
+  const TILE = 32
+  const rects = []
+  const open = new Map() // "x:w" -> rect still growing downward
+  for (let y = 0; y < h; y++) {
+    const rowRuns = new Map()
+    for (let x = 0; x < w; x++) {
+      if (!blocked[y * w + x]) continue
+      let x2 = x
+      while (x2 + 1 < w && blocked[y * w + x2 + 1]) x2++
+      rowRuns.set(`${x}:${x2 - x + 1}`, { x, w: x2 - x + 1 })
+      x = x2
+    }
+    for (const [key, rect] of open) {
+      if (rowRuns.has(key)) continue
+      rects.push(rect)
+      open.delete(key)
+    }
+    for (const [key, run] of rowRuns) {
+      const grow = open.get(key)
+      if (grow) grow.height += TILE
+      else open.set(key, { x: run.x * TILE, y: y * TILE, width: run.w * TILE, height: TILE })
+    }
+  }
+  rects.push(...open.values())
+  return rects
+}
+
 async function importMap(tmxName, seen) {
   const tmxPath = join(GAME, 'Maps', tmxName.endsWith('.tmx') ? tmxName : `${tmxName}.tmx`)
   if (!existsSync(tmxPath)) {
@@ -145,6 +205,13 @@ async function importMap(tmxName, seen) {
     return a + basename(src) + b
   })
   for (const src of found) await importTileset(src, seen)
+
+  // Convert PSDK's passages layer into collision rectangles BEFORE stripping
+  // it. Palette semantics (Assets/passages.png, 16 tiles): local 0 = fully
+  // passable, local 15 = fully blocked, 1-14 = per-edge blocking. The reskin
+  // only uses 0 and 15; per-edge tiles are treated as passable and counted so
+  // a map that does use them fails loudly rather than silently.
+  const hitboxes = extractCollision(xml, id)
 
   // Strip the metadata layers. PSDK never draws them — they are data smuggled
   // in as tile layers — but RPG-JS treats every tile layer as something to
@@ -171,6 +238,8 @@ async function importMap(tmxName, seen) {
       .replace('</map>', ` <objectgroup id="${next}" name="events"/>\n</map>`)
   }
 
+  if (hitboxes) writeFileSync(join(OUT, `${id}.hitboxes.json`), JSON.stringify(hitboxes))
+
   writeFileSync(join(OUT, `${id}.tmx`), xml)
   const size = xml.match(/\bwidth="(\d+)"\s+height="(\d+)"/)
   console.log(`  ${id}  ${size ? `${size[1]}x${size[2]}` : ''}  tilesets: ${found.length}`)
@@ -196,12 +265,11 @@ const withMeta = done.filter((d) => d.meta.length)
 console.log(`\n${done.length} map(s), ${seen.size} asset(s) copied.`)
 if (withMeta.length) {
   console.log(
-    `\nNOTE: ${withMeta.length} map(s) still carry PSDK metadata layers ` +
+    `\nNOTE: ${withMeta.length} map(s) carried PSDK metadata layers ` +
       `(${META_LAYERS.join(', ')}).\n` +
-      `Those encode collision and terrain in PSDK's own format.\n` +
-      `They are stripped from the imported map — RPG-JS would try to draw them.\n` +
-      `Converting them into RPG-JS collision is the next step; until then\n` +
-      `players walk through walls.`,
+      `passages was converted to <id>.hitboxes.json (pass it as the map's\n` +
+      `\`hitboxes\` in the module); systemtags (grass, water, ledges) is\n` +
+      `still dropped — terrain effects are not converted yet.`,
   )
 }
 console.log('\nmap ids:', done.map((d) => d.id).join(', '))

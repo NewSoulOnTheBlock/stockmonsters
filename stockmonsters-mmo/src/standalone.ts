@@ -8,4 +8,8 @@ startGame(
   mergeConfig(configClient, {
     providers: [provideRpg(startServer)],
   })
-).then(applyAutoZoom);
+).then((ctx) => {
+  applyAutoZoom(ctx);
+  // dev-only introspection hook, used by the headless test scripts
+  (window as any).__ctx = ctx;
+});
