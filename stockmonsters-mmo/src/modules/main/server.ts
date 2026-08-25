@@ -9,7 +9,7 @@ export default defineModule<RpgServer>({
     // Imported from the PSDK game with tools/import-maps.mjs. 64x64 tiles at
     // 32px, so 2048x2048 world pixels.
     {
-      id: 'hub'
+      id: 'simplemap'
     }
   ]
 });
