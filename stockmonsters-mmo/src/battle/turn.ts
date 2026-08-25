@@ -83,18 +83,22 @@ export type TurnEvent =
   | { type: 'screen'; side: 0 | 1; screen: 'reflect' | 'light_screen' }
   | { type: 'fainted'; side: 0 | 1 }
 
-export function liveSpeed(b: Battler): number {
+export function liveSpeed(b: Battler, weather: import('./battler').Weather = 'none'): number {
   let spd = Math.floor(b.stats.spd * stageMultiplier(stage(b, 'spd')))
+  if (b.ability === 'chlorophyll' && weather === 'sun') spd *= 2
+  if (b.ability === 'swift_swim' && weather === 'rain') spd *= 2
   if (b.status === 'paralysis') spd = Math.floor(spd * 0.25)
   return spd
 }
 
-export function turnOrder(a: Combatant, b: Combatant, rng: Rng): (0 | 1)[] {
+export function turnOrder(
+  a: Combatant, b: Combatant, rng: Rng, battle?: BattleState,
+): (0 | 1)[] {
   const pa = getMove(a.move).priority
   const pb = getMove(b.move).priority
   if (pa !== pb) return pa > pb ? [0, 1] : [1, 0]
-  const sa = liveSpeed(a.battler)
-  const sb = liveSpeed(b.battler)
+  const sa = liveSpeed(a.battler, battle?.weather)
+  const sb = liveSpeed(b.battler, battle?.weather)
   if (sa !== sb) return sa > sb ? [0, 1] : [1, 0]
   return rng(0, 1) === 0 ? [0, 1] : [1, 0] // [INFERRED] coin flip on exact tie
 }
@@ -140,6 +144,20 @@ function applyMoveStatuses(
   }
 }
 
+/** Entry abilities (Intimidate) — call once when both sides are revealed. */
+export function onBattleStart(sides: [Combatant, Combatant]): TurnEvent[] {
+  const events: TurnEvent[] = []
+  for (const [i, c] of sides.entries()) {
+    if (c.battler.ability !== 'intimidate') continue
+    const foe = sides[i === 0 ? 1 : 0].battler
+    foe.stages ??= {}
+    const now = Math.max(-6, (foe.stages.atk ?? 0) - 1)
+    foe.stages.atk = now
+    events.push({ type: 'stage', side: (i === 0 ? 1 : 0) as 0 | 1, stat: 'atk', delta: -1, now })
+  }
+  return events
+}
+
 const WEATHER_BY_MOVE: Record<string, import('./battler').Weather> = {
   rain_dance: 'rain', sunny_day: 'sun', sandstorm: 'sandstorm', hail: 'hail',
 }
@@ -151,7 +169,7 @@ export function runTurn(
   const events: TurnEvent[] = []
   let someoneFainted = false
 
-  for (const side of turnOrder(sides[0], sides[1], rng)) {
+  for (const side of turnOrder(sides[0], sides[1], rng, battle)) {
     if (someoneFainted) break
     const otherSide = (side === 0 ? 1 : 0) as 0 | 1
     const me = sides[side]
@@ -226,7 +244,8 @@ export function runTurn(
     }
     // §1.3 step 8: type immunity — applies to status moves too
     // (thunder_wave vs Ground, growl vs Ghost)
-    if (!selfTargeting && effectiveness(move.type, target.types) === 0) {
+    const abilityImmune = move.type === 'ground' && target.ability === 'levitate'
+    if (!selfTargeting && (abilityImmune || effectiveness(move.type, target.types) === 0)) {
       events.push({ type: 'immune', side: otherSide })
       continue
     }
@@ -267,6 +286,11 @@ export function runTurn(
         events.push({ type: 'fainted', side: otherSide })
         someoneFainted = true
         targetAlive = false
+      }
+      // static: 30% to paralyze on contact (§ability set)
+      if (totalDealt > 0 && target.ability === 'static' && (moveDb[me.move]?.isDirect) &&
+          user.hp > 0 && rng(0, 99) < 30 && applyStatus(user, me.state, 'paralysis', rng)) {
+        events.push({ type: 'status', side, status: 'paralysis' })
       }
       if (move.method === 's_reload' && totalDealt > 0) me.state.recharging = true
       if (move.method === 's_bind' && targetAlive) {
@@ -347,7 +371,15 @@ export function runTurn(
     }
   }
   // effect expiry — protect lasts one turn, screens count down
-  for (const c of sides) {
+  for (const [i, c] of sides.entries()) {
+    if (c.battler.ability === 'speed_boost' && c.battler.hp > 0) {
+      c.battler.stages ??= {}
+      const now = Math.min(6, (c.battler.stages.spd ?? 0) + 1)
+      if (now !== (c.battler.stages.spd ?? 0)) {
+        c.battler.stages.spd = now
+        events.push({ type: 'stage', side: i as 0 | 1, stat: 'spd', delta: 1, now })
+      }
+    }
     c.state.protected = false
     if (c.state.reflectTurns) c.state.reflectTurns--
     if (c.state.lightScreenTurns) c.state.lightScreenTurns--

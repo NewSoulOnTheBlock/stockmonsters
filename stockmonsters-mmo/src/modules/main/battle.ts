@@ -2,7 +2,7 @@ import { RpgPlayer } from '@rpgjs/server'
 import dexRaw from '../../data/dex.json'
 import speciesRaw from '../../data/studio/species.json'
 import { createWildCreature, type CreatureInstance } from '../../battle/factory'
-import { runTurn, attemptFlee, newBattle, type Combatant } from '../../battle/turn'
+import { runTurn, attemptFlee, newBattle, onBattleStart, type Combatant } from '../../battle/turn'
 import { tryCapture } from '../../battle/catching'
 import { totalExpForLevel, levelFromExp, maxHp } from '../../battle/stats'
 import type { Rng } from '../../battle/damage'
@@ -115,12 +115,24 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
 
     await player.showText(`A wild ${nameOf(wild)} (L${wild.level}) appeared!`)
 
+    // entry abilities (Intimidate)
+    const entry = onBattleStart([
+      { battler: mine, state: myState, move: 'splash' },
+      { battler: wild, state: wildState, move: 'splash' },
+    ])
+    if (entry.length) await player.showText(describe(entry, mine, wild))
+
+    // simple v1 bag: finite balls, a few potions; +1 ball per win as a
+    // faucet until shops/money arrive
+    const bag = (player.getVariable('BAG') as { balls: number; potions: number }) ?? { balls: 5, potions: 3 }
+
     battle: while (true) {
       const action = await player.showChoices(
         `${hpBar(wild)}\n${hpBar(mine)}`,
         [
           { text: 'Fight', value: 'fight' },
-          { text: 'Throw Ball', value: 'ball' },
+          { text: `Throw Ball (${bag.balls})`, value: 'ball' },
+          { text: `Potion (${bag.potions})`, value: 'potion' },
           { text: 'Run', value: 'run' },
         ],
       )
@@ -140,7 +152,8 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
           const events = runTurn(sides, rng, battleState)
           await player.showText(describe(events, mine, wild))
           if (wild.hp <= 0) {
-            await player.showText(awardExp(mine, wild))
+            bag.balls++ // win faucet until shops/money arrive
+            await player.showText(awardExp(mine, wild) + '\nFound a Ball! (+1)')
             break battle
           }
           if (mine.hp <= 0) {
@@ -149,7 +162,18 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
           }
           break
         }
+        case 'potion': {
+          if (bag.potions <= 0) { await player.showText('No Potions left!'); break }
+          if (mine.hp >= mine.maxHp) { await player.showText(`${nameOf(mine)} is already at full HP!`); break }
+          bag.potions--
+          const heal = Math.min(20, mine.maxHp - mine.hp) // Potion = 20 HP (§5.3)
+          mine.hp += heal
+          await player.showText(`${nameOf(mine)} recovered ${heal} HP! (${mine.hp}/${mine.maxHp})`)
+          break
+        }
         case 'ball': {
+          if (bag.balls <= 0) { await player.showText('No Balls left!'); break }
+          bag.balls--
           const r = tryCapture(
             { rareness: wild.catchRate, ballBonus: 1, target: wild, speciesCaught: 0 },
             rng,
@@ -180,6 +204,7 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
       }
     }
     player.setVariable('PARTY', party)
+    player.setVariable('BAG', bag)
   } finally {
     inBattle.delete(id)
   }

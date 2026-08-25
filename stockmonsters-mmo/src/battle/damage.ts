@@ -55,8 +55,18 @@ export function damages(
     atkMul = Math.max(atkMul, 1)
     defMul = Math.min(defMul, 1)
   }
-  const atk = Math.floor(user.stats[atkKey] * atkMul)
+  let atkStat = user.stats[atkKey]
+  if (user.ability === 'huge_power' && atkKey === 'atk') atkStat *= 2
+  if (user.ability === 'guts' && user.status && atkKey === 'atk') atkStat = Math.floor(atkStat * 1.5)
+  const atk = Math.floor(atkStat * atkMul)
   const def = Math.floor(target.stats[defKey] * defMul)
+
+  // pinch abilities: 1.5x power below 1/3 HP for the matching type
+  const PINCH: Record<string, string> = { overgrow: 'grass', blaze: 'fire', torrent: 'water', swarm: 'bug' }
+  let power = move.power
+  if (user.ability && PINCH[user.ability] === move.type && user.hp * 3 <= user.maxHp)
+    power = Math.floor(power * 1.5)
+  if (user.ability === 'technician' && power > 0 && power <= 60) power = Math.floor(power * 1.5)
 
   // mod1: burn on physical (Guts excepted), weather, spread (§1.5 table)
   let mod1 = 1
@@ -77,7 +87,7 @@ export function damages(
     : 1
 
   let d = idiv(user.level * 2, 5) + 2 // step 1
-  d = Math.floor(d * move.power) // step 2
+  d = Math.floor(d * power) // step 2
   d = idiv(Math.floor(d * atk), 50) // step 3
   d = idiv(d, def) // step 4
   d = Math.floor(d * mod1) + 2 // step 5
@@ -93,6 +103,8 @@ export function damages(
     eff *= m
   }
   d = Math.floor(d * 1) // step 13 (mod3 — Filter/Expert Belt etc., effects later)
-  const damage = Math.min(Math.max(d, 1), target.hp) // step 14: clamp to current HP
+  let damage = Math.min(Math.max(d, 1), target.hp) // step 14: clamp to current HP
+  if (target.ability === 'sturdy' && target.hp === target.maxHp && damage >= target.hp)
+    damage = target.hp - 1
   return { damage, critical, effectiveness: eff }
 }

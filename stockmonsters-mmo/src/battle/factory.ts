@@ -67,5 +67,6 @@ export function createWildCreature(dbSymbol: string, level: number, rng: Rng): C
     shiny,
     catchRate: s.catchRate,
     status: null,
+    ability,
   }
 }
