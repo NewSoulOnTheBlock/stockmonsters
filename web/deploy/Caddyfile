@@ -1,0 +1,14 @@
+{$GAME_DOMAIN} {
+	# Only signalling and the client bundle pass through here. WebRTC media
+	# goes straight to the container over the UDP range and never touches
+	# Caddy, so there is nothing to tune for the video path.
+	#
+	# The websocket that carries input and control needs a long timeout: a
+	# player standing still sends nothing for minutes, and a short read
+	# timeout would drop them mid-session.
+	reverse_proxy stockmonsters:8080 {
+		transport http {
+			read_timeout 24h
+		}
+	}
+}

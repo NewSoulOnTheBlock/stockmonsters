@@ -1,0 +1,86 @@
+# Stockmonsters — playable in the browser via WebRTC streaming.
+#
+#   cd web && cp .env.example .env   # then edit .env
+#   docker compose up -d --build
+#
+# This file runs ONE shared room: everyone who opens the link sees the same
+# session and control is passed between players. That is the cheap, launch-day
+# configuration. For isolated per-player sessions see README.md ("Scaling up").
+
+name: stockmonsters
+
+services:
+  stockmonsters:
+    build:
+      context: ..
+      dockerfile: web/game/Dockerfile
+    image: stockmonsters-web:latest
+    # PSDK only ships x86_64 Linux binaries, so the image is amd64 regardless
+    # of the host (on Apple Silicon this runs under emulation — fine for
+    # testing, but deploy on an x86_64 server).
+    platform: linux/amd64
+    container_name: stockmonsters
+    restart: unless-stopped
+    shm_size: "1gb"
+
+    ports:
+      - "8080:8080"
+      - "${WEBRTC_PORTS:-52000-52100}:${WEBRTC_PORTS:-52000-52100}/udp"
+
+    environment:
+      # --- video/audio ------------------------------------------------------
+      # 960x720 = the game's native 320x240 at an exact 3x integer upscale.
+      NEKO_DESKTOP_SCREEN: "960x720@30"
+      NEKO_CAPTURE_VIDEO_CODEC: "h264"   # widest mobile support (iOS Safari)
+      NEKO_CAPTURE_AUDIO_CODEC: "opus"
+      GAME_SCALE: "3"
+      GAME_LANG: "${GAME_LANG:-en}"
+
+      # --- WebRTC transport -------------------------------------------------
+      # NAT1TO1 must be the server's PUBLIC IP or players get stuck connecting.
+      NEKO_WEBRTC_EPR: "${WEBRTC_PORTS:-52000-52100}"
+      NEKO_WEBRTC_NAT1TO1: "${PUBLIC_IP:?set PUBLIC_IP in .env}"
+      NEKO_WEBRTC_ICELITE: "1"
+
+      # --- access -----------------------------------------------------------
+      # Players get control just by interacting — no "request control" step,
+      # which nobody does on a phone.
+      NEKO_SESSION_IMPLICIT_HOSTING: "true"
+
+      NEKO_MEMBER_PROVIDER: "multiuser"
+      NEKO_MEMBER_MULTIUSER_USER_PASSWORD: "${PLAYER_PASSWORD:-neko}"
+      NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD: "${ADMIN_PASSWORD:?set ADMIN_PASSWORD in .env}"
+
+    # Bound one session's CPU so a single container cannot starve the host.
+    # Software-encoding 960x720@30 costs roughly half a core.
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2g
+
+    # The game needs no privileges; keep the container boring.
+    security_opt:
+      - no-new-privileges:true
+
+  # TLS termination. Only started with `--profile tls`, because Caddy cannot
+  # get a certificate until a domain actually resolves to this box — without
+  # one it would fail in a loop instead of simply not running.
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["tls"]
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      GAME_DOMAIN: ${GAME_DOMAIN:?set GAME_DOMAIN in web/.env to use the tls profile}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+      - caddyconfig:/config
+    depends_on: [stockmonsters]
+
+volumes:
+  caddydata:
+  caddyconfig:

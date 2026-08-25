@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Minimal openbox config. Its only job is to give the game window keyboard
+  focus. Everything a player could use to escape the game and reach a desktop
+  is removed: no decorations, no keybindings, no mouse menus, no alt-tab.
+-->
+<openbox_config xmlns="http://openbox.org/3.4/rc">
+  <focus>
+    <focusNew>yes</focusNew>
+    <followMouse>yes</followMouse>
+    <focusLast>yes</focusLast>
+    <underMouse>yes</underMouse>
+  </focus>
+
+  <placement>
+    <policy>UnderMouse</policy>
+    <center>yes</center>
+  </placement>
+
+  <theme>
+    <keepBorder>no</keepBorder>
+    <animateIconify>no</animateIconify>
+  </theme>
+
+  <desktops>
+    <number>1</number>
+  </desktops>
+
+  <!-- No keyboard shortcuts at all: alt-tab, alt-F4, W-e etc. are all gone,
+       so every keypress falls through to the game. -->
+  <keyboard>
+    <chainQuitKey></chainQuitKey>
+  </keyboard>
+
+  <!-- No context menus, no window dragging, no titlebar actions. -->
+  <mouse>
+    <dragThreshold>1</dragThreshold>
+    <doubleClickTime>0</doubleClickTime>
+  </mouse>
+
+  <applications>
+    <!-- The game window: undecorated, pinned to the top-left of the screen. -->
+    <application class="*">
+      <decor>no</decor>
+      <position force="yes">
+        <x>0</x>
+        <y>0</y>
+      </position>
+      <focus>yes</focus>
+      <layer>normal</layer>
+      <maximized>no</maximized>
+    </application>
+  </applications>
+</openbox_config>
