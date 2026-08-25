@@ -1,0 +1,6475 @@
+[
+ {
+  "ticker": "AAPL",
+  "name": "Applion",
+  "company": "Apple",
+  "address": "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9",
+  "kind": "stock",
+  "dexId": 1,
+  "types": [
+   "Flora",
+   "Toxic"
+  ],
+  "species": "Blossom Crown Stockmonster",
+  "description": "Applion's mane glows like light through spring blossoms. It rarely raises its voice, trusting that calm strength outlasts every rival that shouts. Traders know it as $AAPL, tied to Apple.",
+  "stats": {
+   "hp": 45,
+   "atk": 49,
+   "def": 49,
+   "spd": 45,
+   "ats": 65,
+   "dfs": 65
+  },
+  "catchRate": 45,
+  "height": 0.7,
+  "weight": 6.9,
+  "sprite": "dex/AAPL.png"
+ },
+ {
+  "ticker": "AAOI",
+  "name": "Optolisk",
+  "company": "Applied Optoelectronics",
+  "address": "0x521Cf887E6531c6F667b5BC4D896E5d9bfE8EB2E",
+  "kind": "stock",
+  "dexId": 2,
+  "types": [
+   "Flora",
+   "Toxic"
+  ],
+  "species": "Fibre Coil Stockmonster",
+  "description": "Pulses of light race down Optolisk's braided glass body faster than sound. Watching a pulse travel its full length is said to bring good luck to traders. Traders know it as $AAOI, tied to Applied Optoelectronics.",
+  "stats": {
+   "hp": 60,
+   "atk": 62,
+   "def": 63,
+   "spd": 60,
+   "ats": 80,
+   "dfs": 80
+  },
+  "catchRate": 45,
+  "height": 1,
+  "weight": 13,
+  "sprite": "dex/AAOI.png"
+ },
+ {
+  "ticker": "ABCL",
+  "name": "Abcellyx",
+  "company": "Abcellera Biologics",
+  "address": "0x3139D77Ace0cbAA5bDfD38bD1F1911a794AF0B0e",
+  "kind": "stock",
+  "dexId": 3,
+  "types": [
+   "Flora",
+   "Toxic"
+  ],
+  "species": "Antibody Stockmonster",
+  "description": "Abcellyx's forked tail hunts down anything foreign to its body and locks on without missing. Researchers study its aim in hopes of teaching medicine the same precision. Traders know it as $ABCL, tied to Abcellera Biologics.",
+  "stats": {
+   "hp": 80,
+   "atk": 82,
+   "def": 83,
+   "spd": 80,
+   "ats": 100,
+   "dfs": 100
+  },
+  "catchRate": 45,
+  "height": 2,
+  "weight": 100,
+  "sprite": "dex/ABCL.png"
+ },
+ {
+  "ticker": "NVDA",
+  "name": "Nvidrake",
+  "company": "NVIDIA",
+  "address": "0xd0601CE157Db5bdC3162BbaC2a2C8aF5320D9EEC",
+  "kind": "stock",
+  "dexId": 4,
+  "types": [
+   "Blaze"
+  ],
+  "species": "Compute Dragon Stockmonster",
+  "description": "Nvidrake grows hungrier the harder it thinks. Its fin-ridges glow brighter under heavy load, and in the deepest data centers its green fire never truly goes out. Traders know it as $NVDA, tied to NVIDIA.",
+  "stats": {
+   "hp": 39,
+   "atk": 52,
+   "def": 43,
+   "spd": 65,
+   "ats": 60,
+   "dfs": 50
+  },
+  "catchRate": 45,
+  "height": 0.6,
+  "weight": 8.5,
+  "sprite": "dex/NVDA.png"
+ },
+ {
+  "ticker": "ADBE",
+  "name": "Adobemoth",
+  "company": "Adobe",
+  "address": "0x232B8ed6377BE97813853B0Ac104c4Cda8378d1B",
+  "kind": "stock",
+  "dexId": 5,
+  "types": [
+   "Blaze"
+  ],
+  "species": "Canvas Wing Stockmonster",
+  "description": "No two people ever see the same pattern on Adobemoth's wings twice. It reshuffles the layers of its markings constantly, as if endlessly revising a design only it can see. Traders know it as $ADBE, tied to Adobe.",
+  "stats": {
+   "hp": 58,
+   "atk": 64,
+   "def": 58,
+   "spd": 80,
+   "ats": 80,
+   "dfs": 65
+  },
+  "catchRate": 45,
+  "height": 1.1,
+  "weight": 19,
+  "sprite": "dex/ADBE.png"
+ },
+ {
+  "ticker": "AEHR",
+  "name": "Aehrion",
+  "company": "Aehr",
+  "address": "0x5F604fBA1162193A4388A5DFa56F556f3E133cC2",
+  "kind": "stock",
+  "dexId": 6,
+  "types": [
+   "Blaze",
+   "Wind"
+  ],
+  "species": "Burn-In Stockmonster",
+  "description": "Aehrion bakes anything it grips between its plates, testing whether it can survive the heat. Only what comes out the other side earns its respect. Traders know it as $AEHR, tied to Aehr.",
+  "stats": {
+   "hp": 78,
+   "atk": 84,
+   "def": 78,
+   "spd": 100,
+   "ats": 109,
+   "dfs": 85
+  },
+  "catchRate": 45,
+  "height": 1.7,
+  "weight": 90.5,
+  "sprite": "dex/AEHR.png"
+ },
+ {
+  "ticker": "TSLA",
+  "name": "Teslazar",
+  "company": "Tesla",
+  "address": "0x322F0929c4625eD5bAd873c95208D54E1c003b2d",
+  "kind": "stock",
+  "dexId": 7,
+  "types": [
+   "Tide"
+  ],
+  "species": "Storm Cell Stockmonster",
+  "description": "A gathering storm is the first sign that Teslazar is losing its temper. Its battery-cell spine charges for minutes before it finally releases everything at once. Traders know it as $TSLA, tied to Tesla.",
+  "stats": {
+   "hp": 44,
+   "atk": 48,
+   "def": 65,
+   "spd": 43,
+   "ats": 50,
+   "dfs": 64
+  },
+  "catchRate": 45,
+  "height": 0.5,
+  "weight": 9,
+  "sprite": "dex/TSLA.png"
+ },
+ {
+  "ticker": "AEIS",
+  "name": "Aegisurge",
+  "company": "Advanced Energy",
+  "address": "0xfAf9cb261B5FCC1f404Bb10CD39C5c6C1974E612",
+  "kind": "stock",
+  "dexId": 8,
+  "types": [
+   "Tide"
+  ],
+  "species": "Power Cell Stockmonster",
+  "description": "Aegisurge charges headfirst into danger, discharging its horns on impact. Herds of them are used to jump-start entire facilities after a blackout. Traders know it as $AEIS, tied to Advanced Energy.",
+  "stats": {
+   "hp": 59,
+   "atk": 63,
+   "def": 80,
+   "spd": 58,
+   "ats": 65,
+   "dfs": 80
+  },
+  "catchRate": 45,
+  "height": 1,
+  "weight": 22.5,
+  "sprite": "dex/AEIS.png"
+ },
+ {
+  "ticker": "ALAB",
+  "name": "Alabyrinth",
+  "company": "Astera Labs, Inc.",
+  "address": "0x748c32c3ca24eDf31ea597Db1F3d330a7a6DA3Dc",
+  "kind": "stock",
+  "dexId": 9,
+  "types": [
+   "Tide"
+  ],
+  "species": "Interconnect Stockmonster",
+  "description": "The traces across Alabyrinth's shell form a different maze every time it molts. Signals sent across its back always find the shortest path, no matter how tangled the pattern looks. Traders know it as $ALAB, tied to Astera Labs, Inc..",
+  "stats": {
+   "hp": 79,
+   "atk": 83,
+   "def": 100,
+   "spd": 78,
+   "ats": 85,
+   "dfs": 105
+  },
+  "catchRate": 45,
+  "height": 1.6,
+  "weight": 85.5,
+  "sprite": "dex/ALAB.png"
+ },
+ {
+  "ticker": "AMD",
+  "name": "Amdeon",
+  "company": "AMD",
+  "address": "0x86923f96303D656E4aa86D9d42D1e57ad2023fdC",
+  "kind": "stock",
+  "dexId": 10,
+  "types": [
+   "Swarm"
+  ],
+  "species": "Core Vent Stockmonster",
+  "description": "Amdeon vents excess heat through the ridges along its spine mid-flight, letting it push harder for longer than rivals twice its size. Traders know it as $AMD, tied to AMD.",
+  "stats": {
+   "hp": 45,
+   "atk": 30,
+   "def": 35,
+   "spd": 45,
+   "ats": 20,
+   "dfs": 20
+  },
+  "catchRate": 255,
+  "height": 0.3,
+  "weight": 2.9,
+  "sprite": "dex/AMD.png"
+ },
+ {
+  "ticker": "AMAT",
+  "name": "Amatherium",
+  "company": "Applied Materials",
+  "address": "0x36046893810a7E7fCE501229d57dc3FC8c8716d0",
+  "kind": "stock",
+  "dexId": 11,
+  "types": [
+   "Swarm"
+  ],
+  "species": "Deposition Stockmonster",
+  "description": "Amatherium layers thin films over anything it touches, one atom at a time. It works so patiently that a finished coat can take days to notice forming. Traders know it as $AMAT, tied to Applied Materials.",
+  "stats": {
+   "hp": 50,
+   "atk": 20,
+   "def": 55,
+   "spd": 30,
+   "ats": 25,
+   "dfs": 25
+  },
+  "catchRate": 120,
+  "height": 0.7,
+  "weight": 9.9,
+  "sprite": "dex/AMAT.png"
+ },
+ {
+  "ticker": "AMBA",
+  "name": "Ambaraven",
+  "company": "Ambarella",
+  "address": "0x99D9D8663545151603863C5AcbD6FC3218899009",
+  "kind": "stock",
+  "dexId": 12,
+  "types": [
+   "Swarm",
+   "Wind"
+  ],
+  "species": "Aperture Stockmonster",
+  "description": "Ambaraven's irises widen and narrow on their own, adjusting to catch the faintest motion in total darkness. Nothing crosses its field of view unnoticed. Traders know it as $AMBA, tied to Ambarella.",
+  "stats": {
+   "hp": 60,
+   "atk": 45,
+   "def": 50,
+   "spd": 70,
+   "ats": 90,
+   "dfs": 80
+  },
+  "catchRate": 45,
+  "height": 1.1,
+  "weight": 32,
+  "sprite": "dex/AMBA.png"
+ },
+ {
+  "ticker": "COIN",
+  "name": "Coinraith",
+  "company": "Coinbase",
+  "address": "0x6330D8C3178a418788dF01a47479c0ce7CCF450b",
+  "kind": "stock",
+  "dexId": 13,
+  "types": [
+   "Swarm",
+   "Toxic"
+  ],
+  "species": "Speculation Stockmonster",
+  "description": "Coinraith has no true shape of its own; it is built entirely from coins in motion. The more people chase it, the larger and brighter it becomes. Traders know it as $COIN, tied to Coinbase.",
+  "stats": {
+   "hp": 40,
+   "atk": 35,
+   "def": 30,
+   "spd": 50,
+   "ats": 20,
+   "dfs": 20
+  },
+  "catchRate": 255,
+  "height": 0.3,
+  "weight": 3.2,
+  "sprite": "dex/COIN.png"
+ },
+ {
+  "ticker": "AMC",
+  "name": "Amcthulhu",
+  "company": "AMC Entertainment",
+  "address": "0x05a3d1Cd21d0C88145E82600E62e7E496e0F222B",
+  "kind": "stock",
+  "dexId": 14,
+  "types": [
+   "Swarm",
+   "Toxic"
+  ],
+  "species": "Cinema Stockmonster",
+  "description": "Amcthulhu stirs only when the lights go down. Its single projector eye throws stories across the wall of any room it settles into. Traders know it as $AMC, tied to AMC Entertainment.",
+  "stats": {
+   "hp": 45,
+   "atk": 25,
+   "def": 50,
+   "spd": 35,
+   "ats": 25,
+   "dfs": 25
+  },
+  "catchRate": 120,
+  "height": 0.6,
+  "weight": 10,
+  "sprite": "dex/AMC.png"
+ },
+ {
+  "ticker": "AMKR",
+  "name": "Amkorax",
+  "company": "Amkor Technology",
+  "address": "0xDd356AA38F40A7b7076755aC854B6FBb1F0D305B",
+  "kind": "stock",
+  "dexId": 15,
+  "types": [
+   "Swarm",
+   "Toxic"
+  ],
+  "species": "Packaging Stockmonster",
+  "description": "Amkorax wraps anything smaller than itself in a protective shell of its own making, sealing it in gold wire before it will let the item out of its sight. Traders know it as $AMKR, tied to Amkor Technology.",
+  "stats": {
+   "hp": 65,
+   "atk": 90,
+   "def": 40,
+   "spd": 75,
+   "ats": 45,
+   "dfs": 80
+  },
+  "catchRate": 45,
+  "height": 1,
+  "weight": 29.5,
+  "sprite": "dex/AMKR.png"
+ },
+ {
+  "ticker": "META",
+  "name": "Metamorph",
+  "company": "Meta Platforms",
+  "address": "0xc0D6457C16Cc70d6790Dd43521C899C87ce02f35",
+  "kind": "stock",
+  "dexId": 16,
+  "types": [
+   "Neutral",
+   "Wind"
+  ],
+  "species": "Mirror Mask Stockmonster",
+  "description": "Metamorph borrows a different face for every person who looks at it, never settling on one for long. Only its infinity-loop horns stay the same no matter which mask it wears. Traders know it as $META, tied to Meta Platforms.",
+  "stats": {
+   "hp": 40,
+   "atk": 45,
+   "def": 40,
+   "spd": 56,
+   "ats": 35,
+   "dfs": 35
+  },
+  "catchRate": 255,
+  "height": 0.3,
+  "weight": 1.8,
+  "sprite": "dex/META.png"
+ },
+ {
+  "ticker": "ANET",
+  "name": "Anetheron",
+  "company": "Arista",
+  "address": "0x28bABD556b60E53663B8615036479a29c2CDd1Bf",
+  "kind": "stock",
+  "dexId": 17,
+  "types": [
+   "Neutral",
+   "Wind"
+  ],
+  "species": "Switching Stockmonster",
+  "description": "Anetheron sorts everything that passes its beak without ever slowing its stride. A single flock can reroute an entire storm of traffic without dropping a feather. Traders know it as $ANET, tied to Arista.",
+  "stats": {
+   "hp": 63,
+   "atk": 60,
+   "def": 55,
+   "spd": 71,
+   "ats": 50,
+   "dfs": 50
+  },
+  "catchRate": 120,
+  "height": 1.1,
+  "weight": 30,
+  "sprite": "dex/ANET.png"
+ },
+ {
+  "ticker": "APLD",
+  "name": "Aplidra",
+  "company": "Applied Digital",
+  "address": "0xb8DBf92F9741c9ac1c32115E78581f23509916FD",
+  "kind": "stock",
+  "dexId": 18,
+  "types": [
+   "Neutral",
+   "Wind"
+  ],
+  "species": "Prairie Hydra Stockmonster",
+  "description": "Aplidra grows a new head wherever the ground is flat and the power is cheap. Farmers say the prairie hums for miles around wherever one has settled. Traders know it as $APLD, tied to Applied Digital.",
+  "stats": {
+   "hp": 83,
+   "atk": 80,
+   "def": 75,
+   "spd": 101,
+   "ats": 70,
+   "dfs": 70
+  },
+  "catchRate": 45,
+  "height": 1.5,
+  "weight": 39.5,
+  "sprite": "dex/APLD.png"
+ },
+ {
+  "ticker": "PLTR",
+  "name": "Palantheon",
+  "company": "Palantir Technologies",
+  "address": "0x894E1EC2D74FFE5AEF8Dc8A9e84686acCB964F2A",
+  "kind": "stock",
+  "dexId": 19,
+  "types": [
+   "Neutral"
+  ],
+  "species": "All-Seeing Stockmonster",
+  "description": "Every surface of Palantheon's obsidian body is another eye, and it is said to watch every one of them at the same time. Few enjoy being looked at by all of them at once. Traders know it as $PLTR, tied to Palantir Technologies.",
+  "stats": {
+   "hp": 30,
+   "atk": 56,
+   "def": 35,
+   "spd": 72,
+   "ats": 25,
+   "dfs": 35
+  },
+  "catchRate": 255,
+  "height": 0.3,
+  "weight": 3.5,
+  "sprite": "dex/PLTR.png"
+ },
+ {
+  "ticker": "APP",
+  "name": "Appallon",
+  "company": "AppLovin",
+  "address": "0xA249BAF1063Af884807C1E1400AEf7784836917E",
+  "kind": "stock",
+  "dexId": 20,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Impression Stockmonster",
+  "description": "Appallon's tail ticks upward every time someone glances its way, and it grins wider with every count. It is never quite as harmless as that grin suggests. Traders know it as $APP, tied to AppLovin.",
+  "stats": {
+   "hp": 55,
+   "atk": 81,
+   "def": 60,
+   "spd": 97,
+   "ats": 50,
+   "dfs": 70
+  },
+  "catchRate": 127,
+  "height": 0.7,
+  "weight": 18.5,
+  "sprite": "dex/APP.png"
+ },
+ {
+  "ticker": "NFLX",
+  "name": "Netflixis",
+  "company": "Netflix",
+  "address": "0xE0444EF8BF4eD74f74FD73686e2ddF4C1c5591E8",
+  "kind": "stock",
+  "dexId": 21,
+  "types": [
+   "Neutral",
+   "Wind"
+  ],
+  "species": "Episode Stockmonster",
+  "description": "Each feather down Netflixis's tail is a different episode of the same unbroken story. Trainers who start counting them rarely stop before the whole night is gone. Traders know it as $NFLX, tied to Netflix.",
+  "stats": {
+   "hp": 40,
+   "atk": 60,
+   "def": 30,
+   "spd": 70,
+   "ats": 31,
+   "dfs": 31
+  },
+  "catchRate": 255,
+  "height": 0.3,
+  "weight": 2,
+  "sprite": "dex/NFLX.png"
+ },
+ {
+  "ticker": "ASML",
+  "name": "Asmolith",
+  "company": "ASML Holding NV",
+  "address": "0x47F93d52cBeC7C6D2CfC080e154002370a60dAEA",
+  "kind": "stock",
+  "dexId": 22,
+  "types": [
+   "Neutral",
+   "Wind"
+  ],
+  "species": "Ultraviolet Stockmonster",
+  "description": "Asmolith stands motionless for hours, its single eye focused to a hairline slit. When it finally opens fully, the light it casts can etch patterns onto solid stone. Traders know it as $ASML, tied to ASML Holding NV.",
+  "stats": {
+   "hp": 65,
+   "atk": 90,
+   "def": 65,
+   "spd": 100,
+   "ats": 61,
+   "dfs": 61
+  },
+  "catchRate": 90,
+  "height": 1.2,
+  "weight": 38,
+  "sprite": "dex/ASML.png"
+ },
+ {
+  "ticker": "AMZN",
+  "name": "Amazorgon",
+  "company": "Amazon",
+  "address": "0x12f190a9F9d7D37a250758b26824B97CE941bF54",
+  "kind": "stock",
+  "dexId": 23,
+  "types": [
+   "Toxic"
+  ],
+  "species": "Warehouse Stockmonster",
+  "description": "Amazorgon's coils contain entire warehouses, and its conveyor-belt scales never stop moving. Something ordered from deep inside its body can reach your doorstep the very next day. Traders know it as $AMZN, tied to Amazon.",
+  "stats": {
+   "hp": 35,
+   "atk": 60,
+   "def": 44,
+   "spd": 55,
+   "ats": 40,
+   "dfs": 54
+  },
+  "catchRate": 255,
+  "height": 2,
+  "weight": 6.9,
+  "sprite": "dex/AMZN.png"
+ },
+ {
+  "ticker": "ASTS",
+  "name": "Astraseraph",
+  "company": "AST SpaceMobile",
+  "address": "0x1AF6446f07eb1d97c546AFC8c9544cBDF3AD5137",
+  "kind": "stock",
+  "dexId": 24,
+  "types": [
+   "Toxic"
+  ],
+  "species": "Orbital Stockmonster",
+  "description": "Astraseraph unfurls its panel-wings only once it reaches open sky, casting a moving shadow visible from the ground. Every wing is another relay for a signal with nowhere else to go. Traders know it as $ASTS, tied to AST SpaceMobile.",
+  "stats": {
+   "hp": 60,
+   "atk": 95,
+   "def": 69,
+   "spd": 80,
+   "ats": 65,
+   "dfs": 79
+  },
+  "catchRate": 90,
+  "height": 3.5,
+  "weight": 65,
+  "sprite": "dex/ASTS.png"
+ },
+ {
+  "ticker": "AUR",
+  "name": "Auroryx",
+  "company": "Aurora Innovation",
+  "address": "0x373C06c4f7BDe527D7Dae4BA169E42b55E393CeD",
+  "kind": "stock",
+  "dexId": 25,
+  "types": [
+   "Volt"
+  ],
+  "species": "Autonomous Stockmonster",
+  "description": "A ring of shifting light circles Auroryx's head at all times, mapping every obstacle before it arrives. It has never once needed a passenger to tell it where to go. Traders know it as $AUR, tied to Aurora Innovation.",
+  "stats": {
+   "hp": 35,
+   "atk": 55,
+   "def": 40,
+   "spd": 90,
+   "ats": 50,
+   "dfs": 50
+  },
+  "catchRate": 190,
+  "height": 0.4,
+  "weight": 6,
+  "sprite": "dex/AUR.png"
+ },
+ {
+  "ticker": "AVAV",
+  "name": "Avavulture",
+  "company": "AeroVironment",
+  "address": "0xF6290b5e7C26502e2dA514C31509849718EA76A5",
+  "kind": "stock",
+  "dexId": 26,
+  "types": [
+   "Volt"
+  ],
+  "species": "Loitering Stockmonster",
+  "description": "Avavulture can hang motionless in the sky for entire days without landing. It waits so patiently that most creatures below forget it is even there. Traders know it as $AVAV, tied to AeroVironment.",
+  "stats": {
+   "hp": 60,
+   "atk": 90,
+   "def": 55,
+   "spd": 110,
+   "ats": 90,
+   "dfs": 80
+  },
+  "catchRate": 75,
+  "height": 0.8,
+  "weight": 30,
+  "sprite": "dex/AVAV.png"
+ },
+ {
+  "ticker": "AVGO",
+  "name": "Avgoliath",
+  "company": "Broadcom",
+  "address": "0x156E175DD063a8cE274C50654eF40e0032b3fbcF",
+  "kind": "stock",
+  "dexId": 27,
+  "types": [
+   "Terra"
+  ],
+  "species": "Switching Matrix Stockmonster",
+  "description": "Every cable in Avgoliath's beard carries a different signal, and it can reroute all of them without breaking stride. Few creatures its size move data as calmly as it moves itself. Traders know it as $AVGO, tied to Broadcom.",
+  "stats": {
+   "hp": 50,
+   "atk": 75,
+   "def": 85,
+   "spd": 40,
+   "ats": 20,
+   "dfs": 30
+  },
+  "catchRate": 255,
+  "height": 0.6,
+  "weight": 12,
+  "sprite": "dex/AVGO.png"
+ },
+ {
+  "ticker": "AXON",
+  "name": "Axonyx",
+  "company": "Axon",
+  "address": "0xC27dBD474aF5181c5A8777903690D8D262D12648",
+  "kind": "stock",
+  "dexId": 28,
+  "types": [
+   "Terra"
+  ],
+  "species": "Non-Lethal Stockmonster",
+  "description": "A crackling arc leaps between Axonyx's horns whenever it needs to end a confrontation quickly. It has learned to make its point without ever needing to make it twice. Traders know it as $AXON, tied to Axon.",
+  "stats": {
+   "hp": 75,
+   "atk": 100,
+   "def": 110,
+   "spd": 65,
+   "ats": 45,
+   "dfs": 55
+  },
+  "catchRate": 90,
+  "height": 1,
+  "weight": 29.5,
+  "sprite": "dex/AXON.png"
+ },
+ {
+  "ticker": "AXTI",
+  "name": "Axtiger",
+  "company": "AXT",
+  "address": "0x141eEa040c2250eEc0314e336975e81f85f6585e",
+  "kind": "stock",
+  "dexId": 29,
+  "types": [
+   "Toxic"
+  ],
+  "species": "Refraction Stockmonster",
+  "description": "Light bends strangely around Axtiger's crystalline stripes, scattering into colors that don't match its surroundings. Hunters say you can spot one from its rainbow long before you see its shape. Traders know it as $AXTI, tied to AXT.",
+  "stats": {
+   "hp": 55,
+   "atk": 47,
+   "def": 52,
+   "spd": 41,
+   "ats": 40,
+   "dfs": 40
+  },
+  "catchRate": 235,
+  "height": 0.4,
+  "weight": 7,
+  "sprite": "dex/AXTI.png"
+ },
+ {
+  "ticker": "BA",
+  "name": "Boewyrm",
+  "company": "Boeing",
+  "address": "0x4D21483a44Bf67a86b77E3dA301411880797D452",
+  "kind": "stock",
+  "dexId": 30,
+  "types": [
+   "Toxic"
+  ],
+  "species": "Fuselage Stockmonster",
+  "description": "Boewyrm has flown the same long routes for so many decades that its plating has gone dull with weather. It is slow to take off, but nothing keeps it from the sky for long. Traders know it as $BA, tied to Boeing.",
+  "stats": {
+   "hp": 70,
+   "atk": 62,
+   "def": 67,
+   "spd": 56,
+   "ats": 55,
+   "dfs": 55
+  },
+  "catchRate": 120,
+  "height": 0.8,
+  "weight": 20,
+  "sprite": "dex/BA.png"
+ },
+ {
+  "ticker": "BABA",
+  "name": "Babaroc",
+  "company": "Alibaba",
+  "address": "0xad25Ac6C84D497db898fa1E8387bf6Af3532a1c4",
+  "kind": "stock",
+  "dexId": 31,
+  "types": [
+   "Toxic",
+   "Terra"
+  ],
+  "species": "Merchant Stockmonster",
+  "description": "Babaroc's wings never stop carrying goods from one place to another. An entire bazaar's worth of cargo rides on its back at any given moment, and somehow it never once drops a crate. Traders know it as $BABA, tied to Alibaba.",
+  "stats": {
+   "hp": 90,
+   "atk": 92,
+   "def": 87,
+   "spd": 76,
+   "ats": 75,
+   "dfs": 85
+  },
+  "catchRate": 45,
+  "height": 1.3,
+  "weight": 60,
+  "sprite": "dex/BABA.png"
+ },
+ {
+  "ticker": "BB",
+  "name": "Blackbriar",
+  "company": "Blackberry",
+  "address": "0x48E39E56aCdbA37b09020C0b734A613C9a2f100A",
+  "kind": "stock",
+  "dexId": 32,
+  "types": [
+   "Toxic"
+  ],
+  "species": "Briar Stockmonster",
+  "description": "Blackbriar's hide bristles with thorns shaped like tiny keys, and anything that grabs it without permission gets a nasty surprise. Old-timers still swear by how hard it is to break through. Traders know it as $BB, tied to Blackberry.",
+  "stats": {
+   "hp": 46,
+   "atk": 57,
+   "def": 40,
+   "spd": 50,
+   "ats": 40,
+   "dfs": 40
+  },
+  "catchRate": 235,
+  "height": 0.5,
+  "weight": 9,
+  "sprite": "dex/BB.png"
+ },
+ {
+  "ticker": "BE",
+  "name": "Bloomkindle",
+  "company": "Bloom Energy",
+  "address": "0x822CC93fFD030293E9842c30BBD678F530701867",
+  "kind": "stock",
+  "dexId": 33,
+  "types": [
+   "Toxic"
+  ],
+  "species": "Kindling Stockmonster",
+  "description": "Bloomkindle's ribs glow like embers that never quite burn out, fed by a quiet flame instead of open fire. It can keep a whole room warm for days on almost nothing. Traders know it as $BE, tied to Bloom Energy.",
+  "stats": {
+   "hp": 61,
+   "atk": 72,
+   "def": 57,
+   "spd": 65,
+   "ats": 55,
+   "dfs": 55
+  },
+  "catchRate": 120,
+  "height": 0.9,
+  "weight": 19.5,
+  "sprite": "dex/BE.png"
+ },
+ {
+  "ticker": "BND",
+  "name": "Bondwarden",
+  "company": "Vanguard Total Bond Market ETF",
+  "address": "0x2F62fC9fAbb470C690f141c28340eD832bB27020",
+  "kind": "stock",
+  "dexId": 34,
+  "types": [
+   "Toxic",
+   "Terra"
+  ],
+  "species": "Laddered Stockmonster",
+  "description": "Bondwarden moves so slowly that trainers sometimes mistake it for a rock. It has outlived every predator that ever tried to rush it, one patient season at a time. Traders know it as $BND, tied to Vanguard Total Bond Market ETF.",
+  "stats": {
+   "hp": 81,
+   "atk": 102,
+   "def": 77,
+   "spd": 85,
+   "ats": 85,
+   "dfs": 75
+  },
+  "catchRate": 45,
+  "height": 1.4,
+  "weight": 62,
+  "sprite": "dex/BND.png"
+ },
+ {
+  "ticker": "BULL",
+  "name": "Bullwark",
+  "company": "Webull",
+  "address": "0xceF9027c7d6985b85f0BA431125073529A947A68",
+  "kind": "stock",
+  "dexId": 35,
+  "types": [
+   "Fae"
+  ],
+  "species": "Bulwark Stockmonster",
+  "description": "Once Bullwark plants its hooves, nothing has ever managed to push it backward. It simply lowers its shielded brow and waits for whatever is pushing to give up first. Traders know it as $BULL, tied to Webull.",
+  "stats": {
+   "hp": 70,
+   "atk": 45,
+   "def": 48,
+   "spd": 35,
+   "ats": 60,
+   "dfs": 65
+  },
+  "catchRate": 150,
+  "height": 0.6,
+  "weight": 7.5,
+  "sprite": "dex/BULL.png"
+ },
+ {
+  "ticker": "CBRS",
+  "name": "Cerebraxis",
+  "company": "Cerebras Systems",
+  "address": "0x5c90450Bbb4273D7b2f17CF6917AEB237A569679",
+  "kind": "stock",
+  "dexId": 36,
+  "types": [
+   "Fae"
+  ],
+  "species": "Wafer-Scale Stockmonster",
+  "description": "Cerebraxis's entire hull is a single unbroken fold of coral, glowing faintly blue when it thinks hard. Smaller creatures like it precisely because it never has to be cut apart to grow. Traders know it as $CBRS, tied to Cerebras Systems.",
+  "stats": {
+   "hp": 95,
+   "atk": 70,
+   "def": 73,
+   "spd": 60,
+   "ats": 95,
+   "dfs": 90
+  },
+  "catchRate": 25,
+  "height": 1.3,
+  "weight": 40,
+  "sprite": "dex/CBRS.png"
+ },
+ {
+  "ticker": "GOOGL",
+  "name": "Googolem",
+  "company": "Alphabet Class A",
+  "address": "0x2e0847E8910a9732eB3fb1bb4b70a580ADAD4FE3",
+  "kind": "stock",
+  "dexId": 37,
+  "types": [
+   "Blaze"
+  ],
+  "species": "Index Stockmonster",
+  "description": "Googolem has read everything that has ever been written down, and it answers before the question is finished. Moss grows over the older stones it hasn't needed in a while. Traders know it as $GOOGL, tied to Alphabet Class A.",
+  "stats": {
+   "hp": 38,
+   "atk": 41,
+   "def": 40,
+   "spd": 65,
+   "ats": 50,
+   "dfs": 65
+  },
+  "catchRate": 190,
+  "height": 0.6,
+  "weight": 9.9,
+  "sprite": "dex/GOOGL.png"
+ },
+ {
+  "ticker": "CCL",
+  "name": "Carnivyre",
+  "company": "Carnival Corporation",
+  "address": "0x9651342CeA770aE9a2969Ba2A52611523146aef9",
+  "kind": "stock",
+  "dexId": 38,
+  "types": [
+   "Blaze"
+  ],
+  "species": "Cruise Stockmonster",
+  "description": "Carnivyre never travels alone; its decks are always lit and full of passengers watching the horizon. Barnacles from a hundred ports cling to its hull like souvenirs. Traders know it as $CCL, tied to Carnival Corporation.",
+  "stats": {
+   "hp": 73,
+   "atk": 76,
+   "def": 75,
+   "spd": 100,
+   "ats": 81,
+   "dfs": 100
+  },
+  "catchRate": 75,
+  "height": 1.1,
+  "weight": 19.9,
+  "sprite": "dex/CCL.png"
+ },
+ {
+  "ticker": "COST",
+  "name": "Costaurus",
+  "company": "Costco",
+  "address": "0x4EA005168D7F09a7A0Ba9D1DEf21a479950E44C2",
+  "kind": "stock",
+  "dexId": 39,
+  "types": [
+   "Neutral",
+   "Fae"
+  ],
+  "species": "Bulk Stockmonster",
+  "description": "Costaurus won't let anything ride on its shoulders without a tag through its nose to prove they belong there. Once it recognizes you, it will carry twice what any other beast can manage. Traders know it as $COST, tied to Costco.",
+  "stats": {
+   "hp": 115,
+   "atk": 45,
+   "def": 20,
+   "spd": 20,
+   "ats": 45,
+   "dfs": 25
+  },
+  "catchRate": 170,
+  "height": 0.5,
+  "weight": 5.5,
+  "sprite": "dex/COST.png"
+ },
+ {
+  "ticker": "CEG",
+  "name": "Constellyon",
+  "company": "Constellation Energy",
+  "address": "0xaE517A2903E68bd929Dfd15be875F8369D53e94a",
+  "kind": "stock",
+  "dexId": 40,
+  "types": [
+   "Neutral",
+   "Fae"
+  ],
+  "species": "Reactor Stockmonster",
+  "description": "A steady warmth radiates from Constellyon's chest at all hours, undimmed by weather or season. The star map across its pelt is said to trace the exact layout of the grid it powers. Traders know it as $CEG, tied to Constellation Energy.",
+  "stats": {
+   "hp": 140,
+   "atk": 70,
+   "def": 45,
+   "spd": 45,
+   "ats": 85,
+   "dfs": 50
+  },
+  "catchRate": 50,
+  "height": 1,
+  "weight": 12,
+  "sprite": "dex/CEG.png"
+ },
+ {
+  "ticker": "MSTR",
+  "name": "Microstryx",
+  "company": "Strategy Inc.",
+  "address": "0xec262a75e413fAfD0dF80480274532C79D42da09",
+  "kind": "stock",
+  "dexId": 41,
+  "types": [
+   "Toxic",
+   "Wind"
+  ],
+  "species": "Hoarding Stockmonster",
+  "description": "Microstryx has perched on the same enormous coin for years and refuses to move, no matter how the winds change. It has never once been seen letting go of anything. Traders know it as $MSTR, tied to Strategy Inc..",
+  "stats": {
+   "hp": 40,
+   "atk": 45,
+   "def": 35,
+   "spd": 55,
+   "ats": 30,
+   "dfs": 40
+  },
+  "catchRate": 255,
+  "height": 0.8,
+  "weight": 7.5,
+  "sprite": "dex/MSTR.png"
+ },
+ {
+  "ticker": "CELH",
+  "name": "Celsyrax",
+  "company": "Celsius",
+  "address": "0x8cF07C5A878945185d327aAa6e33FAa95F95e7bF",
+  "kind": "stock",
+  "dexId": 42,
+  "types": [
+   "Toxic",
+   "Wind"
+  ],
+  "species": "Caffeinated Stockmonster",
+  "description": "Celsyrax's heartbeat is visible through its own chest, hammering far faster than its size should allow. It cannot sit still for more than a few seconds at a time. Traders know it as $CELH, tied to Celsius.",
+  "stats": {
+   "hp": 75,
+   "atk": 80,
+   "def": 70,
+   "spd": 90,
+   "ats": 65,
+   "dfs": 75
+  },
+  "catchRate": 90,
+  "height": 1.6,
+  "weight": 55,
+  "sprite": "dex/CELH.png"
+ },
+ {
+  "ticker": "CIEN",
+  "name": "Cienath",
+  "company": "Ciena",
+  "address": "0x44f6D488021f8233B9416294d1FE9b1fEe28382d",
+  "kind": "stock",
+  "dexId": 43,
+  "types": [
+   "Flora",
+   "Toxic"
+  ],
+  "species": "Transoceanic Stockmonster",
+  "description": "Cienath's body stretches across entire ocean floors, glowing faintly at even intervals along its length. Sailors say a single flicker down its length can carry a message around the world. Traders know it as $CIEN, tied to Ciena.",
+  "stats": {
+   "hp": 45,
+   "atk": 50,
+   "def": 55,
+   "spd": 30,
+   "ats": 75,
+   "dfs": 65
+  },
+  "catchRate": 255,
+  "height": 0.5,
+  "weight": 5.4,
+  "sprite": "dex/CIEN.png"
+ },
+ {
+  "ticker": "CLOV",
+  "name": "Clovyre",
+  "company": "Clover Health Investments",
+  "address": "0x62200915e7DEab1eC7f79fb246daDbB80eACdDd0",
+  "kind": "stock",
+  "dexId": 44,
+  "types": [
+   "Flora",
+   "Toxic"
+  ],
+  "species": "Lucky Leaf Stockmonster",
+  "description": "Clovyre grows an extra leaf for every misfortune it helps a trainer avoid. No two are ever seen with the same number of leaves twice. Traders know it as $CLOV, tied to Clover Health Investments.",
+  "stats": {
+   "hp": 60,
+   "atk": 65,
+   "def": 70,
+   "spd": 40,
+   "ats": 85,
+   "dfs": 75
+  },
+  "catchRate": 120,
+  "height": 0.8,
+  "weight": 8.6,
+  "sprite": "dex/CLOV.png"
+ },
+ {
+  "ticker": "CLS",
+  "name": "Celestrix",
+  "company": "Celestica",
+  "address": "0xBf449977089c718C004a66C554B26B94ef3Ad4De",
+  "kind": "stock",
+  "dexId": 45,
+  "types": [
+   "Flora",
+   "Toxic"
+  ],
+  "species": "Assembly Stockmonster",
+  "description": "Celestrix places each part exactly where it belongs without ever appearing to rush. Its clean white feathers never seem to pick up so much as a speck of dust. Traders know it as $CLS, tied to Celestica.",
+  "stats": {
+   "hp": 75,
+   "atk": 80,
+   "def": 85,
+   "spd": 50,
+   "ats": 110,
+   "dfs": 90
+  },
+  "catchRate": 45,
+  "height": 1.2,
+  "weight": 18.6,
+  "sprite": "dex/CLS.png"
+ },
+ {
+  "ticker": "CLSK",
+  "name": "Sparkraken",
+  "company": "CleanSpark",
+  "address": "0xcBB95BBF36099d34dA091dc6Fa6F49EfA257Cee3",
+  "kind": "stock",
+  "dexId": 46,
+  "types": [
+   "Swarm",
+   "Flora"
+  ],
+  "species": "Hash-Rate Stockmonster",
+  "description": "Lightning arcs constantly between Sparkraken's submerged tentacles, and the water around it never stops steaming. It works hardest when nobody else can stand the heat. Traders know it as $CLSK, tied to CleanSpark.",
+  "stats": {
+   "hp": 35,
+   "atk": 70,
+   "def": 55,
+   "spd": 25,
+   "ats": 45,
+   "dfs": 55
+  },
+  "catchRate": 190,
+  "height": 0.3,
+  "weight": 5.4,
+  "sprite": "dex/CLSK.png"
+ },
+ {
+  "ticker": "COHR",
+  "name": "Cohryst",
+  "company": "Coherent",
+  "address": "0x92F9F459F1a9a5AD266b182BE7Bffd1C6c666894",
+  "kind": "stock",
+  "dexId": 47,
+  "types": [
+   "Swarm",
+   "Flora"
+  ],
+  "species": "Prism Stockmonster",
+  "description": "A single beam of white light travels between the tines of Cohryst's antlers, unbroken no matter how far they spread. Its light never scatters, even in total darkness. Traders know it as $COHR, tied to Coherent.",
+  "stats": {
+   "hp": 60,
+   "atk": 95,
+   "def": 80,
+   "spd": 30,
+   "ats": 60,
+   "dfs": 80
+  },
+  "catchRate": 75,
+  "height": 1,
+  "weight": 29.5,
+  "sprite": "dex/COHR.png"
+ },
+ {
+  "ticker": "MSFT",
+  "name": "Microsoftus",
+  "company": "Microsoft",
+  "address": "0xe93237C50D904957Cf27E7B1133b510C669c2e74",
+  "kind": "stock",
+  "dexId": 48,
+  "types": [
+   "Swarm",
+   "Toxic"
+  ],
+  "species": "Windowed Stockmonster",
+  "description": "A steady light shines from the four panes across Microsoftus's chest, and has for longer than any trainer alive can remember. It is rarely the fastest in a fight, but it is the hardest to ever truly retire. Traders know it as $MSFT, tied to Microsoft.",
+  "stats": {
+   "hp": 60,
+   "atk": 55,
+   "def": 50,
+   "spd": 45,
+   "ats": 40,
+   "dfs": 55
+  },
+  "catchRate": 190,
+  "height": 1,
+  "weight": 30,
+  "sprite": "dex/MSFT.png"
+ },
+ {
+  "ticker": "CRCL",
+  "name": "Circulith",
+  "company": "Circle Internet Group",
+  "address": "0xdF0992E440dD0be65BD8439b609d6D4366bf1CB5",
+  "kind": "stock",
+  "dexId": 49,
+  "types": [
+   "Swarm",
+   "Toxic"
+  ],
+  "species": "Stable Ring Stockmonster",
+  "description": "Circulith is a perfect circle no matter how hard something tries to knock it off balance. Its core never wobbles, which is exactly why so many others choose to shelter near it. Traders know it as $CRCL, tied to Circle Internet Group.",
+  "stats": {
+   "hp": 70,
+   "atk": 65,
+   "def": 60,
+   "spd": 90,
+   "ats": 90,
+   "dfs": 75
+  },
+  "catchRate": 75,
+  "height": 1.5,
+  "weight": 12.5,
+  "sprite": "dex/CRCL.png"
+ },
+ {
+  "ticker": "CRDO",
+  "name": "Credoryx",
+  "company": "Credo Technology Group",
+  "address": "0x4D67253bc223e6b0e104F1084c1fb2b669dDC41b",
+  "kind": "stock",
+  "dexId": 50,
+  "types": [
+   "Terra"
+  ],
+  "species": "Retimer Stockmonster",
+  "description": "Credoryx's scales copy whatever pattern arrives at its head and pass it cleanly down to its tail, cleaning up the signal along the way. Nothing it repeats ever arrives distorted. Traders know it as $CRDO, tied to Credo Technology Group.",
+  "stats": {
+   "hp": 10,
+   "atk": 55,
+   "def": 25,
+   "spd": 95,
+   "ats": 35,
+   "dfs": 45
+  },
+  "catchRate": 255,
+  "height": 0.2,
+  "weight": 0.8,
+  "sprite": "dex/CRDO.png"
+ },
+ {
+  "ticker": "CRM",
+  "name": "Salesphinx",
+  "company": "Salesforce",
+  "address": "0xd95B44124e475743a7589e68F3D74008A5536D44",
+  "kind": "stock",
+  "dexId": 51,
+  "types": [
+   "Terra"
+  ],
+  "species": "Riddle Stockmonster",
+  "description": "Salesphinx will not let a trainer pass until it has asked exactly the right question. Scrolls of old conversations drift in its cloud-like mane, and it never forgets a single one. Traders know it as $CRM, tied to Salesforce.",
+  "stats": {
+   "hp": 35,
+   "atk": 100,
+   "def": 50,
+   "spd": 120,
+   "ats": 50,
+   "dfs": 70
+  },
+  "catchRate": 50,
+  "height": 0.7,
+  "weight": 33.3,
+  "sprite": "dex/CRM.png"
+ },
+ {
+  "ticker": "CRWD",
+  "name": "Crowdstryker",
+  "company": "CrowdStrike Holdings",
+  "address": "0xea72Ecca2d0f6bFA1394DBBCff85b52CD4233931",
+  "kind": "stock",
+  "dexId": 52,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Intrusion Stockmonster",
+  "description": "Crowdstryker can sense an intruder the instant it crosses a boundary that isn't its own. Its talons ignite the moment it locks onto something that doesn't belong. Traders know it as $CRWD, tied to CrowdStrike Holdings.",
+  "stats": {
+   "hp": 40,
+   "atk": 45,
+   "def": 35,
+   "spd": 90,
+   "ats": 40,
+   "dfs": 40
+  },
+  "catchRate": 255,
+  "height": 0.4,
+  "weight": 4.2,
+  "sprite": "dex/CRWD.png"
+ },
+ {
+  "ticker": "CRWV",
+  "name": "Coreweaver",
+  "company": "CoreWeave",
+  "address": "0x5f10A1C971B69e47e059e1dC91901B59b3fB49C3",
+  "kind": "stock",
+  "dexId": 53,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Rack-Weaving Stockmonster",
+  "description": "Coreweaver spins entire racks of processors into a single sprawling web, cooling mist trailing off its legs as it works. The bigger the web grows, the faster it can think. Traders know it as $CRWV, tied to CoreWeave.",
+  "stats": {
+   "hp": 65,
+   "atk": 70,
+   "def": 60,
+   "spd": 115,
+   "ats": 65,
+   "dfs": 65
+  },
+  "catchRate": 90,
+  "height": 1,
+  "weight": 32,
+  "sprite": "dex/CRWV.png"
+ },
+ {
+  "ticker": "CSCO",
+  "name": "Ciscolossus",
+  "company": "Cisco Systems",
+  "address": "0xF543967EEBB6f1917992eF0E68De63ab07a5a0dA",
+  "kind": "stock",
+  "dexId": 54,
+  "types": [
+   "Tide"
+  ],
+  "species": "Routing Stockmonster",
+  "description": "Ciscolossus has stood in the same spot for so long that moss has crept across its oldest shoulders. New ports are still added every year, and every single one still works. Traders know it as $CSCO, tied to Cisco Systems.",
+  "stats": {
+   "hp": 50,
+   "atk": 52,
+   "def": 48,
+   "spd": 55,
+   "ats": 65,
+   "dfs": 50
+  },
+  "catchRate": 190,
+  "height": 0.8,
+  "weight": 19.6,
+  "sprite": "dex/CSCO.png"
+ },
+ {
+  "ticker": "CTSH",
+  "name": "Cognizarch",
+  "company": "Cognizant",
+  "address": "0x63D5a3b6939a33f1e75d8Bcd85759858239600DB",
+  "kind": "stock",
+  "dexId": 55,
+  "types": [
+   "Tide"
+  ],
+  "species": "Advisory Stockmonster",
+  "description": "Cognizarch keeps a dozen hands busy at once, each one carrying out a different task for a different client. It never seems to notice which hand belongs to which job. Traders know it as $CTSH, tied to Cognizant.",
+  "stats": {
+   "hp": 80,
+   "atk": 82,
+   "def": 78,
+   "spd": 85,
+   "ats": 95,
+   "dfs": 80
+  },
+  "catchRate": 75,
+  "height": 1.7,
+  "weight": 76.6,
+  "sprite": "dex/CTSH.png"
+ },
+ {
+  "ticker": "CVNA",
+  "name": "Carvanaught",
+  "company": "Carvana",
+  "address": "0xa4f319104089FE321dc8093C6E707d4fE190A988",
+  "kind": "stock",
+  "dexId": 56,
+  "types": [
+   "Combat"
+  ],
+  "species": "Vending Stockmonster",
+  "description": "Carvanaught's glass torso is stacked floor to ceiling with vehicles, each one waiting for the right buyer. Insert the right token, and one of them rolls right out. Traders know it as $CVNA, tied to Carvana.",
+  "stats": {
+   "hp": 40,
+   "atk": 80,
+   "def": 35,
+   "spd": 70,
+   "ats": 35,
+   "dfs": 45
+  },
+  "catchRate": 190,
+  "height": 0.5,
+  "weight": 28,
+  "sprite": "dex/CVNA.png"
+ },
+ {
+  "ticker": "DDOG",
+  "name": "Datahound",
+  "company": "Datadog",
+  "address": "0x27c99fBde9D0d2AA4f4Bfb4943f237843DdF6958",
+  "kind": "stock",
+  "dexId": 57,
+  "types": [
+   "Combat"
+  ],
+  "species": "Telemetry Stockmonster",
+  "description": "Datahound's three eyes never blink at the same time, each one watching a different kind of trouble. Its collar glows brighter the moment something starts to go wrong. Traders know it as $DDOG, tied to Datadog.",
+  "stats": {
+   "hp": 65,
+   "atk": 105,
+   "def": 60,
+   "spd": 95,
+   "ats": 60,
+   "dfs": 70
+  },
+  "catchRate": 75,
+  "height": 1,
+  "weight": 32,
+  "sprite": "dex/DDOG.png"
+ },
+ {
+  "ticker": "DELL",
+  "name": "Dellemental",
+  "company": "Dell",
+  "address": "0x941AE714EC6D8130c7B75d67160Ca08f1e7d11Dd",
+  "kind": "stock",
+  "dexId": 58,
+  "types": [
+   "Blaze"
+  ],
+  "species": "Modular Stockmonster",
+  "description": "Dellemental can rebuild its own body from spare chassis mid-battle, swapping out damaged parts without ever slowing down. No two configurations of it look quite the same. Traders know it as $DELL, tied to Dell.",
+  "stats": {
+   "hp": 55,
+   "atk": 70,
+   "def": 45,
+   "spd": 60,
+   "ats": 70,
+   "dfs": 50
+  },
+  "catchRate": 190,
+  "height": 0.7,
+  "weight": 19,
+  "sprite": "dex/DELL.png"
+ },
+ {
+  "ticker": "DJT",
+  "name": "Djtitan",
+  "company": "Trump Media & Technology Group",
+  "address": "0x1D11f0496982706C5e14A514D4E79F2e6BdE4516",
+  "kind": "stock",
+  "dexId": 59,
+  "types": [
+   "Blaze"
+  ],
+  "species": "Broadcast Stockmonster",
+  "description": "Djtitan's voice carries for miles from the tower-crown atop its head, and it is never once heard speaking quietly. Whatever it says, it says loudly enough for everyone to hear. Traders know it as $DJT, tied to Trump Media & Technology Group.",
+  "stats": {
+   "hp": 90,
+   "atk": 110,
+   "def": 80,
+   "spd": 95,
+   "ats": 100,
+   "dfs": 80
+  },
+  "catchRate": 75,
+  "height": 1.9,
+  "weight": 155,
+  "sprite": "dex/DJT.png"
+ },
+ {
+  "ticker": "DOCN",
+  "name": "Docnereid",
+  "company": "DigitalOcean",
+  "address": "0xc02f12B9fe9E707079EC0d546f3050d3F6C1F8bD",
+  "kind": "stock",
+  "dexId": 60,
+  "types": [
+   "Tide"
+  ],
+  "species": "Droplet Stockmonster",
+  "description": "Docnereid darts through the shallows faster than almost anything its size, spinning up a new droplet of itself whenever a project needs one. It never asks for more room than it needs. Traders know it as $DOCN, tied to DigitalOcean.",
+  "stats": {
+   "hp": 40,
+   "atk": 50,
+   "def": 40,
+   "spd": 90,
+   "ats": 40,
+   "dfs": 40
+  },
+  "catchRate": 255,
+  "height": 0.6,
+  "weight": 12.4,
+  "sprite": "dex/DOCN.png"
+ },
+ {
+  "ticker": "ELF",
+  "name": "Elfyre",
+  "company": "e.l.f. Beauty",
+  "address": "0x39EC44Bee4F6A116c6F9B8De566848a985C53C60",
+  "kind": "stock",
+  "dexId": 61,
+  "types": [
+   "Tide"
+  ],
+  "species": "Pigment Stockmonster",
+  "description": "Elfyre's wings shift color with its mood, swirling through an entire palette before most trainers can name the first shade. It never wears the same look for very long. Traders know it as $ELF, tied to e.l.f. Beauty.",
+  "stats": {
+   "hp": 65,
+   "atk": 65,
+   "def": 65,
+   "spd": 90,
+   "ats": 50,
+   "dfs": 50
+  },
+  "catchRate": 120,
+  "height": 1,
+  "weight": 20,
+  "sprite": "dex/ELF.png"
+ },
+ {
+  "ticker": "EWT",
+  "name": "Formosaur",
+  "company": "iShares MSCI Taiwan Capped ETF",
+  "address": "0x1c690498150252222C275A5CEd69d3A6b1f52D5E",
+  "kind": "stock",
+  "dexId": 62,
+  "types": [
+   "Tide",
+   "Combat"
+  ],
+  "species": "Terraced Stockmonster",
+  "description": "Formosaur's shell is shaped like an entire island, with terraces built into its back that never stop humming with activity. Ships pass wide around it out of respect. Traders know it as $EWT, tied to iShares MSCI Taiwan Capped ETF.",
+  "stats": {
+   "hp": 90,
+   "atk": 95,
+   "def": 95,
+   "spd": 70,
+   "ats": 70,
+   "dfs": 90
+  },
+  "catchRate": 45,
+  "height": 1.3,
+  "weight": 54,
+  "sprite": "dex/EWT.png"
+ },
+ {
+  "ticker": "EWY",
+  "name": "Hanguldra",
+  "company": "iShares MSCI South Korea fund",
+  "address": "0x7f0aBeF0C07280F82c6a08ead09dEd6BAE2C13Fc",
+  "kind": "stock",
+  "dexId": 63,
+  "types": [
+   "Psionic"
+  ],
+  "species": "Heavy Industry Stockmonster",
+  "description": "Hanguldra's scales are forged in shipyards on one flank and etched with memory circuits on the other. It is equally comfortable building a hull or a chip. Traders know it as $EWY, tied to iShares MSCI South Korea fund.",
+  "stats": {
+   "hp": 25,
+   "atk": 20,
+   "def": 15,
+   "spd": 90,
+   "ats": 105,
+   "dfs": 55
+  },
+  "catchRate": 200,
+  "height": 0.9,
+  "weight": 19.5,
+  "sprite": "dex/EWY.png"
+ },
+ {
+  "ticker": "F",
+  "name": "Fordrake",
+  "company": "Ford Motor",
+  "address": "0x25C288E6D899b9BC30160965aD9644c67e73bE0C",
+  "kind": "stock",
+  "dexId": 64,
+  "types": [
+   "Psionic"
+  ],
+  "species": "Work Stockmonster",
+  "description": "Fordrake has more dents than any trainer can count, and it is still out working every single one of them off. It has never once refused a job because of the weather. Traders know it as $F, tied to Ford Motor.",
+  "stats": {
+   "hp": 40,
+   "atk": 35,
+   "def": 30,
+   "spd": 105,
+   "ats": 120,
+   "dfs": 70
+  },
+  "catchRate": 100,
+  "height": 1.3,
+  "weight": 56.5,
+  "sprite": "dex/F.png"
+ },
+ {
+  "ticker": "FICO",
+  "name": "Ficolith",
+  "company": "Fair Isaac",
+  "address": "0xa48F22A46C0F1C46CA7D111CB6c137c271987180",
+  "kind": "stock",
+  "dexId": 65,
+  "types": [
+   "Psionic"
+  ],
+  "species": "Scoring Stockmonster",
+  "description": "A glowing three-digit glyph burns steadily on Ficolith's forehead, and it changes the moment it finishes judging you. Nobody has ever managed to argue the number down. Traders know it as $FICO, tied to Fair Isaac.",
+  "stats": {
+   "hp": 55,
+   "atk": 50,
+   "def": 45,
+   "spd": 120,
+   "ats": 135,
+   "dfs": 95
+  },
+  "catchRate": 50,
+  "height": 1.5,
+  "weight": 48,
+  "sprite": "dex/FICO.png"
+ },
+ {
+  "ticker": "FIG",
+  "name": "Figmaw",
+  "company": "Figma",
+  "address": "0x41F4267525a8AFf329540eF24fD83d9044758B33",
+  "kind": "stock",
+  "dexId": 66,
+  "types": [
+   "Combat"
+  ],
+  "species": "Vector Stockmonster",
+  "description": "Figmaw is never satisfied with its own outline, and its fingers are always mid-stroke redrawing some part of itself. Turn away for a second and its shape has already changed. Traders know it as $FIG, tied to Figma.",
+  "stats": {
+   "hp": 70,
+   "atk": 80,
+   "def": 50,
+   "spd": 35,
+   "ats": 35,
+   "dfs": 35
+  },
+  "catchRate": 180,
+  "height": 0.8,
+  "weight": 19.5,
+  "sprite": "dex/FIG.png"
+ },
+ {
+  "ticker": "FISV",
+  "name": "Fiservok",
+  "company": "Fiserv",
+  "address": "0x9ECe29A4A2397C0a35fb5fA8EE2b9509130a98cc",
+  "kind": "stock",
+  "dexId": 67,
+  "types": [
+   "Combat"
+  ],
+  "species": "Payment Rail Stockmonster",
+  "description": "Fiservok is rarely noticed, but its wings carry more transactions in a day than most creatures see in a lifetime. It shows up everywhere and is thanked almost nowhere. Traders know it as $FISV, tied to Fiserv.",
+  "stats": {
+   "hp": 80,
+   "atk": 100,
+   "def": 70,
+   "spd": 45,
+   "ats": 50,
+   "dfs": 60
+  },
+  "catchRate": 90,
+  "height": 1.5,
+  "weight": 70.5,
+  "sprite": "dex/FISV.png"
+ },
+ {
+  "ticker": "FIX",
+  "name": "Fixarach",
+  "company": "Comfort Systems",
+  "address": "0x93Dbb1d2Dc5D63F4abACFF30485273f538Df68Ac",
+  "kind": "stock",
+  "dexId": 68,
+  "types": [
+   "Combat"
+  ],
+  "species": "Ducted Stockmonster",
+  "description": "Fixarach's limbs stretch through the walls of entire buildings, keeping every room at exactly the temperature it should be. Nobody sees it work, but everybody notices when it stops. Traders know it as $FIX, tied to Comfort Systems.",
+  "stats": {
+   "hp": 90,
+   "atk": 130,
+   "def": 80,
+   "spd": 55,
+   "ats": 65,
+   "dfs": 85
+  },
+  "catchRate": 45,
+  "height": 1.6,
+  "weight": 130,
+  "sprite": "dex/FIX.png"
+ },
+ {
+  "ticker": "FLNC",
+  "name": "Fluencer",
+  "company": "Fluence Energy",
+  "address": "0x282e87451E10fA6679BC7D76C69BE44cD3fC777C",
+  "kind": "stock",
+  "dexId": 69,
+  "types": [
+   "Flora",
+   "Toxic"
+  ],
+  "species": "Surge Stockmonster",
+  "description": "Fluencer soaks up a sudden surge of power the instant it appears, holding onto it patiently until something nearby actually needs it. It never wastes a single spark. Traders know it as $FLNC, tied to Fluence Energy.",
+  "stats": {
+   "hp": 50,
+   "atk": 75,
+   "def": 35,
+   "spd": 40,
+   "ats": 70,
+   "dfs": 30
+  },
+  "catchRate": 255,
+  "height": 0.7,
+  "weight": 4,
+  "sprite": "dex/FLNC.png"
+ },
+ {
+  "ticker": "FLY",
+  "name": "Fireflyre",
+  "company": "Firefly Aerospace Inc.",
+  "address": "0x03BC731Ffb162cdd7B98D3C6542bFC291126075d",
+  "kind": "stock",
+  "dexId": 70,
+  "types": [
+   "Flora",
+   "Toxic"
+  ],
+  "species": "Liftoff Stockmonster",
+  "description": "Fireflyre's tail ignites in a brilliant amber flash the instant it launches, and within seconds it is already gone. Blink at the wrong moment and you'll miss its whole flight. Traders know it as $FLY, tied to Firefly Aerospace Inc..",
+  "stats": {
+   "hp": 65,
+   "atk": 90,
+   "def": 50,
+   "spd": 55,
+   "ats": 85,
+   "dfs": 45
+  },
+  "catchRate": 120,
+  "height": 1,
+  "weight": 6.4,
+  "sprite": "dex/FLY.png"
+ },
+ {
+  "ticker": "FTNT",
+  "name": "Fortinaut",
+  "company": "Fortinet",
+  "address": "0x3FB8976980d486084b2eb4a404BD12e72823958f",
+  "kind": "stock",
+  "dexId": 71,
+  "types": [
+   "Flora",
+   "Toxic"
+  ],
+  "species": "Firewall Stockmonster",
+  "description": "Fortinaut's claws clamp shut the instant something crosses its plating uninvited, and they do not open again until the threat is gone. Its shell has never once been breached. Traders know it as $FTNT, tied to Fortinet.",
+  "stats": {
+   "hp": 80,
+   "atk": 105,
+   "def": 65,
+   "spd": 70,
+   "ats": 100,
+   "dfs": 70
+  },
+  "catchRate": 45,
+  "height": 1.7,
+  "weight": 15.5,
+  "sprite": "dex/FTNT.png"
+ },
+ {
+  "ticker": "FUTU",
+  "name": "Futuros",
+  "company": "Futu Holdings",
+  "address": "0xeB30663bDFf0622Ef4e4E5cBb4E975F19f33f51D",
+  "kind": "stock",
+  "dexId": 72,
+  "types": [
+   "Tide",
+   "Toxic"
+  ],
+  "species": "Order-Book Stockmonster",
+  "description": "Futuros moves so fast that its own trades sometimes settle after it has already left. Its mane ripples with every order placed nearby, whether or not it was the one to place it. Traders know it as $FUTU, tied to Futu Holdings.",
+  "stats": {
+   "hp": 40,
+   "atk": 40,
+   "def": 35,
+   "spd": 70,
+   "ats": 50,
+   "dfs": 100
+  },
+  "catchRate": 190,
+  "height": 0.9,
+  "weight": 45.5,
+  "sprite": "dex/FUTU.png"
+ },
+ {
+  "ticker": "GE",
+  "name": "Geleviathan",
+  "company": "General Electric",
+  "address": "0x63b814DDBd6BF339f25Fed8c36158a008D5B373e",
+  "kind": "stock",
+  "dexId": 73,
+  "types": [
+   "Tide",
+   "Toxic"
+  ],
+  "species": "Turbine Stockmonster",
+  "description": "Geleviathan's turbine heart has powered through more than a century without ever fully cooling down. Its jet-engine shoulders still roar louder than nearly anything built since. Traders know it as $GE, tied to General Electric.",
+  "stats": {
+   "hp": 80,
+   "atk": 70,
+   "def": 65,
+   "spd": 100,
+   "ats": 80,
+   "dfs": 120
+  },
+  "catchRate": 60,
+  "height": 1.6,
+  "weight": 55,
+  "sprite": "dex/GE.png"
+ },
+ {
+  "ticker": "GEV",
+  "name": "Gevortex",
+  "company": "GE Vernova",
+  "address": "0x94B8AAE43A1cCc08Aa64B7D1F29b4D920aF4a0C9",
+  "kind": "stock",
+  "dexId": 74,
+  "types": [
+   "Stone",
+   "Terra"
+  ],
+  "species": "Vortex Stockmonster",
+  "description": "Gevortex's three wings spin so steadily that the sky itself seems to turn around it. It never stops moving, even on the stillest days. Traders know it as $GEV, tied to GE Vernova.",
+  "stats": {
+   "hp": 40,
+   "atk": 80,
+   "def": 100,
+   "spd": 20,
+   "ats": 30,
+   "dfs": 30
+  },
+  "catchRate": 255,
+  "height": 0.4,
+  "weight": 20,
+  "sprite": "dex/GEV.png"
+ },
+ {
+  "ticker": "GLD",
+  "name": "Gildrake",
+  "company": "SPDR Gold Trust",
+  "address": "0xC9a981FEE1F9DEc688bb123ccDeCc63D0deBFC4e",
+  "kind": "stock",
+  "dexId": 75,
+  "types": [
+   "Stone",
+   "Terra"
+  ],
+  "species": "Vault Stockmonster",
+  "description": "Gildrake sleeps so deeply that most trainers assume it is simply a statue. It only stirs when everything else around it starts to fall apart. Traders know it as $GLD, tied to SPDR Gold Trust.",
+  "stats": {
+   "hp": 55,
+   "atk": 95,
+   "def": 115,
+   "spd": 35,
+   "ats": 45,
+   "dfs": 45
+  },
+  "catchRate": 120,
+  "height": 1,
+  "weight": 105,
+  "sprite": "dex/GLD.png"
+ },
+ {
+  "ticker": "GLW",
+  "name": "Glasswyrm",
+  "company": "Corning",
+  "address": "0x7c04E6A3368F2A1DE3874f0e80d2e0A1a9915da6",
+  "kind": "stock",
+  "dexId": 76,
+  "types": [
+   "Stone",
+   "Terra"
+  ],
+  "species": "Tempered Stockmonster",
+  "description": "Glasswyrm's scales look impossibly fragile, but nothing has ever managed to crack them. Any blow aimed at it simply refracts away in a burst of scattered light. Traders know it as $GLW, tied to Corning.",
+  "stats": {
+   "hp": 80,
+   "atk": 120,
+   "def": 130,
+   "spd": 45,
+   "ats": 55,
+   "dfs": 65
+  },
+  "catchRate": 45,
+  "height": 1.4,
+  "weight": 300,
+  "sprite": "dex/GLW.png"
+ },
+ {
+  "ticker": "GLXY",
+  "name": "Galaxeon",
+  "company": "Galaxy Digital Inc.",
+  "address": "0x2D427692E928fa156ec22acfaBaFA0447C5805B7",
+  "kind": "stock",
+  "dexId": 77,
+  "types": [
+   "Blaze"
+  ],
+  "species": "Star-Field Stockmonster",
+  "description": "Galaxeon's body is made of drifting dust that never quite settles into a fixed shape. Looking too long into its coils feels like staring into open space. Traders know it as $GLXY, tied to Galaxy Digital Inc..",
+  "stats": {
+   "hp": 50,
+   "atk": 85,
+   "def": 55,
+   "spd": 90,
+   "ats": 65,
+   "dfs": 65
+  },
+  "catchRate": 190,
+  "height": 1,
+  "weight": 30,
+  "sprite": "dex/GLXY.png"
+ },
+ {
+  "ticker": "GME",
+  "name": "Gmemeleon",
+  "company": "GameStop",
+  "address": "0x1b0E319c6A659F002271B69dB8A7df2F911c153E",
+  "kind": "stock",
+  "dexId": 78,
+  "types": [
+   "Blaze"
+  ],
+  "species": "Attention Stockmonster",
+  "description": "Gmemeleon grows stronger the more eyes are on it, cycling wildly through colors the instant a crowd gathers. Look away, and it fades right back to normal. Traders know it as $GME, tied to GameStop.",
+  "stats": {
+   "hp": 65,
+   "atk": 100,
+   "def": 70,
+   "spd": 105,
+   "ats": 80,
+   "dfs": 80
+  },
+  "catchRate": 60,
+  "height": 1.7,
+  "weight": 95,
+  "sprite": "dex/GME.png"
+ },
+ {
+  "ticker": "HII",
+  "name": "Hulliath",
+  "company": "Huntington Ingalls",
+  "address": "0xEB61c0Ed490A367d4E3631cCf8a74B3bfc7E775D",
+  "kind": "stock",
+  "dexId": 79,
+  "types": [
+   "Tide",
+   "Psionic"
+  ],
+  "species": "Shipyard Stockmonster",
+  "description": "Hulliath's shoulders are built from the same plating used on the largest carriers afloat, and it drags a half-finished hull behind it wherever it goes. Traders know it as $HII, tied to Huntington Ingalls.",
+  "stats": {
+   "hp": 90,
+   "atk": 65,
+   "def": 65,
+   "spd": 15,
+   "ats": 40,
+   "dfs": 40
+  },
+  "catchRate": 190,
+  "height": 1.2,
+  "weight": 36,
+  "sprite": "dex/HII.png"
+ },
+ {
+  "ticker": "HIMS",
+  "name": "Himsalve",
+  "company": "Hims & Hers Health",
+  "address": "0xCceE82fE024c36fA15E1005edE3E9e4787e23D09",
+  "kind": "stock",
+  "dexId": 80,
+  "types": [
+   "Tide",
+   "Psionic"
+  ],
+  "species": "Discreet Stockmonster",
+  "description": "Himsalve approaches quietly and treats whatever ails you without ever drawing attention to the visit. Its caduceus markings glow faintly only for the trainer it's currently helping. Traders know it as $HIMS, tied to Hims & Hers Health.",
+  "stats": {
+   "hp": 95,
+   "atk": 75,
+   "def": 110,
+   "spd": 30,
+   "ats": 100,
+   "dfs": 80
+  },
+  "catchRate": 75,
+  "height": 1.6,
+  "weight": 78.5,
+  "sprite": "dex/HIMS.png"
+ },
+ {
+  "ticker": "HPE",
+  "name": "Hpegasus",
+  "company": "HP Enterprise",
+  "address": "0x59dd09d4900C2E4B5F75b7c0d4E6796fcc234Cb1",
+  "kind": "stock",
+  "dexId": 81,
+  "types": [
+   "Volt",
+   "Alloy"
+  ],
+  "species": "Enterprise Stockmonster",
+  "description": "Hpegasus never seems to tire no matter how heavy the load on its back. Its server-blade feathers are replaced one at a time, so it never has to stop flying to molt. Traders know it as $HPE, tied to HP Enterprise.",
+  "stats": {
+   "hp": 25,
+   "atk": 35,
+   "def": 70,
+   "spd": 45,
+   "ats": 95,
+   "dfs": 55
+  },
+  "catchRate": 190,
+  "height": 0.3,
+  "weight": 6,
+  "sprite": "dex/HPE.png"
+ },
+ {
+  "ticker": "HWM",
+  "name": "Howmetheus",
+  "company": "Howmet Aerospace",
+  "address": "0xAEa445c5F3DB1a462998ccC422A875A361ee5d99",
+  "kind": "stock",
+  "dexId": 82,
+  "types": [
+   "Volt",
+   "Alloy"
+  ],
+  "species": "Forged Stockmonster",
+  "description": "Every joint in Howmetheus's body is engineered to bend exactly as far as it needs to and no farther. It is astonishingly light for something that has never once been known to break. Traders know it as $HWM, tied to Howmet Aerospace.",
+  "stats": {
+   "hp": 50,
+   "atk": 60,
+   "def": 95,
+   "spd": 70,
+   "ats": 120,
+   "dfs": 70
+  },
+  "catchRate": 60,
+  "height": 1,
+  "weight": 60,
+  "sprite": "dex/HWM.png"
+ },
+ {
+  "ticker": "IBM",
+  "name": "Ibmoloch",
+  "company": "IBM",
+  "address": "0x980dcf6766FA79f5Cf0c4AAdb3ab477ff15a9619",
+  "kind": "stock",
+  "dexId": 83,
+  "types": [
+   "Neutral",
+   "Wind"
+  ],
+  "species": "Mainframe Stockmonster",
+  "description": "Ibmoloch has stood since before most other Stockmonsters were named, its torso carved with runes few can still read. It answers slowly, but it has never once answered wrong. Traders know it as $IBM, tied to IBM.",
+  "stats": {
+   "hp": 52,
+   "atk": 90,
+   "def": 55,
+   "spd": 60,
+   "ats": 58,
+   "dfs": 62
+  },
+  "catchRate": 45,
+  "height": 0.8,
+  "weight": 15,
+  "sprite": "dex/IBM.png"
+ },
+ {
+  "ticker": "IBRX",
+  "name": "Ibrexis",
+  "company": "ImmunityBio,",
+  "address": "0x7c148F74ac7445D1F28366b7FcDC6792a9Fcd0Cf",
+  "kind": "stock",
+  "dexId": 84,
+  "types": [
+   "Neutral",
+   "Wind"
+  ],
+  "species": "Immune Stockmonster",
+  "description": "Ibrexis's mane is made of clustered cells that learn to recognize an invader on sight. Once it locks onto a target, it teaches the whole body to fight back. Traders know it as $IBRX, tied to ImmunityBio,.",
+  "stats": {
+   "hp": 35,
+   "atk": 85,
+   "def": 45,
+   "spd": 75,
+   "ats": 35,
+   "dfs": 35
+  },
+  "catchRate": 190,
+  "height": 1.4,
+  "weight": 39.2,
+  "sprite": "dex/IBRX.png"
+ },
+ {
+  "ticker": "INDA",
+  "name": "Indavatar",
+  "company": "iShares MSCI India ETF",
+  "address": "0xACEF2e09adb47aD6aBeBAD9fF06689E60615C2B6",
+  "kind": "stock",
+  "dexId": 85,
+  "types": [
+   "Neutral",
+   "Wind"
+  ],
+  "species": "Subcontinent Stockmonster",
+  "description": "Indavatar carries an entire region's worth of industry across its many arms without ever seeming to strain. Its saffron hide is said to shift slightly with each passing season of growth. Traders know it as $INDA, tied to iShares MSCI India ETF.",
+  "stats": {
+   "hp": 60,
+   "atk": 110,
+   "def": 70,
+   "spd": 110,
+   "ats": 60,
+   "dfs": 60
+  },
+  "catchRate": 45,
+  "height": 1.8,
+  "weight": 85.2,
+  "sprite": "dex/INDA.png"
+ },
+ {
+  "ticker": "INFQ",
+  "name": "Inflequin",
+  "company": "Infleqtion",
+  "address": "0xB853bC83a753342a4f8320ea680b4B1E84118D21",
+  "kind": "stock",
+  "dexId": 86,
+  "types": [
+   "Tide"
+  ],
+  "species": "Lattice Stockmonster",
+  "description": "Every strand of Inflequin's mane holds a single atom perfectly still in place. It moves with total precision, never disturbing the delicate lattice it carries. Traders know it as $INFQ, tied to Infleqtion.",
+  "stats": {
+   "hp": 65,
+   "atk": 45,
+   "def": 55,
+   "spd": 45,
+   "ats": 45,
+   "dfs": 70
+  },
+  "catchRate": 190,
+  "height": 1.1,
+  "weight": 90,
+  "sprite": "dex/INFQ.png"
+ },
+ {
+  "ticker": "INOD",
+  "name": "Inodrone",
+  "company": "Innodata",
+  "address": "0xf1953DAB6FaD537488d5A022361FfAa8B4c95eC6",
+  "kind": "stock",
+  "dexId": 87,
+  "types": [
+   "Tide",
+   "Frost"
+  ],
+  "species": "Annotation Stockmonster",
+  "description": "Inodrone is really thousands of tiny drones flying in perfect formation, each one tagging something new the moment it's seen. From a distance, the whole swarm looks like a single white bird. Traders know it as $INOD, tied to Innodata.",
+  "stats": {
+   "hp": 90,
+   "atk": 70,
+   "def": 80,
+   "spd": 70,
+   "ats": 70,
+   "dfs": 95
+  },
+  "catchRate": 75,
+  "height": 1.7,
+  "weight": 120,
+  "sprite": "dex/INOD.png"
+ },
+ {
+  "ticker": "INTC",
+  "name": "Intelisk",
+  "company": "Intel",
+  "address": "0xc72b96e0E48ecd4DC75E1e45396e26300BC39681",
+  "kind": "stock",
+  "dexId": 88,
+  "types": [
+   "Toxic"
+  ],
+  "species": "Legacy Stockmonster",
+  "description": "Intelisk's scales have cracked with age, and its glow has dimmed from what it once was. It is still enormous enough that few dare challenge it outright. Traders know it as $INTC, tied to Intel.",
+  "stats": {
+   "hp": 80,
+   "atk": 80,
+   "def": 50,
+   "spd": 25,
+   "ats": 40,
+   "dfs": 50
+  },
+  "catchRate": 190,
+  "height": 0.9,
+  "weight": 30,
+  "sprite": "dex/INTC.png"
+ },
+ {
+  "ticker": "INTU",
+  "name": "Intuivore",
+  "company": "Intuit",
+  "address": "0x56d23beE5f41A7120170b0c603Dae30128e460e9",
+  "kind": "stock",
+  "dexId": 89,
+  "types": [
+   "Toxic"
+  ],
+  "species": "Ledger Stockmonster",
+  "description": "Intuivore's tongue can snatch a receipt out of the air before it hits the ground. It swells noticeably every spring, gorged on an entire season's worth of paperwork. Traders know it as $INTU, tied to Intuit.",
+  "stats": {
+   "hp": 105,
+   "atk": 105,
+   "def": 75,
+   "spd": 50,
+   "ats": 65,
+   "dfs": 100
+  },
+  "catchRate": 75,
+  "height": 1.2,
+  "weight": 30,
+  "sprite": "dex/INTU.png"
+ },
+ {
+  "ticker": "IONQ",
+  "name": "Ionquark",
+  "company": "IonQ",
+  "address": "0x558378E000D634A36593E338eBacdd6207640EfE",
+  "kind": "stock",
+  "dexId": 90,
+  "types": [
+   "Tide"
+  ],
+  "species": "Trapped-Ion Stockmonster",
+  "description": "Ionquark holds individual particles suspended perfectly still within its wings, cooled by threads of laser light. The slightest disturbance and the whole delicate pattern collapses. Traders know it as $IONQ, tied to IonQ.",
+  "stats": {
+   "hp": 30,
+   "atk": 65,
+   "def": 100,
+   "spd": 40,
+   "ats": 45,
+   "dfs": 25
+  },
+  "catchRate": 190,
+  "height": 0.3,
+  "weight": 4,
+  "sprite": "dex/IONQ.png"
+ },
+ {
+  "ticker": "IREN",
+  "name": "Irendra",
+  "company": "IREN Limited",
+  "address": "0xF0AB0c93bE6F41369d302e55db1A96b3c430212D",
+  "kind": "stock",
+  "dexId": 91,
+  "types": [
+   "Tide",
+   "Frost"
+  ],
+  "species": "Immersion Stockmonster",
+  "description": "Irendra's three heads stay fully submerged at all times, kept cold enough that they never slow down from overheating. It works hardest in the coldest water it can find. Traders know it as $IREN, tied to IREN Limited.",
+  "stats": {
+   "hp": 50,
+   "atk": 95,
+   "def": 180,
+   "spd": 70,
+   "ats": 85,
+   "dfs": 45
+  },
+  "catchRate": 60,
+  "height": 1.5,
+  "weight": 132.5,
+  "sprite": "dex/IREN.png"
+ },
+ {
+  "ticker": "JBL",
+  "name": "Jabilisk",
+  "company": "Jabil Inc.",
+  "address": "0xEAf2512dFC1bEAc608F8794B3793CD4E02894Aa6",
+  "kind": "stock",
+  "dexId": 92,
+  "types": [
+   "Spectre",
+   "Toxic"
+  ],
+  "species": "Pack-Mule Stockmonster",
+  "description": "Jabilisk will carry whatever crate is bolted onto it without complaint, swapping cargo for a hundred different clients in a single week. It has never once asked what's inside. Traders know it as $JBL, tied to Jabil Inc..",
+  "stats": {
+   "hp": 30,
+   "atk": 35,
+   "def": 30,
+   "spd": 80,
+   "ats": 100,
+   "dfs": 35
+  },
+  "catchRate": 190,
+  "height": 1.3,
+  "weight": 0.1,
+  "sprite": "dex/JBL.png"
+ },
+ {
+  "ticker": "JNJ",
+  "name": "Johnsonyx",
+  "company": "Johnson & Johnson",
+  "address": "0x03DfbBE0AC4E7bCDaFd08eD41A400326B77D8c80",
+  "kind": "stock",
+  "dexId": 93,
+  "types": [
+   "Spectre",
+   "Toxic"
+  ],
+  "species": "Apothecary Stockmonster",
+  "description": "Johnsonyx keeps a different remedy wrapped around each of its many arms, ready for almost any ailment a trainer might bring. Its bandaged hide has treated more patients than it can count. Traders know it as $JNJ, tied to Johnson & Johnson.",
+  "stats": {
+   "hp": 45,
+   "atk": 50,
+   "def": 45,
+   "spd": 95,
+   "ats": 115,
+   "dfs": 55
+  },
+  "catchRate": 90,
+  "height": 1.6,
+  "weight": 0.1,
+  "sprite": "dex/JNJ.png"
+ },
+ {
+  "ticker": "JOBY",
+  "name": "Jobyrd",
+  "company": "Joby Aviation",
+  "address": "0xb334C5cE741B80B5B671F47F5C269Cb193fe8E24",
+  "kind": "stock",
+  "dexId": 94,
+  "types": [
+   "Spectre",
+   "Toxic"
+  ],
+  "species": "Rotor Stockmonster",
+  "description": "Jobyrd's six plumes spin so quietly that most trainers only notice it once it's already overhead. It prefers short hops between rooftops to any long journey on the ground. Traders know it as $JOBY, tied to Joby Aviation.",
+  "stats": {
+   "hp": 60,
+   "atk": 65,
+   "def": 60,
+   "spd": 110,
+   "ats": 130,
+   "dfs": 75
+  },
+  "catchRate": 45,
+  "height": 1.5,
+  "weight": 40.5,
+  "sprite": "dex/JOBY.png"
+ },
+ {
+  "ticker": "KLAC",
+  "name": "Klacolyth",
+  "company": "KLA",
+  "address": "0x96b933C74eCB4A0926b9210cef7b743EF46be2E9",
+  "kind": "stock",
+  "dexId": 95,
+  "types": [
+   "Stone",
+   "Terra"
+  ],
+  "species": "Defect-Scanning Stockmonster",
+  "description": "Klacolyth's eyes sweep back and forth in a fixed grid pattern, catching flaws too small for almost anything else to notice. Its whiskers twitch the instant it finds one. Traders know it as $KLAC, tied to KLA.",
+  "stats": {
+   "hp": 35,
+   "atk": 45,
+   "def": 160,
+   "spd": 70,
+   "ats": 30,
+   "dfs": 45
+  },
+  "catchRate": 45,
+  "height": 8.8,
+  "weight": 210,
+  "sprite": "dex/KLAC.png"
+ },
+ {
+  "ticker": "KSS",
+  "name": "Kohlossus",
+  "company": "Kohls Corporation",
+  "address": "0x12e3c047bf9AeCAF9dDC98c05C31BFD1dd043993",
+  "kind": "stock",
+  "dexId": 96,
+  "types": [
+   "Psionic"
+  ],
+  "species": "Department Stockmonster",
+  "description": "Kohlossus's mane is woven from discount banners that never quite stop fluttering, no matter the season. It moves floor to floor at an unhurried, dependable pace. Traders know it as $KSS, tied to Kohls Corporation.",
+  "stats": {
+   "hp": 60,
+   "atk": 48,
+   "def": 45,
+   "spd": 42,
+   "ats": 43,
+   "dfs": 90
+  },
+  "catchRate": 190,
+  "height": 1,
+  "weight": 32.4,
+  "sprite": "dex/KSS.png"
+ },
+ {
+  "ticker": "KTOS",
+  "name": "Kratossus",
+  "company": "Kratos Defense & Security Solutions",
+  "address": "0x7FD06a4d81cCfA3F351394E144d5191874C31313",
+  "kind": "stock",
+  "dexId": 97,
+  "types": [
+   "Psionic"
+  ],
+  "species": "Target Stockmonster",
+  "description": "Kratossus throws itself into danger without a second thought, treating every risk as one more test to survive. It has been rebuilt more times than any trainer can count, and it keeps coming back. Traders know it as $KTOS, tied to Kratos Defense & Security Solutions.",
+  "stats": {
+   "hp": 85,
+   "atk": 73,
+   "def": 70,
+   "spd": 67,
+   "ats": 73,
+   "dfs": 115
+  },
+  "catchRate": 75,
+  "height": 1.6,
+  "weight": 75.6,
+  "sprite": "dex/KTOS.png"
+ },
+ {
+  "ticker": "LHX",
+  "name": "Harrixen",
+  "company": "L3Harris",
+  "address": "0x48d60243c66437c6ac3c2495Be94747aEd5Dfe25",
+  "kind": "stock",
+  "dexId": 98,
+  "types": [
+   "Tide"
+  ],
+  "species": "Encrypted Stockmonster",
+  "description": "Harrixen's crest picks up signals no other creature can decode, and it hears every one of them clearly. What it chooses to repeat is always carefully guarded. Traders know it as $LHX, tied to L3Harris.",
+  "stats": {
+   "hp": 30,
+   "atk": 105,
+   "def": 90,
+   "spd": 50,
+   "ats": 25,
+   "dfs": 25
+  },
+  "catchRate": 225,
+  "height": 0.4,
+  "weight": 6.5,
+  "sprite": "dex/LHX.png"
+ },
+ {
+  "ticker": "LITE",
+  "name": "Lumenthra",
+  "company": "Lumentum",
+  "address": "0x8eF20885F94e3D9bc7eB3080279188Bd5ED7c08C",
+  "kind": "stock",
+  "dexId": 99,
+  "types": [
+   "Tide"
+  ],
+  "species": "Transceiver Stockmonster",
+  "description": "Lumenthra's bells pulse in a steady rhythm that never quite repeats the same way twice. Its trailing tendrils carry that light for miles through open water. Traders know it as $LITE, tied to Lumentum.",
+  "stats": {
+   "hp": 55,
+   "atk": 130,
+   "def": 115,
+   "spd": 75,
+   "ats": 50,
+   "dfs": 50
+  },
+  "catchRate": 60,
+  "height": 1.3,
+  "weight": 60,
+  "sprite": "dex/LITE.png"
+ },
+ {
+  "ticker": "LLY",
+  "name": "Llyxir",
+  "company": "Eli Lilly",
+  "address": "0x8005d266423c7ea827372c9c864491e5786600ea",
+  "kind": "stock",
+  "dexId": 100,
+  "types": [
+   "Volt"
+  ],
+  "species": "Elixir Stockmonster",
+  "description": "A vial coiled deep in Llyxir's chest is said to hold a remedy for almost anything. Trainers who catch a glimpse of its warm red glow report feeling better almost immediately. Traders know it as $LLY, tied to Eli Lilly.",
+  "stats": {
+   "hp": 40,
+   "atk": 30,
+   "def": 50,
+   "spd": 100,
+   "ats": 55,
+   "dfs": 55
+  },
+  "catchRate": 190,
+  "height": 0.5,
+  "weight": 10.4,
+  "sprite": "dex/LLY.png"
+ },
+ {
+  "ticker": "LMT",
+  "name": "Lockheedra",
+  "company": "Lockheed",
+  "address": "0x329fcACEb9AD6F9580DD5F643fed0646900D043c",
+  "kind": "stock",
+  "dexId": 101,
+  "types": [
+   "Volt"
+  ],
+  "species": "Stealth Stockmonster",
+  "description": "Lockheedra's faceted plates scatter almost anything used to try to find it, and it is rarely seen until it wants to be. Even trainers who study it closely say it seems to vanish at the edges. Traders know it as $LMT, tied to Lockheed.",
+  "stats": {
+   "hp": 60,
+   "atk": 50,
+   "def": 70,
+   "spd": 150,
+   "ats": 80,
+   "dfs": 80
+  },
+  "catchRate": 60,
+  "height": 1.2,
+  "weight": 66.6,
+  "sprite": "dex/LMT.png"
+ },
+ {
+  "ticker": "LRCX",
+  "name": "Lrcyclops",
+  "company": "Lam Research Corp",
+  "address": "0x57b0030166DB0C31690d1A5aA167e2e26e2C29a4",
+  "kind": "stock",
+  "dexId": 102,
+  "types": [
+   "Flora",
+   "Psionic"
+  ],
+  "species": "Etching Stockmonster",
+  "description": "Lrcyclops carves patterns finer than a hair's width with a single jet of plasma from its fist. Its own plating is scarred all over from decades of its own precise work. Traders know it as $LRCX, tied to Lam Research Corp.",
+  "stats": {
+   "hp": 60,
+   "atk": 40,
+   "def": 80,
+   "spd": 40,
+   "ats": 60,
+   "dfs": 45
+  },
+  "catchRate": 90,
+  "height": 0.4,
+  "weight": 2.5,
+  "sprite": "dex/LRCX.png"
+ },
+ {
+  "ticker": "LULU",
+  "name": "Lululyth",
+  "company": "Lululemon",
+  "address": "0x4e62068525Ab11FE768e29dfD00ef909B9803016",
+  "kind": "stock",
+  "dexId": 103,
+  "types": [
+   "Flora",
+   "Psionic"
+  ],
+  "species": "Flexible Stockmonster",
+  "description": "Lululyth can bend itself into shapes that seem to defy its own bones. Its woven fur stretches with it without ever losing its shape once it settles back. Traders know it as $LULU, tied to Lululemon.",
+  "stats": {
+   "hp": 95,
+   "atk": 95,
+   "def": 85,
+   "spd": 55,
+   "ats": 125,
+   "dfs": 75
+  },
+  "catchRate": 45,
+  "height": 2,
+  "weight": 120,
+  "sprite": "dex/LULU.png"
+ },
+ {
+  "ticker": "LUNR",
+  "name": "Lunarch",
+  "company": "Intuitive Machines",
+  "address": "0xa5D4968421bA94814Be3B136b15cf422101aC1a3",
+  "kind": "stock",
+  "dexId": 104,
+  "types": [
+   "Terra"
+  ],
+  "species": "Lunar Stockmonster",
+  "description": "Lunarch's mane is dusted grey from landings no other creature has managed. It touches down gently in places most would consider impossible to reach at all. Traders know it as $LUNR, tied to Intuitive Machines.",
+  "stats": {
+   "hp": 50,
+   "atk": 50,
+   "def": 95,
+   "spd": 35,
+   "ats": 40,
+   "dfs": 50
+  },
+  "catchRate": 190,
+  "height": 0.4,
+  "weight": 6.5,
+  "sprite": "dex/LUNR.png"
+ },
+ {
+  "ticker": "MDB",
+  "name": "Mongodrake",
+  "company": "MongoDB",
+  "address": "0xDdf2266b79abf0B48898959B0ed6E6adf512be74",
+  "kind": "stock",
+  "dexId": 105,
+  "types": [
+   "Terra"
+  ],
+  "species": "Document Stockmonster",
+  "description": "Mongodrake reshapes its entire body to fit around whatever it's guarding, never forcing its hoard into a rigid form. Its flexible coils can wrap around almost any shape handed to it. Traders know it as $MDB, tied to MongoDB.",
+  "stats": {
+   "hp": 60,
+   "atk": 80,
+   "def": 110,
+   "spd": 45,
+   "ats": 50,
+   "dfs": 80
+  },
+  "catchRate": 75,
+  "height": 1,
+  "weight": 45,
+  "sprite": "dex/MDB.png"
+ },
+ {
+  "ticker": "MOD",
+  "name": "Modrake",
+  "company": "Modine",
+  "address": "0xc6Cbad1016b38B797610c25E1dc7D95988B1f362",
+  "kind": "stock",
+  "dexId": 106,
+  "types": [
+   "Combat"
+  ],
+  "species": "Heat-Exchange Stockmonster",
+  "description": "Modrake exhales a steady stream of cool air instead of flame, drawing heat away from anything overheating nearby. Its frill spreads wider the hotter the work gets. Traders know it as $MOD, tied to Modine.",
+  "stats": {
+   "hp": 50,
+   "atk": 120,
+   "def": 53,
+   "spd": 87,
+   "ats": 35,
+   "dfs": 110
+  },
+  "catchRate": 45,
+  "height": 1.5,
+  "weight": 49.8,
+  "sprite": "dex/MOD.png"
+ },
+ {
+  "ticker": "MPWR",
+  "name": "Monolithan",
+  "company": "Monolithic Power Systems",
+  "address": "0x52D50D0280AD1054b43f052bD70a49a212A1b128",
+  "kind": "stock",
+  "dexId": 114,
+  "types": [
+   "Flora"
+  ],
+  "species": "Monolithic Stockmonster",
+  "description": "Monolithan's entire body is a single unbroken block, with nothing to separate or fail on its own. It is small, but nothing has ever managed to split it apart. Traders know it as $MPWR, tied to Monolithic Power Systems.",
+  "stats": {
+   "hp": 65,
+   "atk": 55,
+   "def": 115,
+   "spd": 60,
+   "ats": 100,
+   "dfs": 40
+  },
+  "catchRate": 45,
+  "height": 1,
+  "weight": 35,
+  "sprite": "dex/MPWR.png"
+ },
+ {
+  "ticker": "MRNA",
+  "name": "Modernyx",
+  "company": "Moderna",
+  "address": "0x43B07D15cE533bEc5476d70C22a78a1B2B662155",
+  "kind": "stock",
+  "dexId": 123,
+  "types": [
+   "Swarm",
+   "Wind"
+  ],
+  "species": "Messenger Stockmonster",
+  "description": "Modernyx carries instructions coiled through its entire body, rewriting whatever it touches to follow them. What it teaches usually takes hold within days. Traders know it as $MRNA, tied to Moderna.",
+  "stats": {
+   "hp": 70,
+   "atk": 110,
+   "def": 80,
+   "spd": 105,
+   "ats": 55,
+   "dfs": 80
+  },
+  "catchRate": 45,
+  "height": 1.5,
+  "weight": 56,
+  "sprite": "dex/MRNA.png"
+ },
+ {
+  "ticker": "MRVL",
+  "name": "Marvellon",
+  "company": "Marvell Technology",
+  "address": "0x62fd0668e10D8B72339BE2DCF7643001688ff13B",
+  "kind": "stock",
+  "dexId": 129,
+  "types": [
+   "Tide"
+  ],
+  "species": "Controller Stockmonster",
+  "description": "Marvellon's tail spirals with data it's currently routing, and the runes along its flanks glow brighter the busier it gets. It never seems to lose track of where anything is stored. Traders know it as $MRVL, tied to Marvell Technology.",
+  "stats": {
+   "hp": 20,
+   "atk": 10,
+   "def": 55,
+   "spd": 80,
+   "ats": 15,
+   "dfs": 20
+  },
+  "catchRate": 255,
+  "height": 0.9,
+  "weight": 10,
+  "sprite": "dex/MRVL.png"
+ },
+ {
+  "ticker": "MTSI",
+  "name": "Mtsiren",
+  "company": "MACOM",
+  "address": "0xC93f4d80e268AB922e871bd169156C3CC41894e6",
+  "kind": "stock",
+  "dexId": 130,
+  "types": [
+   "Tide",
+   "Wind"
+  ],
+  "species": "Microwave Stockmonster",
+  "description": "Mtsiren's song ripples outward as microwaves rather than sound, audible only to those tuned to catch it. Its collar dish always points toward whoever it's speaking to. Traders know it as $FARTCOIN, tied to Fartcoin.",
+  "stats": {
+   "hp": 95,
+   "atk": 125,
+   "def": 79,
+   "spd": 81,
+   "ats": 60,
+   "dfs": 100
+  },
+  "catchRate": 45,
+  "height": 6.5,
+  "weight": 235,
+  "sprite": "dex/MTSI.png"
+ },
+ {
+  "ticker": "MU",
+  "name": "Micronoth",
+  "company": "Micron Technology",
+  "address": "0xfF080c8ce2E5feadaCa0Da81314Ae59D232d4afD",
+  "kind": "stock",
+  "dexId": 131,
+  "types": [
+   "Tide",
+   "Frost"
+  ],
+  "species": "Memory-Cell Stockmonster",
+  "description": "Micronoth's tusks are built from countless hexagonal cells, each one holding a tiny fragment of memory. Its hide grows another dense layer every season. Traders know it as $MU, tied to Micron Technology.",
+  "stats": {
+   "hp": 130,
+   "atk": 85,
+   "def": 80,
+   "spd": 60,
+   "ats": 85,
+   "dfs": 95
+  },
+  "catchRate": 45,
+  "height": 2.5,
+  "weight": 220,
+  "sprite": "dex/MU.png"
+ },
+ {
+  "ticker": "MXL",
+  "name": "Maxlinyx",
+  "company": "MaxLinear",
+  "address": "0x48961813349333209994750ffA89b3c5C22eC969",
+  "kind": "stock",
+  "dexId": 147,
+  "types": [
+   "Wyrm"
+  ],
+  "species": "Broadband Stockmonster",
+  "description": "Maxlinyx's fins amplify the faintest signal into something strong enough to travel for miles. It moves so thin and fast through the water that it's rarely seen twice in the same place. Traders know it as $MXL, tied to MaxLinear.",
+  "stats": {
+   "hp": 41,
+   "atk": 64,
+   "def": 45,
+   "spd": 50,
+   "ats": 50,
+   "dfs": 50
+  },
+  "catchRate": 45,
+  "height": 1.8,
+  "weight": 3.3,
+  "sprite": "dex/MXL.png"
+ },
+ {
+  "ticker": "NAVN",
+  "name": "Navnomad",
+  "company": "Navan",
+  "address": "0xf7181b63Fdb858558A74ba96BC42732684cd7965",
+  "kind": "stock",
+  "dexId": 149,
+  "types": [
+   "Wyrm",
+   "Wind"
+  ],
+  "species": "Itinerary Stockmonster",
+  "description": "Navnomad's wings are etched with a constantly updating itinerary, and it is never seen resting in one place for long. It seems happiest mid-journey, never quite arriving. Traders know it as $NAVN, tied to Navan.",
+  "stats": {
+   "hp": 91,
+   "atk": 134,
+   "def": 95,
+   "spd": 80,
+   "ats": 100,
+   "dfs": 100
+  },
+  "catchRate": 45,
+  "height": 2.2,
+  "weight": 210,
+  "sprite": "dex/NAVN.png"
+ },
+ {
+  "ticker": "NBIS",
+  "name": "Nebulisk",
+  "company": "Nebius Group",
+  "address": "0x9D9c6684F596F66a64C030B93A886D51Fd4D7931",
+  "kind": "stock",
+  "dexId": 154,
+  "types": [
+   "Flora"
+  ],
+  "species": "Nebula Stockmonster",
+  "description": "Nebulisk's coils are built from clustered processors salvaged from something much older than itself. It carries the scars of that old empire quietly, glowing violet in the places it was rebuilt. Traders know it as $MPWR, tied to Monolithic Power Systems.",
+  "stats": {
+   "hp": 80,
+   "atk": 82,
+   "def": 100,
+   "spd": 80,
+   "ats": 83,
+   "dfs": 100
+  },
+  "catchRate": 45,
+  "height": 1.8,
+  "weight": 100.5,
+  "sprite": "dex/NBIS.png"
+ },
+ {
+  "ticker": "NET",
+  "name": "Netcumulus",
+  "company": "Cloudflare",
+  "address": "0x116F00968269B7bfbaD4109cE591d6E74c0601d4",
+  "kind": "stock",
+  "dexId": 166,
+  "types": [
+   "Swarm",
+   "Wind"
+  ],
+  "species": "Edge-Cloud Stockmonster",
+  "description": "Netcumulus positions itself directly between danger and whatever it's protecting, its vaporous body absorbing the impact before it ever reaches the other side. Traders know it as $NET, tied to Cloudflare.",
+  "stats": {
+   "hp": 55,
+   "atk": 35,
+   "def": 50,
+   "spd": 85,
+   "ats": 55,
+   "dfs": 110
+  },
+  "catchRate": 90,
+  "height": 1.4,
+  "weight": 35.6,
+  "sprite": "dex/NET.png"
+ },
+ {
+  "ticker": "NNE",
+  "name": "Nanonuke",
+  "company": "Nano Nuclear Energy",
+  "address": "0xBEF75684C43c4ea7BD18Dd532a2244674Ee8b926",
+  "kind": "stock",
+  "dexId": 168,
+  "types": [
+   "Swarm",
+   "Toxic"
+  ],
+  "species": "Containment Stockmonster",
+  "description": "Nanonuke is small enough to carry, but its containment shell holds far more potential than its size suggests. Trainers are warned never to underestimate how much power sits quietly inside it. Traders know it as $NNE, tied to Nano Nuclear Energy.",
+  "stats": {
+   "hp": 70,
+   "atk": 90,
+   "def": 70,
+   "spd": 40,
+   "ats": 60,
+   "dfs": 70
+  },
+  "catchRate": 90,
+  "height": 1.1,
+  "weight": 33.5,
+  "sprite": "dex/NNE.png"
+ },
+ {
+  "ticker": "NOW",
+  "name": "Nowarden",
+  "company": "ServiceNow",
+  "address": "0x0C3260aF4B8f13a69c4c2dFb84fD667890CDFa14",
+  "kind": "stock",
+  "dexId": 170,
+  "types": [
+   "Tide",
+   "Volt"
+  ],
+  "species": "Workflow Stockmonster",
+  "description": "Nowarden will not take a single step until the ticket-plate ahead of it has been properly resolved. Once it does move, the whole line behind it advances in perfect order. Traders know it as $NOW, tied to ServiceNow.",
+  "stats": {
+   "hp": 75,
+   "atk": 38,
+   "def": 38,
+   "spd": 67,
+   "ats": 56,
+   "dfs": 56
+  },
+  "catchRate": 190,
+  "height": 0.5,
+  "weight": 12,
+  "sprite": "dex/NOW.png"
+ },
+ {
+  "ticker": "NU",
+  "name": "Nuvora",
+  "company": "Nu",
+  "address": "0x408c14038a04f7bD235329E26d2bf569ee20e250",
+  "kind": "stock",
+  "dexId": 171,
+  "types": [
+   "Tide",
+   "Volt"
+  ],
+  "species": "Digital Bank Stockmonster",
+  "description": "Nuvora moves through its territory with an ease that older, heavier creatures can't match. It has quietly claimed ground across an entire region without anyone noticing it happen. Traders know it as $NU, tied to Nu.",
+  "stats": {
+   "hp": 125,
+   "atk": 58,
+   "def": 58,
+   "spd": 67,
+   "ats": 76,
+   "dfs": 76
+  },
+  "catchRate": 75,
+  "height": 1.2,
+  "weight": 22.5,
+  "sprite": "dex/NU.png"
+ },
+ {
+  "ticker": "NVTS",
+  "name": "Navitusk",
+  "company": "Navitas Semiconductor",
+  "address": "0xbE6702d7b70315376dC48a3293f24f0982F86386",
+  "kind": "stock",
+  "dexId": 181,
+  "types": [
+   "Volt"
+  ],
+  "species": "Fast-Switching Stockmonster",
+  "description": "Navitusk's tusks switch on and off faster than the eye can follow, discharging in short violent bursts. It is compact, but nothing about its charge feels small. Traders know it as $NVTS, tied to Navitas Semiconductor.",
+  "stats": {
+   "hp": 90,
+   "atk": 75,
+   "def": 85,
+   "spd": 55,
+   "ats": 115,
+   "dfs": 90
+  },
+  "catchRate": 45,
+  "height": 1.4,
+  "weight": 61.5,
+  "sprite": "dex/NVTS.png"
+ },
+ {
+  "ticker": "OKLO",
+  "name": "Oklonyx",
+  "company": "Oklo",
+  "address": "0x8B2f88497f15A18E9D4FFa1a8fFB8538399aE774",
+  "kind": "stock",
+  "dexId": 183,
+  "types": [
+   "Tide",
+   "Fae"
+  ],
+  "species": "Fast-Reactor Stockmonster",
+  "description": "Oklonyx's tail burns fuel that most other creatures have already discarded as spent. Trainers argue fiercely over whether that fire is a marvel or a risk, and Oklonyx never seems to care either way. Traders know it as $OKLO, tied to Oklo.",
+  "stats": {
+   "hp": 70,
+   "atk": 20,
+   "def": 50,
+   "spd": 40,
+   "ats": 20,
+   "dfs": 50
+  },
+  "catchRate": 190,
+  "height": 0.4,
+  "weight": 8.5,
+  "sprite": "dex/OKLO.png"
+ },
+ {
+  "ticker": "ON",
+  "name": "Onyxide",
+  "company": "ON Semiconductor",
+  "address": "0xbBD09F72b025360FeE5C928053Dca6248d35be54",
+  "kind": "stock",
+  "dexId": 193,
+  "types": [
+   "Swarm",
+   "Wind"
+  ],
+  "species": "Flicker Stockmonster",
+  "description": "Onyxide's spots flicker on and off in patterns too fast to follow, each flicker a tiny decision made and discarded in an instant. In full darkness, only the flickers give it away at all. Traders know it as $ON, tied to ON Semiconductor.",
+  "stats": {
+   "hp": 65,
+   "atk": 65,
+   "def": 45,
+   "spd": 95,
+   "ats": 75,
+   "dfs": 45
+  },
+  "catchRate": 75,
+  "height": 1.2,
+  "weight": 38,
+  "sprite": "dex/ON.png"
+ },
+ {
+  "ticker": "ONTO",
+  "name": "Ontolith",
+  "company": "Onto Innovation",
+  "address": "0x8ff63eAeEe3fE54Ba450c4F5538064Ec5A893Aef",
+  "kind": "stock",
+  "dexId": 215,
+  "types": [
+   "Shadow",
+   "Frost"
+  ],
+  "species": "Inspection Stockmonster",
+  "description": "Ontolith's wings shimmer with fine interference patterns that shift the instant something on them is even slightly out of place. It notices flaws that nothing else would ever catch. Traders know it as $ONTO, tied to Onto Innovation.",
+  "stats": {
+   "hp": 55,
+   "atk": 95,
+   "def": 55,
+   "spd": 115,
+   "ats": 35,
+   "dfs": 75
+  },
+  "catchRate": 60,
+  "height": 0.9,
+  "weight": 28,
+  "sprite": "dex/ONTO.png"
+ },
+ {
+  "ticker": "ORCL",
+  "name": "Oraclysm",
+  "company": "Oracle",
+  "address": "0xb0992820E760d836549ba69BC7598b4af75dEE03",
+  "kind": "stock",
+  "dexId": 223,
+  "types": [
+   "Tide"
+  ],
+  "species": "Query Stockmonster",
+  "description": "Oraclysm answers only in questions of its own, each one drawn from the endless tablets circling its halo. Trainers say it always seems to already know what you were going to ask. Traders know it as $MRNA, tied to Moderna.",
+  "stats": {
+   "hp": 35,
+   "atk": 65,
+   "def": 35,
+   "spd": 65,
+   "ats": 65,
+   "dfs": 35
+  },
+  "catchRate": 190,
+  "height": 0.6,
+  "weight": 12,
+  "sprite": "dex/ORCL.png"
+ },
+ {
+  "ticker": "OUST",
+  "name": "Oustrider",
+  "company": "Ouster",
+  "address": "0x40E7a279850e443f582059ae5dC1c3b6563E6395",
+  "kind": "stock",
+  "dexId": 246,
+  "types": [
+   "Stone",
+   "Terra"
+  ],
+  "species": "Point-Cloud Stockmonster",
+  "description": "Oustrider doesn't see shapes the way most creatures do; its spinning crown builds the world out of countless individual points. It can map a pitch-black room in seconds. Traders know it as $OUST, tied to Ouster.",
+  "stats": {
+   "hp": 50,
+   "atk": 64,
+   "def": 50,
+   "spd": 41,
+   "ats": 45,
+   "dfs": 50
+  },
+  "catchRate": 45,
+  "height": 0.6,
+  "weight": 72,
+  "sprite": "dex/OUST.png"
+ },
+ {
+  "ticker": "P",
+  "name": "Purion",
+  "company": "Everpure",
+  "address": "0x1Cdad396DB64BDa184d5182A97Dd9B3C62100b7D",
+  "kind": "stock",
+  "dexId": 253,
+  "types": [
+   "Flora"
+  ],
+  "species": "Purifying Stockmonster",
+  "description": "Purion's body is so clear that trainers sometimes look straight through it by accident. Whatever passes through comes out cleaner than when it went in. Traders know it as $P, tied to Everpure.",
+  "stats": {
+   "hp": 50,
+   "atk": 65,
+   "def": 45,
+   "spd": 95,
+   "ats": 85,
+   "dfs": 65
+  },
+  "catchRate": 45,
+  "height": 0.9,
+  "weight": 21.6,
+  "sprite": "dex/P.png"
+ },
+ {
+  "ticker": "PANW",
+  "name": "Panwarden",
+  "company": "Palo Alto Networks",
+  "address": "0xB039597eD45CBa7B6E2fb9E8BE51802969CEe5Be",
+  "kind": "stock",
+  "dexId": 270,
+  "types": [
+   "Tide",
+   "Flora"
+  ],
+  "species": "Gatekeeper Stockmonster",
+  "description": "Panwarden's single eye never blinks, inspecting everything that tries to pass its gate-shaped shield. It has never once let something through without checking first. Traders know it as $SPX, tied to SPX6900.",
+  "stats": {
+   "hp": 40,
+   "atk": 30,
+   "def": 30,
+   "spd": 30,
+   "ats": 40,
+   "dfs": 50
+  },
+  "catchRate": 255,
+  "height": 0.5,
+  "weight": 2.6,
+  "sprite": "dex/PANW.png"
+ },
+ {
+  "ticker": "PATH",
+  "name": "Pathyrion",
+  "company": "UiPath",
+  "address": "0xfb2664f07B6Aadd29ea7a59D8859b1AeB8645cDa",
+  "kind": "stock",
+  "dexId": 271,
+  "types": [
+   "Tide",
+   "Flora"
+  ],
+  "species": "Automation Stockmonster",
+  "description": "Pathyrion performs the exact same motion over and over without the slightest variation, never tiring and never once getting it wrong. Trainers find it strangely soothing to watch. Traders know it as $PATH, tied to UiPath.",
+  "stats": {
+   "hp": 60,
+   "atk": 50,
+   "def": 50,
+   "spd": 50,
+   "ats": 60,
+   "dfs": 70
+  },
+  "catchRate": 120,
+  "height": 1.2,
+  "weight": 32.5,
+  "sprite": "dex/PATH.png"
+ },
+ {
+  "ticker": "PENG",
+  "name": "Pengulith",
+  "company": "Penguin Solutions",
+  "address": "0x9b23573b156B52565012F5cE02CDF60AFBaa70Be",
+  "kind": "stock",
+  "dexId": 272,
+  "types": [
+   "Tide",
+   "Flora"
+  ],
+  "species": "Memory-Module Stockmonster",
+  "description": "Pengulith waddles slowly across the ice, but once it plants itself in place, nothing has ever managed to move it. Its chestplate hums quietly with everything it's currently holding. Traders know it as $PENG, tied to Penguin Solutions.",
+  "stats": {
+   "hp": 80,
+   "atk": 70,
+   "def": 70,
+   "spd": 70,
+   "ats": 90,
+   "dfs": 100
+  },
+  "catchRate": 45,
+  "height": 1.5,
+  "weight": 55,
+  "sprite": "dex/PENG.png"
+ },
+ {
+  "ticker": "PFE",
+  "name": "Pfyre",
+  "company": "Pfizer",
+  "address": "0x7066A64c24e4206CD62E83bf198c1E7EB361F51e",
+  "kind": "stock",
+  "dexId": 280,
+  "types": [
+   "Psionic",
+   "Fae"
+  ],
+  "species": "Capsule Stockmonster",
+  "description": "Pfyre's segmented body isn't flashy, but there is hardly a household anywhere that hasn't encountered one at some point. It goes about its work quietly and rarely draws attention. Traders know it as $MRVL, tied to Marvell Technology.",
+  "stats": {
+   "hp": 28,
+   "atk": 25,
+   "def": 25,
+   "spd": 40,
+   "ats": 45,
+   "dfs": 35
+  },
+  "catchRate": 235,
+  "height": 0.4,
+  "weight": 6.6,
+  "sprite": "dex/PFE.png"
+ },
+ {
+  "ticker": "PL",
+  "name": "Planetheon",
+  "company": "Planet Labs",
+  "address": "0xAA4d64474c172010aB57719cb9951E6142a100d3",
+  "kind": "stock",
+  "dexId": 298,
+  "types": [
+   "Neutral",
+   "Fae"
+  ],
+  "species": "Imaging Stockmonster",
+  "description": "Planetheon is really a whole flock flying in such tight formation that it looks like a single bird. Together they photograph every inch of the world at least once a day. Traders know it as $MTSI, tied to MACOM.",
+  "stats": {
+   "hp": 50,
+   "atk": 20,
+   "def": 40,
+   "spd": 20,
+   "ats": 20,
+   "dfs": 40
+  },
+  "catchRate": 150,
+  "height": 0.2,
+  "weight": 2,
+  "sprite": "dex/PL.png"
+ },
+ {
+  "ticker": "POET",
+  "name": "Poetheon",
+  "company": "POET Technologies",
+  "address": "0xcf6B2D875361be807EAfa57458c80f28521F9333",
+  "kind": "stock",
+  "dexId": 328,
+  "types": [
+   "Terra"
+  ],
+  "species": "Waveguide Stockmonster",
+  "description": "Poetheon's wings are etched so finely that light itself seems to hum as it passes through them. It hovers in place surrounded by its own quiet halo of color. Traders know it as $MU, tied to Micron Technology.",
+  "stats": {
+   "hp": 45,
+   "atk": 100,
+   "def": 45,
+   "spd": 10,
+   "ats": 45,
+   "dfs": 45
+  },
+  "catchRate": 255,
+  "height": 0.7,
+  "weight": 15,
+  "sprite": "dex/POET.png"
+ },
+ {
+  "ticker": "POWL",
+  "name": "Powlvolt",
+  "company": "Powell Industries",
+  "address": "0x237c16D66590F67B886d978ACD362EAeaD8B18c7",
+  "kind": "stock",
+  "dexId": 330,
+  "types": [
+   "Terra",
+   "Wyrm"
+  ],
+  "species": "Switchgear Stockmonster",
+  "description": "Powlvolt's hide is built from breaker plates that snap open at the first sign of danger. Once it commits to a charge, nothing has ever managed to stop it partway through. Traders know it as $USELESS, tied to Useless Coin.",
+  "stats": {
+   "hp": 80,
+   "atk": 100,
+   "def": 80,
+   "spd": 100,
+   "ats": 80,
+   "dfs": 80
+  },
+  "catchRate": 45,
+  "height": 2,
+  "weight": 82,
+  "sprite": "dex/POWL.png"
+ },
+ {
+  "ticker": "PR",
+  "name": "Permyre",
+  "company": "Permian Resources",
+  "address": "0x4189F0c66EBBB0bfeF1C31f763131361EF32f77C",
+  "kind": "stock",
+  "dexId": 335,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Shale Stockmonster",
+  "description": "Permyre burrows patiently through ancient rock, its hide taking on a crude-black sheen the deeper it goes. It has been tunneling the same formation for longer than most trainers have been alive. Traders know it as $DOGE, tied to Dogecoin.",
+  "stats": {
+   "hp": 73,
+   "atk": 115,
+   "def": 60,
+   "spd": 90,
+   "ats": 60,
+   "dfs": 60
+  },
+  "catchRate": 90,
+  "height": 1.3,
+  "weight": 40.3,
+  "sprite": "dex/PR.png"
+ },
+ {
+  "ticker": "PWR",
+  "name": "Quantasurge",
+  "company": "Quanta",
+  "address": "0x9Ab02Ead789b6903c3c44d0ED32F9c707CDF12FD",
+  "kind": "stock",
+  "dexId": 336,
+  "types": [
+   "Toxic"
+  ],
+  "species": "Lineworker Stockmonster",
+  "description": "Quantasurge's limbs stretch tower to tower, stringing power clear across the horizon without ever seeming to tire. It works in every kind of weather without complaint. Traders know it as $PWR, tied to Quanta.",
+  "stats": {
+   "hp": 73,
+   "atk": 100,
+   "def": 60,
+   "spd": 65,
+   "ats": 100,
+   "dfs": 60
+  },
+  "catchRate": 90,
+  "height": 2.7,
+  "weight": 52.5,
+  "sprite": "dex/PWR.png"
+ },
+ {
+  "ticker": "QBTS",
+  "name": "Qubitwyrm",
+  "company": "D-Wave Quantum Inc. Common Stock",
+  "address": "0xC583c60aeF9Dc401Da72cEC1B404743a93cea1Cc",
+  "kind": "stock",
+  "dexId": 339,
+  "types": [
+   "Tide",
+   "Terra"
+  ],
+  "species": "Annealing Stockmonster",
+  "description": "Qubitwyrm's coiled body slowly settles into whatever shape costs it the least energy to hold. Left alone long enough, it always finds the calmest possible position. Traders know it as $QBTS, tied to D-Wave Quantum.",
+  "stats": {
+   "hp": 50,
+   "atk": 48,
+   "def": 43,
+   "spd": 60,
+   "ats": 46,
+   "dfs": 41
+  },
+  "catchRate": 190,
+  "height": 0.4,
+  "weight": 1.9,
+  "sprite": "dex/QBTS.png"
+ },
+ {
+  "ticker": "QCOM",
+  "name": "Qcomet",
+  "company": "Qualcomm",
+  "address": "0x0f17206447090e464C277571124dD2688E48AEA9",
+  "kind": "stock",
+  "dexId": 340,
+  "types": [
+   "Tide",
+   "Terra"
+  ],
+  "species": "Modem Stockmonster",
+  "description": "Qcomet's whiskers trail a streak of signal behind it wherever it runs, faint blue fire marking exactly where it's been. It rarely stays in one cell of its territory for long. Traders know it as $QCOM, tied to Qualcomm.",
+  "stats": {
+   "hp": 110,
+   "atk": 78,
+   "def": 73,
+   "spd": 60,
+   "ats": 76,
+   "dfs": 71
+  },
+  "catchRate": 75,
+  "height": 0.9,
+  "weight": 23.6,
+  "sprite": "dex/QCOM.png"
+ },
+ {
+  "ticker": "QQQ",
+  "name": "Nasdrake",
+  "company": "Invesco QQQ",
+  "address": "0xD5f3879160bc7c32ebb4dC785F8a4F505888de68",
+  "kind": "stock",
+  "dexId": 350,
+  "types": [
+   "Tide"
+  ],
+  "species": "Hundred-Wing Stockmonster",
+  "description": "Every one of Nasdrake's hundred wings beats to a slightly different rhythm, yet somehow the whole creature flies as one. Lose a wing and it barely seems to notice. Traders know it as $MEME, tied to Memecoin.",
+  "stats": {
+   "hp": 95,
+   "atk": 60,
+   "def": 79,
+   "spd": 81,
+   "ats": 100,
+   "dfs": 125
+  },
+  "catchRate": 60,
+  "height": 6.2,
+  "weight": 162,
+  "sprite": "dex/QQQ.png"
+ },
+ {
+  "ticker": "QUBT",
+  "name": "Qubitron",
+  "company": "Quantum Computing",
+  "address": "0x59818904ab4cE163b3cE4FfB64f2D6Ca02c434B4",
+  "kind": "stock",
+  "dexId": 361,
+  "types": [
+   "Frost"
+  ],
+  "species": "Superposed Stockmonster",
+  "description": "Qubitron seems to exist in two poses simultaneously until the moment someone actually looks at it. Trainers who try to sketch it always end up with two different drawings. Traders know it as $QUBT, tied to Quantum Computing.",
+  "stats": {
+   "hp": 50,
+   "atk": 50,
+   "def": 50,
+   "spd": 50,
+   "ats": 50,
+   "dfs": 50
+  },
+  "catchRate": 190,
+  "height": 0.7,
+  "weight": 16.8,
+  "sprite": "dex/QUBT.png"
+ },
+ {
+  "ticker": "RBLX",
+  "name": "Robloxis",
+  "company": "Roblox",
+  "address": "0xF0C4BF4C582cb3836e98394b1d4e7B7281101bE8",
+  "kind": "stock",
+  "dexId": 380,
+  "types": [
+   "Wyrm",
+   "Psionic"
+  ],
+  "species": "Blocky Stockmonster",
+  "description": "Robloxis rebuilds its entire body out of simple blocks whenever it wants a new shape, and it never seems to run out of new ones to try. Younger trainers are drawn to it instantly. Traders know it as $RBLX, tied to Roblox.",
+  "stats": {
+   "hp": 80,
+   "atk": 80,
+   "def": 90,
+   "spd": 110,
+   "ats": 110,
+   "dfs": 130
+  },
+  "catchRate": 3,
+  "height": 1.4,
+  "weight": 40,
+  "sprite": "dex/RBLX.png"
+ },
+ {
+  "ticker": "RCAT",
+  "name": "Rcatamount",
+  "company": "Red Cat",
+  "address": "0xFDE6b5d9BB419B10C23268c74e369AbFF39C0460",
+  "kind": "stock",
+  "dexId": 381,
+  "types": [
+   "Wyrm",
+   "Psionic"
+  ],
+  "species": "Quadrotor Stockmonster",
+  "description": "Rcatamount's four whiskers spin fast enough to hold it perfectly steady in open air. It hunts in short, sudden bursts rather than long chases. Traders know it as $ORDI, tied to Ordi.",
+  "stats": {
+   "hp": 80,
+   "atk": 90,
+   "def": 80,
+   "spd": 110,
+   "ats": 130,
+   "dfs": 110
+  },
+  "catchRate": 3,
+  "height": 2,
+  "weight": 60,
+  "sprite": "dex/RCAT.png"
+ },
+ {
+  "ticker": "RDDT",
+  "name": "Rddtroll",
+  "company": "Reddit",
+  "address": "0x05b37Fb53A299a1b874A619e1c4C404D52C36F4C",
+  "kind": "stock",
+  "dexId": 418,
+  "types": [
+   "Tide"
+  ],
+  "species": "Upvote Stockmonster",
+  "description": "Rddtroll grows visibly stronger the longer an argument around it goes on. Its many mouths rarely agree with each other, but it seems to enjoy the noise regardless. Traders know it as $RDDT, tied to Reddit.",
+  "stats": {
+   "hp": 55,
+   "atk": 65,
+   "def": 35,
+   "spd": 85,
+   "ats": 60,
+   "dfs": 30
+  },
+  "catchRate": 190,
+  "height": 0.7,
+  "weight": 29.5,
+  "sprite": "dex/RDDT.png"
+ },
+ {
+  "ticker": "RDW",
+  "name": "Redwyrm",
+  "company": "Redwire",
+  "address": "0x92Ef19E82bD8fF36661DE838D5eaE7e5CEF0EfFE",
+  "kind": "stock",
+  "dexId": 419,
+  "types": [
+   "Tide"
+  ],
+  "species": "Orbital Assembly Stockmonster",
+  "description": "Redwyrm's arms never stop working, even in the vacuum of orbit, slowly assembling more of its own body piece by piece. It has no need to ever return to solid ground. Traders know it as $RDW, tied to Redwire.",
+  "stats": {
+   "hp": 85,
+   "atk": 105,
+   "def": 55,
+   "spd": 115,
+   "ats": 85,
+   "dfs": 50
+  },
+  "catchRate": 75,
+  "height": 1.1,
+  "weight": 33.5,
+  "sprite": "dex/RDW.png"
+ },
+ {
+  "ticker": "RGTI",
+  "name": "Rigetyphon",
+  "company": "Rigetti Computing",
+  "address": "0x284358abc07F9359f19f4b5b4aC91901Be2597Ba",
+  "kind": "stock",
+  "dexId": 422,
+  "types": [
+   "Tide"
+  ],
+  "species": "Cryostat Stockmonster",
+  "description": "Rigetyphon hangs motionless in deep cold, its chandelier-like body glittering with frost. The moment it warms even slightly, whatever it was holding onto slips away. Traders know it as $RGTI, tied to Rigetti Computing.",
+  "stats": {
+   "hp": 76,
+   "atk": 48,
+   "def": 48,
+   "spd": 34,
+   "ats": 57,
+   "dfs": 62
+  },
+  "catchRate": 190,
+  "height": 0.3,
+  "weight": 6.3,
+  "sprite": "dex/RGTI.png"
+ },
+ {
+  "ticker": "RIVN",
+  "name": "Rivyathan",
+  "company": "Rivian Automotive",
+  "address": "0xB1BF26c1D20ff267A4f93550d1E0d06ac40a114B",
+  "kind": "stock",
+  "dexId": 423,
+  "types": [
+   "Tide",
+   "Terra"
+  ],
+  "species": "Wilderness Stockmonster",
+  "description": "Rivyathan's four limbs power it over terrain that would stop almost anything else cold. Its rack-like ridges are always loaded for one more trip further out. Traders know it as $RIVN, tied to Rivian Automotive.",
+  "stats": {
+   "hp": 111,
+   "atk": 83,
+   "def": 68,
+   "spd": 39,
+   "ats": 92,
+   "dfs": 82
+  },
+  "catchRate": 75,
+  "height": 0.9,
+  "weight": 29.9,
+  "sprite": "dex/RIVN.png"
+ },
+ {
+  "ticker": "RKLB",
+  "name": "Rocketyr",
+  "company": "Rocket Lab Corporation",
+  "address": "0x3b14C39E89D60D627b42a1A4CA45b5bb45Fc12e2",
+  "kind": "stock",
+  "dexId": 436,
+  "types": [
+   "Alloy",
+   "Psionic"
+  ],
+  "species": "Launch Stockmonster",
+  "description": "Rocketyr's carbon-black body is barely visible until it ignites, and then the plume behind it is impossible to miss. It launches more often than almost anything its size. Traders know it as $RKLB, tied to Rocket Lab.",
+  "stats": {
+   "hp": 57,
+   "atk": 24,
+   "def": 86,
+   "spd": 23,
+   "ats": 24,
+   "dfs": 86
+  },
+  "catchRate": 255,
+  "height": 0.5,
+  "weight": 60.5,
+  "sprite": "dex/RKLB.png"
+ },
+ {
+  "ticker": "RUN",
+  "name": "Sunrunner",
+  "company": "Sunrun",
+  "address": "0x756Bc80af765C82da966a788858d65aDF14f3793",
+  "kind": "stock",
+  "dexId": 451,
+  "types": [
+   "Toxic",
+   "Swarm"
+  ],
+  "species": "Solar Stockmonster",
+  "description": "Sunrunner's antlers slowly turn to follow the sun across the sky all day long. Wherever it chooses to stand, the ground stays noticeably warm long after it moves on. Traders know it as $RUN, tied to Sunrun.",
+  "stats": {
+   "hp": 40,
+   "atk": 50,
+   "def": 90,
+   "spd": 65,
+   "ats": 30,
+   "dfs": 55
+  },
+  "catchRate": 120,
+  "height": 0.8,
+  "weight": 12,
+  "sprite": "dex/RUN.png"
+ },
+ {
+  "ticker": "SATS",
+  "name": "Echosatyr",
+  "company": "EchoStar",
+  "address": "0x95052ddcd5DC25641657424A8Cf04834997E1730",
+  "kind": "stock",
+  "dexId": 453,
+  "types": [
+   "Toxic",
+   "Combat"
+  ],
+  "species": "Echo Stockmonster",
+  "description": "Echosatyr's antlers catch a signal from high overhead and repeat it back exactly as it was received. It never adds anything of its own to what it passes along. Traders know it as $MXL, tied to MaxLinear.",
+  "stats": {
+   "hp": 48,
+   "atk": 61,
+   "def": 40,
+   "spd": 50,
+   "ats": 61,
+   "dfs": 40
+  },
+  "catchRate": 140,
+  "height": 0.7,
+  "weight": 23,
+  "sprite": "dex/SATS.png"
+ },
+ {
+  "ticker": "SCHD",
+  "name": "Dividrake",
+  "company": "Schwab US Dividend Equity ETF",
+  "address": "0xd63ABB2C13d7a8421a8017a712802053568e3C1D",
+  "kind": "stock",
+  "dexId": 454,
+  "types": [
+   "Toxic",
+   "Combat"
+  ],
+  "species": "Dividend Stockmonster",
+  "description": "Dividrake sheds one golden scale like clockwork every quarter, no matter what else is happening around it. Trainers who wait patiently are always rewarded on schedule. Traders know it as $SCHD, tied to Schwab US Dividend Equity ETF.",
+  "stats": {
+   "hp": 83,
+   "atk": 106,
+   "def": 65,
+   "spd": 85,
+   "ats": 86,
+   "dfs": 65
+  },
+  "catchRate": 75,
+  "height": 1.3,
+  "weight": 44.4,
+  "sprite": "dex/SCHD.png"
+ },
+ {
+  "ticker": "SGOV",
+  "name": "Sgovault",
+  "company": "iShares 0-3 Month Treasury Bond",
+  "address": "0x92FD66527192E3e61d4DDd13322Aa222DE86F9B5",
+  "kind": "stock",
+  "dexId": 455,
+  "types": [
+   "Flora"
+  ],
+  "species": "Inert Stockmonster",
+  "description": "Sgovault barely moves at all, content to simply hold what it's given for a short while before releasing it right on schedule. Nothing about it is exciting, and that's exactly the point. Traders know it as $NAVN, tied to Navan.",
+  "stats": {
+   "hp": 74,
+   "atk": 100,
+   "def": 72,
+   "spd": 46,
+   "ats": 90,
+   "dfs": 72
+  },
+  "catchRate": 200,
+  "height": 1.4,
+  "weight": 27,
+  "sprite": "dex/SGOV.png"
+ },
+ {
+  "ticker": "SHOP",
+  "name": "Shopifyre",
+  "company": "Shopify",
+  "address": "0xF53F66751B1Eff985311b693531E3290F600c410",
+  "kind": "stock",
+  "dexId": 456,
+  "types": [
+   "Tide"
+  ],
+  "species": "Storefront Stockmonster",
+  "description": "Shopifyre can build an entire storefront out of its own plumage within moments of landing. Wherever it settles next, a new shop simply appears. Traders know it as $SHOP, tied to Shopify.",
+  "stats": {
+   "hp": 49,
+   "atk": 49,
+   "def": 56,
+   "spd": 66,
+   "ats": 49,
+   "dfs": 61
+  },
+  "catchRate": 190,
+  "height": 0.4,
+  "weight": 7,
+  "sprite": "dex/SHOP.png"
+ },
+ {
+  "ticker": "SHY",
+  "name": "Shyren",
+  "company": "iShares 1-3 Year Treasury Bond ETF",
+  "address": "0xBE274710Bf3d9567e1B290eF6a5F9f90ca016FD8",
+  "kind": "stock",
+  "dexId": 459,
+  "types": [
+   "Flora",
+   "Frost"
+  ],
+  "species": "Short-Duration Stockmonster",
+  "description": "Shyren keeps close to the shallows, rarely straying into deeper, riskier water. It's timid, but trainers who want something steady and close at hand seek it out often. Traders know it as $SHY, tied to iShares 1-3 Year Treasury Bond ETF.",
+  "stats": {
+   "hp": 60,
+   "atk": 62,
+   "def": 50,
+   "spd": 40,
+   "ats": 62,
+   "dfs": 60
+  },
+  "catchRate": 120,
+  "height": 1,
+  "weight": 50.5,
+  "sprite": "dex/SHY.png"
+ },
+ {
+  "ticker": "SIMO",
+  "name": "Simotion",
+  "company": "Silicon Motion",
+  "address": "0x77E655E37F4d913fB9540e0d541D824171a60e81",
+  "kind": "stock",
+  "dexId": 460,
+  "types": [
+   "Flora",
+   "Frost"
+  ],
+  "species": "Flash Channel Stockmonster",
+  "description": "Each of Simotion's nine tails manages a separate channel of memory, moving in perfect coordination without ever tangling. It is neat and precise in everything it does. Traders know it as $SIMO, tied to Silicon Motion.",
+  "stats": {
+   "hp": 90,
+   "atk": 92,
+   "def": 75,
+   "spd": 60,
+   "ats": 92,
+   "dfs": 85
+  },
+  "catchRate": 60,
+  "height": 2.2,
+  "weight": 135.5,
+  "sprite": "dex/SIMO.png"
+ },
+ {
+  "ticker": "SKHY",
+  "name": "Skhydra",
+  "company": "SK hynix Inc. American Depositary Shares",
+  "address": "0x84CAb63bc87912E71ad199ff14A0bA45de68FeF8",
+  "kind": "stock",
+  "dexId": 465,
+  "types": [
+   "Flora"
+  ],
+  "species": "Stacked Memory Stockmonster",
+  "description": "Skhydra's nine heads are each stacked layer upon layer, and it can access all of them at once without favoring a single one. Losing a head barely slows the rest down. Traders know it as $SKHY, tied to SK hynix.",
+  "stats": {
+   "hp": 100,
+   "atk": 100,
+   "def": 125,
+   "spd": 50,
+   "ats": 110,
+   "dfs": 50
+  },
+  "catchRate": 30,
+  "height": 2,
+  "weight": 128.6,
+  "sprite": "dex/SKHY.png"
+ },
+ {
+  "ticker": "SLS",
+  "name": "Slserum",
+  "company": "SELLAS Life Sciences",
+  "address": "0x285b231728c7E4333799183DF1094d775246a535",
+  "kind": "stock",
+  "dexId": 469,
+  "types": [
+   "Swarm",
+   "Wind"
+  ],
+  "species": "Clinical Trial Stockmonster",
+  "description": "Slserum's core flickers faintly, uncertain, like a hope that hasn't decided whether to catch yet. Trainers who raise one carefully sometimes see that flicker steady into something real. Traders know it as $NBIS, tied to Nebius Group.",
+  "stats": {
+   "hp": 86,
+   "atk": 76,
+   "def": 86,
+   "spd": 95,
+   "ats": 116,
+   "dfs": 56
+  },
+  "catchRate": 30,
+  "height": 1.9,
+  "weight": 51.5,
+  "sprite": "dex/SLS.png"
+ },
+ {
+  "ticker": "SLV",
+  "name": "Silvyrm",
+  "company": "iShares Silver Trust",
+  "address": "0x411eFb0E7f985935DAec3D4C3ebaEa0d0AD7D89f",
+  "kind": "stock",
+  "dexId": 475,
+  "types": [
+   "Psionic",
+   "Combat"
+  ],
+  "species": "Mirror Stockmonster",
+  "description": "Silvyrm's scales serve two purposes at once, prized equally by industry and by those who simply value the shine. It reflects back exactly what's put in front of it. Traders know it as $SLV, tied to iShares Silver Trust.",
+  "stats": {
+   "hp": 68,
+   "atk": 125,
+   "def": 65,
+   "spd": 80,
+   "ats": 65,
+   "dfs": 115
+  },
+  "catchRate": 45,
+  "height": 1.6,
+  "weight": 52,
+  "sprite": "dex/SLV.png"
+ },
+ {
+  "ticker": "SMCI",
+  "name": "Smcimera",
+  "company": "Super Micro Computer",
+  "address": "0xc01aA1fECeC0605b13bc84874ff7256C0f5F562a",
+  "kind": "stock",
+  "dexId": 497,
+  "types": [
+   "Flora"
+  ],
+  "species": "Server Rack Stockmonster",
+  "description": "Smcimera's body is built from mismatched racks bolted together as needed, and its fan-eyes never stop spinning. It looks assembled in a hurry, but it rarely breaks down. Traders know it as $SMCI, tied to Super Micro Computer.",
+  "stats": {
+   "hp": 75,
+   "atk": 75,
+   "def": 95,
+   "spd": 113,
+   "ats": 75,
+   "dfs": 95
+  },
+  "catchRate": 45,
+  "height": 3.3,
+  "weight": 63,
+  "sprite": "dex/SMCI.png"
+ },
+ {
+  "ticker": "SMH",
+  "name": "Smhelix",
+  "company": "VanEck Semiconductor ETF",
+  "address": "0x072f979c2CAc8e1391B0162a87Fee094bF8744a0",
+  "kind": "stock",
+  "dexId": 524,
+  "types": [
+   "Stone"
+  ],
+  "species": "Cyclical Stockmonster",
+  "description": "Smhelix's coils alternate between tightly wound and loosely slack in a rhythm that never quite stops. Trainers who study its pattern long enough learn to predict its next turn. Traders know it as $SMH, tied to VanEck Semiconductor ETF.",
+  "stats": {
+   "hp": 55,
+   "atk": 75,
+   "def": 85,
+   "spd": 15,
+   "ats": 25,
+   "dfs": 25
+  },
+  "catchRate": 255,
+  "height": 0.4,
+  "weight": 18,
+  "sprite": "dex/SMH.png"
+ },
+ {
+  "ticker": "SMR",
+  "name": "Smrcore",
+  "company": "NuScale Power",
+  "address": "0x1Eebee7F74517e0279dFb09d25B0407bEEc3FDd6",
+  "kind": "stock",
+  "dexId": 529,
+  "types": [
+   "Terra"
+  ],
+  "species": "Modular Reactor Stockmonster",
+  "description": "Smrcore's shell looks small enough to fit in one hand, but the core hidden within is far larger than it appears. It moves slowly, entirely unbothered by its own quiet power. Traders know it as $SMR, tied to NuScale Power.",
+  "stats": {
+   "hp": 60,
+   "atk": 85,
+   "def": 40,
+   "spd": 68,
+   "ats": 30,
+   "dfs": 45
+  },
+  "catchRate": 120,
+  "height": 0.3,
+  "weight": 8.5,
+  "sprite": "dex/SMR.png"
+ },
+ {
+  "ticker": "SNAP",
+  "name": "Snapjaw",
+  "company": "Snap",
+  "address": "0xF6589F11Bc40b669e584073F428B05562F568733",
+  "kind": "stock",
+  "dexId": 535,
+  "types": [
+   "Tide"
+  ],
+  "species": "Vanishing Stockmonster",
+  "description": "Snapjaw never lingers once it's been spotted, fading from view within ten seconds no matter what. Trainers who want a good look have to be quick about it. Traders know it as $SNAP, tied to Snap.",
+  "stats": {
+   "hp": 50,
+   "atk": 50,
+   "def": 40,
+   "spd": 64,
+   "ats": 50,
+   "dfs": 40
+  },
+  "catchRate": 255,
+  "height": 0.5,
+  "weight": 4.5,
+  "sprite": "dex/SNAP.png"
+ },
+ {
+  "ticker": "SNDK",
+  "name": "Sandwyrm",
+  "company": "Sandisk Corporation",
+  "address": "0xB90A19fF0Af67f7779afF50A882A9CfF42446400",
+  "kind": "stock",
+  "dexId": 536,
+  "types": [
+   "Tide",
+   "Terra"
+  ],
+  "species": "Flash Storage Stockmonster",
+  "description": "Sandwyrm burrows tirelessly through dune after dune, each grain of sand a tiny fragment of storage. It never seems to run out of ground left to cover. Traders know it as $SNDK, tied to Sandisk.",
+  "stats": {
+   "hp": 75,
+   "atk": 65,
+   "def": 55,
+   "spd": 69,
+   "ats": 65,
+   "dfs": 55
+  },
+  "catchRate": 120,
+  "height": 0.8,
+  "weight": 17,
+  "sprite": "dex/SNDK.png"
+ },
+ {
+  "ticker": "SNOW",
+  "name": "Snowyrm",
+  "company": "Snowflake",
+  "address": "0xBa0CAB75495255d0cB58E22B648bFED4ECD1F47E",
+  "kind": "stock",
+  "dexId": 543,
+  "types": [
+   "Swarm",
+   "Toxic"
+  ],
+  "species": "Frozen Data Stockmonster",
+  "description": "Snowyrm's crystalline facets each hold a sliver of light frozen in place, ready to be released the instant it's needed. Nothing stored within it ever seems to fade. Traders know it as $SNOW, tied to Snowflake.",
+  "stats": {
+   "hp": 30,
+   "atk": 45,
+   "def": 59,
+   "spd": 57,
+   "ats": 30,
+   "dfs": 39
+  },
+  "catchRate": 255,
+  "height": 0.4,
+  "weight": 5.3,
+  "sprite": "dex/SNOW.png"
+ },
+ {
+  "ticker": "SOFI",
+  "name": "Sofinix",
+  "company": "SoFi Technologies",
+  "address": "0x98E75885157C80992A8D41b696D8c9C6Fb30A926",
+  "kind": "stock",
+  "dexId": 544,
+  "types": [
+   "Swarm",
+   "Toxic"
+  ],
+  "species": "Refinancing Stockmonster",
+  "description": "Sofinix periodically burns away its old plumage entirely, letting new feathers grow in cleaner and lighter than before. It treats every fresh start as an improvement on the last. Traders know it as $SOFI, tied to SoFi Technologies.",
+  "stats": {
+   "hp": 40,
+   "atk": 55,
+   "def": 99,
+   "spd": 47,
+   "ats": 40,
+   "dfs": 79
+  },
+  "catchRate": 120,
+  "height": 1.2,
+  "weight": 58.5,
+  "sprite": "dex/SOFI.png"
+ },
+ {
+  "ticker": "SOUN",
+  "name": "Soundhowl",
+  "company": "SoundHound AI",
+  "address": "0x6E3Dfd9f7e1649BaA14D25cac18C94d62dB10A54",
+  "kind": "stock",
+  "dexId": 592,
+  "types": [
+   "Tide",
+   "Spectre"
+  ],
+  "species": "Waveform Stockmonster",
+  "description": "Soundhowl's breath is visible as a shifting waveform whenever it howls, and its ears can pinpoint a single voice in a crowded room. It never mishears a command. Traders know it as $SOUN, tied to SoundHound AI.",
+  "stats": {
+   "hp": 55,
+   "atk": 40,
+   "def": 50,
+   "spd": 40,
+   "ats": 65,
+   "dfs": 85
+  },
+  "catchRate": 190,
+  "height": 1.2,
+  "weight": 33,
+  "sprite": "dex/SOUN.png"
+ },
+ {
+  "ticker": "SOXX",
+  "name": "Soxxolith",
+  "company": "iShares Semiconductor ETF",
+  "address": "0x75742c18BC1f1C5c5f448f4C9D9C6F66dafAAa38",
+  "kind": "stock",
+  "dexId": 600,
+  "types": [
+   "Alloy"
+  ],
+  "species": "Sector Stockmonster",
+  "description": "Soxxolith is really an entire industry compressed into a single standing stone. Damage to one slab barely registers against the strength of the whole. Traders know it as $SOXX, tied to iShares Semiconductor ETF.",
+  "stats": {
+   "hp": 60,
+   "atk": 80,
+   "def": 95,
+   "spd": 50,
+   "ats": 70,
+   "dfs": 85
+  },
+  "catchRate": 60,
+  "height": 0.6,
+  "weight": 51,
+  "sprite": "dex/SOXX.png"
+ },
+ {
+  "ticker": "SPCX",
+  "name": "Spacexodus",
+  "company": "Space Exploration Technologies Corp. Class A Common Stock",
+  "address": "0x4a0E65A3EcceC6dBe60AE065F2e7bb85Fae35eEa",
+  "kind": "stock",
+  "dexId": 601,
+  "types": [
+   "Alloy"
+  ],
+  "species": "Reusable Stockmonster",
+  "description": "Spacexodus returns from every launch scorched but whole, its wings guiding it down to land exactly where it took off. It is ready to fly again almost immediately. Traders know it as $SPCX, tied to Space Exploration Technologies.",
+  "stats": {
+   "hp": 60,
+   "atk": 100,
+   "def": 115,
+   "spd": 90,
+   "ats": 70,
+   "dfs": 85
+  },
+  "catchRate": 30,
+  "height": 0.6,
+  "weight": 81,
+  "sprite": "dex/SPCX.png"
+ },
+ {
+  "ticker": "SPMO",
+  "name": "Momentyr",
+  "company": "Invesco S&P 500 Momentum ETF",
+  "address": "0xAd622320e520de39e72d41EF07438C3Fd3354875",
+  "kind": "stock",
+  "dexId": 602,
+  "types": [
+   "Volt"
+  ],
+  "species": "Momentum Stockmonster",
+  "description": "Momentyr never seems to slow down once it starts moving, trailing a blur of afterimages behind it. Trainers say it's easier to keep up with once it's already running. Traders know it as $NET, tied to Cloudflare.",
+  "stats": {
+   "hp": 35,
+   "atk": 55,
+   "def": 40,
+   "spd": 60,
+   "ats": 45,
+   "dfs": 40
+  },
+  "catchRate": 190,
+  "height": 0.2,
+  "weight": 0.3,
+  "sprite": "dex/SPMO.png"
+ },
+ {
+  "ticker": "SPY",
+  "name": "Spyrant",
+  "company": "SPDR S&P 500 ETF Trust",
+  "address": "0x117cc2133c37B721F49dE2A7a74833232B3B4C0C",
+  "kind": "stock",
+  "dexId": 604,
+  "types": [
+   "Volt"
+  ],
+  "species": "Market Stockmonster",
+  "description": "Spyrant's five hundred eyes each watch a different corner of the field, but they all move as one. When it shifts direction, nearly everything nearby shifts with it. Traders know it as $SPY, tied to SPDR S&P 500 ETF Trust.",
+  "stats": {
+   "hp": 85,
+   "atk": 115,
+   "def": 80,
+   "spd": 50,
+   "ats": 105,
+   "dfs": 80
+  },
+  "catchRate": 30,
+  "height": 2.1,
+  "weight": 80.5,
+  "sprite": "dex/SPY.png"
+ },
+ {
+  "ticker": "TE",
+  "name": "Tenergon",
+  "company": "T1 Energy",
+  "address": "0xb1969f6604CA1AE7a2cD3F1827876e914594CA2D",
+  "kind": "stock",
+  "dexId": 652,
+  "types": [
+   "Flora",
+   "Combat"
+  ],
+  "species": "Raw Energy Stockmonster",
+  "description": "Tenergon hasn't fully settled into a shape yet, its molten-copper body still raw at the edges. Trainers who catch one early say it's impossible to predict what it will become. Traders know it as $NNE, tied to Nano Nuclear Energy.",
+  "stats": {
+   "hp": 88,
+   "atk": 107,
+   "def": 122,
+   "spd": 64,
+   "ats": 74,
+   "dfs": 75
+  },
+  "catchRate": 45,
+  "height": 1.6,
+  "weight": 90,
+  "sprite": "dex/TE.png"
+ },
+ {
+  "ticker": "TEAM",
+  "name": "Atlassiant",
+  "company": "Atlassian Corporation",
+  "address": "0x5B97476b922F3305131B8f0B9D333172E87f4aaE",
+  "kind": "stock",
+  "dexId": 662,
+  "types": [
+   "Blaze",
+   "Wind"
+  ],
+  "species": "Shared Workspace Stockmonster",
+  "description": "Atlassiant holds an entire shared sky steady overhead so that everyone beneath it can keep working together. Glyphs representing each teammate orbit slowly around its shoulders. Traders know it as $TEAM, tied to Atlassian.",
+  "stats": {
+   "hp": 62,
+   "atk": 73,
+   "def": 55,
+   "spd": 84,
+   "ats": 56,
+   "dfs": 52
+  },
+  "catchRate": 120,
+  "height": 0.7,
+  "weight": 16,
+  "sprite": "dex/TEAM.png"
+ },
+ {
+  "ticker": "TEM",
+  "name": "Tempusguard",
+  "company": "Tempus AI",
+  "address": "0xB1CC0EC7Db69Cf43539119814df40071b9d61793",
+  "kind": "stock",
+  "dexId": 663,
+  "types": [
+   "Blaze",
+   "Wind"
+  ],
+  "species": "Diagnostic Stockmonster",
+  "description": "Tempusguard reads the constellation of data across its own flank to predict how a situation will unfold before it happens. It is rarely wrong, and it never enjoys being right. Traders know it as $NOW, tied to ServiceNow.",
+  "stats": {
+   "hp": 78,
+   "atk": 81,
+   "def": 71,
+   "spd": 126,
+   "ats": 74,
+   "dfs": 69
+  },
+  "catchRate": 45,
+  "height": 1.2,
+  "weight": 24.5,
+  "sprite": "dex/TEM.png"
+ },
+ {
+  "ticker": "TER",
+  "name": "Teradon",
+  "company": "Teradyne",
+  "address": "0x2778C5024D5cA2CdB0f8eAD671ffc69963AdCD9C",
+  "kind": "stock",
+  "dexId": 673,
+  "types": [
+   "Flora"
+  ],
+  "species": "Testing Stockmonster",
+  "description": "Teradon probes every seam of whatever it examines with needle-fine fingers, and a light on its chest flashes the verdict instantly. Nothing gets past it unexamined. Traders know it as $NU, tied to Nu.",
+  "stats": {
+   "hp": 123,
+   "atk": 100,
+   "def": 62,
+   "spd": 68,
+   "ats": 97,
+   "dfs": 81
+  },
+  "catchRate": 45,
+  "height": 1.7,
+  "weight": 91,
+  "sprite": "dex/TER.png"
+ },
+ {
+  "ticker": "TSEM",
+  "name": "Tsemtitan",
+  "company": "Tower Semiconductor",
+  "address": "0x89776d4Cd68193597A2fC132cfaC1fDe36CCeA8a",
+  "kind": "stock",
+  "dexId": 688,
+  "types": [
+   "Stone",
+   "Tide"
+  ],
+  "species": "Specialty Foundry Stockmonster",
+  "description": "Tsemtitan's chest burns like a kiln built for jobs too particular for larger foundries to bother with. It takes on the odd, difficult work that others turn away. Traders know it as $TSEM, tied to Tower Semiconductor.",
+  "stats": {
+   "hp": 42,
+   "atk": 52,
+   "def": 67,
+   "spd": 50,
+   "ats": 39,
+   "dfs": 56
+  },
+  "catchRate": 120,
+  "height": 0.5,
+  "weight": 31,
+  "sprite": "dex/TSEM.png"
+ },
+ {
+  "ticker": "TSM",
+  "name": "Foundrake",
+  "company": "Taiwan Semiconductor Manufacturing",
+  "address": "0x58FfE4a942d3885bAa22D7520691F611EF09e7AA",
+  "kind": "stock",
+  "dexId": 694,
+  "types": [
+   "Volt",
+   "Neutral"
+  ],
+  "species": "Foundry Stockmonster",
+  "description": "Every scale on Foundrake is a finished wafer forged in the furnace of its own heart. Nearly every other Stockmonster in the tech world owes at least one part of itself to something Foundrake made. Traders know it as $TSM, tied to Taiwan Semiconductor.",
+  "stats": {
+   "hp": 44,
+   "atk": 38,
+   "def": 33,
+   "spd": 70,
+   "ats": 61,
+   "dfs": 43
+  },
+  "catchRate": 190,
+  "height": 0.5,
+  "weight": 6,
+  "sprite": "dex/TSM.png"
+ },
+ {
+  "ticker": "TTD",
+  "name": "Tradewraith",
+  "company": "Trade Desk",
+  "address": "0x0b5fb4031cae9163db10B169Ee72685F0EdC8545",
+  "kind": "stock",
+  "dexId": 704,
+  "types": [
+   "Wyrm"
+  ],
+  "species": "Auction Stockmonster",
+  "description": "Tradewraith only appears the instant an auction opens, bids flickering faster across its shroud than any eye can track. The moment the auction closes, it's already gone. Traders know it as $WEN, tied to Wen.",
+  "stats": {
+   "hp": 45,
+   "atk": 50,
+   "def": 35,
+   "spd": 40,
+   "ats": 55,
+   "dfs": 75
+  },
+  "catchRate": 45,
+  "height": 0.3,
+  "weight": 2.8,
+  "sprite": "dex/TTD.png"
+ },
+ {
+  "ticker": "TTWO",
+  "name": "Takewyrm",
+  "company": "Take-Two Interactive Software",
+  "address": "0x5e81213613b6B86EaB4c6c50d718d34359459786",
+  "kind": "stock",
+  "dexId": 706,
+  "types": [
+   "Wyrm"
+  ],
+  "species": "Two-Headed Stockmonster",
+  "description": "One of Takewyrm's heads moves with careful, cinematic grace while the other lunges into total chaos. Somehow the two have learned to work as a single creature. Traders know it as $TTWO, tied to Take-Two Interactive.",
+  "stats": {
+   "hp": 90,
+   "atk": 100,
+   "def": 70,
+   "spd": 80,
+   "ats": 110,
+   "dfs": 150
+  },
+  "catchRate": 45,
+  "height": 2,
+  "weight": 150.5,
+  "sprite": "dex/TTWO.png"
+ },
+ {
+  "ticker": "UMC",
+  "name": "Umcron",
+  "company": "United Microelectronics",
+  "address": "0x0E6e67Ba88e7b5d9B67636A215c76779B948dE79",
+  "kind": "stock",
+  "dexId": 712,
+  "types": [
+   "Frost"
+  ],
+  "species": "Legacy Node Stockmonster",
+  "description": "Umcron's shell shows its age plainly, but it has never once let a client down. It moves at its own unhurried pace and always finishes the job. Traders know it as $UMC, tied to United Microelectronics.",
+  "stats": {
+   "hp": 55,
+   "atk": 69,
+   "def": 85,
+   "spd": 28,
+   "ats": 32,
+   "dfs": 35
+  },
+  "catchRate": 190,
+  "height": 1,
+  "weight": 99.5,
+  "sprite": "dex/UMC.png"
+ },
+ {
+  "ticker": "UNH",
+  "name": "Unhydra",
+  "company": "UnitedHealth",
+  "address": "0xcF364ea52787e289De6F32077834056E3E70D6A8",
+  "kind": "stock",
+  "dexId": 714,
+  "types": [
+   "Wind",
+   "Wyrm"
+  ],
+  "species": "Coverage Stockmonster",
+  "description": "Unhydra grows a new head for every plan it offers, and trainers say cutting one down only seems to summon an extra bill. It is best handled carefully, and read closely. Traders know it as $UNH, tied to UnitedHealth.",
+  "stats": {
+   "hp": 40,
+   "atk": 30,
+   "def": 35,
+   "spd": 55,
+   "ats": 45,
+   "dfs": 40
+  },
+  "catchRate": 190,
+  "height": 0.5,
+  "weight": 8,
+  "sprite": "dex/UNH.png"
+ },
+ {
+  "ticker": "UPS",
+  "name": "Upsurge",
+  "company": "UPS",
+  "address": "0xf23250dac154D05Bb671CB0d0eBEf3c635c79CE2",
+  "kind": "stock",
+  "dexId": 727,
+  "types": [
+   "Blaze",
+   "Shadow"
+  ],
+  "species": "Parcel Stockmonster",
+  "description": "Upsurge carries its parcel-shell at a steady, relentless pace and has never once been recorded arriving late. Snow, rain, or heat barely seem to register with it. Traders know it as $UPS, tied to UPS.",
+  "stats": {
+   "hp": 95,
+   "atk": 115,
+   "def": 90,
+   "spd": 60,
+   "ats": 80,
+   "dfs": 90
+  },
+  "catchRate": 45,
+  "height": 1.8,
+  "weight": 83,
+  "sprite": "dex/UPS.png"
+ },
+ {
+  "ticker": "USAR",
+  "name": "Usaronyx",
+  "company": "USA Rare Earth",
+  "address": "0xd917B029C761D264c6A312BBbcDA868658eF86a6",
+  "kind": "stock",
+  "dexId": 730,
+  "types": [
+   "Tide",
+   "Fae"
+  ],
+  "species": "Rare-Earth Stockmonster",
+  "description": "Usaronyx's veins glow faintly through solid stone, tracing the path of magnetic material found in almost nothing else. It is scarce enough that trainers consider finding one a real event. Traders know it as $USAR, tied to USA Rare Earth.",
+  "stats": {
+   "hp": 80,
+   "atk": 74,
+   "def": 74,
+   "spd": 60,
+   "ats": 126,
+   "dfs": 116
+  },
+  "catchRate": 45,
+  "height": 1.8,
+  "weight": 44,
+  "sprite": "dex/USAR.png"
+ },
+ {
+  "ticker": "USO",
+  "name": "Usoleviath",
+  "company": "United States Oil Fund",
+  "address": "0xa30FA36Db767ad9eD3f7a60fC79526fB4d56D344",
+  "kind": "stock",
+  "dexId": 734,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Crude Stockmonster",
+  "description": "Usoleviath's rainbow-slick hide ripples the moment a rumor spreads, rising or sinking long before the truth of it is known. It reacts to whispers as much as to anything real. Traders know it as $USO, tied to United States Oil Fund.",
+  "stats": {
+   "hp": 48,
+   "atk": 70,
+   "def": 30,
+   "spd": 45,
+   "ats": 30,
+   "dfs": 30
+  },
+  "catchRate": 255,
+  "height": 0.4,
+  "weight": 6,
+  "sprite": "dex/USO.png"
+ },
+ {
+  "ticker": "VICR",
+  "name": "Vicroar",
+  "company": "Vicor",
+  "address": "0x6006ed4B2F94110851ff7509D97D034f0EeD9226",
+  "kind": "stock",
+  "dexId": 740,
+  "types": [
+   "Combat",
+   "Frost"
+  ],
+  "species": "Converter Stockmonster",
+  "description": "Vicroar's mane crackles constantly with converted current, and its roar is louder than almost anything its size should produce. It never seems to run quiet. Traders know it as $NVTS, tied to Navitas Semiconductor.",
+  "stats": {
+   "hp": 97,
+   "atk": 132,
+   "def": 77,
+   "spd": 43,
+   "ats": 62,
+   "dfs": 67
+  },
+  "catchRate": 60,
+  "height": 1.7,
+  "weight": 180,
+  "sprite": "dex/VICR.png"
+ },
+ {
+  "ticker": "VRT",
+  "name": "Vertivore",
+  "company": "Vertiv",
+  "address": "0xFA78C12E6488814A0262E4e802749a4a737d5fB7",
+  "kind": "stock",
+  "dexId": 742,
+  "types": [
+   "Swarm",
+   "Fae"
+  ],
+  "species": "Cooling Stockmonster",
+  "description": "Vertivore drinks in heat the way other creatures drink water, its fins never satisfied no matter how much it absorbs. Rooms nearby feel noticeably cooler once it settles in. Traders know it as $VRT, tied to Vertiv.",
+  "stats": {
+   "hp": 40,
+   "atk": 45,
+   "def": 40,
+   "spd": 84,
+   "ats": 55,
+   "dfs": 40
+  },
+  "catchRate": 190,
+  "height": 0.1,
+  "weight": 0.2,
+  "sprite": "dex/VRT.png"
+ },
+ {
+  "ticker": "VSAT",
+  "name": "Viasatyr",
+  "company": "ViaSat",
+  "address": "0x26dCbfb34FC83CAbD6990f449674efDc6097fF85",
+  "kind": "stock",
+  "dexId": 743,
+  "types": [
+   "Swarm",
+   "Fae"
+  ],
+  "species": "Connection Stockmonster",
+  "description": "Viasatyr's dish-shaped horns stay locked on the horizon at all times, beaming a steady connection to wherever it's needed most. It rarely moves once it finds the right angle. Traders know it as $OKLO, tied to Oklo.",
+  "stats": {
+   "hp": 60,
+   "atk": 55,
+   "def": 60,
+   "spd": 124,
+   "ats": 95,
+   "dfs": 70
+  },
+  "catchRate": 75,
+  "height": 0.2,
+  "weight": 0.5,
+  "sprite": "dex/VSAT.png"
+ },
+ {
+  "ticker": "VST",
+  "name": "Vistrike",
+  "company": "Vistra",
+  "address": "0x561e2a49212b7cCF47f2744Ccb83e200722fADBc",
+  "kind": "stock",
+  "dexId": 744,
+  "types": [
+   "Stone"
+  ],
+  "species": "Grid Stockmonster",
+  "description": "Vistrike's horns hum with current even on a clear day, and a single strike from them can light up an entire grid. It stays calm until demand spikes suddenly. Traders know it as $VST, tied to Vistra.",
+  "stats": {
+   "hp": 45,
+   "atk": 65,
+   "def": 40,
+   "spd": 60,
+   "ats": 30,
+   "dfs": 40
+  },
+  "catchRate": 190,
+  "height": 0.5,
+  "weight": 9.2,
+  "sprite": "dex/VST.png"
+ },
+ {
+  "ticker": "VTI",
+  "name": "Vtitan",
+  "company": "Vanguard Morningstar Total Stock Market ETF",
+  "address": "0x0594134DF3f171a354D9C85eBD65b7A6148F6D09",
+  "kind": "stock",
+  "dexId": 746,
+  "types": [
+   "Tide"
+  ],
+  "species": "Total-Market Stockmonster",
+  "description": "Vtitan fuses every sector into one enormous, unhurried body, rarely reacting sharply to any single piece of news. Trainers who raise one appreciate how little it ever seems to worry. Traders know it as $VTI, tied to Vanguard Total Stock Market ETF.",
+  "stats": {
+   "hp": 45,
+   "atk": 20,
+   "def": 20,
+   "spd": 40,
+   "ats": 25,
+   "dfs": 25
+  },
+  "catchRate": 60,
+  "height": 0.2,
+  "weight": 0.3,
+  "sprite": "dex/VTI.png"
+ },
+ {
+  "ticker": "WDAY",
+  "name": "Wdaywalker",
+  "company": "Workday",
+  "address": "0x82DA4646242e1D962e96e932269Dc644c94a9CaA",
+  "kind": "stock",
+  "dexId": 749,
+  "types": [
+   "Terra"
+  ],
+  "species": "Timekeeper Stockmonster",
+  "description": "Wdaywalker's hourglass torso empties and refills on a schedule it never misses, no matter what else is happening around it. Payday always arrives exactly on time. Traders know it as $BRETT, tied to Based Brett.",
+  "stats": {
+   "hp": 70,
+   "atk": 100,
+   "def": 70,
+   "spd": 45,
+   "ats": 45,
+   "dfs": 55
+  },
+  "catchRate": 190,
+  "height": 1,
+  "weight": 110,
+  "sprite": "dex/WDAY.png"
+ },
+ {
+  "ticker": "WDC",
+  "name": "Wdcache",
+  "company": "Western Digital",
+  "address": "0xF52597345A8Edf418bc4071b4a35112472277D3e",
+  "kind": "stock",
+  "dexId": 750,
+  "types": [
+   "Terra"
+  ],
+  "species": "Platter Stockmonster",
+  "description": "Wdcache curls protectively around a hoard of spinning platters, each one holding more than it looks like it should. It rarely lets any of it out of its sight. Traders know it as $WDC, tied to Western Digital.",
+  "stats": {
+   "hp": 100,
+   "atk": 125,
+   "def": 100,
+   "spd": 35,
+   "ats": 55,
+   "dfs": 85
+  },
+  "catchRate": 60,
+  "height": 2.5,
+  "weight": 920,
+  "sprite": "dex/WDC.png"
+ },
+ {
+  "ticker": "WULF",
+  "name": "Terawulf",
+  "company": "TeraWulf",
+  "address": "0x348Be1A8663f15edDe5CDf8A96BB69078f7aB6Fd",
+  "kind": "stock",
+  "dexId": 751,
+  "types": [
+   "Tide",
+   "Swarm"
+  ],
+  "species": "Nuclear-Powered Stockmonster",
+  "description": "Terawulf's breath comes out as a constant plume of cooling vapor, and its eyes burn a steady terawatt-blue in the dark. It runs hot enough that it never truly stops moving. Traders know it as $WULF, tied to TeraWulf.",
+  "stats": {
+   "hp": 38,
+   "atk": 40,
+   "def": 52,
+   "spd": 27,
+   "ats": 40,
+   "dfs": 72
+  },
+  "catchRate": 200,
+  "height": 0.3,
+  "weight": 4,
+  "sprite": "dex/WULF.png"
+ },
+ {
+  "ticker": "WYFI",
+  "name": "Wyfiber",
+  "company": "WhiteFiber, Inc.",
+  "address": "0x9e7ABD3C9139D14E4c86DcE0e455AAB7A0C2FB3E",
+  "kind": "stock",
+  "dexId": 755,
+  "types": [
+   "Flora",
+   "Fae"
+  ],
+  "species": "Filament Stockmonster",
+  "description": "Wyfiber threads its glowing body between buildings so smoothly that most trainers never notice it's even there. It carries far more than its slender shape suggests. Traders know it as $WYFI, tied to WhiteFiber.",
+  "stats": {
+   "hp": 40,
+   "atk": 35,
+   "def": 55,
+   "spd": 15,
+   "ats": 65,
+   "dfs": 75
+  },
+  "catchRate": 190,
+  "height": 0.2,
+  "weight": 1.5,
+  "sprite": "dex/WYFI.png"
+ },
+ {
+  "ticker": "XLK",
+  "name": "Xlkraken",
+  "company": "State Street Technology Select Sector SPDR ETF",
+  "address": "0x15Cd20759CE7F3285c29A319dE2D1A2e098c6f43",
+  "kind": "stock",
+  "dexId": 756,
+  "types": [
+   "Flora",
+   "Fae"
+  ],
+  "species": "Megacap Stockmonster",
+  "description": "Each of Xlkraken's tentacles belongs to a different giant of the tech world, all moving together beneath the same dark surface. Its ink is said to be made of pure data. Traders know it as $XLK, tied to Technology Select Sector SPDR.",
+  "stats": {
+   "hp": 60,
+   "atk": 45,
+   "def": 80,
+   "spd": 30,
+   "ats": 90,
+   "dfs": 100
+  },
+  "catchRate": 75,
+  "height": 1,
+  "weight": 11.5,
+  "sprite": "dex/XLK.png"
+ },
+ {
+  "ticker": "XNDU",
+  "name": "Xanaduir",
+  "company": "Xanadu Quantum",
+  "address": "0xA8eB3BCcbf2017eE7CBfb652eB51CF2E1B153289",
+  "kind": "stock",
+  "dexId": 757,
+  "types": [
+   "Toxic",
+   "Blaze"
+  ],
+  "species": "Squeezed-Light Stockmonster",
+  "description": "Xanaduir's plumage seems to flicker between real and imagined depending on how closely it's observed. Trainers who look away and back again are never quite sure what they saw. Traders know it as $XNDU, tied to Xanadu Quantum.",
+  "stats": {
+   "hp": 48,
+   "atk": 44,
+   "def": 40,
+   "spd": 77,
+   "ats": 71,
+   "dfs": 40
+  },
+  "catchRate": 120,
+  "height": 0.6,
+  "weight": 4.8,
+  "sprite": "dex/XNDU.png"
+ },
+ {
+  "ticker": "XOM",
+  "name": "Xomoloch",
+  "company": "ExxonMobil Holdings Corporation",
+  "address": "0xf9B46d3D1B22199D4D1025a9cEDB540A33F1a2d5",
+  "kind": "stock",
+  "dexId": 769,
+  "types": [
+   "Spectre",
+   "Terra"
+  ],
+  "species": "Refinery Stockmonster",
+  "description": "Xomoloch's crown burns with a flare that has never gone out in living memory. It is unbothered by nearly everything, fed steadily on crude drawn from deep below. Traders know it as $XOM, tied to ExxonMobil.",
+  "stats": {
+   "hp": 55,
+   "atk": 55,
+   "def": 80,
+   "spd": 15,
+   "ats": 70,
+   "dfs": 45
+  },
+  "catchRate": 140,
+  "height": 0.5,
+  "weight": 70,
+  "sprite": "dex/XOM.png"
+ },
+ {
+  "ticker": "ZM",
+  "name": "Zoomorph",
+  "company": "Zoom",
+  "address": "0x44c4F142009036cF477eD2d09932051843137CF1",
+  "kind": "stock",
+  "dexId": 776,
+  "types": [
+   "Blaze",
+   "Wyrm"
+  ],
+  "species": "Video Grid Stockmonster",
+  "description": "Zoomorph appears as a grid of floating panes, each one showing a different face at the same moment. It's never quite clear which pane is truly speaking. Traders know it as $ON, tied to ON Semiconductor.",
+  "stats": {
+   "hp": 60,
+   "atk": 78,
+   "def": 135,
+   "spd": 36,
+   "ats": 91,
+   "dfs": 85
+  },
+  "catchRate": 70,
+  "height": 2,
+  "weight": 212,
+  "sprite": "dex/ZM.png"
+ },
+ {
+  "ticker": "ZS",
+  "name": "Zsceptre",
+  "company": "Zscaler",
+  "address": "0x7dc013eB55e436f30d7ED1AFE4E36d6e45e3c3f7",
+  "kind": "stock",
+  "dexId": 781,
+  "types": [
+   "Spectre",
+   "Flora"
+  ],
+  "species": "Zero-Trust Stockmonster",
+  "description": "Zsceptre checks the identity of anything that touches even one of its scales, no matter how many times it's already been checked before. Nothing gets a free pass twice. Traders know it as $FWOG, tied to Fwog.",
+  "stats": {
+   "hp": 70,
+   "atk": 131,
+   "def": 100,
+   "spd": 40,
+   "ats": 86,
+   "dfs": 90
+  },
+  "catchRate": 25,
+  "height": 3.9,
+  "weight": 210,
+  "sprite": "dex/ZS.png"
+ },
+ {
+  "ticker": "SHIB",
+  "name": "Shibazan",
+  "company": "Shiba Inu",
+  "address": "0x6259e646f60fd8170d4258ccefff38c951bb8025",
+  "kind": "meme",
+  "dexId": 262,
+  "types": [
+   "Shadow"
+  ],
+  "species": "Warrior Stockmonster",
+  "description": "Shibazan rarely needs to raise its voice or bare its teeth. It was the first of its kind to prove a meme could hold its ground like a champion, and it has carried itself with that quiet confidence ever since. Traders know it as $SHIB, tied to Shiba Inu.",
+  "stats": {
+   "hp": 70,
+   "atk": 90,
+   "def": 70,
+   "spd": 70,
+   "ats": 60,
+   "dfs": 60
+  },
+  "catchRate": 127,
+  "height": 1,
+  "weight": 37,
+  "sprite": "dex/SHIB.png"
+ },
+ {
+  "ticker": "DOGE",
+  "name": "Muchwow",
+  "company": "Dogecoin",
+  "address": "0x726d419e14874e3bd924e77c0262a2f35d93a707",
+  "kind": "meme",
+  "dexId": 133,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Much Wow Stockmonster",
+  "description": "Muchwow's grin never fades, no matter the situation. Tiny caption bubbles are said to orbit its head at all times, though nobody has ever quite managed to read what they say. Traders know it as $DOGE, tied to Dogecoin.",
+  "stats": {
+   "hp": 55,
+   "atk": 55,
+   "def": 50,
+   "spd": 55,
+   "ats": 45,
+   "dfs": 65
+  },
+  "catchRate": 45,
+  "height": 0.3,
+  "weight": 6.5,
+  "sprite": "dex/DOGE.png"
+ },
+ {
+  "ticker": "PEPE",
+  "name": "Pepetoad",
+  "company": "Pepe",
+  "address": "0xcaf4df011c53edac25e2133a60d4dc038d0a595e",
+  "kind": "meme",
+  "dexId": 537,
+  "types": [
+   "Tide",
+   "Terra"
+  ],
+  "species": "Feels Good Stockmonster",
+  "description": "Pepetoad is happiest sitting perfectly still in warm mud, heavy-lidded and unbothered. Its calm seems to spread to anyone who sits with it long enough. Traders know it as $PEPE, tied to Pepe.",
+  "stats": {
+   "hp": 105,
+   "atk": 95,
+   "def": 75,
+   "spd": 74,
+   "ats": 85,
+   "dfs": 75
+  },
+  "catchRate": 45,
+  "height": 1.5,
+  "weight": 62,
+  "sprite": "dex/PEPE.png"
+ },
+ {
+  "ticker": "FLOKI",
+  "name": "Flokrag",
+  "company": "Floki Inu",
+  "address": "0x1ca221bda882651eddf8a54a7284c688f1824be3",
+  "kind": "meme",
+  "dexId": 745,
+  "types": [
+   "Stone"
+  ],
+  "species": "Viking Stockmonster",
+  "description": "Flokrag wears its horned headband as though it were born fused to its skull. It howls before a fight not out of anger, but tradition. Traders know it as $FLOKI, tied to Floki Inu.",
+  "stats": {
+   "hp": 75,
+   "atk": 115,
+   "def": 65,
+   "spd": 112,
+   "ats": 55,
+   "dfs": 65
+  },
+  "catchRate": 90,
+  "height": 0.8,
+  "weight": 25,
+  "sprite": "dex/FLOKI.png"
+ },
+ {
+  "ticker": "BONK",
+  "name": "Bonkhound",
+  "company": "Bonk",
+  "address": "0x67c180051b46f52ee8e01f05ddaa65ec81310035",
+  "kind": "meme",
+  "dexId": 229,
+  "types": [
+   "Shadow",
+   "Blaze"
+  ],
+  "species": "Bonk Stockmonster",
+  "description": "Bonkhound's front paws are built for one purpose: a single comedic, oversized bonk. It never actually hurts anyone — the joke is the whole point. Traders know it as $BONK, tied to Bonk.",
+  "stats": {
+   "hp": 75,
+   "atk": 90,
+   "def": 50,
+   "spd": 95,
+   "ats": 110,
+   "dfs": 80
+  },
+  "catchRate": 45,
+  "height": 1.4,
+  "weight": 35,
+  "sprite": "dex/BONK.png"
+ },
+ {
+  "ticker": "BABYDOGE",
+  "name": "Babypup",
+  "company": "Baby Doge Coin",
+  "address": "0xa90922266baeee64d8fad22981add8b236ed2e9b",
+  "kind": "meme",
+  "dexId": 261,
+  "types": [
+   "Shadow"
+  ],
+  "species": "Baby Stockmonster",
+  "description": "Babypup is small enough to fit in two hands, but it puffs itself up whenever it senses danger nearby. Its pacifier-shaped nose charm never quite falls off, no matter how hard it plays. Traders know it as $BABYDOGE, tied to Baby Doge Coin.",
+  "stats": {
+   "hp": 35,
+   "atk": 55,
+   "def": 35,
+   "spd": 35,
+   "ats": 30,
+   "dfs": 30
+  },
+  "catchRate": 255,
+  "height": 0.5,
+  "weight": 13.6,
+  "sprite": "dex/BABYDOGE.png"
+ },
+ {
+  "ticker": "ELON",
+  "name": "Astrohound",
+  "company": "Dogelon Mars",
+  "address": "0x76bb5caee69d340d6d8f46e52628e62058be71e0",
+  "kind": "meme",
+  "dexId": 228,
+  "types": [
+   "Shadow",
+   "Blaze"
+  ],
+  "species": "Interstellar Stockmonster",
+  "description": "Astrohound wears a cracked glass dome over its head that never seems to run out of air. It has been chasing a small red dot across the sky for as long as anyone can remember. Traders know it as $ELON, tied to Dogelon Mars.",
+  "stats": {
+   "hp": 45,
+   "atk": 60,
+   "def": 30,
+   "spd": 65,
+   "ats": 80,
+   "dfs": 50
+  },
+  "catchRate": 120,
+  "height": 0.6,
+  "weight": 10.8,
+  "sprite": "dex/ELON.png"
+ },
+ {
+  "ticker": "AKITA",
+  "name": "Akitako",
+  "company": "Akita Inu",
+  "address": "0xf2661ce51d1a1e12ac3fb99ae2f3d9f4048cb5e5",
+  "kind": "meme",
+  "dexId": 264,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Guardian Stockmonster",
+  "description": "Akitako sits upright at the entrance to wherever it has decided to live, dignified and unmoving. Locals say a home guarded by one is never troubled twice. Traders know it as $AKITA, tied to Akita Inu.",
+  "stats": {
+   "hp": 78,
+   "atk": 70,
+   "def": 61,
+   "spd": 100,
+   "ats": 50,
+   "dfs": 61
+  },
+  "catchRate": 90,
+  "height": 0.5,
+  "weight": 32.5,
+  "sprite": "dex/AKITA.png"
+ },
+ {
+  "ticker": "KISHU",
+  "name": "Kishuzig",
+  "company": "Kishu Inu",
+  "address": "0xe0605045a9617d49cd1aa12de54b6c4eaae34657",
+  "kind": "meme",
+  "dexId": 263,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Sprint Stockmonster",
+  "description": "Kishuzig's zigzag racing stripes aren't just decoration — nothing has ever caught it running in a straight line for long. It considers a direct chase beneath it. Traders know it as $KISHU, tied to Kishu Inu.",
+  "stats": {
+   "hp": 38,
+   "atk": 30,
+   "def": 41,
+   "spd": 60,
+   "ats": 30,
+   "dfs": 41
+  },
+  "catchRate": 255,
+  "height": 0.4,
+  "weight": 17.5,
+  "sprite": "dex/KISHU.png"
+ },
+ {
+  "ticker": "SAMO",
+  "name": "Samoyeti",
+  "company": "Samoyedcoin",
+  "address": "0xfca8df3d47c6b0aa441670101b89e1e962e3e659",
+  "kind": "meme",
+  "dexId": 210,
+  "types": [
+   "Fae"
+  ],
+  "species": "Powder Stockmonster",
+  "description": "Samoyeti's grin never leaves its face, even buried nose-deep in snow. A light dusting of frost clings permanently to its ruff, no matter the season. Traders know it as $SAMO, tied to Samoyedcoin.",
+  "stats": {
+   "hp": 90,
+   "atk": 120,
+   "def": 75,
+   "spd": 45,
+   "ats": 60,
+   "dfs": 60
+  },
+  "catchRate": 75,
+  "height": 1.4,
+  "weight": 48.7,
+  "sprite": "dex/SAMO.png"
+ },
+ {
+  "ticker": "MYRO",
+  "name": "Myropup",
+  "company": "Myro",
+  "address": "0xc7cc16b63ccca5348b4985dbdaf149ec7037320a",
+  "kind": "meme",
+  "dexId": 209,
+  "types": [
+   "Fae"
+  ],
+  "species": "Loyal Stockmonster",
+  "description": "Myropup has one ear that never quite stands up straight, no matter how many times it tries. It doesn't seem to mind, and neither does anyone who's spent time with it. Traders know it as $MYRO, tied to Myro.",
+  "stats": {
+   "hp": 60,
+   "atk": 80,
+   "def": 50,
+   "spd": 30,
+   "ats": 40,
+   "dfs": 40
+  },
+  "catchRate": 190,
+  "height": 0.6,
+  "weight": 7.8,
+  "sprite": "dex/MYRO.png"
+ },
+ {
+  "ticker": "NEIRO",
+  "name": "Neirofrou",
+  "company": "Neiro",
+  "address": "0xb60bc7eabfaa64c3c596e532f6d60ffbfd1f57f9",
+  "kind": "meme",
+  "dexId": 676,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Groomed Stockmonster",
+  "description": "Neirofrou is always immaculately styled, not a single pom-pom tuft out of place. Some say it shares more than a passing resemblance to a certain famous internet dog. Traders know it as $NEIRO, tied to Neiro.",
+  "stats": {
+   "hp": 75,
+   "atk": 80,
+   "def": 60,
+   "spd": 102,
+   "ats": 65,
+   "dfs": 90
+  },
+  "catchRate": 160,
+  "height": 1.2,
+  "weight": 28,
+  "sprite": "dex/NEIRO.png"
+ },
+ {
+  "ticker": "WOJAK",
+  "name": "Wojaki",
+  "company": "Wojak",
+  "address": "0x283249e48f4f9c825f4abc4dec2f376f9dda30c3",
+  "kind": "meme",
+  "dexId": 235,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Sketch Stockmonster",
+  "description": "Wojaki's fur is drawn in heavy cross-hatched lines, as if it had been sketched in a hurry and never finished. Its exhausted expression rarely changes, no matter how good things are actually going. Traders know it as $WOJAK, tied to Wojak.",
+  "stats": {
+   "hp": 55,
+   "atk": 20,
+   "def": 35,
+   "spd": 75,
+   "ats": 20,
+   "dfs": 45
+  },
+  "catchRate": 45,
+  "height": 1.2,
+  "weight": 58,
+  "sprite": "dex/WOJAK.png"
+ },
+ {
+  "ticker": "MOG",
+  "name": "Moggrin",
+  "company": "Mog Coin",
+  "address": "0xabcbbe25ebf2c4d66068db70a8e8f2b5c89d79af",
+  "kind": "meme",
+  "dexId": 432,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Grinning Stockmonster",
+  "description": "Moggrin's grin stretches so wide it looks almost uncomfortable, yet it never seems to tire of smiling. Its bulging cheerful eyes miss absolutely nothing. Traders know it as $MOG, tied to Mog Coin.",
+  "stats": {
+   "hp": 71,
+   "atk": 82,
+   "def": 64,
+   "spd": 112,
+   "ats": 64,
+   "dfs": 59
+  },
+  "catchRate": 75,
+  "height": 1,
+  "weight": 43.8,
+  "sprite": "dex/MOG.png"
+ },
+ {
+  "ticker": "BRETT",
+  "name": "Brettoad",
+  "company": "Based Brett",
+  "address": "0xf9b88f3118835a45e33122212f768c118d6ebe61",
+  "kind": "meme",
+  "dexId": 186,
+  "types": [
+   "Tide"
+  ],
+  "species": "Beanie Stockmonster",
+  "description": "Brettoad wears its knit beanie like it grew there naturally. Its half-lidded smirk suggests it always knows something you don't. Traders know it as $BRETT, tied to Based Brett.",
+  "stats": {
+   "hp": 90,
+   "atk": 75,
+   "def": 75,
+   "spd": 70,
+   "ats": 90,
+   "dfs": 100
+  },
+  "catchRate": 45,
+  "height": 1.1,
+  "weight": 33.9,
+  "sprite": "dex/BRETT.png"
+ },
+ {
+  "ticker": "POPCAT",
+  "name": "Popcatta",
+  "company": "Popcat",
+  "address": "0xcd28f71b2524a3291d359c721a0a1536e23f93a2",
+  "kind": "meme",
+  "dexId": 300,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Mid-Yawn Stockmonster",
+  "description": "Popcatta freezes mid-yawn the instant anyone looks its way, mouth stretched impossibly wide. Blink, and it's already closed again. Traders know it as $POPCAT, tied to Popcat.",
+  "stats": {
+   "hp": 50,
+   "atk": 45,
+   "def": 45,
+   "spd": 50,
+   "ats": 35,
+   "dfs": 35
+  },
+  "catchRate": 255,
+  "height": 0.6,
+  "weight": 11,
+  "sprite": "dex/POPCAT.png"
+ },
+ {
+  "ticker": "TURBO",
+  "name": "Turboshell",
+  "company": "Turbo",
+  "address": "0xbe6a58a51d242203f449d39fcdd5e23d3fbb0711",
+  "kind": "meme",
+  "dexId": 324,
+  "types": [
+   "Blaze"
+  ],
+  "species": "Turbo Stockmonster",
+  "description": "Turboshell's shell is painted with racing stripes it has never once lived up to. It insists it is extremely fast, given enough time. Traders know it as $TURBO, tied to Turbo.",
+  "stats": {
+   "hp": 70,
+   "atk": 85,
+   "def": 140,
+   "spd": 20,
+   "ats": 85,
+   "dfs": 70
+  },
+  "catchRate": 90,
+  "height": 0.5,
+  "weight": 80.4,
+  "sprite": "dex/TURBO.png"
+ },
+ {
+  "ticker": "MEME",
+  "name": "Memerygon",
+  "company": "Memecoin",
+  "address": "0x07bf3acfce9f6c7a7b389c4f30b7e93b551ae3ba",
+  "kind": "meme",
+  "dexId": 137,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Meta Stockmonster",
+  "description": "Memerygon's faceted body constantly reshuffles its own geometry, flickering through a simple smiling expression. It seems to exist purely to be looked at and shared. Traders know it as $MEME, tied to Memecoin.",
+  "stats": {
+   "hp": 65,
+   "atk": 60,
+   "def": 70,
+   "spd": 40,
+   "ats": 85,
+   "dfs": 75
+  },
+  "catchRate": 45,
+  "height": 0.8,
+  "weight": 36.5,
+  "sprite": "dex/MEME.png"
+ },
+ {
+  "ticker": "WEN",
+  "name": "Wenpuff",
+  "company": "Wen",
+  "address": "0x4adee63ffc025759de505c2603391e17a84a7785",
+  "kind": "meme",
+  "dexId": 174,
+  "types": [
+   "Neutral",
+   "Fae"
+  ],
+  "species": "Impatient Stockmonster",
+  "description": "Wenpuff vibrates visibly whenever it's made to wait, the tiny clock-hand on its head ticking faster and faster. Nobody has ever managed to make it wait patiently for long. Traders know it as $WEN, tied to Wen.",
+  "stats": {
+   "hp": 90,
+   "atk": 30,
+   "def": 15,
+   "spd": 15,
+   "ats": 40,
+   "dfs": 20
+  },
+  "catchRate": 170,
+  "height": 0.3,
+  "weight": 1,
+  "sprite": "dex/WEN.png"
+ },
+ {
+  "ticker": "SLERF",
+  "name": "Slerfloth",
+  "company": "Slerf",
+  "address": "0x150e69e4c56c29101e36a7f30f0a0d7ac25e9292",
+  "kind": "meme",
+  "dexId": 289,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Scorched Stockmonster",
+  "description": "Slerfloth moves so slowly that a single scorch mark on its chest has never quite faded. It famously dozed off once and accidentally let its entire stash burn away — it insists it has learned its lesson. Traders know it as $SLERF, tied to Slerf.",
+  "stats": {
+   "hp": 150,
+   "atk": 160,
+   "def": 100,
+   "spd": 100,
+   "ats": 95,
+   "dfs": 65
+  },
+  "catchRate": 45,
+  "height": 2,
+  "weight": 130.5,
+  "sprite": "dex/SLERF.png"
+ },
+ {
+  "ticker": "BOME",
+  "name": "Bomesage",
+  "company": "Book of Meme",
+  "address": "0xcffb0158a46a57c36d1bcee26a7ff480d521ebd9",
+  "kind": "meme",
+  "dexId": 765,
+  "types": [
+   "Neutral",
+   "Psionic"
+  ],
+  "species": "Bookkeeper Stockmonster",
+  "description": "Bomesage carries a glowing open book against its chest at all times, pages turning on their own. It never explains what's written inside, only that it's important. Traders know it as $BOME, tied to Book of Meme.",
+  "stats": {
+   "hp": 90,
+   "atk": 60,
+   "def": 80,
+   "spd": 60,
+   "ats": 90,
+   "dfs": 110
+  },
+  "catchRate": 45,
+  "height": 1.5,
+  "weight": 76,
+  "sprite": "dex/BOME.png"
+ },
+ {
+  "ticker": "GIGA",
+  "name": "Gigachard",
+  "company": "Gigachad",
+  "address": "0xddb5783ba1a864b7b9b2150cd2fe4231ef612855",
+  "kind": "meme",
+  "dexId": 297,
+  "types": [
+   "Combat"
+  ],
+  "species": "Chiseled Stockmonster",
+  "description": "Gigachard's jawline is said to be perfectly symmetrical from every angle, and its confidence never wavers. It has never once been seen breaking a sweat. Traders know it as $GIGA, tied to Gigachad.",
+  "stats": {
+   "hp": 144,
+   "atk": 120,
+   "def": 60,
+   "spd": 50,
+   "ats": 40,
+   "dfs": 60
+  },
+  "catchRate": 200,
+  "height": 2.3,
+  "weight": 253.8,
+  "sprite": "dex/GIGA.png"
+ },
+ {
+  "ticker": "PONKE",
+  "name": "Ponkey",
+  "company": "Ponke",
+  "address": "0xae31ad41101a7e4f1854917fe770110ff8fbcd7b",
+  "kind": "meme",
+  "dexId": 766,
+  "types": [
+   "Combat"
+  ],
+  "species": "Mischief Stockmonster",
+  "description": "Ponkey swings from place to place with one eyebrow permanently raised, as if daring you to ask what it's up to. It usually is up to something. Traders know it as $PONKE, tied to Ponke.",
+  "stats": {
+   "hp": 100,
+   "atk": 120,
+   "def": 90,
+   "spd": 80,
+   "ats": 40,
+   "dfs": 60
+  },
+  "catchRate": 45,
+  "height": 2,
+  "weight": 82.8,
+  "sprite": "dex/PONKE.png"
+ },
+ {
+  "ticker": "MICHI",
+  "name": "Michiwhisk",
+  "company": "Michi",
+  "address": "0xdcb13ef0abd089cc2c8de286013c817fb3103da1",
+  "kind": "meme",
+  "dexId": 678,
+  "types": [
+   "Psionic"
+  ],
+  "species": "Backpack Stockmonster",
+  "description": "Michiwhisk never goes anywhere without its small canvas backpack, wide-eyed and endlessly curious about wherever it ends up next. Traders know it as $MICHI, tied to Michi.",
+  "stats": {
+   "hp": 74,
+   "atk": 48,
+   "def": 76,
+   "spd": 104,
+   "ats": 83,
+   "dfs": 81
+  },
+  "catchRate": 75,
+  "height": 0.6,
+  "weight": 8.5,
+  "sprite": "dex/MICHI.png"
+ },
+ {
+  "ticker": "GOAT",
+  "name": "Goatrophet",
+  "company": "Goatseus Maximus",
+  "address": "0xa5dad1dfd2cf19c111c5e3fe26c16dd6b6b9ef78",
+  "kind": "meme",
+  "dexId": 672,
+  "types": [
+   "Flora"
+  ],
+  "species": "Oracle Stockmonster",
+  "description": "Goatrophet speaks rarely, and always in riddles that only make sense much later. Its braided beard is said to hold a charm for every prophecy it has ever whispered. Traders know it as $GOAT, tied to Goatseus Maximus.",
+  "stats": {
+   "hp": 66,
+   "atk": 65,
+   "def": 48,
+   "spd": 52,
+   "ats": 62,
+   "dfs": 57
+  },
+  "catchRate": 200,
+  "height": 0.9,
+  "weight": 31,
+  "sprite": "dex/GOAT.png"
+ },
+ {
+  "ticker": "PNUT",
+  "name": "Pnutkin",
+  "company": "Peanut the Squirrel",
+  "address": "0x44b85cdbbd86890cde930b861182f2b7eea796ec",
+  "kind": "meme",
+  "dexId": 417,
+  "types": [
+   "Volt"
+  ],
+  "species": "Beloved Stockmonster",
+  "description": "Pnutkin stuffs its cheeks impossibly full and curls its fluffy tail protectively around itself when startled. It is beloved by nearly everyone who has ever met it. Traders know it as $PNUT, tied to Peanut the Squirrel.",
+  "stats": {
+   "hp": 60,
+   "atk": 45,
+   "def": 70,
+   "spd": 95,
+   "ats": 45,
+   "dfs": 90
+  },
+  "catchRate": 200,
+  "height": 0.4,
+  "weight": 3.9,
+  "sprite": "dex/PNUT.png"
+ },
+ {
+  "ticker": "CHILLGUY",
+  "name": "Chillbear",
+  "company": "Just a Chill Guy",
+  "address": "0xe2578b8d60d1dafaa284fff813fab3c57101a400",
+  "kind": "meme",
+  "dexId": 759,
+  "types": [
+   "Neutral",
+   "Combat"
+  ],
+  "species": "Chill Stockmonster",
+  "description": "Chillbear strolls everywhere at exactly the same unhurried pace, paws tucked comfortably out of sight. Nothing seems to bother it, and it would rather keep it that way. Traders know it as $CHILLGUY, tied to Just a Chill Guy.",
+  "stats": {
+   "hp": 70,
+   "atk": 75,
+   "def": 50,
+   "spd": 50,
+   "ats": 45,
+   "dfs": 50
+  },
+  "catchRate": 140,
+  "height": 0.5,
+  "weight": 6.8,
+  "sprite": "dex/CHILLGUY.png"
+ },
+ {
+  "ticker": "FWOG",
+  "name": "Fwoggo",
+  "company": "Fwog",
+  "address": "0x0389b4ea1302e8f4c59b8607cc4b7cdcbd968852",
+  "kind": "meme",
+  "dexId": 194,
+  "types": [
+   "Tide",
+   "Terra"
+  ],
+  "species": "Derpy Stockmonster",
+  "description": "Fwoggo's eyes never quite point in the same direction at once, and its mouth hangs open in a permanent, endearing derp. It has no idea how charming this makes it. Traders know it as $FWOG, tied to Fwog.",
+  "stats": {
+   "hp": 55,
+   "atk": 45,
+   "def": 45,
+   "spd": 15,
+   "ats": 25,
+   "dfs": 25
+  },
+  "catchRate": 255,
+  "height": 0.4,
+  "weight": 8.5,
+  "sprite": "dex/FWOG.png"
+ },
+ {
+  "ticker": "MOODENG",
+  "name": "Moodango",
+  "company": "Moo Deng",
+  "address": "0xf3329fb5802fd9d96b7c97c9482a2080c5c8026c",
+  "kind": "meme",
+  "dexId": 450,
+  "types": [
+   "Terra"
+  ],
+  "species": "Viral Stockmonster",
+  "description": "Moodango is small enough to hold in two arms and pink enough to make anyone smile on sight. Its startled wide-eyed expression became famous practically overnight. Traders know it as $MOODENG, tied to Moo Deng.",
+  "stats": {
+   "hp": 108,
+   "atk": 112,
+   "def": 118,
+   "spd": 47,
+   "ats": 68,
+   "dfs": 72
+  },
+  "catchRate": 60,
+  "height": 2,
+  "weight": 300,
+  "sprite": "dex/MOODENG.png"
+ },
+ {
+  "ticker": "PENGU",
+  "name": "Penguplup",
+  "company": "Pudgy Penguins",
+  "address": "0x53477ac1b5cf7dda6accca21e1791b7b6148fe9b",
+  "kind": "meme",
+  "dexId": 393,
+  "types": [
+   "Tide"
+  ],
+  "species": "Pudgy Stockmonster",
+  "description": "Penguplup waddles on tiny feet, round and soft in a way that makes it very hard to look away from. Its flippers are too short to reach much of anything, which somehow makes it more endearing. Traders know it as $PENGU, tied to Pudgy Penguins.",
+  "stats": {
+   "hp": 53,
+   "atk": 51,
+   "def": 53,
+   "spd": 40,
+   "ats": 61,
+   "dfs": 56
+  },
+  "catchRate": 45,
+  "height": 0.4,
+  "weight": 5.2,
+  "sprite": "dex/PENGU.png"
+ },
+ {
+  "ticker": "HARAMBE",
+  "name": "Harambro",
+  "company": "Harambe",
+  "address": "0x84f12ff293ab5b5a75305d440ac38636962892f2",
+  "kind": "meme",
+  "dexId": 675,
+  "types": [
+   "Combat",
+   "Shadow"
+  ],
+  "species": "Tribute Stockmonster",
+  "description": "Harambro rests one paw over its heart whenever it stands still. Its gentle, dignified gaze has made it an enduring symbol long after it was first remembered. Traders know it as $HARAMBE, tied to Harambe.",
+  "stats": {
+   "hp": 95,
+   "atk": 124,
+   "def": 78,
+   "spd": 58,
+   "ats": 69,
+   "dfs": 71
+  },
+  "catchRate": 65,
+  "height": 2.1,
+  "weight": 136,
+  "sprite": "dex/HARAMBE.png"
+ },
+ {
+  "ticker": "DEGEN",
+  "name": "Degenaggy",
+  "company": "Degen",
+  "address": "0x208dd0b4df987ebaa78ec09cb9ae1c71d47324b7",
+  "kind": "meme",
+  "dexId": 559,
+  "types": [
+   "Shadow",
+   "Combat"
+  ],
+  "species": "Degenerate Stockmonster",
+  "description": "Degenaggy slouches everywhere in trousers that never seem to stay up on their own. It takes every risk with the same lazy grin, win or lose. Traders know it as $DEGEN, tied to Degen.",
+  "stats": {
+   "hp": 50,
+   "atk": 75,
+   "def": 70,
+   "spd": 48,
+   "ats": 35,
+   "dfs": 70
+  },
+  "catchRate": 180,
+  "height": 0.6,
+  "weight": 11.8,
+  "sprite": "dex/DEGEN.png"
+ },
+ {
+  "ticker": "SNEK",
+  "name": "Snekrafty",
+  "company": "Snek",
+  "address": "0x7e09e8f9112fbddfe7f3dae39c276c021bf7dfdc",
+  "kind": "meme",
+  "dexId": 560,
+  "types": [
+   "Shadow",
+   "Combat"
+  ],
+  "species": "Coiled Stockmonster",
+  "description": "Snekrafty holds its punk-rock crest high and its smirk higher. Its circuit-like scale patterns shift faintly whenever it's about to cause trouble. Traders know it as $SNEK, tied to Snek.",
+  "stats": {
+   "hp": 65,
+   "atk": 90,
+   "def": 115,
+   "spd": 58,
+   "ats": 45,
+   "dfs": 115
+  },
+  "catchRate": 90,
+  "height": 1.1,
+  "weight": 30,
+  "sprite": "dex/SNEK.png"
+ },
+ {
+  "ticker": "TOSHI",
+  "name": "Toshimew",
+  "company": "Toshi",
+  "address": "0x58b71c13e882bc1939d193b86521cf3197f4719b",
+  "kind": "meme",
+  "dexId": 677,
+  "types": [
+   "Psionic"
+  ],
+  "species": "Mascot Stockmonster",
+  "description": "Toshimew sits bolt upright like an official statue, a single geometric mark glowing faintly on its brow. It never seems to blink first. Traders know it as $TOSHI, tied to Toshi.",
+  "stats": {
+   "hp": 62,
+   "atk": 48,
+   "def": 54,
+   "spd": 68,
+   "ats": 63,
+   "dfs": 60
+  },
+  "catchRate": 190,
+  "height": 0.3,
+  "weight": 3.5,
+  "sprite": "dex/TOSHI.png"
+ },
+ {
+  "ticker": "SPX",
+  "name": "Spexmar",
+  "company": "SPX6900",
+  "address": "0xe4f0e39611dd9c76a909a476b8939040a110a988",
+  "kind": "meme",
+  "dexId": 126,
+  "types": [
+   "Blaze"
+  ],
+  "species": "Ironic Index Stockmonster",
+  "description": "Spexmar wears a permanently smug half-smile, trading-chart squiggles rippling faintly across its flanks. It insists its confidence has nothing to do with the numbers. Traders know it as $SPX, tied to SPX6900.",
+  "stats": {
+   "hp": 65,
+   "atk": 95,
+   "def": 57,
+   "spd": 93,
+   "ats": 100,
+   "dfs": 85
+  },
+  "catchRate": 45,
+  "height": 1.3,
+  "weight": 44.5,
+  "sprite": "dex/SPX.png"
+ },
+ {
+  "ticker": "FARTCOIN",
+  "name": "Fartweeze",
+  "company": "Fartcoin",
+  "address": "0xefd073a771e4f0e43832e2fc09adec3e84e9ecf6",
+  "kind": "meme",
+  "dexId": 110,
+  "types": [
+   "Toxic"
+  ],
+  "species": "Joke Stockmonster",
+  "description": "Fartweeze trails a small comedic cloud wherever it goes and looks faintly embarrassed about it every single time. It exists purely to make people laugh, and it's very good at its job. Traders know it as $FARTCOIN, tied to Fartcoin.",
+  "stats": {
+   "hp": 65,
+   "atk": 90,
+   "def": 120,
+   "spd": 60,
+   "ats": 85,
+   "dfs": 70
+  },
+  "catchRate": 60,
+  "height": 1.2,
+  "weight": 9.5,
+  "sprite": "dex/FARTCOIN.png"
+ },
+ {
+  "ticker": "ACT",
+  "name": "Actmuse",
+  "company": "Act I: The AI Prophecy",
+  "address": "0xb43ba858538798223cc76a5c52a0b206172b78f9",
+  "kind": "meme",
+  "dexId": 518,
+  "types": [
+   "Psionic"
+  ],
+  "species": "Prophecy Stockmonster",
+  "description": "Actmuse drifts through its own dream-fog, faint glyphs circling its closed eyes. What it foresees rarely makes sense until long after it's already happened. Traders know it as $ACT, tied to Act I: The AI Prophecy.",
+  "stats": {
+   "hp": 116,
+   "atk": 55,
+   "def": 85,
+   "spd": 29,
+   "ats": 107,
+   "dfs": 95
+  },
+  "catchRate": 75,
+  "height": 1.1,
+  "weight": 60.5,
+  "sprite": "dex/ACT.png"
+ },
+ {
+  "ticker": "AI16Z",
+  "name": "A16zoid",
+  "company": "ai16z",
+  "address": "0x4867dbc3b31159cd02268fd85519b82e37944f71",
+  "kind": "meme",
+  "dexId": 375,
+  "types": [
+   "Alloy",
+   "Psionic"
+  ],
+  "species": "Venture Stockmonster",
+  "description": "A16zoid studies everything through a single cold, analytical eye-lens, its tailored blazer-plating never wrinkling. It rarely commits to anything without running the numbers twice. Traders know it as $AI16Z, tied to ai16z.",
+  "stats": {
+   "hp": 60,
+   "atk": 75,
+   "def": 100,
+   "spd": 50,
+   "ats": 55,
+   "dfs": 80
+  },
+  "catchRate": 3,
+  "height": 1.2,
+  "weight": 202.5,
+  "sprite": "dex/AI16Z.png"
+ },
+ {
+  "ticker": "LADYS",
+  "name": "Miladyow",
+  "company": "Milady Meme Coin",
+  "address": "0x27569114dd5d1ad48e36d421505b85765777d51b",
+  "kind": "meme",
+  "dexId": 431,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Aesthetic Stockmonster",
+  "description": "Miladyow poses more than it moves, a tiny flower clip never out of place in its fur. Its slightly smug pout suggests it already knows it's being admired. Traders know it as $LADYS, tied to Milady Meme Coin.",
+  "stats": {
+   "hp": 49,
+   "atk": 55,
+   "def": 42,
+   "spd": 85,
+   "ats": 42,
+   "dfs": 37
+  },
+  "catchRate": 190,
+  "height": 0.5,
+  "weight": 3.9,
+  "sprite": "dex/LADYS.png"
+ },
+ {
+  "ticker": "VOLT",
+  "name": "Voltrike",
+  "company": "Volt Inu",
+  "address": "0x5e9568963b9f369ac3328474427afcff0153d327",
+  "kind": "meme",
+  "dexId": 309,
+  "types": [
+   "Volt"
+  ],
+  "species": "Static Stockmonster",
+  "description": "Voltrike crackles faintly with static even at rest, its tail acting as a small natural lightning rod. It's best not to pet it during a storm. Traders know it as $VOLT, tied to Volt Inu.",
+  "stats": {
+   "hp": 40,
+   "atk": 45,
+   "def": 40,
+   "spd": 65,
+   "ats": 65,
+   "dfs": 40
+  },
+  "catchRate": 120,
+  "height": 0.6,
+  "weight": 15.2,
+  "sprite": "dex/VOLT.png"
+ },
+ {
+  "ticker": "DOG",
+  "name": "Doggomoon",
+  "company": "DOG•GO•TO•THE•MOON",
+  "address": "0x36b703bb6f6f268133cd7cba1afd81fa8f4320af",
+  "kind": "meme",
+  "dexId": 310,
+  "types": [
+   "Volt"
+  ],
+  "species": "Moonbound Stockmonster",
+  "description": "Doggomoon stands on its hind legs and reaches skyward every night without fail. It has never quite reached the moon, but nobody has ever seen it stop trying. Traders know it as $DOG, tied to DOG•GO•TO•THE•MOON.",
+  "stats": {
+   "hp": 70,
+   "atk": 75,
+   "def": 60,
+   "spd": 105,
+   "ats": 105,
+   "dfs": 60
+  },
+  "catchRate": 45,
+  "height": 1.5,
+  "weight": 40.2,
+  "sprite": "dex/DOG.png"
+ },
+ {
+  "ticker": "RATS",
+  "name": "Ratsby",
+  "company": "Rats",
+  "address": "0xc71d2fe9d0817d3cc5de98632edeaebf0f15c3c2",
+  "kind": "meme",
+  "dexId": 660,
+  "types": [
+   "Neutral",
+   "Terra"
+  ],
+  "species": "Inscribed Stockmonster",
+  "description": "Ratsby's tail is covered in tally-mark scratches that look almost deliberate, like an ancient inscription nobody has finished reading yet. Traders know it as $RATS, tied to Rats.",
+  "stats": {
+   "hp": 85,
+   "atk": 56,
+   "def": 77,
+   "spd": 78,
+   "ats": 50,
+   "dfs": 77
+  },
+  "catchRate": 127,
+  "height": 1,
+  "weight": 42.4,
+  "sprite": "dex/RATS.png"
+ },
+ {
+  "ticker": "ORDI",
+  "name": "Ordinite",
+  "company": "Ordi",
+  "address": "0x28c2f55168ba446a2fb081f55f4024c6fdf23d20",
+  "kind": "meme",
+  "dexId": 140,
+  "types": [
+   "Stone",
+   "Tide"
+  ],
+  "species": "First Stockmonster",
+  "description": "Ordinite carries the very first inscription rune ever etched, faintly glowing beneath weathered stone-and-shell armor. Every inscribed creature after it owes something to that first mark. Traders know it as $ORDI, tied to Ordi.",
+  "stats": {
+   "hp": 30,
+   "atk": 80,
+   "def": 90,
+   "spd": 55,
+   "ats": 55,
+   "dfs": 45
+  },
+  "catchRate": 45,
+  "height": 0.5,
+  "weight": 11.5,
+  "sprite": "dex/ORDI.png"
+ },
+ {
+  "ticker": "MEW",
+  "name": "Mewcatta",
+  "company": "Mew",
+  "address": "0xc9d544de4adabe1308ba44f29745f71f4c9ce3de",
+  "kind": "meme",
+  "dexId": 301,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Minimal Stockmonster",
+  "description": "Mewcatta is rendered in only two flat colours and an almost expressionless face, and somehow that's exactly what makes it so easy to love. Traders know it as $MEW, tied to Mew.",
+  "stats": {
+   "hp": 70,
+   "atk": 65,
+   "def": 65,
+   "spd": 90,
+   "ats": 55,
+   "dfs": 55
+  },
+  "catchRate": 60,
+  "height": 1.1,
+  "weight": 32.6,
+  "sprite": "dex/MEW.png"
+ },
+ {
+  "ticker": "HIGHER",
+  "name": "Higheraria",
+  "company": "Higher",
+  "address": "0x03fa6f20199c619c1aeda302b6205ad9d67556bc",
+  "kind": "meme",
+  "dexId": 334,
+  "types": [
+   "Wyrm",
+   "Wind"
+  ],
+  "species": "Ascending Stockmonster",
+  "description": "Higheraria spirals upward with a permanently hopeful expression, sunrise-gradient feathers trailing behind it. It never seems to believe there's a ceiling worth respecting. Traders know it as $HIGHER, tied to Higher.",
+  "stats": {
+   "hp": 75,
+   "atk": 70,
+   "def": 90,
+   "spd": 80,
+   "ats": 70,
+   "dfs": 105
+  },
+  "catchRate": 45,
+  "height": 1.1,
+  "weight": 20.6,
+  "sprite": "dex/HIGHER.png"
+ },
+ {
+  "ticker": "BOBO",
+  "name": "Bobocub",
+  "company": "Bobo",
+  "address": "0x404d71942d70210c1ccaf2acd34531857d075dee",
+  "kind": "meme",
+  "dexId": 760,
+  "types": [
+   "Neutral",
+   "Combat"
+  ],
+  "species": "Bearish Stockmonster",
+  "description": "Bobocub stands with its arms crossed and a disappointed frown fixed in place, a small rain-cloud-shaped cowlick never quite drying out. It expects the worst and is rarely surprised. Traders know it as $BOBO, tied to Bobo.",
+  "stats": {
+   "hp": 120,
+   "atk": 125,
+   "def": 80,
+   "spd": 60,
+   "ats": 55,
+   "dfs": 60
+  },
+  "catchRate": 70,
+  "height": 2.1,
+  "weight": 135,
+  "sprite": "dex/BOBO.png"
+ },
+ {
+  "ticker": "APU",
+  "name": "Apufrolic",
+  "company": "Apu Apustaja",
+  "address": "0xf45f04869730660ee027bfa13034ac54355f7180",
+  "kind": "meme",
+  "dexId": 656,
+  "types": [
+   "Tide"
+  ],
+  "species": "Innocent Stockmonster",
+  "description": "Apufrolic smiles at everything with genuine, uncomplicated happiness, eyes slightly crossed in delight. It has never once had an unkind thought about anybody. Traders know it as $APU, tied to Apu Apustaja.",
+  "stats": {
+   "hp": 41,
+   "atk": 56,
+   "def": 40,
+   "spd": 71,
+   "ats": 62,
+   "dfs": 44
+  },
+  "catchRate": 45,
+  "height": 0.3,
+  "weight": 7,
+  "sprite": "dex/APU.png"
+ },
+ {
+  "ticker": "KEYCAT",
+  "name": "Keycatten",
+  "company": "Keyboard Cat",
+  "address": "0x973d8bf57192bc3ec52d70e6ab35e3047a4cbc3d",
+  "kind": "meme",
+  "dexId": 725,
+  "types": [
+   "Blaze"
+  ],
+  "species": "Keystroke Stockmonster",
+  "description": "Keycatten's paws are always poised as if mid-keystroke, ready to perform on command. Once it starts playing, it rarely wants to stop. Traders know it as $KEYCAT, tied to Keyboard Cat.",
+  "stats": {
+   "hp": 45,
+   "atk": 65,
+   "def": 40,
+   "spd": 70,
+   "ats": 60,
+   "dfs": 40
+  },
+  "catchRate": 45,
+  "height": 0.4,
+  "weight": 4.3,
+  "sprite": "dex/KEYCAT.png"
+ },
+ {
+  "ticker": "HOSICO",
+  "name": "Hosicat",
+  "company": "Hosico",
+  "address": "0xb0427d76854dcfde63748f5bb5400b734e4365b3",
+  "kind": "meme",
+  "dexId": 726,
+  "types": [
+   "Blaze"
+  ],
+  "species": "Folded-Ear Stockmonster",
+  "description": "Hosicat's oversized folded ears and huge glossy eyes give it a permanently surprised look, even when nothing surprising is happening at all. Traders know it as $HOSICO, tied to Hosico.",
+  "stats": {
+   "hp": 65,
+   "atk": 85,
+   "def": 50,
+   "spd": 90,
+   "ats": 80,
+   "dfs": 50
+  },
+  "catchRate": 45,
+  "height": 0.7,
+  "weight": 25,
+  "sprite": "dex/HOSICO.png"
+ },
+ {
+  "ticker": "GOKU",
+  "name": "Gokuchamp",
+  "company": "Goku",
+  "address": "0x6af97a6920dce75b1f3e6d40f74e2f3b0463daa4",
+  "kind": "meme",
+  "dexId": 674,
+  "types": [
+   "Combat"
+  ],
+  "species": "Power-Up Stockmonster",
+  "description": "Gokuchamp's fur stands on end the instant it focuses, faint energy wisps curling off its shoulders. It trains constantly, chasing a stronger version of itself that always stays just out of reach. Traders know it as $GOKU, tied to Goku.",
+  "stats": {
+   "hp": 67,
+   "atk": 82,
+   "def": 62,
+   "spd": 43,
+   "ats": 46,
+   "dfs": 48
+  },
+  "catchRate": 220,
+  "height": 0.6,
+  "weight": 8,
+  "sprite": "dex/GOKU.png"
+ },
+ {
+  "ticker": "SIGMA",
+  "name": "Sigmaroth",
+  "company": "Sigma",
+  "address": "0x107e1cc4da6141cd6bc892097b5af5cbe43b9ba7",
+  "kind": "meme",
+  "dexId": 288,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Lone Stockmonster",
+  "description": "Sigmaroth stands rigidly apart from the crowd, arms crossed, expression unreadable. It considers needing anyone else a weakness it refuses to have. Traders know it as $SIGMA, tied to Sigma.",
+  "stats": {
+   "hp": 80,
+   "atk": 80,
+   "def": 80,
+   "spd": 90,
+   "ats": 55,
+   "dfs": 55
+  },
+  "catchRate": 120,
+  "height": 1.4,
+  "weight": 46.5,
+  "sprite": "dex/SIGMA.png"
+ },
+ {
+  "ticker": "MUMU",
+  "name": "Mumuloth",
+  "company": "Mumu",
+  "address": "0x07ff8484d9c22da8ec454679f0812e154ce0f9eb",
+  "kind": "meme",
+  "dexId": 287,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Drowsy Stockmonster",
+  "description": "Mumuloth stands upright but never quite seems fully awake, a permanently drowsy half-smile fixed on its face. Its naivety is disarming, right up until it isn't. Traders know it as $MUMU, tied to Mumu.",
+  "stats": {
+   "hp": 60,
+   "atk": 60,
+   "def": 60,
+   "spd": 30,
+   "ats": 35,
+   "dfs": 35
+  },
+  "catchRate": 255,
+  "height": 0.8,
+  "weight": 24,
+  "sprite": "dex/MUMU.png"
+ },
+ {
+  "ticker": "USELESS",
+  "name": "Uselessto",
+  "company": "Useless Coin",
+  "address": "0x6ae38a0cf40db640fab4afe8264b10f017d5fe5d",
+  "kind": "meme",
+  "dexId": 132,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Shapeless Stockmonster",
+  "description": "Uselessto never settles into one true form, its flat printed shrug-face always mid-shrug. It insists it has no purpose at all, which some find strangely reassuring. Traders know it as $USELESS, tied to Useless Coin.",
+  "stats": {
+   "hp": 48,
+   "atk": 48,
+   "def": 48,
+   "spd": 48,
+   "ats": 48,
+   "dfs": 48
+  },
+  "catchRate": 35,
+  "height": 0.3,
+  "weight": 4,
+  "sprite": "dex/USELESS.png"
+ },
+ {
+  "ticker": "COQ",
+  "name": "Coqusken",
+  "company": "Coq Inu",
+  "address": "0xa636b669f480ae5e61c46cc9c4f14cfba5ff780b",
+  "kind": "meme",
+  "dexId": 256,
+  "types": [
+   "Blaze",
+   "Combat"
+  ],
+  "species": "Strutting Stockmonster",
+  "description": "Coqusken struts everywhere chest-first, its ember-bright comb impossible to miss. It crows loudest right before sunrise, whether anyone's awake to hear it or not. Traders know it as $COQ, tied to Coq Inu.",
+  "stats": {
+   "hp": 60,
+   "atk": 85,
+   "def": 60,
+   "spd": 55,
+   "ats": 85,
+   "dfs": 60
+  },
+  "catchRate": 45,
+  "height": 0.9,
+  "weight": 19.5,
+  "sprite": "dex/COQ.png"
+ },
+ {
+  "ticker": "KIBA",
+  "name": "Kibherd",
+  "company": "Kiba Inu",
+  "address": "0xab2c8ab29715478525a44ec2206b1cf49ddd28d8",
+  "kind": "meme",
+  "dexId": 507,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Shaggy Stockmonster",
+  "description": "Kibherd's fur hangs so far over its eyes that it's a wonder it can see anything at all. It has never once lost track of the friend it's following. Traders know it as $KIBA, tied to Kiba Inu.",
+  "stats": {
+   "hp": 65,
+   "atk": 80,
+   "def": 65,
+   "spd": 60,
+   "ats": 35,
+   "dfs": 65
+  },
+  "catchRate": 120,
+  "height": 0.9,
+  "weight": 14.7,
+  "sprite": "dex/KIBA.png"
+ },
+ {
+  "ticker": "TROLL",
+  "name": "Sabletroll",
+  "company": "Trollface",
+  "address": "0x84ba953e5b4afc7534cf12f6b22252e4eeb6db57",
+  "kind": "meme",
+  "dexId": 302,
+  "types": [
+   "Shadow",
+   "Spectre"
+  ],
+  "species": "Prankster Stockmonster",
+  "description": "Sabletroll's gap-toothed grin appears right before something goes comedically wrong for somebody nearby. It has never once apologized, and it never will. Traders know it as $TROLL, tied to Trollface.",
+  "stats": {
+   "hp": 50,
+   "atk": 75,
+   "def": 75,
+   "spd": 50,
+   "ats": 65,
+   "dfs": 65
+  },
+  "catchRate": 45,
+  "height": 0.5,
+  "weight": 11,
+  "sprite": "dex/TROLL.png"
+ },
+ {
+  "ticker": "CROC",
+  "name": "Crocorok",
+  "company": "Croc",
+  "address": "0xa626404188ec1d55a1e61a8428b012b2f5b27597",
+  "kind": "meme",
+  "dexId": 552,
+  "types": [
+   "Terra",
+   "Shadow"
+  ],
+  "species": "Swamp Stockmonster",
+  "description": "Crocorok lies half-submerged in mud for so long that its armor plates crack and dry in place. Its lazy half-lidded grin never quite closes all the way. Traders know it as $CROC, tied to Croc.",
+  "stats": {
+   "hp": 60,
+   "atk": 82,
+   "def": 45,
+   "spd": 74,
+   "ats": 45,
+   "dfs": 45
+  },
+  "catchRate": 90,
+  "height": 1,
+  "weight": 33.4,
+  "sprite": "dex/CROC.png"
+ },
+ {
+  "ticker": "PUMP",
+  "name": "Pumpcargo",
+  "company": "pump.fun",
+  "address": "0xca3d88edf2eddd67179d587f8adaca3c48f2ff67",
+  "kind": "meme",
+  "dexId": 219,
+  "types": [
+   "Blaze",
+   "Stone"
+  ],
+  "species": "Launch Stockmonster",
+  "description": "Pumpcargo's shell occasionally flares molten-orange and lifts clean off the ground for a few eager seconds before settling back down. It never quite decides if it wants to be fast or slow. Traders know it as $PUMP, tied to pump.fun.",
+  "stats": {
+   "hp": 60,
+   "atk": 50,
+   "def": 120,
+   "spd": 30,
+   "ats": 90,
+   "dfs": 80
+  },
+  "catchRate": 75,
+  "height": 0.8,
+  "weight": 55,
+  "sprite": "dex/PUMP.png"
+ },
+ {
+  "ticker": "QUACK",
+  "name": "Quacklett",
+  "company": "Quack",
+  "address": "0xebe8fc124041993b25624c97d0779b83c15f1f44",
+  "kind": "meme",
+  "dexId": 580,
+  "types": [
+   "Tide",
+   "Wind"
+  ],
+  "species": "Cheerful Stockmonster",
+  "description": "Quacklett's oversized webbed feet make an enthusiastic slapping sound with every step, and its cheerful quack rarely stops for long. Traders know it as $QUACK, tied to Quack.",
+  "stats": {
+   "hp": 62,
+   "atk": 44,
+   "def": 50,
+   "spd": 55,
+   "ats": 44,
+   "dfs": 50
+  },
+  "catchRate": 190,
+  "height": 0.5,
+  "weight": 5.5,
+  "sprite": "dex/QUACK.png"
+ },
+ {
+  "ticker": "WIF",
+  "name": "Wifpup",
+  "company": "dogwifhat",
+  "address": "0x7651cc56df1c3c4f5bb5562d5800bdd32e6ba6d0",
+  "kind": "meme",
+  "dexId": 506,
+  "types": [
+   "Neutral"
+  ],
+  "species": "Beanie Stockmonster",
+  "description": "Wifpup's pink knitted beanie never comes off, no matter how it plays. Its gentle squinting smile has made it one of the most recognisable Stockmonsters in the whole roster. Traders know it as $WIF, tied to dogwifhat.",
+  "stats": {
+   "hp": 45,
+   "atk": 60,
+   "def": 45,
+   "spd": 55,
+   "ats": 25,
+   "dfs": 45
+  },
+  "catchRate": 255,
+  "height": 0.4,
+  "weight": 4.1,
+  "sprite": "dex/WIF.png"
+ }
+]
