@@ -41,6 +41,8 @@
  * a player's transaction.
  */
 
+import DEX from './data/dex.json'
+import NATURES from './data/studio/natures.json'
 import {
   ensureUiKit, injectStyle, el, guardKeys, pushLayer,
   makeDraggable, watchGameDialog, formatEth, shortAddr, Z, THEME,
@@ -663,6 +665,86 @@ export function mountBoxShop(
     return el('div', { class: 'r' }, [el('span', { class: 'k', text: k }), el('span', { class: 'v', text: v })])
   }
 
+  /* ---------------------------------------------------------------- demo */
+  /*
+   * With no contract deployed the depot cannot sell anything, and a shop that
+   * only ever says "offline" tells you nothing about how it feels. Demo mode
+   * rolls a box in the browser using the odds the server just published, keeps
+   * it in localStorage, and lets it be opened — so the whole flow is
+   * explorable while the chain is still theoretical.
+   *
+   * It is deliberately loud about being fake: every demo box is labelled, and
+   * nothing here talks to the server, signs anything, or spends anything. The
+   * moment a contract is configured, `quote.sellable` flips true and none of
+   * this runs.
+   */
+  const DEMO_KEY = 'sm-demo-boxes'
+  let demoMode = false
+
+  /** Band cutoffs mirror BANDS in lootbox.mjs; the server stays authoritative. */
+  const DEMO_BANDS: Record<string, [number, number]> = {
+    common: [0, 400], uncommon: [401, 470], rare: [471, 530], elite: [531, 9999],
+  }
+
+  const bst = (e: any) =>
+    (e.stats?.hp ?? 0) + (e.stats?.atk ?? 0) + (e.stats?.def ?? 0) +
+    (e.stats?.ats ?? 0) + (e.stats?.dfs ?? 0) + (e.stats?.spd ?? 0)
+
+  function readDemoBoxes(): BoxRow[] {
+    try {
+      const raw = JSON.parse(localStorage.getItem(DEMO_KEY) ?? '[]')
+      return Array.isArray(raw) ? raw : []
+    } catch { return [] }
+  }
+  function writeDemoBoxes(rows: BoxRow[]) {
+    try { localStorage.setItem(DEMO_KEY, JSON.stringify(rows.slice(-40))) } catch {}
+  }
+
+  function rollDemoBox(t: TierQuote): BoxRow {
+    // Pick a band by the published percentages, then a species inside it.
+    let roll = Math.random() * 100
+    let bandId = t.bands[t.bands.length - 1]?.id ?? 'common'
+    for (const b of t.bands) { if (roll < b.pct) { bandId = b.id; break } roll -= b.pct }
+    const [lo, hi] = DEMO_BANDS[bandId] ?? [0, 9999]
+    const pool = (DEX as any[]).filter((e) => bst(e) >= lo && bst(e) <= hi)
+    const pick = (pool.length ? pool : (DEX as any[]))[Math.floor(Math.random() * (pool.length || DEX.length))]
+
+    const span = t.level[1] - t.level[0]
+    const level = t.level[0] + Math.floor(Math.random() * (span + 1))
+    const ivs = Array.from({ length: 6 }, () =>
+      t.ivFloor + Math.floor(Math.random() * (32 - t.ivFloor)))
+    const natureNames = Object.keys(NATURES as Record<string, unknown>).sort()
+    const natureId = Math.floor(Math.random() * natureNames.length)
+    const shiny = Math.floor(Math.random() * t.shinyOneIn) === 0
+
+    const uid = 'demo-' + Math.random().toString(16).slice(2, 10)
+    return {
+      uid, tier: t.id, status: 'minted' as BoxStatus, tokenId: uid.slice(5),
+      feeWei: t.priceWei, deadline: 0, attrCommit: '0xdemo', signature: '0xdemo',
+      serverSeedHash: null, clientSeed: 'demo', createdAt: new Date().toISOString(),
+      openedAt: null, chainId: 0, contract: null,
+      contents: {
+        dexId: pick.dexId, ticker: pick.ticker, name: pick.name,
+        types: pick.types ?? [], sprite: pick.sprite ?? null,
+        level, ivs, natureId, nature: natureNames[natureId] ?? 'hardy', shiny,
+        caughtAt: Math.floor(Date.now() / 1000), band: bandId,
+      },
+    }
+  }
+
+  function demoRevealOf(b: BoxRow): BoxReveal {
+    const c = b.contents!
+    return {
+      ...c, uid: b.uid, tokenId: b.tokenId, tier: b.tier, salt: '0xdemo',
+      attrCommit: b.attrCommit, serverSeed: null, serverSeedHash: null,
+      clientSeed: 'demo', rollAlgorithm: 'demo (browser-side preview)',
+      contract: '', chainId: 0,
+      species: c.ticker
+        ? { ticker: c.ticker, name: c.name, types: c.types, sprite: c.sprite ?? '' }
+        : null,
+    }
+  }
+
   async function apiCall<T>(path: string, init?: RequestInit): Promise<T> {
     const res = await fetch(api(path), init)
     let payload: any = null
@@ -929,13 +1011,14 @@ export function mountBoxShop(
   async function startPurchase(t: TierQuote) {
     if (busy) return
     const w = wallet()
-    if (!w) {
+    // Demo mode needs neither: nothing is signed and nothing is paid.
+    if (!w && !demoMode) {
       showNotice('Connect and sign in with your wallet before buying a box.', 'error',
         { label: 'Connect', run: () => void connectWallet() })
       return
     }
     const eth = ethereum()
-    if (!eth) {
+    if (!eth && !demoMode) {
       showNotice('No browser wallet found — a box is minted by your own wallet, not by us.', 'error')
       return
     }
@@ -966,6 +1049,17 @@ export function mountBoxShop(
 
     busy = true
     try {
+      if (demoMode) {
+        flow.at(0, 'rolling…')
+        await new Promise((r) => setTimeout(r, 700))
+        const row = rollDemoBox(t)
+        writeDemoBoxes([...readDemoBoxes(), row])
+        flow.at(2, 'done — find it under MY BOXES')
+        boxes = readDemoBoxes()
+        renderMine()
+        busy = false
+        return
+      }
       flow.at(0, 'asking the server…')
       const voucher = await apiCall<BoxVoucher>('/box/voucher', {
         method: 'POST',
@@ -1058,7 +1152,7 @@ export function mountBoxShop(
   async function openBox(b: BoxRow) {
     const w = wallet()
     const eth = ethereum()
-    if (!w || !eth) { showNotice('Connect your wallet first.', 'error'); return }
+    if ((!w || !eth) && !demoMode) { showNotice('Connect your wallet first.', 'error'); return }
 
     const stage = el('div', { class: 'bx-stage' }, [sealedNode(b.tier, true)])
     stage.style.margin = '0 auto'
@@ -1069,25 +1163,35 @@ export function mountBoxShop(
 
     try {
       flow.at(0)
-      const reveal = await apiCall<BoxReveal>('/box/reveal', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ connectionId: w.connectionId, address: w.address, uid: b.uid }),
-      })
+      const reveal = demoMode
+        ? demoRevealOf(b)
+        : await apiCall<BoxReveal>('/box/reveal', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ connectionId: w.connectionId, address: w.address, uid: b.uid }),
+          })
       // RULE 2: the animation runs AFTER we know the answer, and shows that
       // answer. It is not a slot machine that decides anything.
       flow.at(1, 'waiting for you…')
-      const data = encodeOpen({
-        tokenId: b.tokenId!, dexId: reveal.dexId, level: reveal.level, ivs: reveal.ivs,
-        natureId: reveal.natureId, shiny: reveal.shiny, caughtAt: reveal.caughtAt, salt: reveal.salt,
-      })
-      await eth.request({
-        method: 'eth_sendTransaction',
-        params: [{ from: w.address, to: reveal.contract ?? b.contract, data }],
-      })
+      if (demoMode) {
+        // Nothing to send: the roll never left the browser. Mark it opened
+        // locally so MY BOXES reflects it, then play the same reveal.
+        const rows = readDemoBoxes().map((r) =>
+          r.uid === b.uid ? { ...r, status: 'opened' as BoxStatus, openedAt: new Date().toISOString() } : r)
+        writeDemoBoxes(rows)
+      } else {
+        const data = encodeOpen({
+          tokenId: b.tokenId!, dexId: reveal.dexId, level: reveal.level, ivs: reveal.ivs,
+          natureId: reveal.natureId, shiny: reveal.shiny, caughtAt: reveal.caughtAt, salt: reveal.salt,
+        })
+        await eth.request({
+          method: 'eth_sendTransaction',
+          params: [{ from: w.address, to: reveal.contract ?? b.contract, data }],
+        })
+      }
       flow.at(2)
       await burstInto(stage, reveal)
-      flow.done('opened on chain')
+      flow.done(demoMode ? 'opened (demo — nothing on chain)' : 'opened on chain')
       renderReveal(info, reveal)
       void loadBoxes()
     } catch (err) {
@@ -1107,11 +1211,13 @@ export function mountBoxShop(
     const content = el('div', { class: 'bx-reveal-info' }, [stage, info])
     openModal(`BOX #${b.tokenId ?? '—'}`, content)
     try {
-      const reveal = await apiCall<BoxReveal>('/box/reveal', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ connectionId: w.connectionId, address: w.address, uid: b.uid }),
-      })
+      const reveal = demoMode
+        ? demoRevealOf(b)
+        : await apiCall<BoxReveal>('/box/reveal', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ connectionId: w.connectionId, address: w.address, uid: b.uid }),
+          })
       const sprite = reveal.species?.sprite
       stage.appendChild(sprite
         ? el('img', { class: 'prize', src: `/${sprite}`, alt: reveal.species?.name ?? '' })
@@ -1185,8 +1291,13 @@ export function mountBoxShop(
         : 'unavailable'
       commitCode.setAttribute('title', quote.fairness.commit?.serverSeedHash ?? quote.fairness.note)
       renderTiers()
-      if (!quote.sellable) {
-        showNotice('Box sales are offline on this server right now — prices and odds are still real.', 'info')
+      demoMode = !quote.sellable
+      if (demoMode) {
+        showNotice(
+          'DEMO MODE — no contract is deployed, so boxes are rolled in your browser using the ' +
+          'odds above. Nothing is minted and nothing is spent.',
+          'info',
+        )
       }
     } catch (err) {
       tiersBox.textContent = ''
@@ -1198,6 +1309,7 @@ export function mountBoxShop(
   }
 
   async function loadBoxes() {
+    if (demoMode) { boxes = readDemoBoxes(); renderMine(); return }
     const w = wallet()
     if (!w) { boxes = []; renderMine(); return }
     try {

@@ -616,6 +616,27 @@ re-description), the last snapshot's HP is always in range, and a second battle
 cannot start while one runs. `battle.ts` now imports `RpgPlayer` as a TYPE —
 a value import drags canvasengine (and its need for `window`) into any test.
 
+### Dev server needs every API route mounted twice — remember this
+
+`npm run dev` is vite, which knows nothing about `server.mjs`. Any endpoint
+added there MUST also be mounted in the `apiDevServer` plugin in
+`vite.config.ts`, or the dev server answers it with index.html and the UI
+blames the player: `/auth/*` produced "connection cancelled" and `/box/*`
+produced "COULD NOT REACH THE DEPOT — 404". Both are mounted now (`handleAuth`,
+`handleBoxRoutes`).
+
+### Box shop demo mode
+
+With no contract deployed the depot cannot sell, and a shop that only says
+"offline" shows nothing. When `/box/quote` reports `sellable: false` the shop
+switches to DEMO MODE: it rolls a box in the browser using the odds the server
+just published, keeps it in `localStorage['sm-demo-boxes']`, and lets it be
+opened with the real reveal animation. Nothing is signed, spent, or sent, and
+the state is labelled everywhere it appears. The moment `BOX_SIGNER_PK` and
+`BOX_NFT_ADDRESS` are set, `sellable` flips true and none of the demo path
+runs. Band cutoffs in the demo roll mirror `BANDS` in `lootbox.mjs` — the
+server stays authoritative; if those move, move both.
+
 ### Requested, not yet built (user, 2026-08-25 evening)
 
 - **In-game minigames** once the maps are done — small playable activities
