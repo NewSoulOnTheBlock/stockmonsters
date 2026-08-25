@@ -533,6 +533,33 @@ names when wiring the real source.
   transfer (the old beta.33 streaming complaint). The transfer completes and
   the destination renders and plays — verified. Worth chasing, not blocking.
 
+### NFT supply and rarity — the decision and its consequence
+
+- The 254-species data we ship (`src/data/dex.json`) was compared field by
+  field against the collaborator's `last-commits/stockmonsters-nft/data/
+  species.json`: ticker, name, types, base stats and catch rate MATCH on all
+  254. Ours is a superset (contract address, dex text, sprite, height/weight)
+  and is the single source for the game, the on-chain species registry
+  (`tools/register-species.mjs`) and metadata.
+- **Minting is deliberately uncapped** (user's call): `totalSupply` is a
+  counter, not a limit; there is no per-species cap and no global cap.
+- **A cap could not be enforced on-chain anyway.** The sealed box means the
+  contract cannot see a token's dexId until `open()`, so "max N of this
+  species" and "shiny is 1/4096" are unverifiable by the chain. Rarity is
+  produced by the SERVER when it signs the voucher.
+  **Operational consequence: the signing key IS the scarcity.** If it leaks,
+  anyone can mint unlimited shinies and nothing on-chain will look wrong. Give
+  it its own wallet, and put it behind a KMS/HSM before real value exists.
+
+### Map connectivity — measured, and worse than it looked
+
+Only the PBS EDGE links were wired. Measured on the 152 RMXP maps:
+**7 reachable from New Bark Town, 75 with no connection of any kind.** Every
+cave, gym, house and dungeon floor joins through an in-map RMXP transfer event
+(command code 201) and those were never extracted — which is exactly why
+stairs did nothing. Extraction + wiring is in progress; re-run the reachability
+count after it lands rather than trusting the code to be complete.
+
 ### Requested, not yet built (user, 2026-08-25 evening)
 
 - **In-game minigames** once the maps are done — small playable activities
