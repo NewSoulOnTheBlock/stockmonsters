@@ -2,6 +2,7 @@ import { RpgEvent, RpgPlayer, EventData, Move } from '@rpgjs/server'
 import connectionsRaw from '../../data/rmxp-connections.json'
 import warpsRaw from '../../data/rmxp-warps.json'
 import { RMXP_MAPS } from '../../tiled/rmxp-manifest'
+import { MAPS as PSDK_MAPS } from '../../tiled/manifest'
 import { snapFree } from './geometry'
 
 /*
@@ -37,6 +38,16 @@ type Connection = {
 
 const connections = (connectionsRaw as { connections: Connection[] }).connections
 const sizeOf = new Map(RMXP_MAPS.map((m) => [m.id, { w: m.width, h: m.height }]))
+/**
+ * Every map a warp may point at. Sizes only exist for the RMXP set, but a
+ * manual link is allowed to cross into the PSDK island — the ferry does exactly
+ * that. Checking existence against sizeOf alone silently dropped every link
+ * whose destination was a PSDK map, which is how the return ferry went missing.
+ */
+const KNOWN_DESTINATIONS = new Set<string>([
+    ...RMXP_MAPS.map((m) => m.id),
+    ...PSDK_MAPS.map((m) => m.id),
+])
 
 /** Both directions of a declared link. */
 function bothWays(c: Connection): Connection[] {
@@ -178,7 +189,7 @@ function internalWarpEvents(mapId: string) {
 
     for (const w of internalWarps) {
         if (w.from !== mapId) continue
-        if (!sizeOf.has(w.to)) continue // destination map was not converted
+        if (!KNOWN_DESTINATIONS.has(w.to)) continue // destination map does not exist
         const key = `${w.x},${w.y}`
         if (seen.has(key)) continue // two links claiming one tile: first wins
         seen.add(key)
