@@ -7,12 +7,14 @@ export const player: RpgPlayerHooks = {
         // hub mid-transfer and ping-pongs them between maps forever.
         if (player.getVariable('SPAWNED')) return
         player.setVariable('SPAWNED', true)
-        // Tile 29,42 — open floor by the gear emblem, verified against the
-        // passages layer. The real spawn comes from PSDK's map data once
-        // events are ported.
-        player.changeMap('hub', {
-            x: 944,
-            y: 1360
+        // The PSDK game starts you on the Exterior map: System.rxdata says
+        // start = Map002 (intro cutscene) and the intro's transfer drops you
+        // at exterior tile (24,60) — the ship deck, which the passages layer
+        // marks blocked because you leave it via a scripted walk. (24,62) is
+        // the first open cell below it: the dock where you step ashore.
+        player.changeMap('exterior', {
+            x: 784,
+            y: 2000
         })
         player.name = 'Trader'
         player.setGraphic('hero')
