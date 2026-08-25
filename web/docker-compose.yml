@@ -75,6 +75,10 @@ services:
       - "443:443"
     environment:
       GAME_DOMAIN: ${GAME_DOMAIN:-}
+      # Used by the bare-domain redirect in the Caddyfile. Without it the
+      # redirect sends an empty password and the player lands on the login form
+      # anyway — the exact thing the redirect exists to prevent.
+      PLAYER_PASSWORD: ${PLAYER_PASSWORD:-neko}
     volumes:
       - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddydata:/data
