@@ -25,18 +25,23 @@
     down: 0xff54,
     left: 0xff51,
     right: 0xff53,
-    c: 0x0063, // PSDK "A"      — confirm
-    x: 0x0078, // PSDK "B"      — cancel / run
-    j: 0x006a, // PSDK "START"  — menu
-    h: 0x0068, // PSDK "SELECT"
+    // Every PSDK virtual button has several bindings. We deliberately pick the
+    // NON-LETTER one for each: the game asks the player to type a name, and
+    // with the letter bindings (C, X, J, H) tapping A on that screen typed a
+    // literal "c" instead of confirming.
+    enter: 0xff0d, // PSDK "A"      — confirm   (also C, Space)
+    escape: 0xff1b, // PSDK "B"      — cancel    (also X, Backspace)
+    insert: 0xff63, // PSDK "START"  — menu      (also J)
+    pause: 0xff13, // PSDK "SELECT"             (also H)
+    backspace: 0xff08,
   }
 
   // Verified against PSDK's Input::Keys table (0_Dependencies.rb).
   var BUTTONS = [
-    { id: 'a', label: 'A', key: KEY.c, hint: 'Confirm' },
-    { id: 'b', label: 'B', key: KEY.x, hint: 'Cancel' },
-    { id: 'start', label: 'START', key: KEY.j, hint: 'Menu' },
-    { id: 'select', label: 'SELECT', key: KEY.h, hint: '' },
+    { id: 'a', label: 'A', key: KEY.enter, hint: 'Confirm' },
+    { id: 'b', label: 'B', key: KEY.escape, hint: 'Cancel' },
+    { id: 'start', label: 'START', key: KEY.insert, hint: 'Menu' },
+    { id: 'select', label: 'SELECT', key: KEY.pause, hint: '' },
   ]
 
   var DIRS = ['up', 'down', 'left', 'right']
@@ -136,6 +141,10 @@
     '  left:50%;transform:translateX(-50%);display:flex;gap:8px;}',
     '#sm-touch .sm-btn.meta{position:static;border-radius:14px;height:28px;',
     '  padding:0 12px;font-size:10px;letter-spacing:.09em;}',
+    '#sm-touch .sm-btn.kbd{font-size:15px;padding:0 14px;}',
+    '#sm-touch .sm-btn.kbd.open{background:rgba(41,140,90,.7);}',
+    '#sm-kbd{position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:0;',
+    '  border:0;padding:0;pointer-events:none;}',
 
     /* First-tap gate. Mobile browsers block both fullscreen and audio until
        the user gestures, so one tap buys us both plus orientation lock. */
@@ -196,6 +205,10 @@
       bindButton(node, b.key)
       ;(isMeta ? meta : face).appendChild(node)
     })
+
+    var kbd = el('div', 'sm-btn meta kbd', '\u2328')
+    meta.appendChild(kbd)
+
     root.appendChild(face)
     root.appendChild(meta)
 
@@ -209,6 +222,7 @@
     document.body.appendChild(rotate)
 
     bindPad(pad, nub, arrows)
+    bindKeyboard(kbd)
   }
 
   // ---------------------------------------------------------------------
@@ -231,6 +245,84 @@
     node.addEventListener('touchstart', down, { passive: false })
     node.addEventListener('touchend', up, { passive: false })
     node.addEventListener('touchcancel', up, { passive: false })
+  }
+
+  // A tap of a key, for characters coming from the phone's soft keyboard.
+  function tap(keysym) {
+    send('keydown', keysym)
+    send('keyup', keysym)
+  }
+
+  // The game's very first prompt asks the player to type a name, and a phone
+  // has no keyboard. This borrows the OS one: an off-screen input takes the
+  // focus, and every character it receives is forwarded as a keysym. For
+  // printable ASCII the X11 keysym IS the character code, so no table needed.
+  //
+  // A zero-width sentinel sits in the field permanently so that Backspace
+  // always has something to delete — on an empty input many soft keyboards
+  // emit no event at all, and the player could never correct a typo.
+  var SENTINEL = '\u200b'
+
+  function bindKeyboard(button) {
+    var input = document.createElement('input')
+    input.id = 'sm-kbd'
+    input.type = 'text'
+    input.autocapitalize = 'none'
+    input.autocomplete = 'off'
+    input.spellcheck = false
+    input.setAttribute('autocorrect', 'off')
+    input.setAttribute('enterkeyhint', 'done')
+    document.body.appendChild(input)
+
+    function reset() {
+      input.value = SENTINEL
+      try {
+        input.setSelectionRange(SENTINEL.length, SENTINEL.length)
+      } catch (err) {}
+    }
+
+    input.addEventListener('input', function () {
+      var v = input.value
+      if (v.length > SENTINEL.length) {
+        var added = v.split(SENTINEL).join('')
+        for (var i = 0; i < added.length; i++) {
+          var code = added.charCodeAt(i)
+          // Some keyboards deliver the return key as a newline character
+          // rather than a keydown.
+          tap(code === 10 || code === 13 ? KEY.enter : code)
+        }
+      } else if (v.length < SENTINEL.length) {
+        tap(KEY.backspace)
+      }
+      reset()
+    })
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        tap(KEY.enter)
+      }
+    })
+
+    input.addEventListener('blur', function () {
+      button.classList.remove('open')
+    })
+
+    function toggle(e) {
+      e.preventDefault()
+      e.stopPropagation()
+      if (document.activeElement === input) {
+        input.blur()
+        button.classList.remove('open')
+      } else {
+        reset()
+        input.focus()
+        button.classList.add('open')
+      }
+    }
+    button.addEventListener('touchend', toggle, { passive: false })
+    button.addEventListener('click', toggle)
+    reset()
   }
 
   // The pad is analogue-ish: the direction follows wherever the finger is

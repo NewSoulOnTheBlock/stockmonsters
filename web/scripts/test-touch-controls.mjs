@@ -16,8 +16,12 @@ const CHROME =
 const URL = process.env.NEKO_URL || 'http://localhost:8080/?usr=player&pwd=stonks&embed=1'
 
 // X11 keysyms we expect, per PSDK's Input::Keys table
-const K = { up: 0xff52, down: 0xff54, left: 0xff51, right: 0xff53, c: 0x63, x: 0x78, j: 0x6a, h: 0x68 }
-const name = (v) => Object.keys(K).find((k) => K[k] === v) ?? `0x${v.toString(16)}`
+// Non-letter bindings on purpose — see touch-controls.js
+const K = { up: 0xff52, down: 0xff54, left: 0xff51, right: 0xff53,
+            enter: 0xff0d, escape: 0xff1b, insert: 0xff63, pause: 0xff13, backspace: 0xff08 }
+const name = (v) =>
+  Object.keys(K).find((k) => K[k] === v) ??
+  (v >= 0x20 && v < 0x7f ? String.fromCharCode(v) : `0x${v.toString(16)}`)
 
 const browser = await puppeteer.launch({
   executablePath: CHROME,
@@ -59,6 +63,11 @@ await page.evaluateOnNewDocument(() => {
 await page.goto(URL, { waitUntil: 'domcontentloaded' })
 await page.waitForSelector('#sm-touch .sm-pad', { timeout: 10000 })
 console.log('✓ touch overlay rendered')
+
+// Dismiss the first-tap gate. It sits above everything by design (it is what
+// buys fullscreen and audio), so it would otherwise swallow the first tap of
+// the first assertion below.
+await page.evaluate(() => document.querySelector('#sm-start')?.remove())
 
 const box = async (sel) => {
   const b = await page.$eval(sel, (n) => {
@@ -107,16 +116,45 @@ check('slide up -> right', slide.map(([e, k]) => `${e}:${name(k)}`), ['keyup:up'
 
 // --- face buttons -----------------------------------------------------------
 for (const [sel, keysym, label] of [
-  ['#sm-touch .sm-btn.a', K.c, 'A (confirm)'],
-  ['#sm-touch .sm-btn.b', K.x, 'B (cancel)'],
-  ['#sm-touch .sm-btn.start', K.j, 'START (menu)'],
-  ['#sm-touch .sm-btn.select', K.h, 'SELECT'],
+  ['#sm-touch .sm-btn.a', K.enter, 'A (confirm)'],
+  ['#sm-touch .sm-btn.b', K.escape, 'B (cancel)'],
+  ['#sm-touch .sm-btn.start', K.insert, 'START (menu)'],
+  ['#sm-touch .sm-btn.select', K.pause, 'SELECT'],
 ]) {
   const b = await box(sel)
   await page.touchscreen.touchStart(b.x, b.y)
   await page.touchscreen.touchEnd()
   check(`button ${label}`, (await drain()).map(([e, k]) => `${e}:${name(k)}`), [`keydown:${name(keysym)}`, `keyup:${name(keysym)}`])
 }
+
+// --- soft keyboard: typing a name --------------------------------------------
+// The game's first prompt asks for a name; on a phone this is the only way in.
+await page.evaluate(() => document.querySelector('#sm-kbd').focus())
+await drain()
+await page.evaluate(() => {
+  const i = document.querySelector('#sm-kbd')
+  i.value = i.value + 'rez'
+  i.dispatchEvent(new Event('input', { bubbles: true }))
+})
+check('typing "rez"', (await drain()).map(([e, k]) => `${e}:${name(k)}`),
+  ['keydown:r','keyup:r','keydown:e','keyup:e','keydown:z','keyup:z'])
+
+await page.evaluate(() => {
+  const i = document.querySelector('#sm-kbd')
+  i.value = ''
+  i.dispatchEvent(new Event('input', { bubbles: true }))
+})
+check('backspace on empty field', (await drain()).map(([e, k]) => `${e}:${name(k)}`),
+  ['keydown:backspace','keyup:backspace'])
+
+await page.evaluate(() => {
+  document.querySelector('#sm-kbd').dispatchEvent(
+    new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }))
+})
+check('soft-keyboard Enter', (await drain()).map(([e, k]) => `${e}:${name(k)}`),
+  ['keydown:enter','keyup:enter'])
+await page.evaluate(() => document.querySelector('#sm-kbd').blur())
+await drain()
 
 // --- stuck-key safety -------------------------------------------------------
 // Hold a direction, then background the tab. The key must be released, or the

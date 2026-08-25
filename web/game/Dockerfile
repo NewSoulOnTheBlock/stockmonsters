@@ -114,6 +114,16 @@ RUN set -eux; \
     # let the page use the full screen on notched phones
     sed -i 's#\(<meta name="viewport" content="[^"]*\)"#\1,viewport-fit=cover"#' /var/www/index.html
 
+# PSDK draws its own mouse cursor sprite inside the game window. That makes
+# sense on a desktop; on a shared stream it is a pointer nobody controls,
+# sitting in the middle of everyone's screen. Configs are read from the JSON
+# (see PSDK's `register(:devices, 'devices_config', :json, ...)`), so this is
+# all it takes — and it stays a streaming concern rather than editing the game.
+RUN set -eux; \
+    f=/opt/game/Data/configs/devices_config.json; \
+    sed -i 's/"isMouseDisabled": *false/"isMouseDisabled": true/' "$f"; \
+    grep -q '"isMouseDisabled": true' "$f"
+
 # The game writes .gameopts and Saves/ into its own directory.
 RUN set -eux; \
     chmod +x /usr/local/bin/launch-game; \
