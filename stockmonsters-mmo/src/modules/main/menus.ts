@@ -72,6 +72,48 @@ export async function showTravel(player: RpgPlayer) {
   player.changeMap(d.map, { x: at.x * TILE, y: at.y * TILE })
 }
 
+/**
+ * The HUD action bar. Everything here opens a dialog the player can read —
+ * including the parts that are not built yet, which say what they will be
+ * instead of silently doing nothing.
+ */
+export async function openHudPanel(player: RpgPlayer, id: string) {
+  const key = String(player.id)
+  if (menuOpen.has(key)) return
+  menuOpen.add(key)
+  try {
+    if (id === 'team') { await showParty(player); return }
+    if (id === 'bag') { await showBag(player); return }
+    if (id === 'dex') { await showDex(player); return }
+    if (id === 'map') { await showTravel(player); return }
+    if (id === 'quests' || id === 'quest') {
+      await player.showText('QUESTS\nNo contracts on the board yet — the questline arrives with the story port.')
+      return
+    }
+    await player.showText('That panel is not built yet.')
+  } finally {
+    menuOpen.delete(key)
+  }
+}
+
+export async function showBag(player: RpgPlayer) {
+  const bag = (player.getVariable('BAG') as { balls: number; potions: number } | undefined) ??
+    { balls: 5, potions: 3 }
+  await player.showText(`BAG\nBalls: ${bag.balls}\nPotions: ${bag.potions}`)
+}
+
+export async function showDex(player: RpgPlayer) {
+  // Seen/caught tracking comes with the story port; until then the Ledger
+  // reports what the player actually holds, which is honest and still useful.
+  const box = (player.getVariable('BOX') as CreatureInstance[] | undefined) ?? []
+  const party = (player.getVariable('PARTY') as CreatureInstance[] | undefined) ?? []
+  const owned = new Set([...party, ...box].map((c) => c.dbSymbol))
+  await player.showText(
+    `LEDGER\n${owned.size} of ${dex.length} Stockmonsters recorded.\n` +
+    (owned.size ? 'Open the Box to inspect them.' : 'Touch a wild Stockmonster to begin.'),
+  )
+}
+
 const menuOpen = new Set<string>()
 
 export async function openMenu(player: RpgPlayer) {

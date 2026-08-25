@@ -6,7 +6,17 @@
  *
  * One Node process does everything: static client files, the RPGJS room
  * transport under /parties (same-origin, so the client needs no host config),
- * WebSocket upgrades, and SQLite persistence in data/rooms.sqlite.
+ * WebSocket upgrades, room persistence in data/rooms.sqlite, and player
+ * profiles in Postgres.
+ *
+ * Two DIFFERENT kinds of persistence live here, and confusing them wastes an
+ * afternoon:
+ *   - data/rooms.sqlite is the ROOM's storage, keyed by the ephemeral
+ *     transport connection id. It survives a restart but not a page reload,
+ *     because the id is thrown away on purpose (see HANDOVER).
+ *   - Postgres holds the PLAYER's profile, keyed by the wallet id from
+ *     auth.mjs. That is the one that follows a person across reloads and
+ *     devices. profiles.mjs owns it.
  */
 import http from 'node:http'
 import { createRequire } from 'node:module'
@@ -15,11 +25,30 @@ import { extname, join, normalize, resolve } from 'node:path'
 import { createRpgServerTransport, createSqliteNodeRoomStorage } from '@rpgjs/server/node'
 import serverModule from './dist/server/server.js'
 import { handleAuth } from './auth.mjs'
+import { createProfileStore } from './profiles.mjs'
 
 const PORT = Number(process.env.PORT ?? 3000)
 const CLIENT_DIR = resolve('./dist/client')
 const DATA_DIR = resolve('./data')
 mkdirSync(DATA_DIR, { recursive: true })
+
+/*
+ * The bridge to the game code.
+ *
+ * src/modules/main/** is compiled into the CLIENT bundle as well as the server
+ * one, so it cannot import `pg` — a `node:fs` import in player.ts once broke
+ * the whole browser build. Instead the Node process hangs the store on a
+ * global and src/modules/main/profile.ts picks it up if it is there, falling
+ * back to a no-op otherwise. Nothing about the database crosses the boundary:
+ * the client bundle contains neither the driver nor the connection string.
+ */
+const profiles = createProfileStore()
+globalThis.__smProfiles = profiles
+console.log(
+  profiles.enabled
+    ? '[profiles] Postgres profile store active'
+    : '[profiles] no DATABASE_URL — player state is session-only',
+)
 
 const { WebSocketServer } = createRequire(import.meta.url)('ws')
 
@@ -48,6 +77,17 @@ function serveStatic(req, res) {
 
 const server = http.createServer(async (req, res) => {
   try {
+    // Deliberately says nothing a client could use: no connection string, no
+    // wallet ids. Enough to answer "is the database wired up?" from a deploy.
+    if (req.url === '/health') {
+      const { enabled, healthy, loads, writes, writeErrors, nameConflicts, cached } = profiles.stats()
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({
+        ok: true,
+        profiles: { enabled, healthy, loads, writes, writeErrors, nameConflicts, cached },
+      }))
+      return
+    }
     if (await handleAuth(req, res)) return
     const handled = await transport.handleNodeRequest(req, res, undefined, { mountedPath: '/parties' })
     if (handled) return
@@ -65,3 +105,19 @@ server.on('upgrade', (request, socket, head) => {
   })
 })
 server.listen(PORT, () => console.log(`Stockmonsters MMO on http://localhost:${PORT}`))
+
+// Writes are batched, so a kill between flushes would drop the last second or
+// two of play. Drain first, then exit.
+let closing = false
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  process.on(signal, () => {
+    if (closing) process.exit(1) // second Ctrl-C means "now"
+    closing = true
+    console.log(`\n[server] ${signal} — flushing player profiles`)
+    profiles.close().finally(() => {
+      server.close(() => process.exit(0))
+      // Open websockets keep server.close() pending forever.
+      setTimeout(() => process.exit(0), 1500).unref()
+    })
+  })
+}

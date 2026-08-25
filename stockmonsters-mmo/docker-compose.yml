@@ -1,0 +1,55 @@
+# Local infrastructure for Stockmonsters MMO.
+#
+#   cp .env.example .env
+#   docker compose up -d
+#   npm run db:migrate
+#
+# Host ports are deliberately NOT the defaults (5433 / 6380) so this stack can
+# never collide with a Postgres or Redis you already run on this machine.
+# Override them in .env if you want the standard ones.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: stockmonsters-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-stockmonsters}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-stockmonsters}
+      POSTGRES_DB: ${POSTGRES_DB:-stockmonsters}
+      # Deterministic collation so the CITEXT-free lower(name) unique index
+      # behaves the same on every machine.
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # -q keeps the log quiet; the db/user flags matter because pg_isready
+      # defaults to the root user and reports "accepting connections" before
+      # the app database exists.
+      test: ["CMD-SHELL", "pg_isready -q -U ${POSTGRES_USER:-stockmonsters} -d ${POSTGRES_DB:-stockmonsters}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  # NOT used by the game today — see docs/persistence.md ("Redis: why it is
+  # here and why nothing talks to it"). It is in the file so the second Node
+  # process, whenever it arrives, has somewhere to put shared rate limits,
+  # chat pub/sub and login nonces. One process needs none of that.
+  redis:
+    image: redis:7-alpine
+    container_name: stockmonsters-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "no", "--save", ""]
+    ports:
+      - "${REDIS_PORT:-6380}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
+    name: stockmonsters-pgdata
