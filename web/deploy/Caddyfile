@@ -1,4 +1,16 @@
 {$GAME_DOMAIN} {
+	# Send the bare domain straight into the game. neko's client auto-logs-in
+	# when both usr and pwd are present, then strips them from the URL itself,
+	# so the visitor never sees a login form and the address bar ends up clean.
+	#
+	# PLAYER_PASSWORD is not a secret in this design — it is the share link.
+	# ADMIN_PASSWORD is the one that matters, and it stays out of here.
+	@needs_login {
+		path /
+		not query pwd=*
+	}
+	redir @needs_login /?usr=player&pwd={$PLAYER_PASSWORD}&embed=1 302
+
 	# Only signalling and the client bundle pass through here. WebRTC media
 	# goes straight to the container over the UDP range and never touches
 	# Caddy, so there is nothing to tune for the video path.

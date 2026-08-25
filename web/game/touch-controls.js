@@ -137,6 +137,22 @@
     '#sm-touch .sm-btn.meta{position:static;border-radius:14px;height:28px;',
     '  padding:0 12px;font-size:10px;letter-spacing:.09em;}',
 
+    /* First-tap gate. Mobile browsers block both fullscreen and audio until
+       the user gestures, so one tap buys us both plus orientation lock. */
+    '#sm-start{position:fixed;inset:0;z-index:140;display:flex;align-items:center;',
+    '  justify-content:center;flex-direction:column;gap:18px;cursor:pointer;',
+    '  background:radial-gradient(ellipse at center,#12161f 0%,#07090d 100%);',
+    '  color:#fff;font-family:system-ui,-apple-system,sans-serif;}',
+    '#sm-start .sm-play{display:flex;align-items:center;justify-content:center;',
+    '  width:84px;height:84px;border-radius:50%;background:rgba(41,140,90,.9);',
+    '  box-shadow:0 0 0 0 rgba(41,140,90,.7);animation:sm-pulse 2s infinite;}',
+    '#sm-start .sm-play:after{content:"";border-style:solid;border-width:15px 0 15px 24px;',
+    '  border-color:transparent transparent transparent #fff;margin-left:6px;}',
+    '@keyframes sm-pulse{70%{box-shadow:0 0 0 22px rgba(41,140,90,0)}',
+    '  100%{box-shadow:0 0 0 0 rgba(41,140,90,0)}}',
+    '#sm-start b{font-size:15px;letter-spacing:.14em;font-weight:700}',
+    '#sm-start span{font-size:12px;opacity:.5}',
+
     /* Landscape is what this game wants; nudge people there once. */
     '#sm-rotate{position:fixed;inset:0;z-index:130;display:none;',
     '  align-items:center;justify-content:center;flex-direction:column;gap:10px;',
@@ -155,10 +171,6 @@
   }
 
   function build() {
-    var style = el('style')
-    style.textContent = CSS
-    document.head.appendChild(style)
-
     var root = el('div')
     root.id = 'sm-touch'
 
@@ -314,10 +326,67 @@
   }
 
   // ---------------------------------------------------------------------
+  // Fullscreen / first-tap gate
+  // ---------------------------------------------------------------------
+
+  function goFullscreen() {
+    var d = document.documentElement
+    var req = d.requestFullscreen || d.webkitRequestFullscreen || d.msRequestFullscreen
+    // iOS Safari has no Fullscreen API on non-video elements at all, so this
+    // is best-effort by design: the page still plays, just not fullscreen.
+    if (req) {
+      try {
+        var r = req.call(d, { navigationUI: 'hide' })
+        if (r && r.catch) r.catch(function () {})
+      } catch (err) {}
+    }
+    if (screen.orientation && screen.orientation.lock) {
+      try {
+        var p = screen.orientation.lock('landscape')
+        if (p && p.catch) p.catch(function () {})
+      } catch (err) {}
+    }
+  }
+
+  // The video starts muted so it can autoplay; a gesture is what lets us turn
+  // the sound on. Without this the game is silent on every phone.
+  function unmute() {
+    var v = document.querySelector('video')
+    if (!v) return
+    v.muted = false
+    v.volume = 1
+    var p = v.play()
+    if (p && p.catch) p.catch(function () {})
+  }
+
+  function startGate() {
+    var gate = el('div')
+    gate.id = 'sm-start'
+    gate.appendChild(el('div', 'sm-play'))
+    gate.appendChild(el('b', null, 'PLAY'))
+    gate.appendChild(el('span', null, 'tap to start with sound'))
+
+    function go(e) {
+      if (e) e.preventDefault()
+      goFullscreen()
+      unmute()
+      gate.remove()
+    }
+    gate.addEventListener('click', go)
+    gate.addEventListener('touchend', go, { passive: false })
+    document.body.appendChild(gate)
+  }
+
+  // ---------------------------------------------------------------------
   // Boot
   // ---------------------------------------------------------------------
 
   function start() {
+    var style = document.createElement('style')
+    style.textContent = CSS
+    document.head.appendChild(style)
+    startGate()
+
     if (!isTouchDevice()) return
 
     build()
