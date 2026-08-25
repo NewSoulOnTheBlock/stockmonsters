@@ -432,6 +432,26 @@ actually working anyway: with a stable id, a reload still came back as a fresh
 therefore still TO BUILD** — currently character and name are restored from
 localStorage on the client and re-applied over the wire.
 
+### Title screen rebuilt (session 3)
+
+- `public/titles/background.svg` had PRESS START baked into the artwork as 16
+  traced paths. They are DELETED from the SVG (backup was taken and removed
+  after verification); a pixel panel in index.html sits exactly in the hole.
+  The stage element carries `aspect-ratio: 1448/1086`, so the panel is
+  positioned in PERCENTAGES of the artwork and stays glued to it at any size.
+  **If you ever regenerate the SVG, the hole disappears and the panel will
+  float over the old button — re-run the removal.** The hole is ~10.4% of the
+  artwork tall, hence `#title-actions { min-height: 10.5% }`; without that the
+  page background shows through beneath the buttons.
+- Disconnected: CONNECT WALLET only. Connected: PLAY GAME, CHANGE YOUR
+  CHARACTER, MY STOCKMONSTERS / NFTS, GAME SETTINGS, plus the address on a
+  footer strip. The last two dispatch `sm:open` CustomEvents ('marketplace' /
+  'settings') after entering the world — the in-game windows own those panels.
+- Two bugs found and fixed: `.title-btn { display: block }` outranks the UA
+  rule for `[hidden]`, so "hidden" buttons still rendered (now
+  `.title-btn[hidden] { display: none }`); and the name modal opened OVER the
+  title art (now waits for the curtain to be removed).
+
 ### Requested, not yet built (user, 2026-08-25 evening)
 
 - **In-game minigames** once the maps are done — small playable activities
