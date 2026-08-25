@@ -10,8 +10,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./node_modules/@rpgjs/ui-css/src/reset.css">
     <link rel="stylesheet" href="./node_modules/@rpgjs/ui-css/src/index.css">
-    <link rel="stylesheet" href="./node_modules/@rpgjs/ui-css/theme-default/theme.css">
+    <link rel="stylesheet" href="./node_modules/@rpgjs/ui-css/theme-pixel/theme.css">
     <style>
+      /* Dialogs as centered pixel-art game windows (theme-pixel palette).
+         The engine's own container supports positions; we force the centered
+         one everywhere and size the box like a classic RPG window. */
+      .rpg-ui-dialog-container { align-items: center !important; }
+      .rpg-ui-dialog {
+        width: min(600px, 92vw) !important;
+        min-height: 0 !important;
+        --rpg-ui-dialog-min-height: 0px;
+        --rpg-ui-dialog-padding: 20px;
+        image-rendering: pixelated;
+      }
+      .rpg-ui-dialog-body { font-size: 15px; line-height: 1.7; }
+      .rpg-ui-dialog-content, .rpg-ui-dialog-body { min-height: 0 !important; }
+      .rpg-ui-close-button {
+        top: 12px !important;
+        right: 12px !important;
+        left: auto !important;
+        width: 34px; height: 34px;
+        border-radius: 0 !important;
+        border: 3px solid var(--rpg-ui-border) !important;
+        background: var(--rpg-ui-surface) !important;
+        color: var(--rpg-ui-text) !important;
+        box-shadow: 3px 3px 0 #09070f !important;
+        font-family: var(--rpg-ui-font) !important;
+      }
       body, #rpg {
         margin: 0;
         padding: 0;
@@ -81,6 +106,23 @@
       <div class="fade-in"></div>
     </div>
     <script>
+      // Classic RPG dialog feel: click the window (or Space/Enter) to
+      // advance text. The engine only resolves showText via its close
+      // button, so we forward to it — except when the click is a choice.
+      document.addEventListener("click", function (e) {
+        var dialog = e.target && e.target.closest && e.target.closest(".rpg-ui-dialog");
+        if (!dialog) return;
+        if (e.target.closest(".rpg-ui-dialog-choice, .rpg-ui-dialog-choices, button")) return;
+        var x = document.querySelector(".rpg-ui-close-button");
+        if (x) x.click();
+      }, true); // capture: the GUI stops propagation on the bubble phase
+      window.addEventListener("keydown", function (e) {
+        if (e.key !== " " && e.key !== "Enter") return;
+        var dialog = document.querySelector(".rpg-ui-dialog");
+        if (!dialog || dialog.querySelector(".rpg-ui-dialog-choice")) return;
+        var x = document.querySelector(".rpg-ui-close-button");
+        if (x) { e.preventDefault(); x.click(); }
+      });
       (function () {
         var el = document.getElementById("title-screen");
         var started = false;
