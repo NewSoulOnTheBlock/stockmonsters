@@ -1,0 +1,16 @@
+{
+  "klass": "Item",
+  "id": 638,
+  "dbSymbol": "reveal_glass",
+  "icon": "638",
+  "price": 0,
+  "socket": 5,
+  "position": 0,
+  "isBattleUsable": false,
+  "isMapUsable": true,
+  "isLimited": false,
+  "isHoldable": false,
+  "isAllowingMega": false,
+  "isBerry": false,
+  "flingPower": 0
+}

@@ -1,0 +1,35 @@
+{
+  "title": "Stockmonsters",
+  "studioVersion": "2.10.0",
+  "iconPath": "project_icon.png",
+  "languagesTranslation": [
+    {
+      "code": "en",
+      "name": "English"
+    },
+    {
+      "code": "fr",
+      "name": "French"
+    },
+    {
+      "code": "it",
+      "name": "Italian"
+    },
+    {
+      "code": "de",
+      "name": "German"
+    },
+    {
+      "code": "es",
+      "name": "Spanish"
+    },
+    {
+      "code": "ko",
+      "name": "Korean"
+    },
+    {
+      "code": "kana",
+      "name": "Japanese"
+    }
+  ]
+}

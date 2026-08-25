@@ -1,0 +1,35 @@
+{
+  "klass": "Quest",
+  "id": 2,
+  "dbSymbol": "quest_2",
+  "isPrimary": false,
+  "resolution": "default",
+  "objectives": [
+    {
+      "objectiveMethodName": "objective_speak_to",
+      "objectiveMethodArgs": [
+        0,
+        "Ashford"
+      ],
+      "textFormatMethodName": "text_speak_to",
+      "hiddenByDefault": false
+    }
+  ],
+  "earnings": [
+    {
+      "earningMethodName": "earning_item",
+      "earningArgs": [
+        "cleanse_tag",
+        1
+      ],
+      "textFormatMethodName": "text_earn_item"
+    },
+    {
+      "earningMethodName": "earning_money",
+      "earningArgs": [
+        3000
+      ],
+      "textFormatMethodName": "text_earn_money"
+    }
+  ]
+}

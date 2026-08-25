@@ -4,7 +4,14 @@ import { player } from './player'
 import { warpEvents } from './warps'
 import { creatureEvents } from './creatures'
 import { npcEvents } from './npcs'
-import { MAPS } from '../../tiled/manifest'
+import { MAPS as PSDK_MAPS } from '../../tiled/manifest'
+import { RMXP_MAPS } from '../../tiled/rmxp-manifest'
+import { rmxpWarpEvents } from './rmxp-warps'
+
+// The two map families come from different importers (PSDK .tmx vs RPG Maker
+// XP .rxdata) but land in the same hitbox shape, so the game treats them as
+// one list. Ids are verified non-colliding by tools/import-rmxp-maps.mjs.
+const MAPS = [...PSDK_MAPS, ...RMXP_MAPS.map(({ id, hitboxes }) => ({ id, hitboxes }))]
 // import { Npc } from "./event";
 
 // Every map in src/tiled/ is imported from the PSDK game by
@@ -30,5 +37,10 @@ export default defineModule<RpgServer>({
       mapData.hitboxes = [...kept, ...rects.map((r, i) => ({ id: HITBOX_ID + i, ...r }))]
     },
   },
-  maps: MAPS.map(({ id }) => ({ id, events: [...warpEvents(id), ...creatureEvents(id), ...npcEvents(id)] })),
+  // Kanto/Johto maps join at their edges instead of through doors, so they
+  // get their own warp generator; the PSDK generators return [] for them.
+  maps: MAPS.map(({ id }) => ({
+    id,
+    events: [...warpEvents(id), ...rmxpWarpEvents(id), ...creatureEvents(id), ...npcEvents(id)],
+  })),
 });

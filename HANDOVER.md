@@ -368,6 +368,41 @@ Everything below is committed and was verified by running it.
   `src/modules/main/chat-filter.spec.ts` (vitest.config.ts now includes it);
   suite went 63 -> 101 green.
 
+### Kanto/Johto map pack IMPORTED and wired (session 3)
+
+- `tools/import-rmxp-maps.mjs` (+ `tools/rmxp-defs.rb`, `tools/rmxp-dump.rb`)
+  converts the RPG Maker XP pack in `new-assets/Remastered Kanto Johto Map
+  Pack/` into Tiled maps: **152 maps**, autotiles expanded to real tilesets,
+  colour-key transparency baked to alpha, collision derived from the RMXP
+  tileset `passages` table, `<objectgroup>` injected. Format notes and the
+  autotile algorithm are in `docs/rmxp-map-import.md`.
+  Gotcha that cost time: `Data/Map*.rxdata` also globs `MapInfos.rxdata` —
+  use `Map[0-9]*`. `MapInfos` unmarshals to a HASH keyed by id, `Tilesets`
+  to an ARRAY. Ruby 3.2 + Marshal with stub classes reads all of it.
+- `src/tiled/rmxp-manifest.ts` is SEPARATE from `manifest.ts` so the two
+  importers never clobber each other; `server.ts` concatenates them. Zero id
+  collisions with the 19 PSDK maps (verified).
+- **Edge transitions** (`src/modules/main/rmxp-warps.ts`): these maps join at
+  their borders, not through doors. `src/data/rmxp-connections.json` (111
+  links from the PBS data, 222 directional) gives the touching sides plus an
+  offset, and `arrival = departure + fromOffset - toOffset` on the shared
+  axis. Every border tile that maps into the neighbour gets a touch event —
+  **5934 trigger tiles**; the other 6565 border tiles have no neighbour
+  opposite them (maps differ in length along a shared edge), which is normal.
+  Arrivals land one tile INSIDE the destination and are `snapFree`d, or the
+  player spawns on the border and bounces straight back.
+- `src/modules/main/geometry.ts` — shared `isBlocked`/`snapFree` over BOTH
+  manifests. `warps.ts` still has its own PSDK-only copy; merge them when it
+  is next touched.
+- **Travel menu** (escape -> Travel) is the temporary way in and out of the
+  region — nothing links it to the PSDK island yet. A ship/route replaces it.
+- Verified: server boots in 0.5s with 171 maps, serves `new-bark-town.tmx`
+  and `goldenrod-city.tmx`, build green, 101 tests green. Rendered previews
+  (New Bark Town, Mt. Mortar, Lake of Rage, Cherrygrove, Olivine + collision
+  overlays) looked correct — autotile seams clean, walls blocked.
+- ⚠️ This is literal Pokémon geography and Nintendo-derived tile art, and it
+  is NOT reskinned. The unreskinned-art warning above applies to it.
+
 ### Requested, not yet built (user, 2026-08-25 evening)
 
 - **In-game minigames** once the maps are done — small playable activities

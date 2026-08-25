@@ -1,0 +1,452 @@
+{
+  "klass": "Dex",
+  "id": 6,
+  "dbSymbol": "tower_dex",
+  "startId": 1,
+  "csv": {
+    "csvFileId": 100063,
+    "csvTextIndex": 6
+  },
+  "creatures": [
+    {
+      "dbSymbol": "bulbasaur",
+      "form": 0
+    },
+    {
+      "dbSymbol": "ivysaur",
+      "form": 0
+    },
+    {
+      "dbSymbol": "venusaur",
+      "form": 0
+    },
+    {
+      "dbSymbol": "charmander",
+      "form": 0
+    },
+    {
+      "dbSymbol": "charmeleon",
+      "form": 0
+    },
+    {
+      "dbSymbol": "charizard",
+      "form": 0
+    },
+    {
+      "dbSymbol": "squirtle",
+      "form": 0
+    },
+    {
+      "dbSymbol": "wartortle",
+      "form": 0
+    },
+    {
+      "dbSymbol": "blastoise",
+      "form": 0
+    },
+    {
+      "dbSymbol": "meganium",
+      "form": 0
+    },
+    {
+      "dbSymbol": "grovyle",
+      "form": 0
+    },
+    {
+      "dbSymbol": "serperior",
+      "form": 0
+    },
+    {
+      "dbSymbol": "chesnaught",
+      "form": 0
+    },
+    {
+      "dbSymbol": "incineroar",
+      "form": 0
+    },
+    {
+      "dbSymbol": "primarina",
+      "form": 0
+    },
+    {
+      "dbSymbol": "rattata",
+      "form": 0
+    },
+    {
+      "dbSymbol": "raticate",
+      "form": 0
+    },
+    {
+      "dbSymbol": "caterpie",
+      "form": 0
+    },
+    {
+      "dbSymbol": "metapod",
+      "form": 0
+    },
+    {
+      "dbSymbol": "butterfree",
+      "form": 0
+    },
+    {
+      "dbSymbol": "weedle",
+      "form": 0
+    },
+    {
+      "dbSymbol": "kakuna",
+      "form": 0
+    },
+    {
+      "dbSymbol": "beedrill",
+      "form": 0
+    },
+    {
+      "dbSymbol": "magikarp",
+      "form": 0
+    },
+    {
+      "dbSymbol": "gyarados",
+      "form": 0
+    },
+    {
+      "dbSymbol": "milotic",
+      "form": 0
+    },
+    {
+      "dbSymbol": "ampharos",
+      "form": 0
+    },
+    {
+      "dbSymbol": "farfetch_d",
+      "form": 0
+    },
+    {
+      "dbSymbol": "azurill",
+      "form": 0
+    },
+    {
+      "dbSymbol": "marill",
+      "form": 0
+    },
+    {
+      "dbSymbol": "dewpider",
+      "form": 0
+    },
+    {
+      "dbSymbol": "lotad",
+      "form": 0
+    },
+    {
+      "dbSymbol": "lombre",
+      "form": 0
+    },
+    {
+      "dbSymbol": "ludicolo",
+      "form": 0
+    },
+    {
+      "dbSymbol": "tympole",
+      "form": 0
+    },
+    {
+      "dbSymbol": "palpitoad",
+      "form": 0
+    },
+    {
+      "dbSymbol": "buizel",
+      "form": 0
+    },
+    {
+      "dbSymbol": "floatzel",
+      "form": 0
+    },
+    {
+      "dbSymbol": "gogoat",
+      "form": 0
+    },
+    {
+      "dbSymbol": "seviper",
+      "form": 0
+    },
+    {
+      "dbSymbol": "zangoose",
+      "form": 0
+    },
+    {
+      "dbSymbol": "scyther",
+      "form": 0
+    },
+    {
+      "dbSymbol": "yanma",
+      "form": 0
+    },
+    {
+      "dbSymbol": "yanmega",
+      "form": 0
+    },
+    {
+      "dbSymbol": "barboach",
+      "form": 0
+    },
+    {
+      "dbSymbol": "whiscash",
+      "form": 0
+    },
+    {
+      "dbSymbol": "dratini",
+      "form": 0
+    },
+    {
+      "dbSymbol": "dragonite",
+      "form": 0
+    },
+    {
+      "dbSymbol": "trapinch",
+      "form": 0
+    },
+    {
+      "dbSymbol": "flygon",
+      "form": 0
+    },
+    {
+      "dbSymbol": "binacle",
+      "form": 0
+    },
+    {
+      "dbSymbol": "sandygast",
+      "form": 0
+    },
+    {
+      "dbSymbol": "remoraid",
+      "form": 0
+    },
+    {
+      "dbSymbol": "shellos",
+      "form": 0
+    },
+    {
+      "dbSymbol": "gastrodon",
+      "form": 0
+    },
+    {
+      "dbSymbol": "frillish",
+      "form": 0
+    },
+    {
+      "dbSymbol": "finneon",
+      "form": 0
+    },
+    {
+      "dbSymbol": "chinchou",
+      "form": 0
+    },
+    {
+      "dbSymbol": "lanturn",
+      "form": 0
+    },
+    {
+      "dbSymbol": "dhelmise",
+      "form": 0
+    },
+    {
+      "dbSymbol": "zubat",
+      "form": 0
+    },
+    {
+      "dbSymbol": "golbat",
+      "form": 0
+    },
+    {
+      "dbSymbol": "roggenrola",
+      "form": 0
+    },
+    {
+      "dbSymbol": "klang",
+      "form": 0
+    },
+    {
+      "dbSymbol": "klinklang",
+      "form": 0
+    },
+    {
+      "dbSymbol": "noibat",
+      "form": 0
+    },
+    {
+      "dbSymbol": "drilbur",
+      "form": 0
+    },
+    {
+      "dbSymbol": "bronzor",
+      "form": 0
+    },
+    {
+      "dbSymbol": "tynamo",
+      "form": 0
+    },
+    {
+      "dbSymbol": "eelektross",
+      "form": 0
+    },
+    {
+      "dbSymbol": "wishiwashi",
+      "form": 0
+    },
+    {
+      "dbSymbol": "lapras",
+      "form": 0
+    },
+    {
+      "dbSymbol": "larvitar",
+      "form": 0
+    },
+    {
+      "dbSymbol": "croagunk",
+      "form": 0
+    },
+    {
+      "dbSymbol": "toxicroak",
+      "form": 0
+    },
+    {
+      "dbSymbol": "skorupi",
+      "form": 0
+    },
+    {
+      "dbSymbol": "goomy",
+      "form": 0
+    },
+    {
+      "dbSymbol": "goodra",
+      "form": 0
+    },
+    {
+      "dbSymbol": "tangela",
+      "form": 0
+    },
+    {
+      "dbSymbol": "tangrowth",
+      "form": 0
+    },
+    {
+      "dbSymbol": "venipede",
+      "form": 0
+    },
+    {
+      "dbSymbol": "whirlipede",
+      "form": 0
+    },
+    {
+      "dbSymbol": "carnivine",
+      "form": 0
+    },
+    {
+      "dbSymbol": "mudbray",
+      "form": 0
+    },
+    {
+      "dbSymbol": "mudsdale",
+      "form": 0
+    },
+    {
+      "dbSymbol": "salandit",
+      "form": 0
+    },
+    {
+      "dbSymbol": "turtonator",
+      "form": 0
+    },
+    {
+      "dbSymbol": "rockruff",
+      "form": 0
+    },
+    {
+      "dbSymbol": "fletchinder",
+      "form": 0
+    },
+    {
+      "dbSymbol": "talonflame",
+      "form": 0
+    },
+    {
+      "dbSymbol": "helioptile",
+      "form": 0
+    },
+    {
+      "dbSymbol": "snover",
+      "form": 0
+    },
+    {
+      "dbSymbol": "abomasnow",
+      "form": 0
+    },
+    {
+      "dbSymbol": "vulpix",
+      "form": 1
+    },
+    {
+      "dbSymbol": "ninetales",
+      "form": 1
+    },
+    {
+      "dbSymbol": "sneasel",
+      "form": 0
+    },
+    {
+      "dbSymbol": "bergmite",
+      "form": 0
+    },
+    {
+      "dbSymbol": "crabominable",
+      "form": 0
+    },
+    {
+      "dbSymbol": "yungoos",
+      "form": 0
+    },
+    {
+      "dbSymbol": "cutiefly",
+      "form": 0
+    },
+    {
+      "dbSymbol": "ribombee",
+      "form": 0
+    },
+    {
+      "dbSymbol": "ledian",
+      "form": 0
+    },
+    {
+      "dbSymbol": "ralts",
+      "form": 0
+    },
+    {
+      "dbSymbol": "gallade",
+      "form": 0
+    },
+    {
+      "dbSymbol": "morelull",
+      "form": 0
+    },
+    {
+      "dbSymbol": "shiinotic",
+      "form": 0
+    },
+    {
+      "dbSymbol": "ariados",
+      "form": 0
+    },
+    {
+      "dbSymbol": "snorunt",
+      "form": 0
+    },
+    {
+      "dbSymbol": "latias",
+      "form": 0
+    },
+    {
+      "dbSymbol": "latios",
+      "form": 0
+    }
+  ]
+}
