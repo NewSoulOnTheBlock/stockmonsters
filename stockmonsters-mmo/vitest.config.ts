@@ -17,6 +17,7 @@ export default defineConfig({
       // drives a real battle through a fake player to check the wire traffic
       // the battle overlay depends on
       'src/modules/main/battle.spec.ts',
+      'src/modules/main/chat.spec.ts',
     ],
     environment: 'node',
   },

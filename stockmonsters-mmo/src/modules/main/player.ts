@@ -2,7 +2,7 @@ import { RpgPlayer, type RpgPlayerHooks } from '@rpgjs/server'
 import { openMenu, openHudPanel, quitToTitle, travelTo, markVisited, visitedMaps } from './menus'
 import { CHARACTER_IDS } from '../../data/character-catalog'
 import { validateName } from './names'
-import { handleChat } from './chat'
+import { handleChat, addChatMember, removeChatMember } from './chat'
 import { Components } from '@rpgjs/server'
 import {
     applyInventory,
@@ -254,6 +254,10 @@ export const player: RpgPlayerHooks = {
         const saved = sanitizeCharacter(player.getVariable('CHARACTER'))
         player.setGraphic(saved ?? [DEFAULT_GRAPHIC])
 
+        // Chat reaches everyone connected, not just this map, so the roster has
+        // to be kept here rather than read off a single room.
+        addChatMember(player)
+
         // Name tag above every character — synced to all clients by the engine
         player.name = (player.getVariable('NAME') as string | undefined) ?? 'Trader'
         applyNameTag(player)
@@ -274,6 +278,7 @@ export const player: RpgPlayerHooks = {
         })
     },
     onDisconnected(player: RpgPlayer) {
+        removeChatMember(player)
         // Last write of the session. The store batches, so without this the
         // final few seconds of a battle would be lost on a clean exit.
         const walletId = walletOf(player)
@@ -285,6 +290,11 @@ export const player: RpgPlayerHooks = {
      * the write path for ordinary movement.
      */
     onJoinMap(player: RpgPlayer, map: { id?: string }) {
+        // Refresh the chat roster with THIS object: the engine hands each room
+        // a fresh RpgPlayer, and `emit` on a stale one silently does nothing
+        // (it needs a current map), so a broadcast would reach nobody.
+        addChatMember(player)
+
         const id = String(map?.id ?? '').replace(/^map-/, '')
         const isNew = markVisited(player, id)
         if (isNew) {

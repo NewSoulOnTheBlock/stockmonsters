@@ -666,6 +666,33 @@ with `'w:' + 'n'.repeat(32)` is silently refused by the server, the player runs
 with NO wallet identity, and everything looks like it works while nothing
 reaches Postgres. Several of my own test runs were wrong this way.
 
+### Chat cooldown and delivery (session 4)
+
+**One message every 5 seconds**, plus a 30s block on repeating the same line —
+repetition is the cheapest spam there is and a plain rate limit does not catch
+it. Both refusals say when the player may try again.
+
+- **The limit is charged to the WALLET, not the connection.** The connection id
+  is regenerated on every page load, so a connection-keyed limit hands a fresh
+  budget to anyone who presses F5 — exactly what a spammer does.
+- Chat is **global**, not per-map: with 171 maps a per-map channel is an empty
+  room almost every time anyone types. `chat.ts` keeps its own roster of
+  connected players.
+- **Roster entries must be refreshed in `onJoinMap`, not only `onConnected`.**
+  The engine hands each room a fresh RpgPlayer, and `emit` on a stale one
+  silently returns (it needs a current map) — so broadcasts reached nobody
+  while the system replies, which use the live object, worked fine. That
+  asymmetry is what made it look like the rate limiter was eating everything.
+- A player with no name cannot chat: otherwise everyone unnamed appears as
+  "Trader" and impersonation is free.
+- `src/modules/main/chat.spec.ts` — 9 tests incl. the reload-for-a-fresh-budget
+  case and the repeat block.
+
+Also fixed: `name:rejected` used to open the name modal even while the TITLE
+SCREEN was up. The modal covers the viewport at a higher z-index, so it hid
+PLAY GAME and the player could not get into the world to answer. It now waits
+for the world like every other path.
+
 ### Requested, not yet built (user, 2026-08-25 evening)
 
 - **In-game minigames** once the maps are done — small playable activities

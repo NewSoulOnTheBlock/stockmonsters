@@ -174,8 +174,10 @@ export function mountChatUi(engine: Engine, socket: Socket) {
     nameErr.textContent = d.reason
     if (!confirmedName) {
       // Rejected before anything was confirmed means this player still has no
-      // name — ask again rather than leaving them nameless.
-      openNameModal()
+      // name — ask again. But never over the title screen: the modal covers the
+      // whole viewport at a higher z-index, so opening it there hides PLAY GAME
+      // and the player cannot even get into the world to answer.
+      whenInWorld(openNameModal)
       return
     }
     // A refused CHANGE must still be visible: the modal may already be closed,
@@ -199,7 +201,10 @@ export function mountChatUi(engine: Engine, socket: Socket) {
       // name at all, so the modal has to open — see the 'name:rejected'
       // handler, which reopens it when nothing has been confirmed yet.
       engine.processAction?.('name:set', { name: named })
-      whenInWorld(() => { if (!confirmedName) openNameModal() })
+      // Give the server time to confirm before demanding a new one. The modal
+      // swallows every key while it is up, so opening it spuriously locks the
+      // player out of chat and movement for no reason.
+      whenInWorld(() => setTimeout(() => { if (!confirmedName) openNameModal() }, 3500))
     } else {
       whenInWorld(openNameModal)
     }
