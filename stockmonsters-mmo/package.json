@@ -14,8 +14,10 @@
   "devDependencies": {
     "@canvasengine/compiler": "2.2.0",
     "@vitejs/plugin-vue": "^6.0.8",
+    "happy-dom": "^20.11.6",
     "path-browserify": "^1.0.1",
-    "vite": "^8.2.2"
+    "vite": "^8.2.2",
+    "vitest": "^4.1.11"
   },
   "private": true,
   "dependencies": {

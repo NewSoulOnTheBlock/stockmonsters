@@ -39,14 +39,18 @@ export type ElementType = {
   name: string;
   color: string;
   blurb: string;
-  /** multiplier when this type ATTACKS the keyed type; anything absent is 1 */
-  damageTo: Record<string, number>;
+  /**
+   * Multiplier when this type ATTACKS the keyed type. The generator only writes
+   * the pairs that differ from neutral, so the map is sparse and any absent key
+   * means 1x — read it through `effectiveness()`, never raw.
+   */
+  damageTo: Partial<Record<string, number>>;
   index: number;
 };
 
-export const CREATURES = creaturesRaw as Creature[];
-export const MEMES = memesRaw as Meme[];
-export const TYPES = typesRaw as unknown as ElementType[];
+export const CREATURES: Creature[] = creaturesRaw;
+export const MEMES: Meme[] = memesRaw;
+export const TYPES: ElementType[] = typesRaw;
 
 export const TYPE_BY_NAME = Object.fromEntries(TYPES.map((t) => [t.name, t])) as Record<
   string,
