@@ -1,5 +1,5 @@
 import { RpgPlayer, type RpgPlayerHooks } from '@rpgjs/server'
-import { openMenu, openHudPanel } from './menus'
+import { openMenu, openHudPanel, quitToTitle } from './menus'
 import { CHARACTER_IDS } from '../../data/character-catalog'
 import { validateName } from './names'
 import { handleChat } from './chat'
@@ -353,6 +353,7 @@ export const player: RpgPlayerHooks = {
         }
         // HUD action bar. Each of these owns a dialog the player can actually
         // read; an unbuilt one says so rather than doing nothing.
+        if (action === 'hud:quit') { void quitToTitle(player); return }
         if (typeof action === 'string' && action.startsWith('hud:')) {
             void openHudPanel(player, action.slice(4))
             return

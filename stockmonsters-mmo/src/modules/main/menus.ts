@@ -2,6 +2,7 @@ import { RpgPlayer } from '@rpgjs/server'
 import dexRaw from '../../data/dex.json'
 import speciesRaw from '../../data/studio/species.json'
 import type { CreatureInstance } from '../../battle/factory'
+import { profiles, hasProfileStore, collectState } from './profile'
 import { snapFree, TILE } from './geometry'
 
 /*
@@ -114,6 +115,29 @@ export async function showDex(player: RpgPlayer) {
   )
 }
 
+/**
+ * Leaving the world. The save is not a courtesy here: party, box and bag only
+ * exist in the profile store, so quitting without a write would lose whatever
+ * happened since the last sweep. Write first, tell the client second — if the
+ * write fails the player stays put and is told, rather than silently losing a
+ * session.
+ */
+export async function quitToTitle(player: RpgPlayer) {
+  const walletId = player.getVariable('WALLET_ID') as string | undefined
+  if (walletId && hasProfileStore()) {
+    try {
+      profiles().saveProfile(walletId, collectState(player))
+      await profiles().release(walletId) // forces the pending write out
+    } catch (err) {
+      await player.showText('Could not save just now — staying in the world so nothing is lost.')
+      console.error('[quit] save failed', err)
+      return
+    }
+    await player.showText('Progress saved.')
+  }
+  player.emit('game:quit', {})
+}
+
 const menuOpen = new Set<string>()
 
 export async function openMenu(player: RpgPlayer) {
@@ -125,11 +149,13 @@ export async function openMenu(player: RpgPlayer) {
       { text: 'Team', value: 'party' },
       { text: 'Box (NFT queue)', value: 'box' },
       { text: 'Travel', value: 'travel' },
+      { text: 'Save & quit to title', value: 'quit' },
       { text: 'Close', value: 'close' },
     ])
     if (pick?.value === 'party') await showParty(player)
     if (pick?.value === 'box') await showBox(player)
     if (pick?.value === 'travel') await showTravel(player)
+    if (pick?.value === 'quit') await quitToTitle(player)
   } finally {
     menuOpen.delete(id)
   }

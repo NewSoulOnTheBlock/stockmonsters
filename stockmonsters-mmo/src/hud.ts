@@ -364,6 +364,8 @@ const CSS = `
 }
 #sm-hud .hud-settings .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 5px 0; }
 #sm-hud .hud-settings .row + .row { border-top: 2px solid rgba(246,193,119,.18); }
+#sm-hud .hud-settings .hud-quit-row { padding-top: 10px; }
+#sm-hud .hud-settings .hud-quit-row button { width: 100%; justify-content: center; }
 
 /* --- bottom action bar --------------------------------------------------- */
 #sm-hud .hud-bar-wrap {
@@ -503,6 +505,20 @@ export function mountHud(engine?: EngineLike, socket?: SocketLike): HudApi {
     if (t.id === 'bars' && !on) banners.style.display = 'none'
     settings.appendChild(el('div', { class: 'row' }, [label]))
   }
+  // Leaving the world needs a visible, discoverable exit. Escape opens the
+  // in-game menu, but the engine samples input per frame and drops a very
+  // short tap, so a key alone is not a dependable way out.
+  const quitRow = el('div', { class: 'row hud-quit-row' }, [
+    el('button', {
+      class: 'smui-btn', type: 'button', text: 'SAVE & QUIT TO TITLE',
+    }),
+  ])
+  quitRow.querySelector('button')?.addEventListener('click', () => {
+    closeSettings()
+    window.dispatchEvent(new CustomEvent('sm:hud-action', { detail: { id: 'quit' } }))
+  })
+  settings.appendChild(quitRow)
+
   guardKeys(settings)
 
   let releaseSettings: (() => void) | null = null

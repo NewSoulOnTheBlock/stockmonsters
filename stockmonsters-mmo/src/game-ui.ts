@@ -113,6 +113,26 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
   };
   window.addEventListener("pagehide", bye);
   window.addEventListener("beforeunload", bye);
+  // Quitting to the title. The server has already flushed the save by the time
+  // this arrives; a full reload is the honest way back — it rebuilds the title
+  // screen and drops the socket, so nothing from the old session lingers.
+  // The engine samples input per frame and misses a very short Escape tap, so
+  // the in-game menu could be unreachable by keyboard. Forward it ourselves
+  // when nothing else owns the key; the server's own menu guard makes a
+  // double-fire harmless.
+  window.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" || e.defaultPrevented) return;
+    const a = document.activeElement as HTMLElement | null;
+    if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
+    if (document.querySelector(".rpg-ui-dialog")) return;
+    engine?.processAction?.("escape", {});
+  });
+
+  socket.on("game:quit", () => {
+    try { sessionStorage.setItem("sm-returned-to-title", "1"); } catch {}
+    location.reload();
+  });
+
   mountBattleScene(socket);
   mountChatUi(engine, socket);
   mountHud(engine, socket);
@@ -132,6 +152,7 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
     const id = (e as CustomEvent).detail?.id;
     if (!id) return;
     if (id === "market") { openMarketplace(); return; }
+    if (id === "quit") { engine?.processAction?.("hud:quit", {}); return; }
     if (id === "character") { window.dispatchEvent(new CustomEvent("sm:open-designer")); return; }
     engine?.processAction?.("hud:" + id, {});
   });

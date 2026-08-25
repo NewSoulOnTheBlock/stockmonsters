@@ -321,6 +321,14 @@
           return ok ? ids : null;
         }
 
+        // Coming back from "Save & quit": the character is known, so PLAY GAME
+        // must not bounce the player through the picker again.
+        var returned = false;
+        try {
+          returned = sessionStorage.getItem("sm-returned-to-title") === "1";
+          if (returned) sessionStorage.removeItem("sm-returned-to-title");
+        } catch (e) {}
+
         function render() {
           var w = wallet();
           var connected = !!w;
@@ -329,7 +337,9 @@
           charBtn.hidden = !connected;
           nftBtn.hidden = !connected;
           settingsBtn.hidden = !connected;
-          walletLine.textContent = connected ? short(w.address) : "";
+          walletLine.textContent = connected
+            ? short(w.address) + (returned ? "  ·  PROGRESS SAVED" : "")
+            : "";
         }
 
         // --- character picker ------------------------------------------
