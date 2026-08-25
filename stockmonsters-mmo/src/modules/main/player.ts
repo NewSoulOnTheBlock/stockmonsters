@@ -6,9 +6,9 @@ export const player: RpgPlayerHooks = {
         // Centre of the Hub's floor area (tile 28,37), found by scanning the
         // imported map — the geometric centre of the 64x64 grid is empty void.
         // The real spawn comes from PSDK's map data once events are ported.
-        await player.changeMap('simplemap', {
-            x: 300,
-            y: 300
+        await player.changeMap('hub', {
+            x: 700,
+            y: 600
         })
         console.log('[SM] after changeMap, map=', (player as any).map, 'pos=', player.position)
         player.name = 'Trader'

@@ -12,8 +12,7 @@ import { CREATURES, MEMES, PLAY_URL, TYPES } from "@/lib/data";
 const FACTS: Array<[string, string, string]> = [
   [String(CREATURES.length), "stockmonsters", "one per listed ticker"],
   [String(TYPES.length), "elements", "with a full effectiveness chart"],
-  [String(MEMES.length), "meme coins", "in the side wing"],
-  ["0", "installs", "it runs in a browser tab"],
+  [String(MEMES.length), "meme coins", "in the side wing"]
 ];
 
 const FAQ: Array<[string, React.ReactNode]> = [
