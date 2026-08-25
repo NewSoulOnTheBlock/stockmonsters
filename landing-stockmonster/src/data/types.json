@@ -1,0 +1,266 @@
+[
+ {
+  "name": "Neutral",
+  "color": "#c3b5b2",
+  "blurb": "Index funds. Boring, everywhere, impossible to kill.",
+  "damageTo": {
+   "Stone": 0.5,
+   "Spectre": 0,
+   "Alloy": 0.5
+  },
+  "index": 0
+ },
+ {
+  "name": "Combat",
+  "color": "#ea8383",
+  "blurb": "Hostile takeovers and proxy fights.",
+  "damageTo": {
+   "Neutral": 2,
+   "Frost": 2,
+   "Toxic": 0.5,
+   "Wind": 0.5,
+   "Psionic": 0.5,
+   "Swarm": 0.5,
+   "Stone": 2,
+   "Spectre": 0,
+   "Alloy": 2,
+   "Shadow": 2,
+   "Fae": 0.5
+  },
+  "index": 1
+ },
+ {
+  "name": "Wind",
+  "color": "#83aff1",
+  "blurb": "Momentum. Gone before the fill confirms.",
+  "damageTo": {
+   "Volt": 0.5,
+   "Flora": 2,
+   "Combat": 2,
+   "Swarm": 2,
+   "Stone": 0.5,
+   "Alloy": 0.5
+  },
+  "index": 2
+ },
+ {
+  "name": "Toxic",
+  "color": "#b292f7",
+  "blurb": "Toxic assets. The damage shows up three quarters later.",
+  "damageTo": {
+   "Flora": 2,
+   "Toxic": 0.5,
+   "Terra": 0.5,
+   "Stone": 0.5,
+   "Alloy": 0,
+   "Fae": 2,
+   "Spectre": 0.5
+  },
+  "index": 3
+ },
+ {
+  "name": "Terra",
+  "color": "#c99457",
+  "blurb": "Hard assets. Land, rigs, rails.",
+  "damageTo": {
+   "Blaze": 2,
+   "Volt": 2,
+   "Flora": 0.5,
+   "Toxic": 2,
+   "Wind": 0,
+   "Swarm": 0.5,
+   "Stone": 2,
+   "Alloy": 2
+  },
+  "index": 4
+ },
+ {
+  "name": "Stone",
+  "color": "#cb8b3e",
+  "blurb": "Balance-sheet fortresses. Slow, immovable.",
+  "damageTo": {
+   "Blaze": 2,
+   "Frost": 2,
+   "Combat": 0.5,
+   "Terra": 0.5,
+   "Wind": 2,
+   "Swarm": 2,
+   "Alloy": 0.5
+  },
+  "index": 5
+ },
+ {
+  "name": "Swarm",
+  "color": "#9bc337",
+  "blurb": "Retail. Individually tiny, collectively lethal.",
+  "damageTo": {
+   "Blaze": 0.5,
+   "Flora": 2,
+   "Combat": 0.5,
+   "Toxic": 0.5,
+   "Wind": 0.5,
+   "Psionic": 2,
+   "Spectre": 0.5,
+   "Alloy": 0.5,
+   "Shadow": 2,
+   "Fae": 0.5
+  },
+  "index": 6
+ },
+ {
+  "name": "Spectre",
+  "color": "#9b96ed",
+  "blurb": "Dark pools. You never see the counterparty.",
+  "damageTo": {
+   "Neutral": 0,
+   "Psionic": 2,
+   "Spectre": 2,
+   "Shadow": 0.5
+  },
+  "index": 7
+ },
+ {
+  "name": "Alloy",
+  "color": "#c2c6d1",
+  "blurb": "Industrials. Heavy, defensive, low beta.",
+  "damageTo": {
+   "Blaze": 0.5,
+   "Tide": 0.5,
+   "Volt": 0.5,
+   "Frost": 2,
+   "Stone": 2,
+   "Alloy": 0.5,
+   "Fae": 2
+  },
+  "index": 8
+ },
+ {
+  "name": "Blaze",
+  "color": "#ee9474",
+  "blurb": "Runaway growth burning cash to do it.",
+  "damageTo": {
+   "Blaze": 0.5,
+   "Tide": 0.5,
+   "Flora": 2,
+   "Frost": 2,
+   "Swarm": 2,
+   "Stone": 0.5,
+   "Wyrm": 0.5,
+   "Alloy": 2
+  },
+  "index": 9
+ },
+ {
+  "name": "Tide",
+  "color": "#4596ed",
+  "blurb": "Liquidity. A rising one lifts everything.",
+  "damageTo": {
+   "Blaze": 2,
+   "Tide": 0.5,
+   "Flora": 0.5,
+   "Terra": 2,
+   "Stone": 2,
+   "Wyrm": 0.5
+  },
+  "index": 10
+ },
+ {
+  "name": "Flora",
+  "color": "#28bc75",
+  "blurb": "Compounders. Slow green, decades deep.",
+  "damageTo": {
+   "Blaze": 0.5,
+   "Tide": 2,
+   "Flora": 0.5,
+   "Toxic": 0.5,
+   "Terra": 2,
+   "Wind": 0.5,
+   "Swarm": 0.5,
+   "Stone": 2,
+   "Wyrm": 0.5,
+   "Alloy": 0.5
+  },
+  "index": 11
+ },
+ {
+  "name": "Volt",
+  "color": "#f5ab3d",
+  "blurb": "Volatility. Nothing between the two prints.",
+  "damageTo": {
+   "Tide": 2,
+   "Volt": 0.5,
+   "Flora": 0.5,
+   "Terra": 0,
+   "Wind": 2,
+   "Wyrm": 0.5
+  },
+  "index": 12
+ },
+ {
+  "name": "Psionic",
+  "color": "#dd7db4",
+  "blurb": "Narrative. It moves because everyone believes it moves.",
+  "damageTo": {
+   "Combat": 2,
+   "Toxic": 2,
+   "Psionic": 0.5,
+   "Alloy": 0.5,
+   "Shadow": 0
+  },
+  "index": 13
+ },
+ {
+  "name": "Frost",
+  "color": "#51c4c8",
+  "blurb": "Frozen assets. Locked, halted, illiquid.",
+  "damageTo": {
+   "Blaze": 0.5,
+   "Tide": 0.5,
+   "Flora": 2,
+   "Frost": 0.5,
+   "Terra": 2,
+   "Wind": 2,
+   "Wyrm": 2,
+   "Alloy": 0.5
+  },
+  "index": 14
+ },
+ {
+  "name": "Wyrm",
+  "color": "#7c88f3",
+  "blurb": "Mega caps. The market is their weather.",
+  "damageTo": {
+   "Wyrm": 2,
+   "Alloy": 0.5,
+   "Fae": 0
+  },
+  "index": 15
+ },
+ {
+  "name": "Shadow",
+  "color": "#a7acbe",
+  "blurb": "The shortsellers.",
+  "damageTo": {
+   "Combat": 0.5,
+   "Psionic": 2,
+   "Spectre": 2,
+   "Shadow": 0.5,
+   "Fae": 0.5
+  },
+  "index": 16
+ },
+ {
+  "name": "Fae",
+  "color": "#e981a4",
+  "blurb": "Meme energy. Rules do not apply.",
+  "damageTo": {
+   "Blaze": 0.5,
+   "Combat": 2,
+   "Toxic": 0.5,
+   "Wyrm": 2,
+   "Alloy": 0.5,
+   "Shadow": 2
+  },
+  "index": 17
+ }
+]
