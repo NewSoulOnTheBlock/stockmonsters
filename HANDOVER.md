@@ -251,7 +251,14 @@ Everything below is committed and was verified by running it.
 - Roadmap (user): mechanics -> backend (wallet SIWE login; progress stored
   server-side keyed by wallet) -> **in-game NFT mint: catching a
   stockmonster mints it to the player's wallet**. NFTs should also be usable
-  in-game. Server stays authoritative over mint decisions.
+  in-game. Server stays authoritative over mint decisions. Agreed NFT shape:
+  catch goes to an in-game box first, the player mints on demand; metadata
+  carries IVs/nature/shiny so each NFT is a unique individual; owning the
+  NFT is what makes the creature usable in a team.
+- Later ideas (user, 2026-08-25): author new maps to fit more players
+  (Tiled -> importer already supports this; the unbuilt maps 22-26 are the
+  natural start) and a global chat (websocket broadcast + small GUI; tie
+  names to wallets once SIWE lands).
 
 ## The streaming fallback (context only — not the focus)
 
