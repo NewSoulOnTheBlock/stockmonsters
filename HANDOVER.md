@@ -276,6 +276,23 @@ Everything below is committed and was verified by running it.
   server-signed EIP-712 vouchers, 4 forge tests green (`cd contracts &&
   forge test`). Deploy steps in contracts/README.md.
 
+- **NFT = sealed boxes, tested on a local chain.** User decisions applied:
+  claiming is OPTIONAL, costs **0.01 ETH** (`claimFee`, adjustable +
+  `withdraw`), and attributes are a SURPRISE — the mint stores only a
+  commitment hash (nothing readable on-chain), `open()` reveals with the
+  server-held salt (commit-reveal). 5 forge tests green. Full e2e verified
+  on anvil: deploy -> `tools/sign-voucher.mjs` (viem, the production signer
+  path) -> player claims for 0.01 ETH -> sealed reads empty -> open reveals
+  shiny Nvidrake. viem is now a dependency of stockmonsters-mmo.
+- **Character selector research running**: an Opus agent is dissecting
+  WorkAdventure's Woka system (ready-made picker + layered "make your
+  character" builder, asset licenses, other-players-sync) into
+  `docs/woka-character-selector.md`.
+- **`Ultimate Gen 4 Overworlds Pack/`** (sibling folder): 495 PNGs of Gen-4
+  style overworld sprites usable for NPCs/characters — CREDIT REQUIRED
+  (PurpleZaffre per included txt). Candidate source for the NPC charsets and
+  the character selector's ready-made options.
+
 ### Next steps (in order, user-confirmed)
 
 1. Deploy to the BitLaunch box with the lord-fishu pattern (bootstrap/sync/Caddy).

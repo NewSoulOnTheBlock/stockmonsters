@@ -84,19 +84,28 @@ contract StockmonstersNFT {
     uint256 public totalSupply;
 
     // --- server-signed mint vouchers (EIP-712) ------------------------
+    // Claiming is OPTIONAL and SEALED: the voucher carries only a
+    // commitment hash of the monster's attributes, so nothing is spoiled
+    // on-chain. The owner opens the box later with the server-provided
+    // reveal payload (attributes + salt) — a commit-reveal scheme.
     address public gameSigner;
     address public owner;
     string public baseTokenURI;
+    uint256 public claimFee = 0.01 ether;
     mapping(bytes32 => bool) public voucherUsed;
+    mapping(uint256 => bytes32) public attrCommit; // sealed until opened
+    mapping(uint256 => bool) public opened;
 
     bytes32 private constant DOMAIN_TYPEHASH =
         keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
     bytes32 private constant VOUCHER_TYPEHASH = keccak256(
-        "MintVoucher(address player,uint16 dexId,uint8 level,uint8[6] ivs,uint8 natureId,bool shiny,uint64 caughtAt,bytes32 uid)"
+        "MintVoucher(address player,bytes32 attrCommit,bytes32 uid)"
     );
 
-    event Minted(address indexed player, uint256 indexed tokenId, uint16 dexId, bool shiny, bytes32 uid);
+    event Minted(address indexed player, uint256 indexed tokenId, bytes32 uid);
+    event Opened(uint256 indexed tokenId, uint16 dexId, bool shiny);
     event GameSignerChanged(address indexed signer);
+    event ClaimFeeChanged(uint256 fee);
 
     constructor(address _gameSigner, string memory _baseTokenURI) {
         owner = msg.sender;
@@ -118,29 +127,36 @@ contract StockmonstersNFT {
         baseTokenURI = uri;
     }
 
+    function setClaimFee(uint256 fee) external onlyOwner {
+        claimFee = fee;
+        emit ClaimFeeChanged(fee);
+    }
+
+    function withdraw(address payable to) external onlyOwner {
+        (bool ok, ) = to.call{value: address(this).balance}("");
+        require(ok, "WITHDRAW_FAILED");
+    }
+
     function _domainSeparator() private view returns (bytes32) {
         return keccak256(abi.encode(
             DOMAIN_TYPEHASH, keccak256(bytes(name)), block.chainid, address(this)
         ));
     }
 
-    /// @notice Mint a caught Stockmonster using a voucher signed by the game
-    ///         server. `uid` is the server's unique id for the catch — each
-    ///         voucher can be redeemed once, by the player it names.
+    /// @notice Claim a caught Stockmonster as a SEALED box. Optional — the
+    ///         creature stays playable in-game either way. Costs `claimFee`.
+    ///         `attrCommitment` = keccak256(abi.encode(dexId, level, ivs,
+    ///         natureId, shiny, caughtAt, salt)) computed by the server;
+    ///         nothing about the monster is readable on-chain until opened.
     function mintCaught(
-        uint16 dexId,
-        uint8 level,
-        uint8[6] calldata ivs,
-        uint8 natureId,
-        bool shiny,
-        uint64 caughtAt,
+        bytes32 attrCommitment,
         bytes32 uid,
         bytes calldata signature
-    ) external returns (uint256 tokenId) {
+    ) external payable returns (uint256 tokenId) {
+        require(msg.value == claimFee, "WRONG_FEE");
         require(!voucherUsed[uid], "VOUCHER_USED");
         bytes32 structHash = keccak256(abi.encode(
-            VOUCHER_TYPEHASH, msg.sender, dexId, level,
-            keccak256(abi.encodePacked(ivs)), natureId, shiny, caughtAt, uid
+            VOUCHER_TYPEHASH, msg.sender, attrCommitment, uid
         ));
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", _domainSeparator(), structHash));
         require(_recover(digest, signature) == gameSigner, "BAD_SIGNATURE");
@@ -149,12 +165,36 @@ contract StockmonstersNFT {
         tokenId = ++totalSupply;
         _ownerOf[tokenId] = msg.sender;
         _balanceOf[msg.sender]++;
+        attrCommit[tokenId] = attrCommitment;
+        emit Transfer(address(0), msg.sender, tokenId);
+        emit Minted(msg.sender, tokenId, uid);
+    }
+
+    /// @notice Open the sealed box: prove the attributes against the stored
+    ///         commitment. Only the current owner may open; the server hands
+    ///         the player the reveal payload (attributes + salt) on demand.
+    function open(
+        uint256 tokenId,
+        uint16 dexId,
+        uint8 level,
+        uint8[6] calldata ivs,
+        uint8 natureId,
+        bool shiny,
+        uint64 caughtAt,
+        bytes32 salt
+    ) external {
+        require(msg.sender == ownerOf(tokenId), "NOT_OWNER");
+        require(!opened[tokenId], "ALREADY_OPENED");
+        bytes32 commit = keccak256(abi.encode(
+            dexId, level, keccak256(abi.encodePacked(ivs)), natureId, shiny, caughtAt, salt
+        ));
+        require(commit == attrCommit[tokenId], "BAD_REVEAL");
+        opened[tokenId] = true;
         monsters[tokenId] = Monster(
             dexId, level, ivs[0], ivs[1], ivs[2], ivs[3], ivs[4], ivs[5],
             natureId, shiny, caughtAt
         );
-        emit Transfer(address(0), msg.sender, tokenId);
-        emit Minted(msg.sender, tokenId, dexId, shiny, uid);
+        emit Opened(tokenId, dexId, shiny);
     }
 
     function tokenURI(uint256 tokenId) external view returns (string memory) {
