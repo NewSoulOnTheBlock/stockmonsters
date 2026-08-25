@@ -348,6 +348,7 @@ const NFT_ABI = parseAbi([
   'function ownerOf(uint256 tokenId) view returns (address)',
   'function opened(uint256 tokenId) view returns (bool)',
 ])
+const MINTED_EVENT = NFT_ABI.find((e) => e.type === 'event' && e.name === 'Minted')
 
 /**
  * @param {object} [opts]
@@ -651,11 +652,19 @@ export function createBoxStore(opts = {}) {
    * a sealed box that could never be opened by its buyer would be worthless.
    */
   async function reveal({ walletId, address, uid, tokenId }) {
-    const res = await q(
+    const find = async () => (await q(
       `SELECT * FROM boxes WHERE ${uid ? 'uid = $1' : 'token_id = $1::numeric AND contract = $2'}`,
       uid ? [uid] : [String(tokenId), (contract ?? '').toLowerCase()],
-    )
-    const box = res.rows[0]
+    )).rows[0]
+
+    let box = await find()
+    // A box bought on the marketplace was never in THIS wallet's list, so the
+    // row has no token_id yet — nothing has ever synced it. Ask the chain which
+    // uid that token came from rather than 404ing at the new owner.
+    if (!box && tokenId && chain) {
+      await linkToken(tokenId)
+      box = await find()
+    }
     if (!box) throw new BoxError(404, 'no-such-box', 'No such box.')
 
     let allowed = false
@@ -711,6 +720,34 @@ export function createBoxStore(opts = {}) {
     }
   }
 
+  /**
+   * Bind one tokenId to the uid it was minted from, straight from the Minted
+   * event. tokenId is an indexed topic, so this is a single cheap filter and
+   * never trusts anything the caller said.
+   */
+  async function linkToken(tokenId) {
+    let logs = []
+    try {
+      logs = await chain.getLogs({
+        address: contract, event: MINTED_EVENT, args: { tokenId: BigInt(tokenId) },
+        fromBlock, toBlock: 'latest',
+      })
+    } catch (err) {
+      log.warn?.(`[boxes] token lookup skipped (${err.shortMessage ?? err.message})`)
+      return
+    }
+    const l = logs[0]
+    if (!l) return
+    await q(
+      `UPDATE boxes SET token_id = $2::numeric, mint_tx = $3,
+                        status = CASE WHEN status = 'issued' THEN 'minted' ELSE status END,
+                        updated_at = now()
+        WHERE uid = $1 AND token_id IS NULL`,
+      [String(l.args.uid).toLowerCase(), String(l.args.tokenId), l.transactionHash],
+    )
+    counters.synced++
+  }
+
   async function seedFor(commitId) {
     if (!commitId) return null
     const r = await q('SELECT server_seed FROM box_seed_commits WHERE commit_id = $1', [commitId])
@@ -740,32 +777,46 @@ export function createBoxStore(opts = {}) {
       `SELECT uid FROM boxes WHERE wallet_id = $1 AND token_id IS NULL AND status <> 'expired'`,
       [walletId],
     )
-    if (!pending.rowCount) return
-    const want = new Set(pending.rows.map((r) => r.uid.toLowerCase()))
-    let logs = []
-    try {
-      logs = await chain.getLogs({
-        address: contract,
-        event: NFT_ABI.find((e) => e.type === 'event' && e.name === 'Minted'),
-        args: { player: address },
-        fromBlock,
-        toBlock: 'latest',
-      })
-    } catch (err) {
-      log.warn?.(`[boxes] mint sync skipped (${err.shortMessage ?? err.message})`)
-      return
-    }
-    for (const l of logs) {
-      const uid = String(l.args.uid).toLowerCase()
-      if (!want.has(uid)) continue
-      await q(
-        `UPDATE boxes SET token_id = $2::numeric, mint_tx = $3,
-                          status = CASE WHEN status = 'issued' THEN 'minted' ELSE status END,
-                          updated_at = now()
-          WHERE uid = $1 AND token_id IS NULL`,
-        [uid, String(l.args.tokenId), l.transactionHash],
-      )
-      counters.synced++
+    // No early return when this is empty: boxes that already have a token id
+    // still need their OPENED state checked below, and forgetting that is how
+    // a box that was opened on chain sat at "revealed" forever.
+    if (pending.rowCount) {
+      const want = new Set(pending.rows.map((r) => r.uid.toLowerCase()))
+      let logs = []
+      try {
+        logs = await chain.getLogs({
+          address: contract,
+          event: MINTED_EVENT,
+          args: { player: address },
+          fromBlock,
+          toBlock: 'latest',
+        })
+      } catch (err) {
+        log.warn?.(`[boxes] mint sync skipped (${err.shortMessage ?? err.message})`)
+        logs = []
+      }
+      for (const l of logs) {
+        const uid = String(l.args.uid).toLowerCase()
+        if (!want.has(uid)) continue
+        try {
+          await q(
+            `UPDATE boxes SET token_id = $2::numeric, mint_tx = $3,
+                              status = CASE WHEN status = 'issued' THEN 'minted' ELSE status END,
+                              updated_at = now()
+              WHERE uid = $1 AND token_id IS NULL`,
+            [uid, String(l.args.tokenId), l.transactionHash],
+          )
+          counters.synced++
+        } catch (err) {
+          // (contract, token_id) is unique. A clash means the table already
+          // claims that token for a different uid — in production impossible,
+          // in development the everyday result of redeploying to the same
+          // address on a fresh anvil. One box must not block the other nine.
+          if (err?.code !== '23505') throw err
+          log.warn?.(`[boxes] ${uid}: token ${l.args.tokenId} on ${contract} is already claimed by `
+            + 'another box row (stale chain state?) — left unlinked')
+        }
+      }
     }
     // And find out which of those have since been opened on chain.
     const minted = await q(
@@ -791,7 +842,12 @@ export function createBoxStore(opts = {}) {
   /** The wallet's boxes. Sealed rows NEVER carry their contents. */
   async function listBoxes({ walletId, address }) {
     await expireStale(walletId)
-    await syncMints(walletId, address).catch(() => {})
+    // A sync failure must not hide the boxes we already know about — but it
+    // must not be silent either, or a token that never gets linked looks like
+    // a box that was never bought.
+    await syncMints(walletId, address).catch((err) => {
+      log.warn?.(`[boxes] mint sync failed for ${walletId}: ${err.message}`)
+    })
     const res = await q(
       `SELECT uid, tier, band, status, token_id, fee_wei, deadline, attr_commit, signature,
               server_seed_hash, client_seed, created_at, opened_at,

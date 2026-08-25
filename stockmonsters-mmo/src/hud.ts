@@ -461,6 +461,7 @@ export function mountHud(engine?: EngineLike, socket?: SocketLike): HudApi {
     { id: 'market', icon: 'market', label: 'MARKET', hotkey: '4', onSelect: () => openMarketplace() },
     { id: 'quests', icon: 'quest', label: 'QUESTS', hotkey: '5' },
     { id: 'map', icon: 'map', label: 'MAP', hotkey: '6' },
+    { id: 'boxes', icon: 'box', label: 'BOXES', hotkey: '7' },
   ]
   const barWrap = el('div', { class: 'hud-cluster hud-bar-wrap' })
   const bar = el('div', { class: 'hud-bar smui-panel', role: 'toolbar', 'aria-label': 'Actions' })

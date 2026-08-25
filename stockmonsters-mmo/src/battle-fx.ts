@@ -227,10 +227,9 @@ export const FX_CSS = `
   font-weight: 700; font-size: 30px; line-height: 1;
   letter-spacing: .04em;
   color: ${C.text};
-  text-shadow:
-    2px 0 ${C.shadow}, -2px 0 ${C.shadow}, 0 2px ${C.shadow}, 0 -2px ${C.shadow},
-    2px 2px ${C.shadow}, -2px 2px ${C.shadow}, 2px -2px ${C.shadow}, -2px -2px ${C.shadow},
-    4px 5px rgba(9,7,15,.75);
+  -webkit-text-stroke: 5px ${C.shadow};
+  paint-order: stroke fill;
+  text-shadow: 4px 5px rgba(9,7,15,.75);
   animation: bs-rise 1s forwards;
 }
 #battle-scene .bs-num-crit {
@@ -295,10 +294,10 @@ export const FX_CSS = `
 #battle-scene .bs-puff-label {
   position: absolute; left: 0; top: -14px;
   transform: translate(-50%, 0);
-  font-weight: 700; font-size: 28px; letter-spacing: .16em;
-  text-shadow:
-    2px 0 ${C.shadow}, -2px 0 ${C.shadow}, 0 2px ${C.shadow}, 0 -2px ${C.shadow},
-    2px 2px ${C.shadow}, -2px 2px ${C.shadow}, 3px 4px rgba(9,7,15,.8);
+  font-weight: 700; font-size: 30px; letter-spacing: .16em;
+  -webkit-text-stroke: 5px ${C.shadow};
+  paint-order: stroke fill;
+  text-shadow: 3px 4px rgba(9,7,15,.8);
   animation: bs-puff-label .95s steps(4, jump-none) forwards;
 }
 @keyframes bs-puff-label {
@@ -310,9 +309,9 @@ export const FX_CSS = `
 }
 #battle-scene .bs-puff > i {
   position: absolute; left: 0; top: 0;
-  width: 7px; height: 7px;
-  box-shadow: 0 0 0 2px ${C.shadow};
-  animation: bs-puff-dot .6s steps(4, jump-none) both;
+  width: 11px; height: 11px;
+  box-shadow: 0 0 0 3px ${C.shadow};
+  animation: bs-puff-dot .75s steps(5, jump-none) both;
 }
 @keyframes bs-puff-dot {
   0%   { opacity: 1; transform: translate(-50%, -50%) scale(.4); }
@@ -322,12 +321,15 @@ export const FX_CSS = `
 /* ---- stat stage arrows --------------------------------------------------- */
 #battle-scene .bs-stage { position: absolute; left: 0; top: 0; }
 #battle-scene .bs-stage-label {
-  position: absolute; left: 0; top: -6px;
+  position: absolute; left: 0; top: -48px;
   transform: translate(-50%, 0);
   white-space: nowrap;
+  padding: 4px 9px;
   font-weight: 700; font-size: 15px; letter-spacing: .12em;
   color: var(--sc);
-  text-shadow: 2px 0 ${C.shadow}, -2px 0 ${C.shadow}, 0 2px ${C.shadow}, 0 -2px ${C.shadow}, 3px 3px ${C.shadow};
+  background: ${C.dark};
+  border: 3px solid var(--sc);
+  box-shadow: 4px 4px 0 ${C.shadow};
   animation: bs-stage-label .95s steps(4, jump-none) forwards;
 }
 @keyframes bs-stage-label {
@@ -395,7 +397,7 @@ export const FX_CSS = `
   55%  { filter: none; }
   100% { filter: none; }
 }
-#battle-scene .bs-flashwrap.bs-tinting { animation: bs-tint .42s steps(1, jump-end) 4; }
+#battle-scene .bs-flashwrap.bs-tinting { animation: bs-tint .4s steps(1, jump-end) 3; }
 @keyframes bs-tint {
   0%   { filter: drop-shadow(0 0 0 var(--tint)) drop-shadow(0 0 6px var(--tint)) drop-shadow(0 0 6px var(--tint)) drop-shadow(0 0 6px var(--tint)); }
   50%  { filter: drop-shadow(0 0 0 var(--tint)) drop-shadow(0 0 3px var(--tint)); }

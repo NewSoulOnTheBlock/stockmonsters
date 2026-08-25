@@ -427,7 +427,9 @@ export function mountBattleScene(socket: { on: (type: string, cb: (data: any) =>
             case 'fainted': {
                 setHp(k, 0, animate)
                 sl.classList.add('fainted')
-                if (animate) banner(host, 'FAINTED', 'none')
+                // tier 1: a KO always follows a damage event, whose
+                // effectiveness plate is already sitting at tier 0
+                if (animate) banner(host, 'FAINTED', 'none', 1)
                 break
             }
         }

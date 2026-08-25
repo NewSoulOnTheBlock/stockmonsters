@@ -9,6 +9,7 @@ import { mountMarketplace, openMarketplace } from "./marketplace";
 import { closeCharacterDesigner, isCharacterDesignerOpen } from "./character-designer";
 import { mountMapBrowser, openMapBrowser } from "./map-browser";
 import { mountExitHints } from "./exit-hints";
+import { mountBoxShop, openBoxShop } from "./box-shop";
 
 /*
  * Everything the player sees on top of the map: zoom, HUD, chat, battle scene,
@@ -141,11 +142,14 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
   mountMarketplace(engine, socket);
   mountMapBrowser(engine, socket);
   mountExitHints(engine);
+  mountBoxShop(engine, socket);
 
   // The title screen's NFT/settings buttons enter the world first and then ask
   // for a panel; the in-game window is the single owner of each.
   window.addEventListener("sm:open", (e) => {
-    if ((e as CustomEvent).detail === "marketplace") openMarketplace();
+    const what = (e as CustomEvent).detail;
+    if (what === "marketplace") openMarketplace();
+    if (what === "boxes") openBoxShop();
   });
 
   // The action bar only announced itself before — every button but MARKET did
@@ -157,6 +161,7 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
     if (!id) return;
     if (id === "market") { openMarketplace(); return; }
     if (id === "map") { openMapBrowser(); return; }
+    if (id === "boxes") { openBoxShop(); return; }
     if (id === "quit") { engine?.processAction?.("hud:quit", {}); return; }
     if (id === "character") { window.dispatchEvent(new CustomEvent("sm:open-designer")); return; }
     engine?.processAction?.("hud:" + id, {});

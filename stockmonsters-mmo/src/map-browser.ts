@@ -324,7 +324,8 @@ export function mountMapBrowser(engine?: EngineLike, socket?: SocketLike): MapBr
     if (!Array.isArray(d?.visited)) return
     visited = new Set(d.visited.filter((v: unknown): v is string => typeof v === 'string'))
     try { localStorage.setItem('sm-visited', JSON.stringify([...visited])) } catch {}
-    render()
+    // repaint so newly-unlocked places stop reading as undiscovered
+    refresh()
   })
   ensureUiKit()
   injectStyle('sm-mapbrowser-css', CSS)

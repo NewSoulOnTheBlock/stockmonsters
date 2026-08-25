@@ -232,8 +232,8 @@ const CSS = `
 #sm-boxshop .bx-tab .n { opacity: .72; margin-left: 6px; }
 
 #sm-boxshop .bx-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-#sm-boxshop .bx-pane { flex: 1 1 auto; min-height: 0; padding: 16px; display: none; }
-#sm-boxshop .bx-pane.is-on { display: block; }
+#sm-boxshop .bx-pane { flex: 1 1 auto; min-height: 0; padding: 16px; display: none; overflow-y: auto; }
+#sm-boxshop .bx-pane.is-on { display: flex; flex-direction: column; }
 
 /* --- notice bar ---------------------------------------------------------- */
 #sm-boxshop .bx-notice {
@@ -252,6 +252,9 @@ const CSS = `
 #sm-boxshop .bx-tiers {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
   align-items: stretch;
+  /* Fill the pane: three short cards floating in a tall empty window read as
+   * a layout bug rather than a shop. The art panel absorbs the slack. */
+  flex: 1 1 auto; min-height: 0;
 }
 #sm-boxshop .bx-tier {
   --accent: ${TIER_ACCENT.standard};
@@ -270,8 +273,10 @@ const CSS = `
   text-shadow: 2px 2px 0 var(--sm-shadow);
 }
 #sm-boxshop .bx-tier .head .spacer { flex: 1 1 auto; }
+/* A fixed height, not an aspect ratio: three cards must fit the window at any
+ * width, and a square art panel at 1/3 of 960px is taller than the pane. */
 #sm-boxshop .bx-art {
-  aspect-ratio: 1 / 1; position: relative;
+  flex: 1 1 auto; min-height: 132px; position: relative;
   background:
     radial-gradient(circle at 50% 62%, rgba(246,193,119,.15), transparent 62%),
     linear-gradient(#1d1834, #14101f);
@@ -289,11 +294,11 @@ const CSS = `
 #sm-boxshop .bx-sealed {
   --c-lid: #7a5f38; --c-body: #6b5330; --c-dark: #3a2c18;
   --c-light: #8a6b3d; --c-tape: #f6c177; --c-tape2: #d9a458;
-  width: 76%; height: 76%; position: relative;
+  width: 96px; height: 96px; position: relative;
   background: linear-gradient(var(--c-lid) 0 34%, var(--c-body) 34% 100%);
   border: 3px solid var(--c-dark);
   box-shadow: inset 0 0 0 3px var(--c-light);
-  display: flex; align-items: flex-start; justify-content: center; padding-top: 14%;
+  display: flex; align-items: flex-start; justify-content: center; padding-top: 12px;
 }
 #sm-boxshop .bx-sealed.tier-prime {
   --c-lid: #7c8798; --c-body: #68727f; --c-dark: #232a33;
@@ -359,7 +364,7 @@ const CSS = `
 #sm-boxshop .bx-fair input.smui-input { width: 150px; padding: 5px 7px; font-size: 10px; }
 
 /* --- MY BOXES ------------------------------------------------------------ */
-#sm-boxshop .bx-list { height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+#sm-boxshop .bx-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
 #sm-boxshop .bx-row {
   display: flex; align-items: center; gap: 12px; padding: 10px;
   background: var(--sm-surface-alt); border: 3px solid var(--sm-border);
@@ -371,12 +376,20 @@ const CSS = `
   border: 2px solid rgba(246,193,119,.42);
   display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
-#sm-boxshop .bx-row .thumb .bx-sealed span { font-size: 16px; }
+#sm-boxshop .bx-row .thumb .bx-sealed { width: 48px; height: 48px; padding-top: 6px; }
+#sm-boxshop .bx-row .thumb .bx-sealed span { font-size: 14px; }
 #sm-boxshop .bx-row .thumb img { width: 88%; height: 88%; object-fit: contain; image-rendering: pixelated; }
 #sm-boxshop .bx-row .meta { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 #sm-boxshop .bx-row .meta .l1 { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; font-size: 12px; font-weight: 700; }
 #sm-boxshop .bx-row .meta .l2 { display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
   font-size: 9px; letter-spacing: .06em; color: var(--sm-muted); }
+#sm-boxshop .bx-row .cost {
+  flex: 0 0 auto; display: flex; flex-direction: column; gap: 3px;
+  align-items: flex-end; text-align: right;
+  border-right: 2px solid rgba(246,193,119,.24); padding-right: 14px; margin-right: 2px;
+}
+#sm-boxshop .bx-row .cost .v { font-size: 14px; font-weight: 700; color: var(--sm-border); letter-spacing: .04em; }
+#sm-boxshop .bx-row .cost .k { font-size: 9px; letter-spacing: .12em; color: var(--sm-muted); }
 #sm-boxshop .bx-row .act { flex: 0 0 auto; display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
 #sm-boxshop .bx-row .act .smui-btn { min-width: 104px; font-size: 10px; padding: 7px 10px; }
 #sm-boxshop .bx-type {
@@ -394,8 +407,10 @@ const CSS = `
   display: none; align-items: center; justify-content: center; padding: 20px;
 }
 #sm-boxshop .bx-modal.open { display: flex; }
+/* 560px matches the exchange's purchase sheet, and is the width at which a
+ * 0x-prefixed 32-byte hash fits the proof panel on one line. */
 #sm-boxshop .bx-modal .sheet {
-  width: min(520px, 100%); max-height: 100%;
+  width: min(560px, 100%); max-height: 100%;
   display: flex; flex-direction: column;
   background: var(--sm-surface); border: 3px solid var(--sm-border);
   box-shadow: 6px 6px 0 var(--sm-shadow); overflow: hidden;
@@ -426,7 +441,9 @@ const CSS = `
               linear-gradient(#1d1834, #14101f);
   border: 3px solid var(--sm-border);
 }
-#sm-boxshop .bx-stage .bx-sealed span { font-size: 40px; }
+#sm-boxshop .bx-stage .bx-sealed { width: 132px; height: 132px; padding-top: 18px; }
+#sm-boxshop .bx-stage .bx-sealed span { font-size: 36px; }
+#sm-boxshop .bx-stage .smui-badge { position: absolute; top: 7px; right: 7px; }
 #sm-boxshop .bx-steps { width: 100%; border: 2px solid rgba(246,193,119,.32); }
 #sm-boxshop .bx-steps .s {
   display: flex; align-items: center; gap: 9px; padding: 6px 9px;
@@ -739,9 +756,14 @@ export function mountBoxShop(
     listBox.textContent = ''
     mineCount.textContent = boxes.length ? String(boxes.length) : ''
     if (!wallet()) {
+      // Say so plainly rather than showing an empty list that looks like a
+      // wallet with nothing in it.
+      const connect = el('button', { class: 'smui-btn is-primary', type: 'button', text: 'Connect wallet' })
+      connect.addEventListener('click', () => void connectWallet())
       listBox.appendChild(el('div', { class: 'bx-empty' }, [
         el('div', { text: 'NO WALLET CONNECTED' }),
-        el('div', { text: 'Sign in with your wallet to see the boxes you own.' }),
+        el('div', { text: 'A box belongs to a wallet, so there is nothing to show until you sign in.' }),
+        el('div', { style: 'margin-top:14px' }, [connect]),
       ]))
       return
     }
@@ -789,6 +811,11 @@ export function mountBoxShop(
     }
     l2.appendChild(el('span', { text: b.tokenId ? `TOKEN #${b.tokenId}` : 'NOT MINTED' }))
 
+    const paid = el('div', { class: 'cost' }, [
+      el('span', { class: 'v', text: `${formatEth(b.feeWei)} ETH` }),
+      el('span', { class: 'k', text: costCaption(b) }),
+    ])
+
     const act = el('div', { class: 'act' })
     if (b.status === 'issued' && !b.tokenId) {
       const mintBtn = el('button', { class: 'smui-btn is-primary', type: 'button', text: 'Mint' })
@@ -810,7 +837,19 @@ export function mountBoxShop(
       act.appendChild(seeBtn)
     }
 
-    return el('div', { class: 'bx-row' }, [thumb, el('div', { class: 'meta' }, [l1, l2]), act])
+    return el('div', { class: 'bx-row' }, [thumb, el('div', { class: 'meta' }, [l1, l2]), paid, act])
+  }
+
+  /** What the price column is telling you, which differs by lifecycle stage. */
+  function costCaption(b: BoxRow): string {
+    if (b.status === 'issued' && !b.tokenId) {
+      const left = b.deadline * 1000 - Date.now()
+      if (left <= 0) return 'VOUCHER EXPIRED'
+      const mins = Math.floor(left / 60_000)
+      return mins >= 1 ? `PAY WITHIN ${mins}M` : `PAY WITHIN ${Math.floor(left / 1000)}S`
+    }
+    if (b.status === 'expired') return 'NEVER MINTED'
+    return 'PAID'
   }
 
   function setTab(next: 'buy' | 'mine') {
@@ -857,9 +896,14 @@ export function mountBoxShop(
       el('span', { class: 'spacer' }), el('span', { class: 'note', text: '' }),
     ]))
     const box = el('div', { class: 'bx-steps' }, nodes)
+    // Notes are cleared on every transition: a step that has finished must not
+    // still read "waiting for you…", because someone reading the screenshot
+    // (or the player) would think it is still waiting.
+    const clearNotes = () => nodes.forEach((n) => { (n.lastChild as HTMLElement).textContent = '' })
     return {
       box,
       at(i: number, note = '') {
+        clearNotes()
         nodes.forEach((n, j) => {
           n.classList.toggle('is-done', j < i)
           n.classList.toggle('is-now', j === i)
@@ -868,10 +912,12 @@ export function mountBoxShop(
         ;(nodes[i]?.lastChild as HTMLElement).textContent = note
       },
       done(note = '') {
+        clearNotes()
         nodes.forEach((n) => { n.classList.add('is-done'); n.classList.remove('is-now', 'is-fail') })
         if (note) (nodes[nodes.length - 1].lastChild as HTMLElement).textContent = note
       },
       fail(i: number, note: string) {
+        clearNotes()
         nodes[i]?.classList.remove('is-now', 'is-done')
         nodes[i]?.classList.add('is-fail')
         ;(nodes[i]?.lastChild as HTMLElement).textContent = note
@@ -1167,6 +1213,12 @@ export function mountBoxShop(
 
   function refresh() {
     syncWalletChip()
+    if (!wallet()) {
+      showNotice('No wallet connected — you can browse the odds, but buying needs a signed-in wallet.', 'info',
+        { label: 'Connect', run: () => void connectWallet() })
+    } else {
+      hideNotice()
+    }
     void loadQuote()
     void loadBoxes()
   }
@@ -1177,13 +1229,6 @@ export function mountBoxShop(
     if (root.classList.contains('open')) return
     root.classList.add('open')
     releaseWindow = pushLayer(() => close())
-    syncWalletChip()
-    if (!wallet()) {
-      showNotice('No wallet connected — you can browse the odds, but buying needs a signed-in wallet.', 'info',
-        { label: 'Connect', run: () => void connectWallet() })
-    } else {
-      hideNotice()
-    }
     refresh()
     setTimeout(() => (tab === 'buy' ? buyTab : mineTab).focus(), 0)
   }

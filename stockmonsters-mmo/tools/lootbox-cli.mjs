@@ -38,10 +38,12 @@ import {
 
 const args = process.argv.slice(2)
 const cmd = args[0]
+/** Accepts both `--tier apex` and the short `-n 200000` form. */
 const flag = (name, fallback = null) => {
-  const i = args.indexOf(`--${name}`)
-  if (i >= 0 && args[i + 1] && !args[i + 1].startsWith('--')) return args[i + 1]
-  return args.includes(`--${name}`) ? true : fallback
+  const i = args.findIndex((a) => a === `--${name}` || a === `-${name}`)
+  if (i < 0) return fallback
+  const next = args[i + 1]
+  return next && !next.startsWith('-') ? next : true
 }
 const num = (name, fallback) => Number(flag(name, fallback))
 const die = (msg) => { console.error(msg); process.exit(1) }

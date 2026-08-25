@@ -35,6 +35,7 @@ import assert from 'node:assert/strict'
 import http from 'node:http'
 import { spawn } from 'node:child_process'
 import { readFileSync } from 'node:fs'
+import { randomBytes } from 'node:crypto'
 import { setTimeout as sleep } from 'node:timers/promises'
 import pg from 'pg'
 import {
@@ -139,9 +140,25 @@ async function startAnvil() {
   throw new Error('anvil did not come up')
 }
 
+/**
+ * Deploy from a RANDOM, freshly funded key rather than anvil's account 0.
+ *
+ * A contract address is deployer + nonce, so redeploying from account 0 lands
+ * on the same address every run — and `boxes_token_idx` is UNIQUE on
+ * (contract, token_id), so run #2's token #1 would collide with run #1's. That
+ * index is right (an address+id pair really is unique on a real chain); it is
+ * the test that has to stop pretending two runs are the same chain.
+ */
 async function deployNft() {
+  const deployerPk = '0x' + randomBytes(32).toString('hex')
+  const deployer = privateKeyToAccount(deployerPk)
+  const fund = await walletOf(0).sendTransaction({
+    to: deployer.address, value: 10n ** 18n, chain: null,
+  })
+  await pub.waitForTransactionReceipt({ hash: fund })
+
   const artifact = JSON.parse(readFileSync(NFT_ARTIFACT, 'utf8'))
-  const hash = await walletOf(0).deployContract({
+  const hash = await createWalletClient({ account: deployer, transport: viemHttp(RPC) }).deployContract({
     abi: artifact.abi,
     bytecode: artifact.bytecode.object,
     args: [privateKeyToAccount(SIGNER_PK).address, 'ipfs://test/', 'ipfs://sealed'],
