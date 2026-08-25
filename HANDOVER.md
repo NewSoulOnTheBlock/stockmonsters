@@ -452,6 +452,58 @@ localStorage on the client and re-applied over the wire.
   `.title-btn[hidden] { display: none }`); and the name modal opened OVER the
   title art (now waits for the curtain to be removed).
 
+### In-game HUD + NFT marketplace UI, and hardened contracts (session 3)
+
+**UI** — `src/hud.ts`, `src/marketplace.ts`, `src/ui-kit.ts` (shared pixel-window
+vocabulary: palette, z-layers, ESC stack, drag, key guards, wei<->ETH).
+HUD: top-left avatar tile (reads the player's chosen character sheet frame) +
+name + XP + currency chips; top-right gear + banner slots; bottom action bar
+(BAG/DEX/TEAM/MARKET/QUESTS/MAP, hotkeys 1-6) anchored clear of the chat corner.
+Marketplace: draggable window, tabs All/Sealed/Opened/My Listings, filter
+sidebar (18 types, rarity), search, card grid, purchase confirm, SELL flow,
+session-transactions strip. **Sealed listings render a crate, never creature
+art** — the seal is the product, so the UI must not leak it either.
+Both hide/dim while a game dialog is open (they sit below `.rpg-ui-dialog`).
+Verified inside the real game: HUD mounts, hotkey 4 opens the market,
+movement still works, no console errors.
+
+**Data seam**: `MarketSource { listItems, getItem, buy, list, cancel, myItems }`
+with a `demoMarketSource()` built from dex.json. Swap in a chain-backed source
+when the order book exists. ⚠️ `marketplace.ts` was written against an assumed
+order shape (`maker/nonce/expiry`, `cancelNonce`); the CONTRACT that landed uses
+`seller/salt/deadline/epoch`, `cancelOrder(order)` and `incrementEpoch()`.
+`fillOrder(order, signature)` with `value: order.price` matches. Fix the field
+names when wiring the real source.
+
+**Contracts** — `StockmonstersNFT.sol` rewritten, `StockmonstersMarket.sol` new,
+**81 forge tests passing**. Highlights:
+- Real ERC-721 at last: both `safeTransferFrom` overloads + receiver check. The
+  old contract advertised 0x80ac58cd without them, so every marketplace and
+  bridge would have reverted against us.
+- Two-step ownership, ERC-2981 royalties (capped), voucher now binds `fee` and
+  `deadline` so `setClaimFee` can neither brick nor front-run a pending mint.
+- Dual-state on-chain `tokenURI` (base64, no metadata server): a generic box
+  document while sealed, full attributes once opened, stats computed on-chain
+  from stored IVs using OUR psdk formulas. Needs `registerSpecies` batches —
+  `tools/register-species.mjs` derives them from dex.json and refuses to run on
+  a mismatch.
+- **`optimizer = true` in foundry.toml is now REQUIRED** — unoptimised, the
+  renderer puts the contract ~11 KB over the EIP-170 limit. A test guards it.
+- Market: off-chain EIP-712 asks, on-chain settlement, no escrow (escrow would
+  stop a seller opening their own sealed box). The crux is
+  `require(opened(tokenId) == !order.requireSealed)` plus a pinned `attrCommit`,
+  so a seller cannot open the box and still fill a sealed-price order.
+- **The salt IS the seal**: the non-salt committed fields carry only ~2^40 joint
+  entropy, grindable on a laptop. If anyone ever "simplifies" the salt to a
+  counter or keccak(uid), every box becomes readable offline with no on-chain
+  signal. Documented in NatSpec/README/DESIGN; `tools/voucher-lib.mjs` is the
+  single signing path and uses 32 random bytes.
+- JS<->Solidity cross-check tests: the production signer emits vectors that a
+  forge test actually mints and opens with. A divergence there would have made
+  every NFT minted in between permanently unopenable.
+- Not built: bids/offers (need WETH or escrow), EIP-1271 contract wallets,
+  auctions, bundles, the order-book service.
+
 ### Requested, not yet built (user, 2026-08-25 evening)
 
 - **In-game minigames** once the maps are done — small playable activities

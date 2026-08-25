@@ -28,7 +28,7 @@
  */
 
 import {
-  ensureUiKit, injectStyle, el, escapeHtml, guardKeys, pushLayer, Z,
+  ensureUiKit, injectStyle, el, escapeHtml, guardKeys, pushLayer, watchGameDialog, Z,
 } from './ui-kit'
 import { openMarketplace } from './marketplace'
 
@@ -90,20 +90,84 @@ export type IconName =
   | 'bag' | 'dex' | 'team' | 'market' | 'quest' | 'map' | 'gear'
   | 'coin' | 'gem' | 'box' | 'star' | 'bolt'
 
-const ICONS: Record<IconName, string> = {
-  bag: '<path d="M4 6h8v8H4z"/><path d="M6 3h4v3H8.5V4.5h-1V6H6z"/><path d="M6.5 8h3v1.5h-3z" opacity=".45"/>',
-  dex: '<path d="M3 3h9v10H3z"/><path d="M4.5 4.5h6V6h-6zM4.5 7.5h6V9h-6z" opacity=".45"/><path d="M12 3h1v10h-1z" opacity=".7"/>',
-  team: '<path d="M4 9h8v4H4z"/><path d="M3 5h2v3H3zM6 3h2v3H6zM9 3h2v3H9zM12 5h2v3h-2z"/>',
-  market: '<path d="M2 3h3v1.5H3.5L5 10h8v1.5H4L2.4 4.5H2z"/><path d="M5.5 5h9l-1 3.5h-7z"/><path d="M5 12.5h2V14H5zM10 12.5h2V14h-2z"/>',
-  quest: '<path d="M4 2h9v12H4z"/><path d="M5.5 4.5h6V6h-6zM5.5 7h6v1.5h-6zM5.5 9.5h4V11h-4z" opacity=".45"/><path d="M2 2h2v12H2z" opacity=".7"/>',
-  map: '<path d="M2 3l4-1v11l-4 1zM6 2l4 1v11l-4-1zM10 3l4-1v11l-4 1z"/><path d="M7.5 6h1.5v1.5H7.5z" opacity=".45"/>',
-  gear: '<path d="M6.5 1h3v2h-3zM6.5 13h3v2h-3zM1 6.5h2v3H1zM13 6.5h2v3h-2z"/><path d="M2.8 3.5l1.4-1.4 1.4 1.4-1.4 1.4zM10.4 11.1l1.4-1.4 1.4 1.4-1.4 1.4zM11.8 2.1l1.4 1.4-1.4 1.4-1.4-1.4zM4.2 9.7l1.4 1.4-1.4 1.4-1.4-1.4z"/><path d="M4 4h8v8H4z"/><path d="M6.5 6.5h3v3h-3z" opacity=".55"/>',
-  coin: '<path d="M5 1h6v1H5zM3 2h2v1H3zM11 2h2v1h-2zM2 3h1v10H2zM13 3h1v10h-1zM3 13h2v1H3zM11 13h2v1h-2zM5 14h6v1H5zM3 3h10v10H3z"/><path d="M7 4.5h2v7H7z" opacity=".5"/>',
-  gem: '<path d="M5 2h6l3 4-6 8-6-8z"/><path d="M5 2l-3 4h12l-3-4z" opacity=".45"/>',
-  box: '<path d="M2 4.5h12V13H2z"/><path d="M6.8 4.5h2.4V13H6.8z" opacity=".45"/><path d="M2 2.5h12v2.5H2z" opacity=".7"/>',
+/**
+ * Icons are drawn as lists of [x, y, w, h] rectangles on a 16x16 grid — the
+ * only way to get shapes that stay crisp when a pixel-art UI scales them.
+ * Outlines (rather than solid blobs) keep them readable at 13px in a chip.
+ */
+type Rect = [number, number, number, number]
+
+const ICON_RECTS: Record<IconName, Rect[]> = {
+  // pouch with a handle and a clasp
+  bag: [
+    [7, 1, 2, 1], [6, 2, 1, 3], [9, 2, 1, 3],
+    [4, 5, 8, 1], [4, 5, 1, 8], [11, 5, 1, 8], [4, 12, 8, 1],
+    [7, 8, 2, 2],
+  ],
+  // book with a spine and page lines
+  dex: [
+    [3, 2, 10, 1], [3, 13, 10, 1], [3, 2, 1, 12], [12, 2, 1, 12],
+    [6, 2, 1, 12], [8, 5, 3, 1], [8, 8, 3, 1], [8, 11, 2, 1],
+  ],
+  // paw print
+  team: [
+    [3, 5, 2, 3], [6, 3, 2, 3], [9, 3, 2, 3], [12, 5, 2, 3],
+    [4, 9, 9, 4], [5, 8, 7, 1],
+  ],
+  // shopping cart
+  market: [
+    [1, 3, 3, 1], [4, 4, 1, 6], [5, 10, 8, 1],
+    [5, 5, 9, 1], [5, 5, 1, 5], [13, 5, 1, 5], [6, 9, 7, 1],
+    [5, 12, 2, 2], [10, 12, 2, 2],
+  ],
+  // rolled scroll
+  quest: [
+    [2, 2, 2, 12],
+    [4, 2, 9, 1], [4, 13, 9, 1], [12, 2, 1, 12],
+    [6, 5, 5, 1], [6, 7, 5, 1], [6, 9, 4, 1],
+  ],
+  // folded map with a marker
+  map: [
+    [2, 3, 12, 1], [2, 12, 12, 1], [2, 3, 1, 10], [13, 3, 1, 10],
+    [6, 3, 1, 10], [10, 3, 1, 10], [7, 6, 2, 2],
+  ],
+  // gear ring with four teeth
+  gear: [
+    [7, 0, 2, 2], [7, 14, 2, 2], [0, 7, 2, 2], [14, 7, 2, 2],
+    [5, 3, 6, 2], [5, 11, 6, 2], [3, 5, 2, 6], [11, 5, 2, 6],
+    [4, 4, 1, 1], [11, 4, 1, 1], [4, 11, 1, 1], [11, 11, 1, 1],
+  ],
+  // coin ring
+  coin: [
+    [6, 2, 4, 1], [6, 13, 4, 1], [2, 6, 1, 4], [13, 6, 1, 4],
+    [4, 3, 2, 1], [10, 3, 2, 1], [3, 4, 1, 2], [12, 4, 1, 2],
+    [3, 10, 1, 2], [12, 10, 1, 2], [4, 12, 2, 1], [10, 12, 2, 1],
+    [7, 6, 2, 4],
+  ],
+  gem: [],
+  box: [
+    [2, 2, 12, 3], [2, 5, 1, 8], [13, 5, 1, 8], [2, 12, 12, 1],
+    [7, 5, 2, 7],
+  ],
+  star: [],
+  bolt: [],
+}
+
+/** A few icons read better as free-form shapes than as a rectangle grid. */
+const ICON_PATHS: Partial<Record<IconName, string>> = {
+  gem: '<path d="M5 2h6l3 4-6 8-6-8z"/><path d="M5 2L2 6h12l-3-4z" opacity=".5"/>',
   star: '<path d="M8 1l2 4.6 5 .4-3.8 3.3 1.2 4.9L8 11.6 3.6 14.2l1.2-4.9L1 6l5-.4z"/>',
   bolt: '<path d="M9 1L3 9h4l-1 6 7-9H8z"/>',
 }
+
+const rectsToPath = (rs: Rect[]) =>
+  rs.map(([x, y, w, h]) => `M${x} ${y}h${w}v${h}h${-w}z`).join('')
+
+const ICONS: Record<IconName, string> = Object.fromEntries(
+  (Object.keys(ICON_RECTS) as IconName[]).map((k) => [
+    k, ICON_PATHS[k] ?? `<path d="${rectsToPath(ICON_RECTS[k])}"/>`,
+  ]),
+) as Record<IconName, string>
 
 function iconSvg(name: IconName, size = 22): string {
   return `<svg class="sm-ico" viewBox="0 0 16 16" width="${size}" height="${size}" ` +
@@ -200,7 +264,9 @@ const CSS = `
   --sm-chat-w: min(320px, 34vw);
 }
 #sm-hud .sm-ico { display: block; }
-#sm-hud .hud-cluster { position: absolute; pointer-events: auto; }
+#sm-hud .hud-cluster { position: absolute; pointer-events: auto; transition: opacity .12s linear; }
+/* A game dialog owns the screen while it is up — step back, don't compete. */
+#sm-hud.dialog-open .hud-cluster { opacity: .3; pointer-events: none; }
 
 /* --- top-left: player card ---------------------------------------------- */
 #sm-hud .hud-tl { top: 14px; left: 14px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
@@ -235,7 +301,7 @@ const CSS = `
   padding: 2px 4px; line-height: 1;
   border-left: 2px solid #09070f; border-top: 2px solid #09070f;
 }
-#sm-hud .hud-meta { display: flex; flex-direction: column; justify-content: center; gap: 7px; min-width: 148px; }
+#sm-hud .hud-meta { display: flex; flex-direction: column; justify-content: center; gap: 8px; min-width: 186px; }
 #sm-hud .hud-name {
   font-family: "Fredoka", "Trebuchet MS", sans-serif;
   font-weight: 600; font-size: 17px; letter-spacing: .1em; line-height: 1;
@@ -243,20 +309,25 @@ const CSS = `
   max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 #sm-hud .hud-sub { font-size: 10px; letter-spacing: .1em; color: var(--sm-muted); line-height: 1; }
+#sm-hud .hud-xpwrap { display: flex; align-items: center; gap: 8px; }
 #sm-hud .hud-xp {
-  position: relative; height: 12px;
+  position: relative; flex: 1 1 auto; height: 10px;
   background: var(--sm-darker); border: 2px solid var(--sm-border);
 }
 #sm-hud .hud-xp i {
   position: absolute; inset: 0 auto 0 0;
-  background: repeating-linear-gradient(90deg, var(--sm-ok) 0 4px, #6cbc5b 4px 8px);
+  background: linear-gradient(var(--sm-ok) 0 55%, #5fae51 55% 100%);
 }
 #sm-hud .hud-xp b {
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-size: 9px; font-weight: 700; letter-spacing: .08em;
-  color: var(--sm-text); text-shadow: 1px 1px 0 var(--sm-shadow);
+  position: absolute; right: 2px; top: -1px; bottom: 0;
+  display: none;
 }
-#sm-hud .hud-chips { display: flex; flex-wrap: wrap; gap: 6px; max-width: 320px; }
+#sm-hud .hud-xptext {
+  flex: 0 0 auto;
+  font-size: 9px; font-weight: 700; letter-spacing: .06em;
+  color: var(--sm-muted); line-height: 1; white-space: nowrap;
+}
+#sm-hud .hud-chips { display: flex; flex-wrap: wrap; gap: 6px; max-width: 300px; }
 #sm-hud .hud-chips .smui-chip { background: rgba(27,23,48,.94); box-shadow: 2px 2px 0 var(--sm-shadow); padding: 5px 8px; }
 #sm-hud .hud-chips .smui-chip .k { color: var(--sm-muted); font-weight: 700; }
 #sm-hud .hud-chips .smui-chip .v { color: var(--sm-text); }
@@ -306,11 +377,11 @@ const CSS = `
 }
 #sm-hud .hud-slot {
   position: relative;
-  width: 58px; height: 58px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  width: 62px; height: 62px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
   padding: 0;
 }
-#sm-hud .hud-slot .cap { font-size: 8px; letter-spacing: .08em; font-weight: 700; }
+#sm-hud .hud-slot .cap { font-size: 8px; letter-spacing: .02em; font-weight: 700; }
 #sm-hud .hud-slot .key {
   position: absolute; top: -3px; left: -3px;
   min-width: 15px; height: 15px; padding: 0 3px;
@@ -319,7 +390,13 @@ const CSS = `
   border: 2px solid var(--sm-border);
   font-size: 9px; font-weight: 700; line-height: 1;
 }
-#sm-hud .hud-slot.is-accent { background: #3b3260; }
+#sm-hud .hud-slot.is-accent {
+  background: #453a70;
+  box-shadow: 3px 3px 0 var(--sm-shadow), inset 0 -4px 0 var(--sm-border);
+}
+#sm-hud .hud-slot.is-accent:active {
+  box-shadow: 1px 1px 0 var(--sm-shadow), inset 0 -4px 0 var(--sm-border);
+}
 #sm-hud .hud-slot.is-accent .sm-ico { color: var(--sm-border); }
 
 @media (max-width: 1180px) {
@@ -356,9 +433,10 @@ export function mountHud(engine?: EngineLike, socket?: SocketLike): HudApi {
   const subEl = el('div', { class: 'hud-sub' })
   const xp = el('div', { class: 'hud-xp' })
   const xpFill = el('i')
-  const xpText = el('b')
-  xp.append(xpFill, xpText)
-  card.append(avatar, el('div', { class: 'hud-meta' }, [nameEl, subEl, xp]))
+  xp.appendChild(xpFill)
+  const xpText = el('span', { class: 'hud-xptext' })
+  const xpWrap = el('div', { class: 'hud-xpwrap' }, [xp, xpText])
+  card.append(avatar, el('div', { class: 'hud-meta' }, [nameEl, subEl, xpWrap]))
   const chips = el('div', { class: 'hud-chips' })
   tl.append(card, chips)
 
@@ -456,6 +534,7 @@ export function mountHud(engine?: EngineLike, socket?: SocketLike): HudApi {
   }
   const onKey = (e: KeyboardEvent) => {
     if (e.altKey || e.ctrlKey || e.metaKey) return
+    if (root.classList.contains('dialog-open')) return // the dialog owns keys
     const t = e.target as HTMLElement | null
     // Never steal a key from a text field (chat included).
     if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return
@@ -476,7 +555,7 @@ export function mountHud(engine?: EngineLike, socket?: SocketLike): HudApi {
     avatarImg.style.backgroundSize = '96px 128px'
     const pct = model.xpNext > 0 ? Math.max(0, Math.min(100, (model.xp / model.xpNext) * 100)) : 0
     xpFill.style.width = `${pct}%`
-    xpText.textContent = `${model.xp} / ${model.xpNext} XP`
+    xpText.textContent = `${model.xp}/${model.xpNext} XP`
 
     chips.textContent = ''
     for (const c of model.chips) {
@@ -505,6 +584,11 @@ export function mountHud(engine?: EngineLike, socket?: SocketLike): HudApi {
   // Forward-looking seam: the server can push a Partial<HudModel> here.
   socket?.on?.('hud:update', (d: Partial<HudModel>) => api.update(d ?? {}))
 
+  const stopDialogWatch = watchGameDialog((dialogOpen) => {
+    root.classList.toggle('dialog-open', dialogOpen)
+    if (dialogOpen) closeSettings()
+  })
+
   // The engine hands us the player asynchronously (map load, character:set),
   // so poll briefly instead of guessing when it is ready.
   const poll = setInterval(() => {
@@ -523,6 +607,7 @@ export function mountHud(engine?: EngineLike, socket?: SocketLike): HudApi {
     update(patch) { Object.assign(model, patch); render() },
     destroy() {
       clearInterval(poll)
+      stopDialogWatch()
       window.removeEventListener('keydown', onKey)
       document.removeEventListener('click', onDocClick)
       releaseSettings?.()

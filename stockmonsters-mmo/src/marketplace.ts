@@ -32,6 +32,7 @@ import {
 /* ================================================================= TYPES ===*/
 
 export type ItemKind = 'sealed' | 'opened'
+export type BoxTier = 'standard' | 'prime' | 'apex'
 export type TxStatus = 'pending' | 'confirmed' | 'cancelled' | 'failed'
 export type MarketTab = 'all' | 'sealed' | 'opened' | 'mine'
 export type SortKey = 'recent' | 'price-asc' | 'price-desc' | 'name'
@@ -60,6 +61,12 @@ export interface MarketItem {
   seller: string
   /** Sealed listings carry the commitment to the hidden attributes. */
   attrCommit?: string
+  /**
+   * Sealed boxes only. The tier is about the ODDS, never the contents — it is
+   * safe to show because it leaks nothing about the creature inside.
+   */
+  tier?: BoxTier
+  odds?: string
   listedAt: number
   /** True when this token belongs to the local player. */
   mine?: boolean
@@ -145,7 +152,10 @@ function makeItem(rnd: () => number, i: number, forceKind?: ItemKind): MarketIte
   // Price scales with the creature's raw power, plus a sealed-box premium.
   const bst = Object.values(entry.stats).reduce((a, b) => a + b, 0)
   const base = 4n + BigInt(Math.floor((bst / 600) * 90)) + BigInt(Math.floor(rnd() * 40))
-  const mult = (kind === 'sealed' ? 130n : 100n) * (shiny ? 7n : 1n)
+  const roll = rnd()
+  const tier: BoxTier = roll < 0.6 ? 'standard' : roll < 0.88 ? 'prime' : 'apex'
+  const tierMult = tier === 'apex' ? 320n : tier === 'prime' ? 180n : 130n
+  const mult = (kind === 'sealed' ? tierMult : 100n) * (shiny ? 7n : 1n)
   const priceWei = ((base * mult * ETH) / 100000n).toString()
   const tokenId = String(10000 + Math.floor(rnd() * 89999))
   return kind === 'sealed'
@@ -156,6 +166,8 @@ function makeItem(rnd: () => number, i: number, forceKind?: ItemKind): MarketIte
       name: `SEALED BOX #${tokenId}`,
       shiny: false,
       priceWei,
+      tier,
+      odds: tier === 'apex' ? '1 in 24' : tier === 'prime' ? '1 in 64' : '1 in 128',
       seller: fakeHash(rnd, 40),
       attrCommit: fakeHash(rnd),
       listedAt: Date.now() - Math.floor(rnd() * 86_400_000),
@@ -325,6 +337,10 @@ const TYPE_COLORS: Record<string, string> = {
   Wind: '#9fe0c8', Wyrm: '#6f7ff5',
 }
 
+const TIER_COLORS: Record<string, string> = {
+  standard: '#c9a06a', prime: '#a9bccd', apex: '#f6c177',
+}
+
 const CSS = `
 #sm-market {
   z-index: ${Z.marketWindow};
@@ -451,24 +467,43 @@ const CSS = `
 #sm-market .mk-art .badge.shiny { top: 5px; left: auto; right: 5px; }
 /* Sealed box: deliberately no creature art — the contents are the product. */
 #sm-market .mk-sealed {
+  --c-lid: #7a5f38; --c-body: #6b5330; --c-dark: #3a2c18;
+  --c-light: #8a6b3d; --c-tape: #f6c177; --c-tape2: #d9a458;
   width: 76%; height: 76%;
   position: relative;
-  background: linear-gradient(#6b5330 0 100%);
-  border: 3px solid #3a2c18;
-  box-shadow: inset 0 0 0 3px #8a6b3d;
-  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(var(--c-lid) 0 34%, var(--c-body) 34% 100%);
+  border: 3px solid var(--c-dark);
+  box-shadow: inset 0 0 0 3px var(--c-light);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 14%;
 }
+/* Box tiers differ in ODDS, never in contents — colouring them leaks nothing. */
+#sm-market .mk-sealed.tier-prime {
+  --c-lid: #7c8798; --c-body: #68727f; --c-dark: #232a33;
+  --c-light: #9aa6b6; --c-tape: #bcd3e8; --c-tape2: #8fb0cc;
+}
+#sm-market .mk-sealed.tier-apex {
+  --c-lid: #cfa243; --c-body: #b08630; --c-dark: #4a3712;
+  --c-light: #e5c065; --c-tape: #fff1c7; --c-tape2: #f6c177;
+}
+/* Lid seam */
+#sm-market .mk-sealed::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 34%; height: 3px;
+  background: var(--c-dark);
+}
+/* Tamper tape, kept below the glyph so nothing is ever printed over it. */
 #sm-market .mk-sealed::before {
-  content: ''; position: absolute; left: 0; right: 0; top: 38%; height: 20%;
-  background: repeating-linear-gradient(45deg, #f6c177 0 6px, #d9a458 6px 12px);
-  border-top: 3px solid #3a2c18; border-bottom: 3px solid #3a2c18;
+  content: ''; position: absolute; left: 0; right: 0; top: 62%; height: 20%;
+  background: repeating-linear-gradient(45deg, var(--c-tape) 0 6px, var(--c-tape2) 6px 12px);
+  border-top: 3px solid var(--c-dark); border-bottom: 3px solid var(--c-dark);
 }
 #sm-market .mk-sealed span {
   position: relative;
   font-family: "Fredoka", "Trebuchet MS", sans-serif;
-  font-size: 30px; font-weight: 600; color: #fff1c7;
-  text-shadow: 2px 2px 0 #3a2c18;
+  font-size: 26px; line-height: 1; font-weight: 600; color: #fff1c7;
+  text-shadow: 2px 2px 0 var(--c-dark);
 }
+#sm-market .mk-modal .bigart .mk-sealed span { font-size: 44px; }
 #sm-market .mk-card .name {
   font-size: 12px; font-weight: 700; letter-spacing: .04em;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -511,7 +546,7 @@ const CSS = `
   padding: 3px 0; font-size: 10px; letter-spacing: .04em;
   border-bottom: 1px solid rgba(246,193,119,.12);
 }
-#sm-market .mk-tx .row .t { color: var(--sm-muted); flex: 0 0 58px; }
+#sm-market .mk-tx .row .t { color: var(--sm-muted); flex: 0 0 62px; white-space: nowrap; }
 #sm-market .mk-tx .row .l { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #sm-market .mk-tx .row .h { color: var(--sm-muted); flex: 0 0 auto; }
 #sm-market .mk-tx .none { font-size: 10px; color: var(--sm-muted); letter-spacing: .08em; padding: 4px 0; }
@@ -800,7 +835,10 @@ export function mountMarketplace(
   /* --------------------------------------------------------------- render */
   function artNode(item: MarketItem, big = false): HTMLElement {
     if (item.kind === 'sealed' || !item.art) {
-      return el('div', { class: 'mk-sealed', style: big ? 'width:70%;height:70%' : '' }, [el('span', { text: '?' })])
+      return el('div', {
+        class: `mk-sealed tier-${item.tier ?? 'standard'}`,
+        style: big ? 'width:70%;height:70%' : '',
+      }, [el('span', { text: '?' })])
     }
     return el('img', { src: item.art, alt: item.name, loading: 'lazy', draggable: 'false' })
   }
@@ -819,7 +857,12 @@ export function mountMarketplace(
 
     const sub = el('div', { class: 'sub' })
     if (item.kind === 'sealed') {
-      sub.appendChild(el('span', { text: 'CONTENTS ???' }))
+      sub.appendChild(el('span', {
+        class: 'mk-type',
+        style: `background:${TIER_COLORS[item.tier ?? 'standard']}`,
+        text: `${(item.tier ?? 'standard').toUpperCase()} BOX`,
+      }))
+      sub.appendChild(el('span', { text: '???' }))
     } else {
       for (const t of item.types ?? []) sub.appendChild(typePill(t))
       if (item.level) sub.appendChild(el('span', { text: `LV${item.level}` }))
@@ -897,7 +940,9 @@ export function mountMarketplace(
       return
     }
     for (const t of txs.slice(0, 24)) {
-      const time = new Date(t.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      const d = new Date(t.at)
+      const time = [d.getHours(), d.getMinutes(), d.getSeconds()]
+        .map((n) => String(n).padStart(2, '0')).join(':')
       txRows.appendChild(el('div', { class: 'row' }, [
         el('span', { class: 't', text: time }),
         el('span', { class: 'l', text: t.label }),
@@ -946,7 +991,8 @@ export function mountMarketplace(
         attrRow('CONTENTS', '??? — hidden until opened', true),
         attrRow('TYPE', '???', true),
         attrRow('STATS', '???', true),
-        attrRow('SHINY ODDS', '1 in 128', false),
+        attrRow('BOX TIER', (item.tier ?? 'standard').toUpperCase()),
+        attrRow('SHINY ODDS', item.odds ?? '1 in 128', false),
         attrRow('ATTR COMMIT', item.attrCommit ? shortAddr(item.attrCommit) : '—'),
         attrRow('TOKEN ID', `#${item.tokenId}`),
         attrRow('SELLER', shortAddr(item.seller)),

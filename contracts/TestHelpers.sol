@@ -126,24 +126,25 @@ contract NonReceiver {
     }
 }
 
-/// Refuses every incoming ETH transfer — used to prove payouts fall back to
-/// the pull ledger instead of bricking the buyer's transaction.
+/// Refuses incoming ETH while `accepting` is false — used to prove payouts
+/// fall back to the pull ledger instead of bricking the buyer's transaction.
 contract EthRefuser {
-    function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {
-        return EthRefuser.onERC721Received.selector;
+    bool public accepting;
+
+    function setAccepting(bool v) external {
+        accepting = v;
     }
 
     receive() external payable {
-        revert("NO_ETH_THANKS");
+        require(accepting, "NO_ETH_THANKS");
     }
 
     function callWithdraw(address market) external {
-        (bool ok,) = market.call(abi.encodeWithSignature("withdrawPayments()"));
-        require(ok, "PULL_FAILED");
-    }
-
-    function approveAll(address nft, address operator) external {
-        (bool ok,) = nft.call(abi.encodeWithSignature("setApprovalForAll(address,bool)", operator, true));
-        require(ok, "APPROVE_FAILED");
+        (bool ok, bytes memory data) = market.call(abi.encodeWithSignature("withdrawPayments()"));
+        if (!ok) {
+            assembly {
+                revert(add(32, data), mload(data))
+            }
+        }
     }
 }

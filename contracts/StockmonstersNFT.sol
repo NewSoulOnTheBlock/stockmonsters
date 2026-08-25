@@ -465,7 +465,11 @@ contract StockmonstersNFT {
     function _openedJson(uint256 tokenId) private view returns (string memory) {
         Monster memory m = monsters[tokenId];
         Species memory s = species[m.dexId];
-        require(s.registered, "SPECIES_UNKNOWN");
+        // A box can legitimately be opened onto a dexId the registry does not
+        // know (the commitment does not constrain it). Degrade to a reduced
+        // document rather than reverting: a reverting tokenURI makes the token
+        // invisible to every marketplace and wallet.
+        if (!s.registered) return _unknownSpeciesJson(tokenId, m);
         uint16[6] memory st = finalStats(tokenId);
 
         return string.concat(
@@ -484,6 +488,28 @@ contract StockmonstersNFT {
             '","attributes":[',
             _attributesJson(m, s, st),
             "]}"
+        );
+    }
+
+    function _unknownSpeciesJson(uint256 tokenId, Monster memory m) private view returns (string memory) {
+        return string.concat(
+            '{"name":"Stockmonster #',
+            _toString(tokenId),
+            '","description":"An opened Stockmonster whose species (dex id ',
+            _toString(m.dexId),
+            ') is not in the on-chain registry yet.","image":"',
+            sealedImageURI,
+            '","attributes":[{"trait_type":"State","value":"Opened"},',
+            '{"trait_type":"Species","value":"Unregistered"},',
+            '{"trait_type":"Nature","value":"',
+            natureName(m.natureId),
+            '"},{"trait_type":"Shiny","value":"',
+            m.shiny ? "Yes" : "No",
+            '"},{"trait_type":"IVs","value":"',
+            _ivString(m),
+            '"},{"trait_type":"Level","value":',
+            _toString(m.level),
+            ',"max_value":100}]}'
         );
     }
 

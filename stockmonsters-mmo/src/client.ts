@@ -4,6 +4,8 @@ import { mergeConfig, inject } from "@signe/di";
 import { applyAutoZoom } from "./zoom";
 import { mountBattleScene } from "./battle-scene";
 import { mountChatUi } from "./chat-ui";
+import { mountHud } from "./hud";
+import { mountMarketplace, openMarketplace } from "./marketplace";
 
 // A verified wallet becomes the stable game identity. The connectionId is
 // NOT the address: the server derives it from the address with a secret only
@@ -98,6 +100,13 @@ startGame(
       window.addEventListener("beforeunload", bye);
       mountBattleScene(socket);
       mountChatUi(engine, socket);
+      mountHud(engine, socket);
+      mountMarketplace(engine, socket);
+      // The title screen's NFT/settings buttons enter the world first and then
+      // ask for a panel; the in-game window is the single owner of each.
+      window.addEventListener("sm:open", (e) => {
+        if ((e as CustomEvent).detail === "marketplace") openMarketplace();
+      });
     }
   } catch {}
 });
