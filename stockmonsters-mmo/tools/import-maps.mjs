@@ -161,6 +161,16 @@ async function importMap(tmxName, seen) {
     )
   }
 
+  // RPG-JS mounts the character/event layer only where the map has an
+  // <objectgroup> — no objectgroup means no player sprites and no camera
+  // follow. PSDK maps never have one, so add an empty one.
+  if (!xml.includes('<objectgroup')) {
+    const next = Number(xml.match(/nextlayerid="(\d+)"/)?.[1] ?? 1)
+    xml = xml
+      .replace(/nextlayerid="\d+"/, `nextlayerid="${next + 1}"`)
+      .replace('</map>', ` <objectgroup id="${next}" name="events"/>\n</map>`)
+  }
+
   writeFileSync(join(OUT, `${id}.tmx`), xml)
   const size = xml.match(/\bwidth="(\d+)"\s+height="(\d+)"/)
   console.log(`  ${id}  ${size ? `${size[1]}x${size[2]}` : ''}  tilesets: ${found.length}`)

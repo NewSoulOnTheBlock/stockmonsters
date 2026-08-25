@@ -108,62 +108,49 @@ standalone GID validator (worth keeping as a check when importing the other 25).
 
 ---
 
-## The one blocker
+## The blocker — SOLVED (2026-08-25)
 
-**No player character appears.** `onConnected` never fires.
+**Symptom:** no player character, camera stuck at the map's top-left, screen
+mostly black. Root causes were three stacked problems, found by bisecting
+against a pristine starter:
 
-This was proven with a **filesystem side-effect** (`/tmp/sm-hook.log`), not a
-console message — the module load line is written, the hook line never is. So it
-is genuinely not invoked, not a lost log. With no player there is also no camera
-target, which is why the view sits at the map's top-left corner instead of
-following anyone.
+1. **The diagnostic was a bug.** `player.ts` imported `node:fs` for trace
+   logging. RPG-JS bundles module files into the *client* too, and vite's
+   externalization of `node:fs` threw at module load — killing the whole
+   client. Every earlier client-side observation was tainted by this.
+2. **Duplicate module registration.** `provideServerModules([mainServerModule])`
+   had been added alongside `provideMain()`. The pristine starter ships
+   `provideServerModules([])` — the empty call registers `ModulesToken`, so it
+   must stay, but adding `mainServerModule` to it registers the module twice
+   and breaks hook collection. Restored to `provideServerModules([])`.
+3. **The real map bug: no `<objectgroup>` in the TMX.** RPG-JS mounts its
+   `EventLayerComponent` — the layer that renders ALL characters and arms
+   camera-follow — only where the Tiled map has an objectgroup layer
+   (`@canvasengine/presets` TiledMap: `case ObjectGroup: objectLayer()`).
+   PSDK maps never contain one, so the importer now injects an empty
+   `<objectgroup name="events"/>` into every imported map.
 
-### The decisive finding
+**Verified working:** hub renders fully, hero sprite at spawn (912,1200 —
+tile 28,37), camera follows, arrow-key movement moves the player
+(912,1200 → 1154,1367 in test). Headless-browser test scripts are in the
+session scratchpad (`shot.mjs`, `move-test.mjs`, `probe*.mjs`).
 
-**A pristine `npx degit rpgjs/starter#v5` works.** Installed clean, ran it, two
-character sprites render, zero errors. So the framework is fine and **this is a
-regression we introduced in our copy.** That is good news — it is a bisect, not
-a framework bug.
+**Also added:** `src/zoom.ts` — auto-zooms the pixi-viewport 2–3x by window
+width after each map load (no zoom option exists in the client config).
+Wired into both `standalone.ts` (dev entry — note: vite serves *standalone*
+mode, server+client in one page) and `client.ts` (real MMO entry).
 
-### Next step: bisect
+### Facts worth keeping
 
-Start from pristine and re-apply our changes one at a time until the player
-disappears. Candidates in order of suspicion:
-
-1. **`src/server.ts`** — `provideServerModules([mainServerModule])` was added on
-   top of the starter's existing `provideMain()`. Registering the same module
-   twice may break hook collection. **Try removing this first.**
-2. **`src/modules/main/player.ts`** — `onConnected` was made `async` and
-   `player.changeMap(...)` awaited. If the hook runner does not handle an async
-   hook as assumed, this breaks the chain.
-3. **`src/modules/main/server.ts`** — the starter's `events: [{ Npc() }]` and its
-   `Npc` import were removed. Unlikely, but it is a change.
-4. **The map** — least likely: the failure reproduced with the starter's own
-   `simplemap` restored.
-
-### Framework mechanics learned while digging (saves re-deriving)
-
-- `onConnected` fires inside `LobbyRoom.onJoin`, and `LobbyRoom` is
-  `@Room({ path: "lobby-{id}" })`.
-- The client joins `lobby-1` by default (`this.targetRoom = options.room ?? "lobby-1"`).
-- `onStart` fires **only** after a GUI interaction carrying `data.id === "start"`,
-  via `startPlayer()`.
-- So the intended flow is **lobby → start selection → map**. The starter
-  presumably wires that up and we may have bypassed it.
-- Hooks are dispatched by name: `server-player-onConnected`, `-onStart`,
-  `-onJoinMap`, `-onLeaveMap`, `-canChangeMap`, `-onSave`, `-onLoad`.
-- `createModule(name, [{ server }])` registers a provider token
-  `<name>ModuleServer` with `meta: { server: true, isModule: true }`.
-
-### A tried and rejected diagnostic
-
-`@rpgjs/testing`'s fixture would isolate server from client cleanly, but it
-starts a full client including PIXI, which needs a real canvas. It fails under
-both plain Node (`window is not defined`) and vitest + happy-dom (no WebGL
-context). Making it work needs `node-canvas` or similar. The filesystem-trace
-approach answered the question faster.
-
----
+- The dev entry injected by the vite plugin is `src/standalone.ts`, NOT
+  `src/client.ts`. Testing multiplayer needs a real server + `client.ts`.
+- `startGame()` resolves to the DI context; `inject(ctx, RpgClientEngine)`
+  reaches the engine (`findViewportInstance()`, `sceneMap.getCurrentPlayer()`,
+  `mapLoadCompleted$`…). `cameraFollowTargetId` of `null` means "follow the
+  current player", it is not an error state.
+- PSDK "Black_1"/"Black_5" layers are real art (semi-opaque black masks over
+  the void), not metadata — keep them.
+- The old `@rpgjs/testing` note still stands (needs a real canvas).
 
 ## Realistic schedule
 
@@ -215,10 +202,6 @@ happen before wide distribution. `stockmonsters-reskin/` has the sprite pipeline
 
 ## Loose ends in `stockmonsters-mmo/`
 
-- `src/modules/main/player.ts` still has the `/tmp/sm-hook.log` trace
-  instrumentation — remove once the blocker is solved.
-- `src/server.ts` still has the experimental `provideServerModules([mainServerModule])`
-  line (suspect #1 above).
 - `src/tiled/` currently holds only the Hub map and its 8 tilesets. The starter's
   own tiled assets were moved out; they are in the session scratchpad if needed,
   or just re-degit a pristine starter.
