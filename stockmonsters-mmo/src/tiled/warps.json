@@ -1,0 +1,632 @@
+[
+ {
+  "from": "hub",
+  "x": 28,
+  "y": 48,
+  "to": "exterior",
+  "toX": 31,
+  "toY": 31,
+  "trigger": "touch"
+ },
+ {
+  "from": "hub",
+  "x": 29,
+  "y": 39,
+  "to": "battlearena",
+  "toX": 19,
+  "toY": 29,
+  "trigger": "touch"
+ },
+ {
+  "from": "hub",
+  "x": 17,
+  "y": 46,
+  "to": "wifi",
+  "toX": 24,
+  "toY": 18,
+  "trigger": "touch"
+ },
+ {
+  "from": "hub",
+  "x": 19,
+  "y": 29,
+  "to": "elevator-1",
+  "toX": 12,
+  "toY": 16,
+  "trigger": "touch"
+ },
+ {
+  "from": "hub",
+  "x": 37,
+  "y": 29,
+  "to": "elevator-2",
+  "toX": 12,
+  "toY": 16,
+  "trigger": "touch"
+ },
+ {
+  "from": "hub",
+  "x": 27,
+  "y": 39,
+  "to": "battlearena",
+  "toX": 17,
+  "toY": 29,
+  "trigger": "touch"
+ },
+ {
+  "from": "hub",
+  "x": 28,
+  "y": 39,
+  "to": "battlearena",
+  "toX": 18,
+  "toY": 29,
+  "trigger": "touch"
+ },
+ {
+  "from": "elevator-1",
+  "x": 12,
+  "y": 17,
+  "to": "hub",
+  "toX": 19,
+  "toY": 29,
+  "trigger": "touch"
+ },
+ {
+  "from": "river",
+  "x": 29,
+  "y": 18,
+  "to": "hub",
+  "toX": 28,
+  "toY": 43,
+  "trigger": "touch"
+ },
+ {
+  "from": "river",
+  "x": 33,
+  "y": 15,
+  "to": "elevator-1",
+  "toX": 12,
+  "toY": 16,
+  "trigger": "touch"
+ },
+ {
+  "from": "beach",
+  "x": 29,
+  "y": 18,
+  "to": "hub",
+  "toX": 28,
+  "toY": 43,
+  "trigger": "touch"
+ },
+ {
+  "from": "beach",
+  "x": 33,
+  "y": 15,
+  "to": "elevator-1",
+  "toX": 12,
+  "toY": 16,
+  "trigger": "touch"
+ },
+ {
+  "from": "cave",
+  "x": 29,
+  "y": 18,
+  "to": "hub",
+  "toX": 28,
+  "toY": 43,
+  "trigger": "touch"
+ },
+ {
+  "from": "cave",
+  "x": 33,
+  "y": 15,
+  "to": "elevator-1",
+  "toX": 12,
+  "toY": 16,
+  "trigger": "touch"
+ },
+ {
+  "from": "cave",
+  "x": 33,
+  "y": 65,
+  "to": "cave",
+  "toX": 33,
+  "toY": 35,
+  "trigger": "touch"
+ },
+ {
+  "from": "cave",
+  "x": 33,
+  "y": 34,
+  "to": "cave",
+  "toX": 33,
+  "toY": 66,
+  "trigger": "touch"
+ },
+ {
+  "from": "marsh",
+  "x": 29,
+  "y": 18,
+  "to": "hub",
+  "toX": 28,
+  "toY": 43,
+  "trigger": "touch"
+ },
+ {
+  "from": "marsh",
+  "x": 33,
+  "y": 15,
+  "to": "elevator-1",
+  "toX": 12,
+  "toY": 16,
+  "trigger": "touch"
+ },
+ {
+  "from": "tundra",
+  "x": 29,
+  "y": 18,
+  "to": "hub",
+  "toX": 28,
+  "toY": 43,
+  "trigger": "touch"
+ },
+ {
+  "from": "tundra",
+  "x": 33,
+  "y": 15,
+  "to": "elevator-1",
+  "toX": 12,
+  "toY": 16,
+  "trigger": "touch"
+ },
+ {
+  "from": "cyclingroad",
+  "x": 29,
+  "y": 18,
+  "to": "hub",
+  "toX": 28,
+  "toY": 43,
+  "trigger": "touch"
+ },
+ {
+  "from": "cyclingroad",
+  "x": 33,
+  "y": 15,
+  "to": "elevator-1",
+  "toX": 12,
+  "toY": 16,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 29,
+  "y": 18,
+  "to": "hub",
+  "toX": 28,
+  "toY": 43,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 16,
+  "y": 35,
+  "to": "rockethq",
+  "toX": 19,
+  "toY": 49,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 23,
+  "y": 43,
+  "to": "rockethq",
+  "toX": 30,
+  "toY": 39,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 19,
+  "y": 45,
+  "to": "rockethq",
+  "toX": 39,
+  "toY": 49,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 19,
+  "y": 49,
+  "to": "rockethq",
+  "toX": 16,
+  "toY": 35,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 23,
+  "y": 45,
+  "to": "rockethq",
+  "toX": 25,
+  "toY": 43,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 25,
+  "y": 49,
+  "to": "rockethq",
+  "toX": 32,
+  "toY": 39,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 29,
+  "y": 49,
+  "to": "rockethq",
+  "toX": 37,
+  "toY": 43,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 29,
+  "y": 45,
+  "to": "rockethq",
+  "toX": 33,
+  "toY": 45,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 25,
+  "y": 43,
+  "to": "rockethq",
+  "toX": 23,
+  "toY": 45,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 33,
+  "y": 15,
+  "to": "elevator-1",
+  "toX": 12,
+  "toY": 16,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 25,
+  "y": 39,
+  "to": "rockethq",
+  "toX": 43,
+  "toY": 49,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 30,
+  "y": 39,
+  "to": "rockethq",
+  "toX": 23,
+  "toY": 43,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 32,
+  "y": 39,
+  "to": "rockethq",
+  "toX": 25,
+  "toY": 49,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 37,
+  "y": 39,
+  "to": "rockethq",
+  "toX": 19,
+  "toY": 39,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 37,
+  "y": 43,
+  "to": "rockethq",
+  "toX": 29,
+  "toY": 49,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 33,
+  "y": 45,
+  "to": "rockethq",
+  "toX": 29,
+  "toY": 45,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 37,
+  "y": 45,
+  "to": "rockethq",
+  "toX": 39,
+  "toY": 39,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 37,
+  "y": 49,
+  "to": "rockethq",
+  "toX": 39,
+  "toY": 45,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 39,
+  "y": 49,
+  "to": "rockethq",
+  "toX": 19,
+  "toY": 45,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 43,
+  "y": 49,
+  "to": "rockethq",
+  "toX": 25,
+  "toY": 39,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 39,
+  "y": 45,
+  "to": "rockethq",
+  "toX": 37,
+  "toY": 49,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 39,
+  "y": 39,
+  "to": "rockethq",
+  "toX": 37,
+  "toY": 45,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 43,
+  "y": 43,
+  "to": "rockethq",
+  "toX": 23,
+  "toY": 39,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 38,
+  "y": 31,
+  "to": "rockethq",
+  "toX": 31,
+  "toY": 18,
+  "trigger": "touch"
+ },
+ {
+  "from": "rockethq",
+  "x": 19,
+  "y": 39,
+  "to": "rockethq",
+  "toX": 37,
+  "toY": 39,
+  "trigger": "touch"
+ },
+ {
+  "from": "elevator-2",
+  "x": 12,
+  "y": 17,
+  "to": "hub",
+  "toX": 37,
+  "toY": 29,
+  "trigger": "touch"
+ },
+ {
+  "from": "labo",
+  "x": 35,
+  "y": 16,
+  "to": "hub",
+  "toX": 28,
+  "toY": 43,
+  "trigger": "touch"
+ },
+ {
+  "from": "labo",
+  "x": 32,
+  "y": 15,
+  "to": "elevator-2",
+  "toX": 12,
+  "toY": 16,
+  "trigger": "touch"
+ },
+ {
+  "from": "library",
+  "x": 35,
+  "y": 16,
+  "to": "hub",
+  "toX": 28,
+  "toY": 43,
+  "trigger": "touch"
+ },
+ {
+  "from": "library",
+  "x": 32,
+  "y": 15,
+  "to": "elevator-2",
+  "toX": 12,
+  "toY": 16,
+  "trigger": "touch"
+ },
+ {
+  "from": "photostudio",
+  "x": 35,
+  "y": 16,
+  "to": "hub",
+  "toX": 28,
+  "toY": 43,
+  "trigger": "touch"
+ },
+ {
+  "from": "photostudio",
+  "x": 32,
+  "y": 15,
+  "to": "elevator-2",
+  "toX": 12,
+  "toY": 16,
+  "trigger": "touch"
+ },
+ {
+  "from": "gamecorner",
+  "x": 32,
+  "y": 15,
+  "to": "elevator-2",
+  "toX": 12,
+  "toY": 16,
+  "trigger": "touch"
+ },
+ {
+  "from": "gamecorner",
+  "x": 35,
+  "y": 16,
+  "to": "hub",
+  "toX": 28,
+  "toY": 43,
+  "trigger": "touch"
+ },
+ {
+  "from": "battlearena",
+  "x": 17,
+  "y": 30,
+  "to": "hub",
+  "toX": 27,
+  "toY": 40,
+  "trigger": "touch"
+ },
+ {
+  "from": "battlearena",
+  "x": 18,
+  "y": 30,
+  "to": "hub",
+  "toX": 28,
+  "toY": 40,
+  "trigger": "touch"
+ },
+ {
+  "from": "battlearena",
+  "x": 19,
+  "y": 30,
+  "to": "hub",
+  "toX": 29,
+  "toY": 40,
+  "trigger": "touch"
+ },
+ {
+  "from": "wifi",
+  "x": 23,
+  "y": 19,
+  "to": "hub",
+  "toX": 16,
+  "toY": 47,
+  "trigger": "touch"
+ },
+ {
+  "from": "exterior",
+  "x": 31,
+  "y": 31,
+  "to": "hub",
+  "toX": 28,
+  "toY": 47,
+  "trigger": "touch"
+ },
+ {
+  "from": "exterior",
+  "x": 25,
+  "y": 24,
+  "to": "exterior",
+  "toX": 25,
+  "toY": 25,
+  "trigger": "action"
+ },
+ {
+  "from": "exterior",
+  "x": 32,
+  "y": 31,
+  "to": "hub",
+  "toX": 28,
+  "toY": 47,
+  "trigger": "touch"
+ },
+ {
+  "from": "exterior",
+  "x": 33,
+  "y": 24,
+  "to": "basement",
+  "toX": 10,
+  "toY": 11,
+  "trigger": "touch"
+ },
+ {
+  "from": "exterior",
+  "x": 33,
+  "y": 25,
+  "to": "basement",
+  "toX": 10,
+  "toY": 11,
+  "trigger": "touch"
+ },
+ {
+  "from": "exterior",
+  "x": 30,
+  "y": 24,
+  "to": "basement",
+  "toX": 10,
+  "toY": 11,
+  "trigger": "touch"
+ },
+ {
+  "from": "exterior",
+  "x": 30,
+  "y": 25,
+  "to": "basement",
+  "toX": 10,
+  "toY": 11,
+  "trigger": "touch"
+ },
+ {
+  "from": "basement",
+  "x": 11,
+  "y": 12,
+  "to": "exterior",
+  "toX": 33,
+  "toY": 26,
+  "trigger": "touch"
+ },
+ {
+  "from": "basement",
+  "x": 41,
+  "y": 54,
+  "to": "basement",
+  "toX": 44,
+  "toY": 31,
+  "trigger": "touch"
+ }
+]

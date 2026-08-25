@@ -8,6 +8,12 @@ export default createServer({
       provideMain(),
       provideSaveStorage(new LocalStorageSaveStorageStrategy({ key: "save" })),
       provideServerModules([]),
-      provideTiledMap()
+      provideTiledMap({
+        basePath: "map",
+        // Progressive chunk streaming breaks on map transitions in beta.33
+        // ("f.tilesets is not iterable" client-side); our maps are 64x64 so
+        // whole-map direct loading costs nothing.
+        streaming: false
+      })
     ]
   });
