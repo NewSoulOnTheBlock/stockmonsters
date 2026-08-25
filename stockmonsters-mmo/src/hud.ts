@@ -509,6 +509,15 @@ export function mountHud(engine?: EngineLike, socket?: SocketLike): HudApi {
   // Leaving the world needs a visible, discoverable exit. Escape opens the
   // in-game menu, but the engine samples input per frame and drops a very
   // short tap, so a key alone is not a dependable way out.
+  const nameRow = el('div', { class: 'row hud-quit-row' }, [
+    el('button', { class: 'smui-btn', type: 'button', text: 'CHANGE NAME' }),
+  ])
+  nameRow.querySelector('button')?.addEventListener('click', () => {
+    closeSettings()
+    window.dispatchEvent(new CustomEvent('sm:change-name'))
+  })
+  settings.appendChild(nameRow)
+
   const quitRow = el('div', { class: 'row hud-quit-row' }, [
     el('button', {
       class: 'smui-btn', type: 'button', text: 'SAVE & QUIT TO TITLE',

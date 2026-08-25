@@ -637,6 +637,35 @@ the state is labelled everywhere it appears. The moment `BOX_SIGNER_PK` and
 runs. Band cutoffs in the demo roll mirror `BANDS` in `lootbox.mjs` — the
 server stays authoritative; if those move, move both.
 
+### Name rules (session 4)
+
+3-16 characters, ASCII only, reserved words and link-like strings refused
+(`src/modules/main/names.ts`), **globally unique**, **one per wallet**, and
+**changeable once a day**.
+
+- The 24h cooldown is decided by a CONDITIONAL UPDATE in `profiles.mjs`, not a
+  read-then-write: two sockets for one wallet would otherwise both read "last
+  changed yesterday" and both write. `db/migrations/0003_name_rules.sql` adds
+  `name_changed_at` and widens the CHECK to 16.
+- **Re-sending the same name is not a change.** Every reconnect re-sends the
+  stored name; if that restarted the clock, a player who logs in daily could
+  never change their name at all. The UPDATE only stamps `name_changed_at` when
+  the name actually differs.
+- Choosing one is genuinely mandatory: the modal opens by itself, cannot be
+  dismissed, and keys are swallowed while it is up so the player cannot walk
+  away and stay "Trader". A stored name is only a claim — if the server refuses
+  it (taken since, or rule change) the modal reopens.
+- A refused CHANGE is shown in chat, since the modal is closed by then and a
+  silent refusal reads as a broken button. Changing later: the HUD gear.
+- `test/names.test.mjs` (8 tests, real Postgres) covers uniqueness incl. casing,
+  one-per-wallet, the cooldown, the same-name re-claim, the 16/17 boundary, and
+  **two racing claims** — the case a happy-path test would miss.
+
+⚠️ TESTING GOTCHA: a wallet id is `w:` + 32 **hex** characters. Seeding a test
+with `'w:' + 'n'.repeat(32)` is silently refused by the server, the player runs
+with NO wallet identity, and everything looks like it works while nothing
+reaches Postgres. Several of my own test runs were wrong this way.
+
 ### Requested, not yet built (user, 2026-08-25 evening)
 
 - **In-game minigames** once the maps are done — small playable activities

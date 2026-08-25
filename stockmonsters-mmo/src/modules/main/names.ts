@@ -7,7 +7,7 @@
  */
 
 export const NAME_MIN = 3
-export const NAME_MAX = 14
+export const NAME_MAX = 16
 
 // Reserved so nobody can impersonate the game itself or an unnamed player.
 const RESERVED = new Set(['trader', 'admin', 'system', 'server', 'stockmonsters', 'mod', 'moderator'])

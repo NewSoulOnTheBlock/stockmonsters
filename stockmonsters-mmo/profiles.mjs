@@ -49,6 +49,19 @@ const isWalletId = (v) => typeof v === 'string' && /^w:[0-9a-f]{32}$/.test(v)
 // travel is gated on it, so it has to survive a reload like everything else.
 const STATE_KEYS = ['character', 'party', 'box', 'bag', 'visited']
 
+/** A name is one per wallet, changeable once a day. */
+const NAME_COOLDOWN_HOURS = 24
+
+/** "in 3 hours" / "in 12 minutes" — vague on purpose, exact enough to act on. */
+function untilText(at) {
+  const ms = new Date(at).getTime() - Date.now()
+  if (!Number.isFinite(ms) || ms <= 0) return 'shortly'
+  const mins = Math.ceil(ms / 60000)
+  if (mins < 60) return `in ${mins} minute${mins === 1 ? '' : 's'}`
+  const hours = Math.ceil(mins / 60)
+  return `in ${hours} hour${hours === 1 ? '' : 's'}`
+}
+
 function pickState(source) {
   const out = {}
   for (const key of STATE_KEYS) if (source[key] !== undefined) out[key] = source[key]
@@ -367,15 +380,48 @@ export function createProfileStore(opts = {}) {
       return { ok: true, name }
     }
     try {
+      // One statement decides everything: uniqueness (the index), and the
+      // cooldown (the WHERE). Reading "when did they last change it" and then
+      // writing would let two sockets for the same wallet both pass the check.
+      // Re-claiming the SAME name is always allowed — it is not a change.
       const res = await pool.query(
-        `INSERT INTO players (wallet_id, name)
-         VALUES ($1, $2)
+        `INSERT INTO players (wallet_id, name, name_changed_at)
+         VALUES ($1, $2, now())
          ON CONFLICT (wallet_id) DO UPDATE
-           SET name = EXCLUDED.name, updated_at = now(), last_seen_at = now()
+           SET name = EXCLUDED.name,
+               -- Re-sending the SAME name is not a change: every reconnect does
+               -- it, and restarting the clock each time would mean a player who
+               -- plays daily can never actually change their name.
+               name_changed_at = CASE
+                   WHEN players.name IS DISTINCT FROM EXCLUDED.name THEN now()
+                   ELSE players.name_changed_at
+               END,
+               updated_at = now(),
+               last_seen_at = now()
+         WHERE players.name IS NULL
+            OR players.name = EXCLUDED.name
+            OR players.name_changed_at IS NULL
+            OR players.name_changed_at <= now() - INTERVAL '${NAME_COOLDOWN_HOURS} hours'
          RETURNING name`,
         [walletId, name],
       )
       markUp()
+      if (!res.rows.length) {
+        // The row exists and the WHERE refused it: still inside the cooldown.
+        const when = await pool.query(
+          `SELECT name,
+                  name_changed_at + INTERVAL '${NAME_COOLDOWN_HOURS} hours' AS next_at
+             FROM players WHERE wallet_id = $1`,
+          [walletId],
+        )
+        const nextAt = when.rows[0]?.next_at
+        e.pendingName = null
+        return {
+          ok: false,
+          reason: 'You can change your name once a day.' + (nextAt ? ` Try again ${untilText(nextAt)}.` : ''),
+          retryAt: nextAt ? new Date(nextAt).toISOString() : null,
+        }
+      }
       e.pendingName = null
       e.profile.name = res.rows[0].name
       return { ok: true, name: res.rows[0].name }

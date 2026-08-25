@@ -100,8 +100,10 @@ export function mountChatUi(engine: Engine, socket: Socket) {
   modal.id = 'name-screen'
   modal.innerHTML =
     '<div class="panel"><h2>CHOOSE YOUR NAME</h2>' +
-    '<p>This is what other traders see above your character.</p>' +
-    '<input id="name-input" maxlength="14" autocomplete="off" spellcheck="false">' +
+    '<p>This is what other traders see above your character. ' +
+    '3-16 characters, letters, numbers and _ . Names are unique, and you can ' +
+    'change yours once a day.</p>' +
+    '<input id="name-input" maxlength="16" autocomplete="off" spellcheck="false">' +
     '<p id="name-error"></p>' +
     '<button id="name-ok" disabled>CONFIRM</button></div>'
   document.body.appendChild(modal)
@@ -137,6 +139,8 @@ export function mountChatUi(engine: Engine, socket: Socket) {
 
   // --- name ---------------------------------------------------------------
   let named = localStorage.getItem('sm-name')
+  /** Set only when the SERVER accepts a name; a stored one does not count. */
+  let confirmedName: string | null = null
   const openNameModal = () => {
     modal.classList.add('open')
     nameInput.value = named ?? ''
@@ -159,6 +163,7 @@ export function mountChatUi(engine: Engine, socket: Socket) {
 
   socket.on('name:accepted', (d: { name: string }) => {
     named = d.name
+    confirmedName = d.name
     localStorage.setItem('sm-name', d.name)
     modal.classList.remove('open')
     input.disabled = false
@@ -167,6 +172,15 @@ export function mountChatUi(engine: Engine, socket: Socket) {
   })
   socket.on('name:rejected', (d: { reason: string }) => {
     nameErr.textContent = d.reason
+    if (!confirmedName) {
+      // Rejected before anything was confirmed means this player still has no
+      // name — ask again rather than leaving them nameless.
+      openNameModal()
+      return
+    }
+    // A refused CHANGE must still be visible: the modal may already be closed,
+    // and a silent refusal reads as the button being broken.
+    if (!modal.classList.contains('open')) append(escape(d.reason), 'sys')
   })
   socket.on('chat:message', (d: { from?: string; text: string; system?: boolean }) => {
     if (d.system) append(escape(d.text), 'sys')
@@ -179,11 +193,36 @@ export function mountChatUi(engine: Engine, socket: Socket) {
     try { return !!JSON.parse(localStorage.getItem('sm-wallet') ?? 'null')?.connectionId } catch { return false }
   })()
   if (hasWallet) {
-    if (named) engine.processAction?.('name:set', { name: named })
-    else whenInWorld(openNameModal)
+    if (named) {
+      // A stored name is only a claim: another wallet may have taken it since,
+      // or it may predate a rule change. If the server refuses it we have no
+      // name at all, so the modal has to open — see the 'name:rejected'
+      // handler, which reopens it when nothing has been confirmed yet.
+      engine.processAction?.('name:set', { name: named })
+      whenInWorld(() => { if (!confirmedName) openNameModal() })
+    } else {
+      whenInWorld(openNameModal)
+    }
   } else {
     input.placeholder = 'Connect a wallet to chat'
   }
+
+  // Choosing a name is mandatory, so while the modal is up the world must not
+  // be playable behind it: without this the player just walks away from the
+  // question and stays "Trader" forever.
+  window.addEventListener('keydown', (e) => {
+    if (!modal.classList.contains('open')) return
+    const inModal = modal.contains(e.target as Node)
+    if (!inModal) { e.preventDefault(); e.stopPropagation() }
+  }, true)
+
+  // Changing a name later: the modal is the same one, so the rules and the
+  // server's refusals are stated in one place.
+  window.addEventListener('sm:change-name', () => {
+    if (!hasWallet) { append('Connect a wallet first.', 'sys'); return }
+    nameErr.textContent = ''
+    openNameModal()
+  })
 
   // --- chat input ---------------------------------------------------------
   window.addEventListener('keydown', (e) => {
