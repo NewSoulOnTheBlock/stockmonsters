@@ -19,6 +19,17 @@ export interface StatusState {
   toxicCounter?: number
   confusionCount?: number
   flinched?: boolean
+  /** s_protect: blocks incoming moves until end of turn. */
+  protected?: boolean
+  /** s_2turns: move being charged (fly/dig/...), executes next turn. */
+  charging?: string | null
+  /** s_reload: must spend next turn recharging. */
+  recharging?: boolean
+  /** s_bind: trap turns remaining; chips maxHp/8 each end of turn. */
+  bindTurns?: number
+  /** s_reflect family: remaining turns per screen. */
+  reflectTurns?: number
+  lightScreenTurns?: number
 }
 
 const TYPE_IMMUNITY: Record<NonVolatileStatus, string[]> = {

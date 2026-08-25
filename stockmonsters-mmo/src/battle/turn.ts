@@ -55,6 +55,12 @@ export interface Combatant {
   move: string
 }
 
+/** Mutable battle-level state that survives across turns. */
+export interface BattleState {
+  weather: import('./battler').Weather
+}
+export const newBattle = (): BattleState => ({ weather: 'none' })
+
 export type TurnEvent =
   | { type: 'used'; side: 0 | 1; move: string }
   | { type: 'prevented'; side: 0 | 1; reason: string }
@@ -69,6 +75,12 @@ export type TurnEvent =
   | { type: 'heal'; side: 0 | 1; amount: number; hp: number }
   | { type: 'recoil'; side: 0 | 1; amount: number; hp: number }
   | { type: 'hits'; side: 0 | 1; count: number }
+  | { type: 'protected'; side: 0 | 1 }
+  | { type: 'charging'; side: 0 | 1; move: string }
+  | { type: 'recharging'; side: 0 | 1 }
+  | { type: 'bound'; side: 0 | 1; turns: number }
+  | { type: 'weather'; weather: string }
+  | { type: 'screen'; side: 0 | 1; screen: 'reflect' | 'light_screen' }
   | { type: 'fainted'; side: 0 | 1 }
 
 export function liveSpeed(b: Battler): number {
@@ -128,8 +140,14 @@ function applyMoveStatuses(
   }
 }
 
+const WEATHER_BY_MOVE: Record<string, import('./battler').Weather> = {
+  rain_dance: 'rain', sunny_day: 'sun', sandstorm: 'sandstorm', hail: 'hail',
+}
+
 /** Runs one full turn including end-of-turn residuals; mutates battlers. */
-export function runTurn(sides: [Combatant, Combatant], rng: Rng): TurnEvent[] {
+export function runTurn(
+  sides: [Combatant, Combatant], rng: Rng, battle: BattleState = newBattle(),
+): TurnEvent[] {
   const events: TurnEvent[] = []
   let someoneFainted = false
 
@@ -142,6 +160,19 @@ export function runTurn(sides: [Combatant, Combatant], rng: Rng): TurnEvent[] {
     const target = them.battler
     if (user.hp <= 0) continue
 
+    // s_reload: the turn after the hit is spent recharging
+    if (me.state.recharging) {
+      me.state.recharging = false
+      events.push({ type: 'recharging', side })
+      continue
+    }
+    // s_2turns: the charged move executes this turn regardless of choice
+    let chargeExecuting = false
+    if (me.state.charging) {
+      me.move = me.state.charging
+      me.state.charging = null
+      chargeExecuting = true
+    }
     const move = getMove(me.move)
     const prevention = movePrevention(user, me.state, (moveDb[me.move]?.isUnfreeze) ?? false, rng)
     if (prevention.prevented) {
@@ -156,10 +187,37 @@ export function runTurn(sides: [Combatant, Combatant], rng: Rng): TurnEvent[] {
 
     events.push({ type: 'used', side, move: me.move })
 
+    // stateful methods that resolve without touching the target
+    if (move.method === 's_protect') {
+      me.state.protected = true
+      events.push({ type: 'protected', side })
+      continue
+    }
+    if (move.method === 's_weather') {
+      battle.weather = WEATHER_BY_MOVE[me.move] ?? 'none'
+      events.push({ type: 'weather', weather: battle.weather })
+      continue
+    }
+    if (move.method === 's_reflect') {
+      if (me.move === 'light_screen') me.state.lightScreenTurns = 5
+      else me.state.reflectTurns = 5 // reflect + aurora veil approximation
+      events.push({ type: 'screen', side, screen: me.move === 'light_screen' ? 'light_screen' : 'reflect' })
+      continue
+    }
+    if (move.method === 's_2turns' && !chargeExecuting) {
+      me.state.charging = me.move
+      events.push({ type: 'charging', side, move: me.move })
+      continue
+    }
     const selfTargeting = move.target === 'user' || move.method === 's_self_stat'
     // §6.2 gotcha: power 0 does not mean no damage — s_ohko computes it
     const dealsDamage = move.method === 's_ohko' || (move.category !== 'status' && move.power > 0)
 
+    // s_protect: the target blocks everything aimed at it this turn
+    if (!selfTargeting && them.state.protected && (dealsDamage || move.target !== 'user')) {
+      events.push({ type: 'protected', side: otherSide })
+      continue
+    }
     // §1.3 step 6: accuracy (self-targeting status moves bypass — §1.4)
     if (!(move.category === 'status' && move.target === 'user') &&
         !accuracyCheck(user, target, move, rng)) {
@@ -190,7 +248,11 @@ export function runTurn(sides: [Combatant, Combatant], rng: Rng): TurnEvent[] {
       } else {
         let landed = 0
         for (let h = 0; h < hits && target.hp > 0; h++) {
-          const r = damages(user, target, move, rng)
+          const screenMod =
+            (move.category === 'physical' && (them.state.reflectTurns ?? 0) > 0) ||
+            (move.category === 'special' && (them.state.lightScreenTurns ?? 0) > 0)
+              ? 0.5 : undefined
+          const r = damages(user, target, move, rng, { weather: battle.weather, screenMod })
           totalDealt += r.damage
           target.hp = Math.max(0, target.hp - r.damage)
           landed++
@@ -205,6 +267,13 @@ export function runTurn(sides: [Combatant, Combatant], rng: Rng): TurnEvent[] {
         events.push({ type: 'fainted', side: otherSide })
         someoneFainted = true
         targetAlive = false
+      }
+      if (move.method === 's_reload' && totalDealt > 0) me.state.recharging = true
+      if (move.method === 's_bind' && targetAlive) {
+        if (!them.state.bindTurns) {
+          them.state.bindTurns = rng(4, 5)
+          events.push({ type: 'bound', side: otherSide, turns: them.state.bindTurns })
+        }
       }
       if (move.method === 's_recoil' && totalDealt > 0) {
         const share = RECOIL_SHARE[me.move] ?? 1 / 3
@@ -260,14 +329,28 @@ export function runTurn(sides: [Combatant, Combatant], rng: Rng): TurnEvent[] {
   if (!someoneFainted) {
     for (const side of [0, 1] as const) {
       const b = sides[side].battler
+      const st = sides[side].state
       if (b.hp <= 0) continue
       const before = b.status
-      const dmg = endOfTurnTick(b, sides[side].state)
+      const dmg = endOfTurnTick(b, st)
       if (dmg > 0) {
         events.push({ type: 'residual', side, status: before ?? '?', amount: dmg, hp: b.hp })
+        if (b.hp <= 0) { events.push({ type: 'fainted', side }); continue }
+      }
+      if ((st.bindTurns ?? 0) > 0) {
+        st.bindTurns!--
+        const chip = Math.min(Math.max(1, Math.floor(b.maxHp / 8)), b.hp)
+        b.hp -= chip
+        events.push({ type: 'residual', side, status: 'bind', amount: chip, hp: b.hp })
         if (b.hp <= 0) events.push({ type: 'fainted', side })
       }
     }
+  }
+  // effect expiry — protect lasts one turn, screens count down
+  for (const c of sides) {
+    c.state.protected = false
+    if (c.state.reflectTurns) c.state.reflectTurns--
+    if (c.state.lightScreenTurns) c.state.lightScreenTurns--
   }
   return events
 }

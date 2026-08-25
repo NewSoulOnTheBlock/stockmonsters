@@ -24,6 +24,8 @@ export interface DamageContext {
   targetCount?: number
   /** Force the §1.6 crit override behaviour; rolled when undefined. */
   critical?: boolean
+  /** Extra mod1 multiplier (Reflect/Light Screen halving). */
+  screenMod?: number
 }
 
 export interface DamageResult {
@@ -67,6 +69,7 @@ export function damages(
     if (move.type === 'water') mod1 *= 0.5
   }
   if ((ctx.targetCount ?? 1) > 1) mod1 *= 0.75
+  if (ctx.screenMod) mod1 *= ctx.screenMod
 
   const ch = critical ? (user.ability === 'sniper' ? 2.25 : 1.5) : 1
   const stab = user.types.includes(move.type)
