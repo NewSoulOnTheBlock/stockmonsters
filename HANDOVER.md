@@ -210,6 +210,49 @@ happen before wide distribution. `stockmonsters-reskin/` has the sprite pipeline
 
 ---
 
+## Session-2 progress (2026-08-25, later)
+
+Everything below is committed and was verified by running it.
+
+- **All 19 playable maps** imported with collision (passages -> hitbox rects),
+  phantom-gid sanitizing, and an auto-injected `<objectgroup>`; GID-validated.
+- **70 PSDK warps** extracted (`tools/extract-warps.py`) into touch/action
+  events; elevators are hand-written `showChoices` floor menus. Arrivals snap
+  to the nearest passable cell (4/70 PSDK targets land on blocked cells).
+- **Spawn matches the original game**: the exterior dock at the ship gangway.
+- **Title screen** (original art, click -> fullscreen), 1.5x auto-zoom.
+- **Dex**: 254 fronts chroma-keyed + `src/data/dex.json` (types, stats,
+  contract addresses, dex text — stocks keyed by token-map position, memes by
+  dexId). **68 of 254 overworld charsets** exist; wild creatures wander the
+  outdoor maps biome-matched. The other 186 charsets were never generated.
+- **`docs/psdk-mechanics.md`** — 2000-line engine-source-verified spec.
+- **Battle core** (`src/battle/`, framework-independent, injectable RNG):
+  stats, exp curves, type chart, Gen-4 damage, catching, accuracy, turn
+  order, minimal 1v1 loop, wild-creature factory. 29 golden tests green
+  (`npx vitest run`).
+
+### Known issues
+
+- **Map-transfer camera flash**: on transfer the engine resets camera follow
+  and scene data, so the camera shows the map's (0,0) corner for the first
+  frames before the player syncs in. A black fade cover in `src/zoom.ts`
+  hides it; the root cause is framework-side (beta.33).
+- First-ever load of a map during a transfer takes several seconds (parse +
+  textures); repeat visits are fast. Candidate fix: preload adjacent maps.
+- Map chunk streaming is disabled (`streaming: false` in `src/server.ts`) —
+  transfers break with it in beta.33 ("f.tilesets is not iterable").
+- 186 missing overworld charsets (regenerate via
+  `stockmonsters-reskin/generate-overworld.mjs` pipeline).
+- PSDK maps 22-26 (Bull Canyon -> Exchange City) have encounter data but no
+  geometry — that route must be authored from scratch.
+
+### Direction notes
+
+- Roadmap (user): mechanics -> backend (wallet SIWE login; progress stored
+  server-side keyed by wallet) -> **in-game NFT mint: catching a
+  stockmonster mints it to the player's wallet**. NFTs should also be usable
+  in-game. Server stays authoritative over mint decisions.
+
 ## The streaming fallback (context only — not the focus)
 
 `web/` holds a working WebRTC streaming stack that runs the **real PSDK game**
