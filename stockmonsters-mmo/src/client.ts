@@ -17,7 +17,15 @@ try {
 startGame(
   mergeConfig(configClient, {
     providers: [
-      provideMmorpg(wallet?.connectionId ? { connectionId: wallet.connectionId } : {}),
+      // ALWAYS a fresh connection id. RPG-JS defaults to storing one in
+      // localStorage and reusing it, and reconnecting with an id the server
+      // has seen leaves the new socket able to RECEIVE state but unable to
+      // SEND anything: the player renders and then arrow keys, chat and
+      // character changes all silently do nothing. Verified with a headless
+      // browser — ephemeral ids fix it completely.
+      // The wallet is still the player's identity; it just travels as a claim
+      // (see 'auth:wallet' below) instead of as the transport id.
+      provideMmorpg({ connectionIdScope: "ephemeral" as const }),
     ],
   })
 ).then((ctx) => {
@@ -49,6 +57,15 @@ startGame(
     push();
   };
 
+  // Announce the wallet identity, if the server verified one earlier.
+  if (wallet?.connectionId) {
+    const claim = () => engine?.processAction?.("auth:wallet", {
+      id: wallet!.connectionId, address: wallet!.address,
+    });
+    claim();
+    setTimeout(claim, 900); // once more after the room is certainly joined
+  }
+
   try {
     setCharacter(JSON.parse(localStorage.getItem("sm-character") ?? "null"));
   } catch {}
@@ -72,6 +89,13 @@ startGame(
     const socket: any = inject(ctx as any, WebSocketToken as any);
     if (socket?.on) {
       socket.on("character:accepted", () => { confirmed = true; });
+      // Close the socket before the page goes away. Reusing a connectionId
+      // whose previous session is still open server-side leaves the new
+      // connection able to RECEIVE state but unable to SEND actions — the
+      // player renders, and then nothing they do reaches the server.
+      const bye = () => { try { socket.conn?.close?.() } catch {} };
+      window.addEventListener("pagehide", bye);
+      window.addEventListener("beforeunload", bye);
       mountBattleScene(socket);
       mountChatUi(engine, socket);
     }

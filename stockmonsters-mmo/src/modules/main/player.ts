@@ -90,6 +90,20 @@ export const player: RpgPlayerHooks = {
             player.emit('name:accepted', { name: result.name })
             return
         }
+        if (action == 'auth:wallet') {
+            // The id is an HMAC only the server can produce (auth.mjs), so a
+            // client presenting one has proven wallet ownership at some point.
+            // It is the identity we key player-owned things to; the transport
+            // connection id is deliberately throwaway.
+            const id = (data as { id?: unknown })?.id
+            const address = (data as { address?: unknown })?.address
+            if (typeof id !== 'string' || !/^w:[0-9a-f]{32}$/.test(id)) return
+            player.setVariable('WALLET_ID', id)
+            if (typeof address === 'string' && /^0x[0-9a-fA-F]{40}$/.test(address)) {
+                player.setVariable('WALLET_ADDRESS', address.toLowerCase())
+            }
+            return
+        }
         if (action == 'chat:send') {
             handleChat(player, data)
         }

@@ -403,35 +403,34 @@ Everything below is committed and was verified by running it.
 - ⚠️ This is literal Pokémon geography and Nintendo-derived tile art, and it
   is NOT reskinned. The unreskinned-art warning above applies to it.
 
-### 🔴 BLOCKER FOUND (session 3, headless-verified): reload kills all input
+### Reload-kills-input blocker — FOUND AND FIXED (session 3)
 
-**Symptom the user reported**: "picking a character doesn't start you with it."
-**Actual root cause, proven with puppeteer**: after a PAGE RELOAD the entire
-client -> server channel is dead. Not just character selection — ARROW KEYS
-DO NOTHING either. The player renders, has a server-assigned name, receives
-server->client sync, and `canMove` is true, but nothing it sends arrives.
+**Symptom**: "picking a character doesn't start you with it." **Real cause**,
+proven with puppeteer: after a page RELOAD the whole client -> server channel
+was dead. Arrow keys did nothing, chat did nothing, a manual
+`engine.processAction` did nothing, and even a raw `socket.conn` emit
+bypassing every client guard did nothing — server-side logging confirmed the
+action never arrived. The player still RENDERED and received sync, which is
+why it looked like a character bug.
 
-Evidence (scratchpad/char-test.mjs, run against the production server):
-- First load: movement works, 784,2020 -> 588,2020. Picking a character works
-  end-to-end; engine reports `graphics: ["ch-dog-01-2"]`.
-- After `page.reload()`: `graphics: ["hero"]`, movement 784,2000 -> 784,2000
-  (frozen), a manual `engine.processAction(...)` does nothing, and even
-  `engine.socket.emit('action', ...)` (bypassing every client guard) does
-  nothing. Server-side `onInput` logging confirms the action NEVER ARRIVES.
-- So it is not our validation, not the canMove guard, not stopProcessingInput.
-  Something about the reconnect leaves the socket unable to send actions.
+**Root cause**: RPG-JS's `provideMmorpg` defaults to
+`connectionIdScope: 'local'`, which stores a connection id in
+`localStorage['rpgjs-user-id']` and REUSES IT on every load. Reconnecting with
+an id the server has already seen produces a half-alive session: receive
+works, send does not. Closing the socket cleanly on `pagehide` did NOT help.
 
-Suspects, in order: (a) the reload's new connection joins the lobby but the
-map room binding is lost, (b) `changeMap` inside `onConnected` on a fresh
-connection leaves the socket bound to the old room, (c) the previous page's
-websocket lingering server-side. NOT YET DIAGNOSED FURTHER.
+**Fix**: `connectionIdScope: 'ephemeral'` — a fresh transport id per page
+load, always. Verified: reload now keeps the character AND movement works
+(784 -> 585), for both the anonymous and the wallet path.
 
-**This is the highest-priority bug in the project** — every returning player
-hits it. Mitigation already in place (an ack + retry loop in client.ts, server
-emits `character:accepted`) does NOT help, because the channel itself is dead.
-
-`window.__engine` is now exposed in client.ts specifically so this can be
-probed from a headless browser; keep it.
+**Consequence, important**: the connection id is no longer the identity. The
+wallet id (the unforgeable HMAC from auth.mjs) now travels as a CLAIM — the
+client sends `auth:wallet` after connecting and the server stores it in
+`WALLET_ID`/`WALLET_ADDRESS`. Note that per-connectionId persistence was never
+actually working anyway: with a stable id, a reload still came back as a fresh
+"Trader" with nothing restored. **Cross-device wallet-keyed saves are
+therefore still TO BUILD** — currently character and name are restored from
+localStorage on the client and re-applied over the wire.
 
 ### Requested, not yet built (user, 2026-08-25 evening)
 
