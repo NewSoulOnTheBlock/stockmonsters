@@ -16,8 +16,8 @@ export function MemeStrip() {
   );
 
   return (
-    <div className="relative overflow-hidden py-4">
-      <div className="tape-track animate-tape-slow">
+    <div className="tape-window py-4">
+      <div className="tape-track animate-strip">
         {run("a")}
         {run("b")}
       </div>

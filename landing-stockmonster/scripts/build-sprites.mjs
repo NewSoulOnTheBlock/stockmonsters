@@ -163,7 +163,40 @@ await buildSet(creatures, "mon");
 await buildSet(memes, "meme");
 
 // The reskinned title art (has a .vanilla-bak sibling, i.e. it was replaced).
+// Only the city band is kept for the page background: the logo lives in the
+// top half and would fight the real <h1> sitting on top of it, and the baked-in
+// copyright line sits just below this crop.
 await sharp(path.join(REPO, "Stockmonsters/graphics/titles/background.png"))
+  .extract({ left: 0, top: 150, width: 320, height: 66 })
   .png()
   .toFile(path.join(PUB, "skyline.png"));
-console.log("[sprites] skyline.png");
+console.log("[sprites] skyline.png (city band, 320x66)");
+
+/* ------------------------------------------------------------------ *
+ * Social card + favicons, both cut from art that was actually reskinned.
+ * ------------------------------------------------------------------ */
+const title = path.join(REPO, "Stockmonsters/graphics/titles/background.png");
+
+// 320x240 -> nearest-neighbour x4 -> crop the logo + skyline band to 1200x630
+await sharp(title)
+  .resize(1280, 960, { kernel: "nearest" })
+  .extract({ left: 40, top: 30, width: 1200, height: 630 })
+  .png()
+  .toFile(path.join(PUB, "og.png"));
+console.log("[sprites] og.png 1200x630");
+
+// favicon: Applion (dex 1), trimmed and squared
+const APP = path.join(PUB, "mon", "1.png");
+const APPDIR = path.resolve(HERE, "../src/app");
+await sharp(APP)
+  .trim({ threshold: 1 })
+  .resize(64, 64, { kernel: "nearest", fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
+  .png()
+  .toFile(path.join(APPDIR, "icon.png"));
+await sharp(APP)
+  .trim({ threshold: 1 })
+  .resize(150, 150, { kernel: "nearest", fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
+  .extend({ top: 15, bottom: 15, left: 15, right: 15, background: "#06070a" })
+  .png()
+  .toFile(path.join(APPDIR, "apple-icon.png"));
+console.log("[sprites] icon.png + apple-icon.png");

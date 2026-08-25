@@ -148,6 +148,28 @@ export function SectionHead({
   );
 }
 
+/* ------------------------------------------------------------------ *
+ *  Pixel horizon — the city band from the reskinned title art, tiled
+ *  along the bottom of a section at integer scale and faded upward.
+ * ------------------------------------------------------------------ */
+export function PixelHorizon({ className = "" }: { className?: string }) {
+  return (
+    <div
+      aria-hidden
+      className={`pointer-events-none absolute inset-x-0 bottom-0 h-[198px] [background-size:960px_198px] lg:h-[264px] lg:[background-size:1280px_264px] ${className}`}
+      style={{
+        backgroundImage: "url(/skyline.png)",
+        backgroundRepeat: "repeat-x",
+        backgroundPosition: "center bottom",
+        imageRendering: "pixelated",
+        opacity: 0.34,
+        maskImage: "linear-gradient(to top, #000 0%, rgba(0,0,0,.85) 30%, transparent 100%)",
+        WebkitMaskImage: "linear-gradient(to top, #000 0%, rgba(0,0,0,.85) 30%, transparent 100%)",
+      }}
+    />
+  );
+}
+
 export function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link

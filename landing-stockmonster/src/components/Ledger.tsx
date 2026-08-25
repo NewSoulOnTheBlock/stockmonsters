@@ -27,7 +27,7 @@ function MonCard({ c }: { c: Creature }) {
   return (
     <Link
       href={`/ledger/${c.ticker}`}
-      className="group relative block bg-slab p-3 transition-[transform,background-color] duration-100 hover:-translate-y-[3px] hover:bg-slab-hi focus-visible:-translate-y-[3px]"
+      className="group defer-paint relative block bg-slab p-3 transition-[transform,background-color] duration-100 hover:-translate-y-[3px] hover:bg-slab-hi focus-visible:-translate-y-[3px]"
       style={{
         boxShadow: `0 -3px 0 0 #0a0e16, 0 3px 0 0 #0a0e16, -3px 0 0 0 #0a0e16, 3px 0 0 0 #0a0e16`,
       }}

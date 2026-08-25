@@ -35,7 +35,7 @@ export function TickerTape({
   );
 
   return (
-    <div className="relative overflow-hidden border-y border-line bg-pit/80">
+    <div className="tape-window border-y border-line bg-pit/80">
       <div
         className={`tape-track ${speed === "slow" ? "animate-tape-slow" : "animate-tape"}`}
         style={reverse ? { animationDirection: "reverse" } : undefined}

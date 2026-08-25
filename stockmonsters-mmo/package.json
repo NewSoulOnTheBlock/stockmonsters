@@ -1,0 +1,36 @@
+{
+  "name": "myrpg",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test:production": "node --test test/production-preview.test.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "description": "",
+  "devDependencies": {
+    "@canvasengine/compiler": "2.2.0",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "path-browserify": "^1.0.1",
+    "vite": "^8.2.2"
+  },
+  "private": true,
+  "dependencies": {
+    "@canvasengine/presets": "2.2.0",
+    "@rpgjs/action-battle": "5.0.0-beta.33",
+    "@rpgjs/client": "5.0.0-beta.33",
+    "@rpgjs/common": "5.0.0-beta.30",
+    "@rpgjs/server": "5.0.0-beta.33",
+    "@rpgjs/tiledmap": "5.0.0-beta.33",
+    "@rpgjs/ui-css": "5.0.0-beta.26",
+    "@rpgjs/vite": "5.0.0-beta.33",
+    "@signe/di": "^3.1.1",
+    "canvasengine": "2.2.0",
+    "pixi.js": "^8.19.0",
+    "sharp": "^0.35.3"
+  },
+  "type": "module"
+}

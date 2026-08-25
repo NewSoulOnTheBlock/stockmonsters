@@ -28,8 +28,12 @@
   --font-mono: var(--f-mono), ui-monospace, "SFMono-Regular", monospace;
   --font-serif: var(--f-serif), Georgia, serif;
 
-  --animate-tape: tape 90s linear infinite;
-  --animate-tape-slow: tape 160s linear infinite;
+  /* Durations are tuned per band so every marquee travels at a readable
+     ~65-75 px/s regardless of how much content it carries. The stock tape
+     holds 194 entries (~35,000px per loop); the meme strip holds 60. */
+  --animate-tape: tape 480s linear infinite;
+  --animate-tape-slow: tape 660s linear infinite;
+  --animate-strip: tape 85s linear infinite;
   --animate-blink: blink 1.1s steps(1) infinite;
   --animate-bob: bob 2.4s steps(2) infinite;
   --animate-rise: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -63,6 +67,8 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  /* marquees are intentionally wider than the viewport; clip, never scroll */
+  overflow-x: clip;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -71,6 +77,11 @@ html {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+  /* the marquees stop dead rather than snapping to the end of one loop */
+  .tape-track {
+    animation: none !important;
+    transform: none !important;
   }
 }
 
@@ -201,6 +212,13 @@ body::before {
   will-change: transform;
 }
 
+/* the marquee itself must never be a source of page-level scrolling */
+.tape-window {
+  position: relative;
+  overflow: hidden;
+  max-width: 100%;
+}
+
 .grid-floor {
   background-image:
     linear-gradient(to right, rgba(58, 74, 99, 0.22) 1px, transparent 1px),
@@ -246,3 +264,10 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .no-bar::-webkit-scrollbar { display: none; }
 .no-bar { scrollbar-width: none; }
+
+/* 194 cards render at once so Cmd+F still finds everything; skip the layout
+   and paint work for the ones that are nowhere near the viewport. */
+.defer-paint {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 244px;
+}

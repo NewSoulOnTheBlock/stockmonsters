@@ -44,14 +44,14 @@ export const metadata: Metadata = {
     description:
       "194 US stock tickers reimagined as collectible monsters in a playable retro RPG.",
     type: "website",
-    images: [{ url: "/skyline.png", width: 320, height: 240 }],
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Stockmonsters title screen" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Stockmonsters — 194 tickers. One pixel ledger.",
     description:
       "194 US stock tickers reimagined as collectible monsters in a playable retro RPG.",
-    images: ["/skyline.png"],
+    images: ["/og.png"],
   },
 };
 

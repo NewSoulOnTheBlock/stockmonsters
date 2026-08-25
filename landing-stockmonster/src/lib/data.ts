@@ -46,7 +46,7 @@ export type ElementType = {
 
 export const CREATURES = creaturesRaw as Creature[];
 export const MEMES = memesRaw as Meme[];
-export const TYPES = typesRaw as ElementType[];
+export const TYPES = typesRaw as unknown as ElementType[];
 
 export const TYPE_BY_NAME = Object.fromEntries(TYPES.map((t) => [t.name, t])) as Record<
   string,

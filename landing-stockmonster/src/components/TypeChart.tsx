@@ -108,7 +108,7 @@ export function TypeChart() {
 
       {/* full matrix */}
       <figure className="min-w-0">
-        <div className="frame frame-thin overflow-x-auto bg-pit p-3 no-bar" style={{ ["--bc" as string]: "#242f40" }}>
+        <div className="frame frame-thin overflow-x-auto bg-pit p-3" style={{ ["--bc" as string]: "#242f40" }}>
           <table className="w-full min-w-[560px] border-separate border-spacing-[2px]">
             <caption className="sr-only">
               Attack type effectiveness matrix. Rows attack, columns defend.
@@ -168,6 +168,7 @@ export function TypeChart() {
           </table>
         </div>
         <figcaption className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-dimmer">
+          <span className="sm:hidden">Swipe the grid sideways →</span>
           <span>Rows attack, columns defend.</span>
           <span className="flex items-center gap-1.5">
             <i className="inline-block h-2.5 w-2.5" style={{ background: "#1d3d2c" }} /> ×2

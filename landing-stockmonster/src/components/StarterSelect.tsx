@@ -73,7 +73,7 @@ function Card({
       type="button"
       onClick={onSelect}
       aria-pressed={active}
-      className={`group relative block w-full bg-slab p-4 text-left transition-transform duration-100 ${
+      className={`group relative block w-full min-w-0 bg-slab p-3 text-left transition-transform duration-100 sm:p-4 ${
         active ? "-translate-y-1" : "hover:-translate-y-1"
       }`}
       style={{
@@ -89,7 +89,7 @@ function Card({
         </span>
       </div>
       <div
-        className="my-2 grid h-[120px] place-items-center"
+        className="my-2 grid h-20 place-items-center sm:h-[120px]"
         style={{ background: `radial-gradient(58% 52% at 50% 62%, ${accent}26, transparent 70%)` }}
       >
         <Sprite
@@ -97,12 +97,14 @@ function Card({
           name={c.name}
           size={112}
           priority
-          className={active ? "animate-bob" : "transition-transform group-hover:scale-105"}
+          className={`max-sm:!h-16 max-sm:!w-16 ${
+            active ? "animate-bob" : "transition-transform group-hover:scale-105"
+          }`}
         />
       </div>
-      <h3 className="font-display text-[13px] leading-tight text-bone">{c.name}</h3>
-      <p className="mt-1 text-[11px] text-dim">{c.company}</p>
-      <div className="mt-2.5 flex gap-1">
+      <h3 className="font-display text-[11px] leading-tight text-bone sm:text-[13px]">{c.name}</h3>
+      <p className="mt-1 truncate text-[10px] text-dim sm:text-[11px]">{c.company}</p>
+      <div className="mt-2.5 flex flex-wrap gap-1">
         {c.types.map((t) => (
           <TypeChip key={t} type={t} size="sm" />
         ))}
