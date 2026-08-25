@@ -1,6 +1,9 @@
 import { RpgPlayer, type RpgPlayerHooks } from '@rpgjs/server'
 import { openMenu } from './menus'
 import { CHARACTER_IDS } from '../../data/character-catalog'
+import { validateName } from './names'
+import { handleChat } from './chat'
+import { Components } from '@rpgjs/server'
 
 const DEFAULT_GRAPHIC = 'hero'
 
@@ -23,6 +26,10 @@ export const player: RpgPlayerHooks = {
         const saved = sanitizeCharacter(player.getVariable('CHARACTER'))
         player.setGraphic(saved ?? [DEFAULT_GRAPHIC])
 
+        // Name tag above every character — synced to all clients by the engine
+        player.name = (player.getVariable('NAME') as string | undefined) ?? 'Trader'
+        player.setComponentsTop(Components.text('{name}'))
+
         // Every map transfer reconnects the socket and fires onConnected
         // again — spawning unconditionally here yanks the player back to the
         // hub mid-transfer and ping-pongs them between maps forever.
@@ -37,7 +44,6 @@ export const player: RpgPlayerHooks = {
             x: 784,
             y: 2000
         })
-        player.name = 'Trader'
     },
     onInput(player: RpgPlayer, { action, data }) {
         // Escape opens our menu (the built-in main menu comes later with
@@ -48,6 +54,22 @@ export const player: RpgPlayerHooks = {
             if (!ids) return // silently ignore garbage
             player.setVariable('CHARACTER', ids) // -> data/rooms.sqlite, keyed by wallet
             player.setGraphic(ids)               // -> @sync() graphics -> every peer
+            return
+        }
+        if (action == 'name:set') {
+            const result = validateName((data as { name?: unknown })?.name)
+            if ('error' in result) {
+                player.emit('name:rejected', { reason: result.error })
+                return
+            }
+            player.setVariable('NAME', result.name)
+            player.name = result.name
+            player.setComponentsTop(Components.text('{name}'))
+            player.emit('name:accepted', { name: result.name })
+            return
+        }
+        if (action == 'chat:send') {
+            handleChat(player, data)
         }
     }
 }

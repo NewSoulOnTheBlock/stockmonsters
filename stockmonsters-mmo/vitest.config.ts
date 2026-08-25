@@ -5,7 +5,8 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    include: ['src/battle/**/*.spec.ts'],
+    // chat-filter/names are pure logic too — they must not import @rpgjs/*
+    include: ['src/battle/**/*.spec.ts', 'src/modules/main/chat-filter.spec.ts'],
     environment: 'node',
   },
 })

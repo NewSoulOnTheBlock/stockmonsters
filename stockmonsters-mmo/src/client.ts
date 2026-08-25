@@ -3,6 +3,7 @@ import configClient from "./config/config.client";
 import { mergeConfig, inject } from "@signe/di";
 import { applyAutoZoom } from "./zoom";
 import { mountBattleScene } from "./battle-scene";
+import { mountChatUi } from "./chat-ui";
 
 // A verified wallet becomes the stable game identity. The connectionId is
 // NOT the address: the server derives it from the address with a secret only
@@ -47,6 +48,9 @@ startGame(
   // custom-event socket channel; the overlay renders them.
   try {
     const socket: any = inject(ctx as any, WebSocketToken as any);
-    if (socket?.on) mountBattleScene(socket);
+    if (socket?.on) {
+      mountBattleScene(socket);
+      mountChatUi(engine, socket);
+    }
   } catch {}
 });

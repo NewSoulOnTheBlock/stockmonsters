@@ -347,6 +347,36 @@ Everything below is committed and was verified by running it.
   production `server.mjs` smoke test serves picker catalog (49), generated
   ow sheets, and a "woka"-free page.
 
+- **Player names + global chat SHIPPED (session 3)**. Names: mandatory once
+  a wallet is connected — pixel modal (`src/chat-ui.ts`, no browser prompt),
+  validated server-side by `src/modules/main/names.ts` (3-14 chars, ASCII
+  only so Cyrillic lookalikes can't impersonate, reserved words blocked, no
+  links/addresses), stored in the `NAME` variable, and rendered above every
+  character via `player.setComponentsTop(Components.text('{name}'))` — the
+  engine syncs that to all clients, no custom rendering needed.
+  Chat: left-side pixel panel, Enter focuses the input (and stops key
+  propagation so typing doesn't walk the player), Escape leaves it. Server
+  filters EVERY message (`chat-filter.ts`) and rate-limits 6 per 10s.
+  **The filter's design is the interesting part**: it never tests raw text.
+  It builds two normalized views — `squashed` (all separators removed, catches
+  "e x a m p l e . c o m") and `dotted` (only PUNCTUATION collapsed to ".",
+  spaces preserved) — plus homoglyph/leetspeak folding. The space-vs-
+  punctuation split is load-bearing: "to" and "me" are real TLDs AND ordinary
+  words, so "want to trade" must pass while "example . com" must not. Length
+  checks run per raw word, because a whole sentence squashes into one long run
+  that looks exactly like a base58 address. 38 tests in
+  `src/modules/main/chat-filter.spec.ts` (vitest.config.ts now includes it);
+  suite went 63 -> 101 green.
+
+### Requested, not yet built (user, 2026-08-25 evening)
+
+- **In-game minigames** once the maps are done — small playable activities
+  inside the world.
+- **NFT staking area**: a physical location on a map the player walks to and
+  stakes their minted Stockmonsters.
+- **Play-to-earn features** built around the above.
+  (Sequencing per user: maps first, then these.)
+
 ### Next steps (in order, user-confirmed)
 
 1. Deploy to the BitLaunch box with the lord-fishu pattern (bootstrap/sync/Caddy).
