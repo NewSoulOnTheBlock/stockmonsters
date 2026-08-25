@@ -257,32 +257,49 @@
         var x = document.querySelector(".rpg-ui-close-button");
         if (x) { e.preventDefault(); x.click(); }
       });
-      // Wallet connect: sign a login message, persist the proof, and use
-      // the address as the game identity (client.ts feeds it to the room
-      // connection as connectionId). Server-side signature verification is
-      // the wallet stage's remaining glue — see HANDOVER.
+      // Wallet login: the server issues a nonce, the wallet signs it, and the
+      // server hands back an opaque connectionId derived from the address with
+      // a secret it alone holds (see auth.mjs). The client never picks its own
+      // identity — otherwise typing someone else's address would load their
+      // save. Reconnecting later reuses the stored connectionId.
       (function () {
         var btn = document.getElementById("wallet-btn");
         function short(a) { return a.slice(0, 6) + "…" + a.slice(-4); }
         try {
           var saved = JSON.parse(localStorage.getItem("sm-wallet") || "null");
-          if (saved && saved.address) { btn.textContent = short(saved.address); btn.classList.add("connected"); }
+          if (saved && saved.address && saved.connectionId) {
+            btn.textContent = short(saved.address);
+            btn.classList.add("connected");
+          }
         } catch (e) {}
         btn.addEventListener("click", async function (e) {
           e.stopPropagation(); // don't start the game
           if (!window.ethereum) { btn.textContent = "NO WALLET FOUND"; return; }
+          var original = btn.textContent;
           try {
+            btn.textContent = "SIGNING…";
             var accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
             var address = accounts[0];
-            var message = "Stockmonsters login\n" + address + "\n" + new Date().toISOString();
+            var nonce = (await (await fetch("/auth/nonce")).json()).nonce;
+            var message =
+              "Stockmonsters login\nAddress: " + address + "\nNonce: " + nonce;
             var signature = await window.ethereum.request({
               method: "personal_sign", params: [message, address]
             });
-            localStorage.setItem("sm-wallet", JSON.stringify({ address: address, message: message, signature: signature }));
-            btn.textContent = short(address);
+            var verify = await fetch("/auth/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ address: address, message: message, signature: signature })
+            });
+            if (!verify.ok) throw new Error("verification failed");
+            var proof = await verify.json();
+            localStorage.setItem("sm-wallet", JSON.stringify(proof));
+            btn.textContent = short(proof.address);
             btn.classList.add("connected");
+            // the identity only takes effect on the next boot
+            setTimeout(function () { location.reload(); }, 400);
           } catch (err) {
-            btn.textContent = "CONNECT WALLET";
+            btn.textContent = original === "SIGNING…" ? "CONNECT WALLET" : original;
           }
         });
       })();

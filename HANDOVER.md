@@ -266,13 +266,20 @@ Everything below is committed and was verified by running it.
 - PSDK maps 22-26 (Bull Canyon -> Exchange City) have encounter data but no
   geometry — that route must be authored from scratch.
 
-- **Wallet identity (half done)**: title screen has a pixel CONNECT WALLET
-  button (eth_requestAccounts + personal_sign, proof in localStorage
-  `sm-wallet`); client.ts feeds the address into the room `connectionId`, so
-  saves key by wallet. REMAINING GLUE: server-side verification of the
-  stored signature before trusting the identity (viem
-  `recoverMessageAddress`; wire into onConnected), plus a freshness/nonce
-  scheme.
+- **Wallet login DONE (session 3)**: `auth.mjs` implements a minimal
+  sign-in-with-Ethereum on the production server. `GET /auth/nonce` issues a
+  single-use, 5-minute nonce; `POST /auth/verify {address,message,signature}`
+  checks it with viem's `verifyMessage` and returns
+  `connectionId = "w:" + HMAC-SHA256(SERVER_SECRET, address)`.
+  THE POINT: connectionId is chosen client-side and is what saves key by, so
+  the address must NEVER be the id directly — anyone could then load anyone
+  else's save. The HMAC is stable per wallet (saves follow you across
+  devices) but unforgeable without the secret. **Set SERVER_SECRET in
+  production**; without it a random one is generated per boot and wallet
+  saves reset on restart. `tools/auth-test.mjs` is the regression test (run
+  the server on PORT=4131, then `node tools/auth-test.mjs`): honest login,
+  stable id, impersonation, nonce replay, forged signature, distinct
+  wallets, unknown nonce — all 7 behave correctly.
 - **contracts/StockmonstersNFT.sol**: catch-to-mint ERC-721 with
   server-signed EIP-712 vouchers, 4 forge tests green (`cd contracts &&
   forge test`). Deploy steps in contracts/README.md.

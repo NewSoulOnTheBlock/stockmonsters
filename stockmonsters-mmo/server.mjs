@@ -14,6 +14,7 @@ import { createReadStream, existsSync, mkdirSync, statSync } from 'node:fs'
 import { extname, join, normalize, resolve } from 'node:path'
 import { createRpgServerTransport, createSqliteNodeRoomStorage } from '@rpgjs/server/node'
 import serverModule from './dist/server/server.js'
+import { handleAuth } from './auth.mjs'
 
 const PORT = Number(process.env.PORT ?? 3000)
 const CLIENT_DIR = resolve('./dist/client')
@@ -47,6 +48,7 @@ function serveStatic(req, res) {
 
 const server = http.createServer(async (req, res) => {
   try {
+    if (await handleAuth(req, res)) return
     const handled = await transport.handleNodeRequest(req, res, undefined, { mountedPath: '/parties' })
     if (handled) return
     serveStatic(req, res)

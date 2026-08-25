@@ -4,11 +4,11 @@ import { mergeConfig, inject } from "@signe/di";
 import { applyAutoZoom } from "./zoom";
 import { mountBattleScene } from "./battle-scene";
 
-// A connected wallet becomes the stable game identity: its address feeds the
-// room connectionId, so saves key by wallet across devices. The signature
-// stored next to it is verified server-side in the wallet stage's remaining
-// glue (see HANDOVER) — until then this is identity, not yet proof.
-let wallet: { address?: string } | null = null;
+// A verified wallet becomes the stable game identity. The connectionId is
+// NOT the address: the server derives it from the address with a secret only
+// it holds, after checking a nonce-bound signature (auth.mjs). So a client
+// cannot claim another player's save by naming their address.
+let wallet: { address?: string; connectionId?: string } | null = null;
 try {
   wallet = JSON.parse(localStorage.getItem("sm-wallet") ?? "null");
 } catch {}
@@ -16,9 +16,7 @@ try {
 startGame(
   mergeConfig(configClient, {
     providers: [
-      provideMmorpg(
-        wallet?.address ? { connectionId: "wallet:" + wallet.address.toLowerCase() } : {},
-      ),
+      provideMmorpg(wallet?.connectionId ? { connectionId: wallet.connectionId } : {}),
     ],
   })
 ).then((ctx) => {
