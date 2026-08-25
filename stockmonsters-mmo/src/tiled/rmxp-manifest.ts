@@ -7,16 +7,312 @@
 // clobber each other. To put these maps in the game, spread RMXP_MAPS
 // into the MAPS list in src/modules/main/server.ts — the hitbox shape is
 // identical, so the existing onBeforeUpdate hook already handles them.
-import h0 from './lake-of-rage.hitboxes.json'
-import h1 from './mt-mortar.hitboxes.json'
-import h2 from './new-bark-town.hitboxes.json'
-import h3 from './route-3.hitboxes.json'
+import h0 from './abandoned-mine.hitboxes.json'
+import h1 from './abandoned-mine-b1f.hitboxes.json'
+import h2 from './abandoned-mine-b2f.hitboxes.json'
+import h3 from './abandoned-mine-b3f.hitboxes.json'
+import h4 from './abandoned-mine-b4f.hitboxes.json'
+import h5 from './alyssum-island.hitboxes.json'
+import h6 from './azalea-town.hitboxes.json'
+import h7 from './battle-tower.hitboxes.json'
+import h8 from './blackthorn-city.hitboxes.json'
+import h9 from './celadon-city.hitboxes.json'
+import h10 from './cerulean-city.hitboxes.json'
+import h11 from './cherrygrove-city.hitboxes.json'
+import h12 from './cianwood-city.hitboxes.json'
+import h13 from './cinnabar-island.hitboxes.json'
+import h14 from './cliff-edge-gate.hitboxes.json'
+import h15 from './dark-cave-east.hitboxes.json'
+import h16 from './dark-cave-west.hitboxes.json'
+import h17 from './diglett-s-cave-13.hitboxes.json'
+import h18 from './diglett-s-cave-15.hitboxes.json'
+import h19 from './diglett-s-cave-b1f.hitboxes.json'
+import h20 from './dragon-s-den.hitboxes.json'
+import h21 from './ecruteak-city.hitboxes.json'
+import h22 from './extra.hitboxes.json'
+import h23 from './fuchsia-city.hitboxes.json'
+import h24 from './goldenrod-city.hitboxes.json'
+import h25 from './goldenrod-sea-path.hitboxes.json'
+import h26 from './ice-path.hitboxes.json'
+import h27 from './ice-path-b1f.hitboxes.json'
+import h28 from './ice-path-b2f.hitboxes.json'
+import h29 from './ice-path-b3f.hitboxes.json'
+import h30 from './ilex-forest.hitboxes.json'
+import h31 from './indigo-plateau.hitboxes.json'
+import h32 from './johto-enhanced.hitboxes.json'
+import h33 from './kanto-remastered.hitboxes.json'
+import h34 from './lake-of-rage.hitboxes.json'
+import h35 from './lavender-town.hitboxes.json'
+import h36 from './mahogany-town.hitboxes.json'
+import h37 from './map035.hitboxes.json'
+import h38 from './map041.hitboxes.json'
+import h39 from './map053.hitboxes.json'
+import h40 from './map060.hitboxes.json'
+import h41 from './map061.hitboxes.json'
+import h42 from './map062.hitboxes.json'
+import h43 from './map063.hitboxes.json'
+import h44 from './map064.hitboxes.json'
+import h45 from './map065.hitboxes.json'
+import h46 from './map066.hitboxes.json'
+import h47 from './map067.hitboxes.json'
+import h48 from './map068.hitboxes.json'
+import h49 from './map069.hitboxes.json'
+import h50 from './map072.hitboxes.json'
+import h51 from './map073.hitboxes.json'
+import h52 from './map074.hitboxes.json'
+import h53 from './map075.hitboxes.json'
+import h54 from './map153.hitboxes.json'
+import h55 from './mt-moon.hitboxes.json'
+import h56 from './mt-moon-b1f.hitboxes.json'
+import h57 from './mt-moon-b2f.hitboxes.json'
+import h58 from './mt-mortar.hitboxes.json'
+import h59 from './mt-mortar-b1f.hitboxes.json'
+import h60 from './mt-mortar-b2f.hitboxes.json'
+import h61 from './mt-silver.hitboxes.json'
+import h62 from './mt-silver-peak.hitboxes.json'
+import h63 from './national-park.hitboxes.json'
+import h64 from './new-bark-town.hitboxes.json'
+import h65 from './north-rock-cave.hitboxes.json'
+import h66 from './olivine-city.hitboxes.json'
+import h67 from './olivine-marina.hitboxes.json'
+import h68 from './olivine-sea-path.hitboxes.json'
+import h69 from './pallet-town.hitboxes.json'
+import h70 from './peaceful-garden.hitboxes.json'
+import h71 from './pewter-city.hitboxes.json'
+import h72 from './rock-tunnel.hitboxes.json'
+import h73 from './rock-tunnel-b1f.hitboxes.json'
+import h74 from './route-1.hitboxes.json'
+import h75 from './route-10.hitboxes.json'
+import h76 from './route-11.hitboxes.json'
+import h77 from './route-12.hitboxes.json'
+import h78 from './route-13.hitboxes.json'
+import h79 from './route-14.hitboxes.json'
+import h80 from './route-15.hitboxes.json'
+import h81 from './route-16.hitboxes.json'
+import h82 from './route-17.hitboxes.json'
+import h83 from './route-18.hitboxes.json'
+import h84 from './route-19.hitboxes.json'
+import h85 from './route-2-11.hitboxes.json'
+import h86 from './route-2-70.hitboxes.json'
+import h87 from './route-20.hitboxes.json'
+import h88 from './route-21.hitboxes.json'
+import h89 from './route-22.hitboxes.json'
+import h90 from './route-23.hitboxes.json'
+import h91 from './route-24.hitboxes.json'
+import h92 from './route-25.hitboxes.json'
+import h93 from './route-26.hitboxes.json'
+import h94 from './route-27.hitboxes.json'
+import h95 from './route-28.hitboxes.json'
+import h96 from './route-29.hitboxes.json'
+import h97 from './route-3.hitboxes.json'
+import h98 from './route-30.hitboxes.json'
+import h99 from './route-31.hitboxes.json'
+import h100 from './route-32.hitboxes.json'
+import h101 from './route-33.hitboxes.json'
+import h102 from './route-34.hitboxes.json'
+import h103 from './route-35.hitboxes.json'
+import h104 from './route-36.hitboxes.json'
+import h105 from './route-37.hitboxes.json'
+import h106 from './route-38.hitboxes.json'
+import h107 from './route-39.hitboxes.json'
+import h108 from './route-4.hitboxes.json'
+import h109 from './route-40.hitboxes.json'
+import h110 from './route-41.hitboxes.json'
+import h111 from './route-42.hitboxes.json'
+import h112 from './route-43.hitboxes.json'
+import h113 from './route-44.hitboxes.json'
+import h114 from './route-45.hitboxes.json'
+import h115 from './route-46.hitboxes.json'
+import h116 from './route-47.hitboxes.json'
+import h117 from './route-48.hitboxes.json'
+import h118 from './route-5.hitboxes.json'
+import h119 from './route-6.hitboxes.json'
+import h120 from './route-7.hitboxes.json'
+import h121 from './route-8.hitboxes.json'
+import h122 from './route-9.hitboxes.json'
+import h123 from './routes-78.hitboxes.json'
+import h124 from './routes-9.hitboxes.json'
+import h125 from './saffron-city.hitboxes.json'
+import h126 from './seafoam-islands.hitboxes.json'
+import h127 from './seafoam-islands-b1f.hitboxes.json'
+import h128 from './seafoam-islands-b2f.hitboxes.json'
+import h129 from './seafoam-islands-b3f.hitboxes.json'
+import h130 from './seafoam-islands-b4f.hitboxes.json'
+import h131 from './slowpoke-well.hitboxes.json'
+import h132 from './slowpoke-well-1bf.hitboxes.json'
+import h133 from './slowpoke-well-b2f.hitboxes.json'
+import h134 from './south-rock-cave.hitboxes.json'
+import h135 from './tohjo-falls.hitboxes.json'
+import h136 from './tower-path.hitboxes.json'
+import h137 from './towns-54.hitboxes.json'
+import h138 from './towns-77.hitboxes.json'
+import h139 from './union-cave.hitboxes.json'
+import h140 from './union-cave-b1f.hitboxes.json'
+import h141 from './union-cave-b2f.hitboxes.json'
+import h142 from './vermilion-city.hitboxes.json'
+import h143 from './vermilion-port.hitboxes.json'
+import h144 from './violet-city.hitboxes.json'
+import h145 from './viridian-city.hitboxes.json'
+import h146 from './viridian-forest.hitboxes.json'
+import h147 from './whirl-islands.hitboxes.json'
+import h148 from './whirl-islands-b1f.hitboxes.json'
+import h149 from './whirl-islands-b2f.hitboxes.json'
+import h150 from './whirl-islands-b3f.hitboxes.json'
+import h151 from './whiteport-town.hitboxes.json'
 
 import type { Rect } from './manifest'
 
 export const RMXP_MAPS: { id: string; name: string; rmxpId: number; width: number; height: number; hitboxes: Rect[] }[] = [
-  { id: 'lake-of-rage', name: "Lake of Rage", rmxpId: 132, width: 96, height: 70, hitboxes: h0 },
-  { id: 'mt-mortar', name: "Mt. Mortar", rmxpId: 128, width: 110, height: 100, hitboxes: h1 },
-  { id: 'new-bark-town', name: "New Bark Town", rmxpId: 79, width: 22, height: 48, hitboxes: h2 },
-  { id: 'route-3', name: "Route 3", rmxpId: 16, width: 100, height: 84, hitboxes: h3 },
+  { id: 'abandoned-mine', name: "Abandoned Mine", rmxpId: 147, width: 53, height: 40, hitboxes: h0 },
+  { id: 'abandoned-mine-b1f', name: "Abandoned Mine B1F", rmxpId: 148, width: 52, height: 40, hitboxes: h1 },
+  { id: 'abandoned-mine-b2f', name: "Abandoned Mine B2F", rmxpId: 149, width: 59, height: 51, hitboxes: h2 },
+  { id: 'abandoned-mine-b3f', name: "Abandoned Mine B3F", rmxpId: 150, width: 40, height: 40, hitboxes: h3 },
+  { id: 'abandoned-mine-b4f', name: "Abandoned Mine B4F", rmxpId: 151, width: 40, height: 40, hitboxes: h4 },
+  { id: 'alyssum-island', name: "Alyssum Island", rmxpId: 21, width: 64, height: 48, hitboxes: h5 },
+  { id: 'azalea-town', name: "Azalea Town", rmxpId: 82, width: 58, height: 54, hitboxes: h6 },
+  { id: 'battle-tower', name: "Battle Tower", rmxpId: 121, width: 52, height: 60, hitboxes: h7 },
+  { id: 'blackthorn-city', name: "Blackthorn City", rmxpId: 88, width: 65, height: 76, hitboxes: h8 },
+  { id: 'celadon-city', name: "Celadon City", rmxpId: 4, width: 60, height: 54, hitboxes: h9 },
+  { id: 'cerulean-city', name: "Cerulean City", rmxpId: 58, width: 48, height: 48, hitboxes: h10 },
+  { id: 'cherrygrove-city', name: "Cherrygrove City", rmxpId: 80, width: 86, height: 55, hitboxes: h11 },
+  { id: 'cianwood-city', name: "Cianwood City", rmxpId: 86, width: 42, height: 66, hitboxes: h12 },
+  { id: 'cinnabar-island', name: "Cinnabar Island", rmxpId: 7, width: 68, height: 44, hitboxes: h13 },
+  { id: 'cliff-edge-gate', name: "Cliff Edge Gate", rmxpId: 95, width: 68, height: 68, hitboxes: h14 },
+  { id: 'dark-cave-east', name: "Dark Cave East", rmxpId: 139, width: 98, height: 98, hitboxes: h15 },
+  { id: 'dark-cave-west', name: "Dark Cave West", rmxpId: 107, width: 98, height: 98, hitboxes: h16 },
+  { id: 'diglett-s-cave-13', name: "Diglett's Cave", rmxpId: 13, width: 26, height: 24, hitboxes: h17 },
+  { id: 'diglett-s-cave-15', name: "Diglett's Cave", rmxpId: 15, width: 26, height: 24, hitboxes: h18 },
+  { id: 'diglett-s-cave-b1f', name: "Diglett's Cave B1F", rmxpId: 14, width: 97, height: 84, hitboxes: h19 },
+  { id: 'dragon-s-den', name: "Dragon's Den", rmxpId: 96, width: 94, height: 94, hitboxes: h20 },
+  { id: 'ecruteak-city', name: "Ecruteak City", rmxpId: 84, width: 82, height: 64, hitboxes: h21 },
+  { id: 'extra', name: "Extra", rmxpId: 71, width: 20, height: 15, hitboxes: h22 },
+  { id: 'fuchsia-city', name: "Fuchsia City", rmxpId: 5, width: 52, height: 48, hitboxes: h23 },
+  { id: 'goldenrod-city', name: "Goldenrod City", rmxpId: 83, width: 64, height: 47, hitboxes: h24 },
+  { id: 'goldenrod-sea-path', name: "Goldenrod Sea Path", rmxpId: 144, width: 148, height: 47, hitboxes: h25 },
+  { id: 'ice-path', name: "Ice Path", rmxpId: 134, width: 98, height: 98, hitboxes: h26 },
+  { id: 'ice-path-b1f', name: "Ice Path B1F", rmxpId: 135, width: 64, height: 70, hitboxes: h27 },
+  { id: 'ice-path-b2f', name: "Ice Path B2F", rmxpId: 136, width: 80, height: 64, hitboxes: h28 },
+  { id: 'ice-path-b3f', name: "Ice Path B3F", rmxpId: 137, width: 56, height: 48, hitboxes: h29 },
+  { id: 'ilex-forest', name: "Ilex Forest", rmxpId: 89, width: 120, height: 86, hitboxes: h30 },
+  { id: 'indigo-plateau', name: "Indigo Plateau", rmxpId: 8, width: 35, height: 20, hitboxes: h31 },
+  { id: 'johto-enhanced', name: "Johto Enhanced", rmxpId: 76, width: 20, height: 15, hitboxes: h32 },
+  { id: 'kanto-remastered', name: "Kanto Remastered", rmxpId: 2, width: 20, height: 15, hitboxes: h33 },
+  { id: 'lake-of-rage', name: "Lake of Rage", rmxpId: 132, width: 96, height: 70, hitboxes: h34 },
+  { id: 'lavender-town', name: "Lavender Town", rmxpId: 3, width: 38, height: 29, hitboxes: h35 },
+  { id: 'mahogany-town', name: "Mahogany Town", rmxpId: 87, width: 47, height: 52, hitboxes: h36 },
+  { id: 'map035', name: "MAP035", rmxpId: 35, width: 20, height: 15, hitboxes: h37 },
+  { id: 'map041', name: "MAP041", rmxpId: 41, width: 20, height: 15, hitboxes: h38 },
+  { id: 'map053', name: "MAP053", rmxpId: 53, width: 20, height: 15, hitboxes: h39 },
+  { id: 'map060', name: "MAP060", rmxpId: 60, width: 20, height: 15, hitboxes: h40 },
+  { id: 'map061', name: "MAP061", rmxpId: 61, width: 20, height: 15, hitboxes: h41 },
+  { id: 'map062', name: "MAP062", rmxpId: 62, width: 20, height: 15, hitboxes: h42 },
+  { id: 'map063', name: "MAP063", rmxpId: 63, width: 20, height: 15, hitboxes: h43 },
+  { id: 'map064', name: "MAP064", rmxpId: 64, width: 20, height: 15, hitboxes: h44 },
+  { id: 'map065', name: "MAP065", rmxpId: 65, width: 20, height: 15, hitboxes: h45 },
+  { id: 'map066', name: "MAP066", rmxpId: 66, width: 20, height: 15, hitboxes: h46 },
+  { id: 'map067', name: "MAP067", rmxpId: 67, width: 20, height: 15, hitboxes: h47 },
+  { id: 'map068', name: "MAP068", rmxpId: 68, width: 20, height: 15, hitboxes: h48 },
+  { id: 'map069', name: "MAP069", rmxpId: 69, width: 20, height: 15, hitboxes: h49 },
+  { id: 'map072', name: "MAP072", rmxpId: 72, width: 20, height: 15, hitboxes: h50 },
+  { id: 'map073', name: "MAP073", rmxpId: 73, width: 20, height: 15, hitboxes: h51 },
+  { id: 'map074', name: "MAP074", rmxpId: 74, width: 20, height: 15, hitboxes: h52 },
+  { id: 'map075', name: "MAP075", rmxpId: 75, width: 20, height: 15, hitboxes: h53 },
+  { id: 'map153', name: "MAP153", rmxpId: 153, width: 20, height: 15, hitboxes: h54 },
+  { id: 'mt-moon', name: "Mt. Moon", rmxpId: 18, width: 64, height: 52, hitboxes: h55 },
+  { id: 'mt-moon-b1f', name: "Mt. Moon B1F", rmxpId: 19, width: 61, height: 49, hitboxes: h56 },
+  { id: 'mt-moon-b2f', name: "Mt. Moon B2F", rmxpId: 20, width: 64, height: 52, hitboxes: h57 },
+  { id: 'mt-mortar', name: "Mt. Mortar", rmxpId: 128, width: 110, height: 100, hitboxes: h58 },
+  { id: 'mt-mortar-b1f', name: "Mt. Mortar B1F", rmxpId: 129, width: 110, height: 100, hitboxes: h59 },
+  { id: 'mt-mortar-b2f', name: "Mt. Mortar B2F", rmxpId: 130, width: 90, height: 98, hitboxes: h60 },
+  { id: 'mt-silver', name: "Mt. Silver", rmxpId: 102, width: 54, height: 42, hitboxes: h61 },
+  { id: 'mt-silver-peak', name: "Mt. Silver Peak", rmxpId: 103, width: 46, height: 46, hitboxes: h62 },
+  { id: 'national-park', name: "National Park", rmxpId: 115, width: 86, height: 92, hitboxes: h63 },
+  { id: 'new-bark-town', name: "New Bark Town", rmxpId: 79, width: 22, height: 48, hitboxes: h64 },
+  { id: 'north-rock-cave', name: "North Rock Cave", rmxpId: 152, width: 52, height: 32, hitboxes: h65 },
+  { id: 'olivine-city', name: "Olivine City", rmxpId: 85, width: 72, height: 70, hitboxes: h66 },
+  { id: 'olivine-marina', name: "Olivine Marina", rmxpId: 94, width: 56, height: 67, hitboxes: h67 },
+  { id: 'olivine-sea-path', name: "Olivine Sea Path", rmxpId: 145, width: 48, height: 148, hitboxes: h68 },
+  { id: 'pallet-town', name: "Pallet Town", rmxpId: 55, width: 52, height: 20, hitboxes: h69 },
+  { id: 'peaceful-garden', name: "Peaceful Garden", rmxpId: 143, width: 48, height: 26, hitboxes: h70 },
+  { id: 'pewter-city', name: "Pewter City", rmxpId: 57, width: 60, height: 46, hitboxes: h71 },
+  { id: 'rock-tunnel', name: "Rock Tunnel", rmxpId: 29, width: 65, height: 60, hitboxes: h72 },
+  { id: 'rock-tunnel-b1f', name: "Rock Tunnel B1F", rmxpId: 30, width: 65, height: 55, hitboxes: h73 },
+  { id: 'route-1', name: "Route 1", rmxpId: 10, width: 52, height: 40, hitboxes: h74 },
+  { id: 'route-10', name: "Route 10", rmxpId: 27, width: 38, height: 90, hitboxes: h75 },
+  { id: 'route-11', name: "Route 11", rmxpId: 31, width: 76, height: 40, hitboxes: h76 },
+  { id: 'route-12', name: "Route 12", rmxpId: 32, width: 38, height: 113, hitboxes: h77 },
+  { id: 'route-13', name: "Route 13", rmxpId: 33, width: 80, height: 26, hitboxes: h78 },
+  { id: 'route-14', name: "Route 14", rmxpId: 34, width: 26, height: 67, hitboxes: h79 },
+  { id: 'route-15', name: "Route 15", rmxpId: 36, width: 72, height: 65, hitboxes: h80 },
+  { id: 'route-16', name: "Route 16", rmxpId: 37, width: 39, height: 58, hitboxes: h81 },
+  { id: 'route-17', name: "Route 17", rmxpId: 38, width: 46, height: 178, hitboxes: h82 },
+  { id: 'route-18', name: "Route 18", rmxpId: 39, width: 60, height: 43, hitboxes: h83 },
+  { id: 'route-19', name: "Route 19", rmxpId: 40, width: 52, height: 144, hitboxes: h84 },
+  { id: 'route-2-11', name: "Route 2", rmxpId: 11, width: 52, height: 80, hitboxes: h85 },
+  { id: 'route-2-70', name: "Route 2", rmxpId: 70, width: 54, height: 50, hitboxes: h86 },
+  { id: 'route-20', name: "Route 20", rmxpId: 42, width: 102, height: 44, hitboxes: h87 },
+  { id: 'route-21', name: "Route 21", rmxpId: 48, width: 44, height: 100, hitboxes: h88 },
+  { id: 'route-22', name: "Route 22", rmxpId: 49, width: 58, height: 40, hitboxes: h89 },
+  { id: 'route-23', name: "Route 23", rmxpId: 50, width: 42, height: 160, hitboxes: h90 },
+  { id: 'route-24', name: "Route 24", rmxpId: 51, width: 48, height: 44, hitboxes: h91 },
+  { id: 'route-25', name: "Route 25", rmxpId: 52, width: 72, height: 30, hitboxes: h92 },
+  { id: 'route-26', name: "Route 26", rmxpId: 98, width: 48, height: 118, hitboxes: h93 },
+  { id: 'route-27', name: "Route 27", rmxpId: 99, width: 182, height: 48, hitboxes: h94 },
+  { id: 'route-28', name: "Route 28", rmxpId: 101, width: 58, height: 42, hitboxes: h95 },
+  { id: 'route-29', name: "Route 29", rmxpId: 104, width: 84, height: 38, hitboxes: h96 },
+  { id: 'route-3', name: "Route 3", rmxpId: 16, width: 100, height: 84, hitboxes: h97 },
+  { id: 'route-30', name: "Route 30", rmxpId: 105, width: 65, height: 61, hitboxes: h98 },
+  { id: 'route-31', name: "Route 31", rmxpId: 106, width: 73, height: 63, hitboxes: h99 },
+  { id: 'route-32', name: "Route 32", rmxpId: 108, width: 54, height: 75, hitboxes: h100 },
+  { id: 'route-33', name: "Route 33", rmxpId: 109, width: 60, height: 62, hitboxes: h101 },
+  { id: 'route-34', name: "Route 34", rmxpId: 113, width: 64, height: 58, hitboxes: h102 },
+  { id: 'route-35', name: "Route 35", rmxpId: 114, width: 84, height: 51, hitboxes: h103 },
+  { id: 'route-36', name: "Route 36", rmxpId: 116, width: 76, height: 27, hitboxes: h104 },
+  { id: 'route-37', name: "Route 37", rmxpId: 117, width: 76, height: 23, hitboxes: h105 },
+  { id: 'route-38', name: "Route 38", rmxpId: 118, width: 98, height: 39, hitboxes: h106 },
+  { id: 'route-39', name: "Route 39", rmxpId: 119, width: 46, height: 34, hitboxes: h107 },
+  { id: 'route-4', name: "Route 4", rmxpId: 17, width: 108, height: 44, hitboxes: h108 },
+  { id: 'route-40', name: "Route 40", rmxpId: 120, width: 48, height: 78, hitboxes: h109 },
+  { id: 'route-41', name: "Route 41", rmxpId: 122, width: 70, height: 98, hitboxes: h110 },
+  { id: 'route-42', name: "Route 42", rmxpId: 127, width: 82, height: 52, hitboxes: h111 },
+  { id: 'route-43', name: "Route 43", rmxpId: 131, width: 47, height: 48, hitboxes: h112 },
+  { id: 'route-44', name: "Route 44", rmxpId: 133, width: 94, height: 44, hitboxes: h113 },
+  { id: 'route-45', name: "Route 45", rmxpId: 138, width: 50, height: 90, hitboxes: h114 },
+  { id: 'route-46', name: "Route 46", rmxpId: 140, width: 62, height: 71, hitboxes: h115 },
+  { id: 'route-47', name: "Route 47", rmxpId: 141, width: 112, height: 68, hitboxes: h116 },
+  { id: 'route-48', name: "Route 48", rmxpId: 142, width: 56, height: 34, hitboxes: h117 },
+  { id: 'route-5', name: "Route 5", rmxpId: 22, width: 48, height: 36, hitboxes: h118 },
+  { id: 'route-6', name: "Route 6", rmxpId: 23, width: 50, height: 42, hitboxes: h119 },
+  { id: 'route-7', name: "Route 7", rmxpId: 24, width: 29, height: 49, hitboxes: h120 },
+  { id: 'route-8', name: "Route 8", rmxpId: 25, width: 69, height: 29, hitboxes: h121 },
+  { id: 'route-9', name: "Route 9", rmxpId: 26, width: 69, height: 44, hitboxes: h122 },
+  { id: 'routes-78', name: "Routes", rmxpId: 78, width: 20, height: 15, hitboxes: h123 },
+  { id: 'routes-9', name: "Routes", rmxpId: 9, width: 33, height: 15, hitboxes: h124 },
+  { id: 'saffron-city', name: "Saffron City", rmxpId: 6, width: 76, height: 62, hitboxes: h125 },
+  { id: 'seafoam-islands', name: "Seafoam Islands", rmxpId: 43, width: 48, height: 32, hitboxes: h126 },
+  { id: 'seafoam-islands-b1f', name: "Seafoam Islands B1F", rmxpId: 45, width: 48, height: 29, hitboxes: h127 },
+  { id: 'seafoam-islands-b2f', name: "Seafoam Islands B2F", rmxpId: 44, width: 48, height: 31, hitboxes: h128 },
+  { id: 'seafoam-islands-b3f', name: "Seafoam Islands B3F", rmxpId: 46, width: 48, height: 32, hitboxes: h129 },
+  { id: 'seafoam-islands-b4f', name: "Seafoam Islands B4F", rmxpId: 47, width: 48, height: 33, hitboxes: h130 },
+  { id: 'slowpoke-well', name: "Slowpoke Well", rmxpId: 90, width: 40, height: 40, hitboxes: h131 },
+  { id: 'slowpoke-well-1bf', name: "Slowpoke Well 1BF", rmxpId: 91, width: 58, height: 48, hitboxes: h132 },
+  { id: 'slowpoke-well-b2f', name: "Slowpoke Well B2F", rmxpId: 92, width: 42, height: 42, hitboxes: h133 },
+  { id: 'south-rock-cave', name: "South Rock Cave", rmxpId: 146, width: 54, height: 39, hitboxes: h134 },
+  { id: 'tohjo-falls', name: "Tohjo Falls", rmxpId: 100, width: 70, height: 55, hitboxes: h135 },
+  { id: 'tower-path', name: "Tower Path", rmxpId: 93, width: 64, height: 64, hitboxes: h136 },
+  { id: 'towns-54', name: "Towns", rmxpId: 54, width: 30, height: 15, hitboxes: h137 },
+  { id: 'towns-77', name: "Towns", rmxpId: 77, width: 20, height: 15, hitboxes: h138 },
+  { id: 'union-cave', name: "Union Cave", rmxpId: 110, width: 86, height: 86, hitboxes: h139 },
+  { id: 'union-cave-b1f', name: "Union Cave B1F", rmxpId: 111, width: 86, height: 86, hitboxes: h140 },
+  { id: 'union-cave-b2f', name: "Union Cave B2F", rmxpId: 112, width: 86, height: 86, hitboxes: h141 },
+  { id: 'vermilion-city', name: "Vermilion City", rmxpId: 59, width: 53, height: 48, hitboxes: h142 },
+  { id: 'vermilion-port', name: "Vermilion Port", rmxpId: 28, width: 53, height: 26, hitboxes: h143 },
+  { id: 'violet-city', name: "Violet City", rmxpId: 81, width: 70, height: 49, hitboxes: h144 },
+  { id: 'viridian-city', name: "Viridian City", rmxpId: 56, width: 52, height: 40, hitboxes: h145 },
+  { id: 'viridian-forest', name: "Viridian Forest", rmxpId: 12, width: 76, height: 80, hitboxes: h146 },
+  { id: 'whirl-islands', name: "Whirl Islands", rmxpId: 123, width: 76, height: 68, hitboxes: h147 },
+  { id: 'whirl-islands-b1f', name: "Whirl Islands B1F", rmxpId: 124, width: 92, height: 85, hitboxes: h148 },
+  { id: 'whirl-islands-b2f', name: "Whirl Islands B2F", rmxpId: 125, width: 54, height: 78, hitboxes: h149 },
+  { id: 'whirl-islands-b3f', name: "Whirl Islands B3F", rmxpId: 126, width: 52, height: 82, hitboxes: h150 },
+  { id: 'whiteport-town', name: "Whiteport Town", rmxpId: 97, width: 54, height: 40, hitboxes: h151 },
 ]
