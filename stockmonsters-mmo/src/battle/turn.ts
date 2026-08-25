@@ -29,6 +29,21 @@ export const getMove = (dbSymbol: string) => {
   }
 }
 
+// s_recoil fractions are engine-coded per move (docs §6.2); this table is
+// the PSDK/vanilla set, defaulting to 1/3 for anything unlisted.
+const RECOIL_SHARE: Record<string, number> = {
+  take_down: 1 / 4, wild_charge: 1 / 4, submission: 1 / 4,
+  double_edge: 1 / 3, brave_bird: 1 / 3, flare_blitz: 1 / 3,
+  volt_tackle: 1 / 3, wood_hammer: 1 / 3, head_charge: 1 / 4,
+  head_smash: 1 / 2, light_of_ruin: 1 / 2,
+}
+
+/** 2-5 hits at 37.5/37.5/12.5/12.5 (§7 — NOT vanilla 35/35/15/15). */
+export function rollMultiHitCount(rng: Rng): number {
+  const r = rng(1, 8)
+  return r <= 3 ? 2 : r <= 6 ? 3 : r === 7 ? 4 : 5
+}
+
 const STAGE_FROM_DATA: Record<string, 'atk' | 'dfe' | 'spd' | 'ats' | 'dfs' | 'eva' | 'acc'> = {
   ATK_STAGE: 'atk', DFE_STAGE: 'dfe', SPD_STAGE: 'spd',
   ATS_STAGE: 'ats', DFS_STAGE: 'dfs', EVA_STAGE: 'eva', ACC_STAGE: 'acc',
@@ -51,6 +66,9 @@ export type TurnEvent =
   | { type: 'status'; side: 0 | 1; status: string }
   | { type: 'status-failed'; side: 0 | 1; status: string }
   | { type: 'residual'; side: 0 | 1; status: string; amount: number; hp: number }
+  | { type: 'heal'; side: 0 | 1; amount: number; hp: number }
+  | { type: 'recoil'; side: 0 | 1; amount: number; hp: number }
+  | { type: 'hits'; side: 0 | 1; count: number }
   | { type: 'fainted'; side: 0 | 1 }
 
 export function liveSpeed(b: Battler): number {
@@ -139,7 +157,8 @@ export function runTurn(sides: [Combatant, Combatant], rng: Rng): TurnEvent[] {
     events.push({ type: 'used', side, move: me.move })
 
     const selfTargeting = move.target === 'user' || move.method === 's_self_stat'
-    const dealsDamage = move.category !== 'status' && move.power > 0
+    // §6.2 gotcha: power 0 does not mean no damage — s_ohko computes it
+    const dealsDamage = move.method === 's_ohko' || (move.category !== 'status' && move.power > 0)
 
     // §1.3 step 6: accuracy (self-targeting status moves bypass — §1.4)
     if (!(move.category === 'status' && move.target === 'user') &&
@@ -155,17 +174,57 @@ export function runTurn(sides: [Combatant, Combatant], rng: Rng): TurnEvent[] {
     }
 
     let targetAlive = true
+    let totalDealt = 0
     if (dealsDamage) {
-      const r = damages(user, target, move, rng)
-      target.hp = Math.max(0, target.hp - r.damage)
-      events.push({
-        type: 'damage', side: otherSide, amount: r.damage,
-        critical: r.critical, effectiveness: r.effectiveness, targetHp: target.hp,
-      })
+      // s_multi_hit / s_2hits reroll crit per hit (§1.6)
+      const hits =
+        move.method === 's_multi_hit' ? rollMultiHitCount(rng)
+        : move.method === 's_2hits' ? 2
+        : move.method === 's_ohko' ? 0
+        : 1
+      if (move.method === 's_ohko') {
+        // §6.2: one-hit KO — damage equals current HP
+        totalDealt = target.hp
+        target.hp = 0
+        events.push({ type: 'damage', side: otherSide, amount: totalDealt, critical: false, effectiveness: 1, targetHp: 0 })
+      } else {
+        let landed = 0
+        for (let h = 0; h < hits && target.hp > 0; h++) {
+          const r = damages(user, target, move, rng)
+          totalDealt += r.damage
+          target.hp = Math.max(0, target.hp - r.damage)
+          landed++
+          events.push({
+            type: 'damage', side: otherSide, amount: r.damage,
+            critical: r.critical, effectiveness: r.effectiveness, targetHp: target.hp,
+          })
+        }
+        if (hits > 1) events.push({ type: 'hits', side, count: landed })
+      }
       if (target.hp <= 0) {
         events.push({ type: 'fainted', side: otherSide })
         someoneFainted = true
         targetAlive = false
+      }
+      if (move.method === 's_recoil' && totalDealt > 0) {
+        const share = RECOIL_SHARE[me.move] ?? 1 / 3
+        const recoil = Math.max(1, Math.floor(totalDealt * share))
+        user.hp = Math.max(0, user.hp - recoil)
+        events.push({ type: 'recoil', side, amount: recoil, hp: user.hp })
+        if (user.hp <= 0) { events.push({ type: 'fainted', side }); someoneFainted = true }
+      }
+      if (move.method === 's_absorb' && totalDealt > 0 && user.hp > 0) {
+        const gain = Math.min(Math.max(1, Math.floor(totalDealt / 2)), user.maxHp - user.hp)
+        if (gain > 0) {
+          user.hp += gain
+          events.push({ type: 'heal', side, amount: gain, hp: user.hp })
+        }
+      }
+    } else if (move.method === 's_heal') {
+      const gain = Math.min(Math.floor(user.maxHp / 2), user.maxHp - user.hp)
+      if (gain > 0) {
+        user.hp += gain
+        events.push({ type: 'heal', side, amount: gain, hp: user.hp })
       }
     }
 
