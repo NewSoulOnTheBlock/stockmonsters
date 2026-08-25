@@ -26,6 +26,7 @@ import { createRpgServerTransport, createSqliteNodeRoomStorage } from '@rpgjs/se
 import serverModule from './dist/server/server.js'
 import { handleAuth } from './auth.mjs'
 import { createProfileStore } from './profiles.mjs'
+import { createBoxStore, handleBoxRoutes } from './lootbox.mjs'
 
 const PORT = Number(process.env.PORT ?? 3000)
 const CLIENT_DIR = resolve('./dist/client')
@@ -48,6 +49,19 @@ console.log(
   profiles.enabled
     ? '[profiles] Postgres profile store active'
     : '[profiles] no DATABASE_URL — player state is session-only',
+)
+
+/*
+ * Sealed loot boxes (/box/*). Separate store from `profiles` on purpose: a
+ * profile write that fails costs a few seconds of play, a box write that fails
+ * costs an NFT, so lootbox.mjs aborts rather than degrading. It sells nothing
+ * unless BOX_SIGNER_PK and BOX_NFT_ADDRESS are set — /box/quote still answers.
+ */
+const boxes = createBoxStore()
+console.log(
+  boxes.enabled
+    ? `[boxes] selling sealed boxes on chain ${boxes.chainId} via ${boxes.contract} (signer ${boxes.signer})`
+    : '[boxes] not configured — /box/quote answers, /box/voucher refuses',
 )
 
 const { WebSocketServer } = createRequire(import.meta.url)('ws')
@@ -89,6 +103,7 @@ const server = http.createServer(async (req, res) => {
       return
     }
     if (await handleAuth(req, res)) return
+    if (await handleBoxRoutes(req, res, boxes)) return
     const handled = await transport.handleNodeRequest(req, res, undefined, { mountedPath: '/parties' })
     if (handled) return
     serveStatic(req, res)
@@ -114,7 +129,7 @@ for (const signal of ['SIGINT', 'SIGTERM']) {
     if (closing) process.exit(1) // second Ctrl-C means "now"
     closing = true
     console.log(`\n[server] ${signal} — flushing player profiles`)
-    profiles.close().finally(() => {
+    Promise.allSettled([profiles.close(), boxes.close()]).finally(() => {
       server.close(() => process.exit(0))
       // Open websockets keep server.close() pending forever.
       setTimeout(() => process.exit(0), 1500).unref()

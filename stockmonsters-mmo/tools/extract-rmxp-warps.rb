@@ -140,9 +140,12 @@ warps.sort_by! { |w| [w['from'], w['y'], w['x']] }
 
 # --- preserve hand-authored links -----------------------------------------
 manual = []
+manual_note = ''
 if File.exist?(out_path)
   begin
-    manual = JSON.parse(File.read(out_path))['manual'] || []
+    prev = JSON.parse(File.read(out_path))
+    manual = prev['manual'] || []
+    manual_note = prev['_manual_note'] || ''
   rescue JSON::ParserError
     manual = []
   end
@@ -168,6 +171,7 @@ doc = {
   '_stats' => stats,
   '_dropped_destination_rmxp_ids' => dropped_dest_ids.sort.to_h,
   'warps' => warps,
+  '_manual_note' => manual_note,
   'manual' => manual,
 }
 

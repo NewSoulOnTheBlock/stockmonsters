@@ -1,5 +1,6 @@
 import { RpgEvent, RpgPlayer, EventData, Move } from '@rpgjs/server'
 import connectionsRaw from '../../data/rmxp-connections.json'
+import warpsRaw from '../../data/rmxp-warps.json'
 import { RMXP_MAPS } from '../../tiled/rmxp-manifest'
 import { snapFree } from './geometry'
 
@@ -99,6 +100,113 @@ function edgeWarpEvents(mapId: string) {
     return events
 }
 
+/*
+ * Internal warps — the doors, cave mouths and ladders that live INSIDE a map.
+ *
+ * Edges only ever get you from one outdoor map to the one next to it; every
+ * cave, dungeon floor and gym is joined by an in-map transfer instead. In RPG
+ * Maker XP that is an event carrying command 201 (Transfer Player), which
+ * tools/extract-rmxp-warps.rb pulls out into rmxp-warps.json.
+ *
+ * The bundled Kanto/Johto pack turns out to ship no events at all, so that
+ * file's `warps` list is empty and its `manual` list carries hand-authored
+ * links instead. Both are read here and treated identically — the shape is the
+ * same, and the moment a source project with real events is imported the
+ * extracted links light up with no change to this file.
+ */
+
+type Warp = {
+    from: string
+    x: number
+    y: number
+    trigger: string // 'touch' | 'action'
+    to: string
+    tx: number
+    ty: number
+    dir?: number
+}
+
+const warpData = warpsRaw as { warps: Warp[]; manual: Warp[] }
+const internalWarps = [...(warpData.warps ?? []), ...(warpData.manual ?? [])]
+
+/*
+ * "Don't bounce straight back" — the same problem the PSDK warps have, and the
+ * same fix (see src/modules/main/warps.ts). A warp usually lands you on the
+ * tile that warps back, so without this the player ping-pongs between two maps
+ * forever. Warps stay dead for a player until they have walked away from their
+ * arrival point once.
+ *
+ * Keyed by String(player.id) and NOT a WeakMap: each map room hands the hooks a
+ * FRESH RpgPlayer instance, so an object-keyed map forgets the arrival on every
+ * single transfer, which is exactly when we need to remember it.
+ *
+ * Copied rather than imported from warps.ts: that module pulls in the PSDK
+ * manifest and its own snapFree, and importing it here would drag the PSDK map
+ * family into the Kanto/Johto path (and back again through server.ts).
+ */
+const arrival = new Map<string, { x: number; y: number; away: boolean }>()
+
+function immune(player: RpgPlayer) {
+    const a = arrival.get(String(player.id))
+    if (!a) return false
+    // Some builds expose x/y as accessors, others as plain fields.
+    const sig = (v: any) => (typeof v === 'function' ? v() : v)
+    const dx = Math.abs(sig((player as any).x) - a.x)
+    const dy = Math.abs(sig((player as any).y) - a.y)
+    if (dx > 40 || dy > 40) a.away = true
+    return !a.away
+}
+
+/** RMXP facing (2 down, 4 left, 6 right, 8 up) -> RPG-JS direction. */
+const FACING: Record<number, number> = { 2: 1, 4: 2, 6: 3, 8: 4 }
+
+function travel(player: RpgPlayer, w: Warp) {
+    if (immune(player)) return
+    // The recorded arrival can sit inside a wall (hand-authored, or an RMXP
+    // arrival that only worked because the original scripted the walk).
+    const cell = snapFree(w.to, w.tx, w.ty)
+    const px = { x: cell.x * TILE, y: cell.y * TILE }
+    arrival.set(String(player.id), { x: px.x + TILE / 2, y: px.y + TILE / 2, away: false })
+    const facing = w.dir ? FACING[w.dir] : undefined
+    if (facing) (player as any).changeDirection?.(facing)
+    return player.changeMap(w.to, px)
+}
+
+function internalWarpEvents(mapId: string) {
+    const events: { x: number; y: number; event: EventData }[] = []
+    const seen = new Set<string>()
+
+    for (const w of internalWarps) {
+        if (w.from !== mapId) continue
+        if (!sizeOf.has(w.to)) continue // destination map was not converted
+        const key = `${w.x},${w.y}`
+        if (seen.has(key)) continue // two links claiming one tile: first wins
+        seen.add(key)
+
+        const hook =
+            w.trigger === 'action'
+                ? { onAction(this: RpgEvent, player: RpgPlayer) { travel(player, w) } }
+                : { onPlayerTouch(this: RpgEvent, player: RpgPlayer) { travel(player, w) } }
+
+        events.push({
+            x: w.x * TILE,
+            y: w.y * TILE,
+            event: {
+                name: `warp-${w.to}-${key}`,
+                mode: 'shared',
+                hitbox: { width: TILE, height: TILE },
+                ...hook,
+            } as unknown as EventData,
+        })
+    }
+    return events
+}
+
 export function rmxpWarpEvents(mapId: string) {
-    return edgeWarpEvents(mapId)
+    // Edge triggers sit on the border, internal warps in the interior, so the
+    // two sets cannot collide on a tile in practice — but if they ever do, the
+    // edge wins, matching "first wins" everywhere else here.
+    const edges = edgeWarpEvents(mapId)
+    const taken = new Set(edges.map((e) => `${e.x},${e.y}`))
+    return [...edges, ...internalWarpEvents(mapId).filter((e) => !taken.has(`${e.x},${e.y}`))]
 }

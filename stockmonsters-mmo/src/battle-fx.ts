@@ -122,12 +122,23 @@ export function floatNumber(
     return spawn(host, n, 1100)
 }
 
-/** Chunky plate that pops in over the target: SUPER EFFECTIVE / NO EFFECT / … */
-export function banner(host: HTMLElement, text: string, kind: 'super' | 'weak' | 'none' | 'crit' | 'info' = 'info') {
+/**
+ * Chunky plate that pops in over the target: SUPER EFFECTIVE / NO EFFECT / …
+ * `tier` stacks a second plate above the first (crit + effectiveness together).
+ */
+export function banner(
+    host: HTMLElement, text: string,
+    kind: 'super' | 'weak' | 'none' | 'crit' | 'info' = 'info',
+    tier = 0,
+) {
     const n = document.createElement('div')
     n.className = `bs-banner bs-banner-${kind}`
     n.textContent = text
-    return spawn(host, n, 1200)
+    if (tier) {
+        n.style.top = `${-78 - tier * 46}px`
+        n.style.animationDelay = `${tier * 90}ms`
+    }
+    return spawn(host, n, 1200 + tier * 100)
 }
 
 /** A miss: the word plus a ring of dust specks blowing outward. */
@@ -263,7 +274,7 @@ export const FX_CSS = `
   background: ${C.dark}; color: ${C.text};
   border: 3px solid ${C.border};
   box-shadow: 4px 4px 0 ${C.shadow};
-  animation: bs-banner-pop 1.1s steps(1, jump-none) forwards;
+  animation: bs-banner-pop 1.1s steps(1, jump-none) both;
 }
 #battle-scene .bs-banner-super { border-color: ${C.border}; color: ${C.border}; font-size: 20px; }
 #battle-scene .bs-banner-crit  { border-color: ${C.danger}; color: ${C.danger}; }
@@ -300,7 +311,7 @@ export const FX_CSS = `
   position: absolute; left: 0; top: 0;
   width: 7px; height: 7px;
   box-shadow: 0 0 0 2px ${C.shadow};
-  animation: bs-puff-dot .6s steps(4, jump-none) forwards;
+  animation: bs-puff-dot .6s steps(4, jump-none) both;
 }
 @keyframes bs-puff-dot {
   0%   { opacity: 1; transform: translate(-50%, -50%) scale(.4); }
@@ -333,11 +344,11 @@ export const FX_CSS = `
 }
 #battle-scene .bs-stage.up > i {
   border-bottom: 15px solid var(--sc);
-  animation: bs-arrow-up .85s steps(5, jump-none) forwards;
+  animation: bs-arrow-up .85s steps(5, jump-none) both;
 }
 #battle-scene .bs-stage.down > i {
   border-top: 15px solid var(--sc);
-  animation: bs-arrow-down .85s steps(5, jump-none) forwards;
+  animation: bs-arrow-down .85s steps(5, jump-none) both;
 }
 @keyframes bs-arrow-up {
   0%   { opacity: 0; transform: translate(calc(-50% + var(--ox)), 26px); }

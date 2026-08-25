@@ -17,7 +17,183 @@
   "warps": [
 
   ],
+  "_manual_note": "`warps` is empty and that is not a bug: the Remastered Kanto Johto Map Pack\nships NO events at all (every Map###.rxdata unmarshals with @events == {}),\nso there are no code-201 Transfer Player commands to extract. It is an art\npack for mappers, not a playable project. See docs/rmxp-map-import.md.\n\nThe links below are therefore HAND-AUTHORED, not extracted. Each one was\nfound by rendering the .tmx at full resolution, reading the cave mouth /\nladder off the art, and confirming the tile is walkable in the map's\n<id>.hitboxes.json. Both directions of every link are listed explicitly.\nDestination pairings follow Gold/Silver geography (Ice Path joins Route 44\nto Blackthorn City; Dark Cave joins Route 31 to Route 46) — the pack itself\nrecords no destinations, so the pairing is a judgement call, not data.",
   "manual": [
-
+    {
+      "from": "blackthorn-city",
+      "x": 33,
+      "y": 17,
+      "trigger": "touch",
+      "to": "ice-path",
+      "tx": 68,
+      "ty": 59,
+      "dir": 8,
+      "why": "cave mouth north of the gym pond -> Ice Path east exit"
+    },
+    {
+      "from": "ice-path",
+      "x": 68,
+      "y": 59,
+      "trigger": "touch",
+      "to": "blackthorn-city",
+      "tx": 33,
+      "ty": 17,
+      "dir": 2,
+      "why": "Ice Path east exit -> Blackthorn City"
+    },
+    {
+      "from": "route-44",
+      "x": 73,
+      "y": 19,
+      "trigger": "touch",
+      "to": "ice-path",
+      "tx": 25,
+      "ty": 76,
+      "dir": 8,
+      "why": "the only gap in Route 44's east cliff -> Ice Path south-west exit"
+    },
+    {
+      "from": "ice-path",
+      "x": 25,
+      "y": 76,
+      "trigger": "touch",
+      "to": "route-44",
+      "tx": 73,
+      "ty": 19,
+      "dir": 2,
+      "why": "Ice Path south-west exit -> Route 44"
+    },
+    {
+      "from": "ice-path",
+      "x": 68,
+      "y": 25,
+      "trigger": "touch",
+      "to": "ice-path-b1f",
+      "tx": 40,
+      "ty": 16,
+      "dir": 2,
+      "why": "1F north ladder -> B1F upper chamber"
+    },
+    {
+      "from": "ice-path-b1f",
+      "x": 40,
+      "y": 16,
+      "trigger": "touch",
+      "to": "ice-path",
+      "tx": 68,
+      "ty": 25,
+      "dir": 2,
+      "why": "B1F upper chamber ladder -> 1F"
+    },
+    {
+      "from": "ice-path-b1f",
+      "x": 21,
+      "y": 28,
+      "trigger": "touch",
+      "to": "ice-path-b2f",
+      "tx": 32,
+      "ty": 33,
+      "dir": 2,
+      "why": "B1F upper chamber west ladder -> B2F west chamber"
+    },
+    {
+      "from": "ice-path-b2f",
+      "x": 32,
+      "y": 33,
+      "trigger": "touch",
+      "to": "ice-path-b1f",
+      "tx": 21,
+      "ty": 28,
+      "dir": 2,
+      "why": "B2F west chamber ladder -> B1F"
+    },
+    {
+      "from": "ice-path-b2f",
+      "x": 23,
+      "y": 40,
+      "trigger": "touch",
+      "to": "ice-path-b3f",
+      "tx": 17,
+      "ty": 26,
+      "dir": 2,
+      "why": "B2F west chamber south ladder -> B3F"
+    },
+    {
+      "from": "ice-path-b3f",
+      "x": 17,
+      "y": 26,
+      "trigger": "touch",
+      "to": "ice-path-b2f",
+      "tx": 23,
+      "ty": 40,
+      "dir": 2,
+      "why": "B3F west ladder -> B2F"
+    },
+    {
+      "from": "route-31",
+      "x": 55,
+      "y": 30,
+      "trigger": "touch",
+      "to": "dark-cave-west",
+      "tx": 20,
+      "ty": 45,
+      "dir": 8,
+      "why": "the only gap in Route 31's cliff -> Dark Cave west mouth"
+    },
+    {
+      "from": "dark-cave-west",
+      "x": 20,
+      "y": 45,
+      "trigger": "touch",
+      "to": "route-31",
+      "tx": 55,
+      "ty": 30,
+      "dir": 2,
+      "why": "Dark Cave west mouth -> Route 31"
+    },
+    {
+      "from": "route-46",
+      "x": 44,
+      "y": 17,
+      "trigger": "touch",
+      "to": "dark-cave-west",
+      "tx": 70,
+      "ty": 70,
+      "dir": 8,
+      "why": "the only gap in Route 46's north cliff -> Dark Cave south mouth"
+    },
+    {
+      "from": "dark-cave-west",
+      "x": 70,
+      "y": 70,
+      "trigger": "touch",
+      "to": "route-46",
+      "tx": 44,
+      "ty": 17,
+      "dir": 2,
+      "why": "Dark Cave south mouth -> Route 46"
+    },
+    {
+      "from": "dark-cave-west",
+      "x": 41,
+      "y": 23,
+      "trigger": "touch",
+      "to": "dark-cave-east",
+      "tx": 23,
+      "ty": 71,
+      "dir": 8,
+      "why": "Dark Cave west, north passage -> Dark Cave east, south mouth"
+    },
+    {
+      "from": "dark-cave-east",
+      "x": 23,
+      "y": 71,
+      "trigger": "touch",
+      "to": "dark-cave-west",
+      "tx": 41,
+      "ty": 23,
+      "dir": 2,
+      "why": "Dark Cave east, south mouth -> Dark Cave west"
+    }
   ]
 }

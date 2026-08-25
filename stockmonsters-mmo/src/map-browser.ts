@@ -149,7 +149,15 @@ const CSS = `
 }
 
 /* --- card ---------------------------------------------------------------- */
-#sm-mapbrowser .mb-card {
+#sm-mapbrowser /* Undiscovered places stay visible — knowing a place exists is half the point
+   of a world map — but read as out of reach until they are walked to. */
+.mb-card.is-locked .mb-thumb { filter: grayscale(1) brightness(.55); }
+.mb-card.is-locked .mb-name { color: #8d86ad; }
+.smui-btn.is-locked {
+  background: #1b1730; color: #6f6790; border-color: #4a4368;
+  box-shadow: none; cursor: default;
+}
+.mb-card {
   display: flex; flex-direction: column; gap: 8px;
   padding: 10px;
   background: var(--sm-surface-alt);
@@ -304,6 +312,20 @@ let instance: MapBrowserApi | null = null
 
 export function mountMapBrowser(engine?: EngineLike, socket?: SocketLike): MapBrowserApi {
   if (instance) return instance
+  // Fast travel only reaches places the player has actually stood on, so the
+  // window needs to know which those are. The server is the authority and
+  // pushes the set on every new arrival; this is a mirror for the UI.
+  let visited = new Set<string>()
+  try {
+    const saved = JSON.parse(localStorage.getItem('sm-visited') ?? '[]')
+    if (Array.isArray(saved)) visited = new Set(saved.filter((v) => typeof v === 'string'))
+  } catch {}
+  socket?.on?.('travel:unlocked', (d: { visited?: unknown }) => {
+    if (!Array.isArray(d?.visited)) return
+    visited = new Set(d.visited.filter((v: unknown): v is string => typeof v === 'string'))
+    try { localStorage.setItem('sm-visited', JSON.stringify([...visited])) } catch {}
+    render()
+  })
   ensureUiKit()
   injectStyle('sm-mapbrowser-css', CSS)
 
@@ -466,10 +488,17 @@ export function mountMapBrowser(engine?: EngineLike, socket?: SocketLike): MapBr
     ])
     openBtn.addEventListener('click', () => openDetail(m.id))
 
-    const travel = el('button', { class: 'smui-btn is-primary', type: 'button', text: 'Travel' })
-    travel.addEventListener('click', (e) => { e.stopPropagation(); doTravel(m) })
+    const known = visited.has(m.id)
+    const travel = el('button', {
+      class: `smui-btn ${known ? 'is-primary' : 'is-locked'}`,
+      type: 'button',
+      text: known ? 'Travel' : 'Undiscovered',
+      title: known ? '' : 'Walk here once to unlock fast travel',
+    }) as HTMLButtonElement
+    travel.disabled = !known
+    travel.addEventListener('click', (e) => { e.stopPropagation(); if (known) doTravel(m) })
 
-    return el('div', { class: 'mb-card' }, [openBtn, travel])
+    return el('div', { class: `mb-card${known ? '' : ' is-locked'}` }, [openBtn, travel])
   }
 
   function compute(): MapCatalogEntry[] {

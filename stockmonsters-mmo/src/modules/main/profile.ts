@@ -24,6 +24,8 @@ export interface StoredProfile {
     party: unknown[] | null
     box: unknown[] | null
     bag: { balls: number; potions: number } | null
+    /** Map ids the player has actually stood on — fast travel is gated on it. */
+    visited: string[] | null
     version: number
 }
 
@@ -104,6 +106,7 @@ export const VARS = {
     party: 'PARTY',
     box: 'BOX',
     bag: 'BAG',
+    visited: 'VISITED',
     walletId: 'WALLET_ID',
     walletAddress: 'WALLET_ADDRESS',
 } as const
@@ -123,6 +126,8 @@ export function collectState(player: PlayerLike): ProfilePatch {
     if (isList(box)) patch.box = box
     const bag = player.getVariable(VARS.bag)
     if (isBag(bag)) patch.bag = bag
+    const visited = player.getVariable(VARS.visited)
+    if (isStringArray(visited)) patch.visited = visited
     const address = player.getVariable(VARS.walletAddress)
     if (typeof address === 'string') patch.address = address
     return patch
@@ -151,6 +156,10 @@ export function applyInventory(player: PlayerLike, profile: StoredProfile): stri
     if (isBag(profile.bag)) {
         player.setVariable(VARS.bag, profile.bag)
         restored.push('bag')
+    }
+    if (isStringArray(profile.visited) && profile.visited.length) {
+        player.setVariable(VARS.visited, profile.visited)
+        restored.push(`visited:${profile.visited.length}`)
     }
     return restored
 }

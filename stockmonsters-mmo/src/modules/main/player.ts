@@ -1,5 +1,5 @@
 import { RpgPlayer, type RpgPlayerHooks } from '@rpgjs/server'
-import { openMenu, openHudPanel, quitToTitle, travelTo } from './menus'
+import { openMenu, openHudPanel, quitToTitle, travelTo, markVisited, visitedMaps } from './menus'
 import { CHARACTER_IDS } from '../../data/character-catalog'
 import { validateName } from './names'
 import { handleChat } from './chat'
@@ -278,6 +278,25 @@ export const player: RpgPlayerHooks = {
         // final few seconds of a battle would be lost on a clean exit.
         const walletId = walletOf(player)
         if (walletId) void untrackPlayer(walletId).catch(logProfileError)
+    },
+    /**
+     * Standing on a map is what unlocks fast travel to it later, so record it
+     * the moment the player arrives. Saving only on a NEW map keeps this off
+     * the write path for ordinary movement.
+     */
+    onJoinMap(player: RpgPlayer, map: { id?: string }) {
+        const id = String(map?.id ?? '').replace(/^map-/, '')
+        const isNew = markVisited(player, id)
+        if (isNew) {
+            const walletId = player.getVariable('WALLET_ID') as string | undefined
+            if (walletId) {
+                profiles().saveProfile(walletId, { visited: [...visitedMaps(player)] })
+            }
+        }
+        // Always tell the client the full set, not just the delta: a client
+        // that connected mid-session (or reloaded) has no way to rebuild it,
+        // and it would show every place as undiscovered.
+        player.emit('travel:unlocked', { map: id, isNew, visited: [...visitedMaps(player)] })
     },
     onInput(player: RpgPlayer, { action, data }) {
         // Escape opens our menu (the built-in main menu comes later with

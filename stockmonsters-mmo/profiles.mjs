@@ -45,7 +45,9 @@ const STATE_WARN_BYTES = 256 * 1024
 const isWalletId = (v) => typeof v === 'string' && /^w:[0-9a-f]{32}$/.test(v)
 
 /** Only these keys are ever persisted. Anything else in a patch is dropped. */
-const STATE_KEYS = ['character', 'party', 'box', 'bag']
+// 'visited' is the set of map ids the player has actually stood on. Fast
+// travel is gated on it, so it has to survive a reload like everything else.
+const STATE_KEYS = ['character', 'party', 'box', 'bag', 'visited']
 
 function pickState(source) {
   const out = {}
@@ -61,6 +63,7 @@ const emptyProfile = (walletId, address = null) => ({
   party: null,
   box: null,
   bag: null,
+  visited: null,
   version: STATE_VERSION,
 })
 

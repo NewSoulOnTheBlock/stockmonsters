@@ -29,8 +29,22 @@ const rng: Rng = (min, max) => min + Math.floor(Math.random() * (max - min + 1))
 
 // --- battle visual scene -----------------------------------------------------
 // The client mounts a DOM overlay (src/battle-scene.ts) fed over the custom
-// websocket channel. We push a full snapshot whenever HP/level/status can
-// have changed; the overlay animates the diffs.
+// websocket channel. Two channels, in this order:
+//
+//   battle:turn  { events }              the turn's EVENT LIST, straight out of
+//                                        runTurn() — the overlay plays it beat
+//                                        by beat. Sent BEFORE the text so the
+//                                        animation starts as the line appears.
+//   battle:state { mine, wild, intro? }  the full snapshot, the source of truth
+//                                        for HP. Sent right after, and the
+//                                        overlay holds it until the burst has
+//                                        finished playing (or the player
+//                                        fast-forwards), then reconciles.
+//   battle:end   {}                      teardown + exit wipe.
+//
+// Two event types the rules never produce are synthesised here so the whole
+// scene speaks one language: `appear` (a wild creature arriving) and `ball`
+// (a capture attempt). Everything else is a verbatim TurnEvent.
 const entryOf = (inst: CreatureInstance) => dex.find((e) => dbSymbolByDexId[e.dexId] === inst.dbSymbol)
 const viewOf = (inst: CreatureInstance) => ({
   name: nameOf(inst),
@@ -40,8 +54,12 @@ const viewOf = (inst: CreatureInstance) => ({
   sprite: entryOf(inst)?.sprite ?? '',
   status: inst.status ?? undefined,
 })
-const emitScene = (player: RpgPlayer, mine: CreatureInstance, wild: CreatureInstance) =>
-  player.emit('battle:state', { mine: viewOf(mine), wild: viewOf(wild) })
+const emitScene = (player: RpgPlayer, mine: CreatureInstance, wild: CreatureInstance, intro = false) =>
+  player.emit('battle:state', { mine: viewOf(mine), wild: viewOf(wild), intro })
+/** Push a turn's beats. `side` 0 is the player's creature, 1 is the wild one. */
+const emitTurn = (player: RpgPlayer, events: unknown[]) => {
+  if (events.length) player.emit('battle:turn', { events })
+}
 
 const STARTERS = [
   { ticker: 'AAPL', label: 'Applion ($AAPL) — Flora' },
@@ -129,7 +147,9 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
     const battleState = newBattle()
     let fleeAttempts = 0
 
-    emitScene(player, mine, wild) // scene up before the first line of text
+    // Scene up before the first line of text: the snapshot opens the overlay
+    // with the entry wipe and the wild creature slides in.
+    emitScene(player, mine, wild, true)
     await player.showText(`A wild ${nameOf(wild)} (L${wild.level}) appeared!`)
 
     // entry abilities (Intimidate)
@@ -137,7 +157,11 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
       { battler: mine, state: myState, move: 'splash' },
       { battler: wild, state: wildState, move: 'splash' },
     ])
-    if (entry.length) await player.showText(describe(entry, mine, wild))
+    if (entry.length) {
+      emitTurn(player, entry)
+      emitScene(player, mine, wild)
+      await player.showText(describe(entry, mine, wild))
+    }
 
     // simple v1 bag: finite balls, a few potions; +1 ball per win as a
     // faucet until shops/money arrive
@@ -167,7 +191,8 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
           ]
           fleeAttempts = 0 // §1.14: reset when the player attacks
           const events = runTurn(sides, rng, battleState)
-          emitScene(player, mine, wild)
+          emitTurn(player, events)      // beats first — the overlay starts playing
+          emitScene(player, mine, wild) // …then the truth, held until it drains
           await player.showText(describe(events, mine, wild))
           if (wild.hp <= 0) {
             bag.balls++ // win faucet until shops/money arrive
@@ -186,6 +211,7 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
           bag.potions--
           const heal = Math.min(20, mine.maxHp - mine.hp) // Potion = 20 HP (§5.3)
           mine.hp += heal
+          emitTurn(player, [{ type: 'heal', side: 0, amount: heal, hp: mine.hp }])
           emitScene(player, mine, wild)
           await player.showText(`${nameOf(mine)} recovered ${heal} HP! (${mine.hp}/${mine.maxHp})`)
           break
@@ -197,6 +223,7 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
             { rareness: wild.catchRate, ballBonus: 1, target: wild, speciesCaught: 0 },
             rng,
           )
+          emitTurn(player, [{ type: 'ball', side: 1, bounces: r.bounces, caught: r.caught }])
           if (r.caught) {
             const box = (player.getVariable('BOX') as CreatureInstance[] | undefined) ?? []
             box.push(wild)

@@ -7,6 +7,7 @@ import { snapFree, TILE } from './geometry'
 import { MAPS as PSDK_MAPS } from '../../tiled/manifest'
 import { RMXP_MAPS } from '../../tiled/rmxp-manifest'
 
+const HOME_MAP = 'exterior'
 const KNOWN_MAPS = new Set<string>([
   ...PSDK_MAPS.map((m) => m.id),
   ...RMXP_MAPS.map((m) => m.id),
@@ -70,9 +71,15 @@ const DESTINATIONS: { text: string; map: string; tx: number; ty: number }[] = [
 ]
 
 export async function showTravel(player: RpgPlayer) {
+  const seen = visitedMaps(player)
+  const open = DESTINATIONS.filter((d) => seen.has(d.map))
+  if (!open.length) {
+    await player.showText('Nowhere to travel yet — explore on foot first.')
+    return
+  }
   const pick = await player.showChoices(
     'TRAVEL — where to?',
-    DESTINATIONS.map((d, i) => ({ text: d.text, value: i })),
+    open.map((d) => ({ text: d.text, value: DESTINATIONS.indexOf(d) })),
   )
   if (pick == null) return
   const d = DESTINATIONS[pick.value as number]
@@ -153,8 +160,33 @@ export async function quitToTitle(player: RpgPlayer) {
  * manifests: an unknown map would drop the player into a room that does not
  * exist.
  */
+/** Map ids the player has stood on. The spawn always counts. */
+export function visitedMaps(player: RpgPlayer): Set<string> {
+  const raw = player.getVariable('VISITED')
+  const list = Array.isArray(raw) ? raw.filter((v): v is string => typeof v === 'string') : []
+  return new Set([HOME_MAP, ...list])
+}
+
+/** Records a map as visited; returns true when it was new. */
+export function markVisited(player: RpgPlayer, mapId: string): boolean {
+  if (!mapId || !KNOWN_MAPS.has(mapId)) return false
+  const seen = visitedMaps(player)
+  if (seen.has(mapId)) return false
+  seen.add(mapId)
+  player.setVariable('VISITED', [...seen])
+  return true
+}
+
 export async function travelTo(player: RpgPlayer, mapId: unknown) {
   if (typeof mapId !== 'string' || !KNOWN_MAPS.has(mapId)) return
+  // Fast travel is a shortcut back, not a way in: you have to have walked
+  // there once. Checked on the server because the client's list is only a
+  // mirror — and a client-chosen destination would otherwise skip the whole
+  // world.
+  if (!visitedMaps(player).has(mapId)) {
+    await player.showText("You have not been there yet — find it on foot first.")
+    return
+  }
   const size = MAP_SIZE.get(mapId)
   // Middle of the map, nudged off anything solid. Maps we have no size for
   // (the PSDK set) keep their own default entry point.
