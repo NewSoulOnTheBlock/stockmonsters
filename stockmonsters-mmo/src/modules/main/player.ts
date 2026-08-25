@@ -73,6 +73,9 @@ export const player: RpgPlayerHooks = {
             if (!ids) return // silently ignore garbage
             player.setVariable('CHARACTER', ids) // -> data/rooms.sqlite, keyed by wallet
             player.setGraphic(ids)               // -> @sync() graphics -> every peer
+            // Acknowledge: the client retries until it sees this, because an
+            // action sent before the room is joined is dropped silently.
+            player.emit('character:accepted', { layers: ids })
             return
         }
         if (action == 'name:set') {

@@ -28,20 +28,42 @@ startGame(
   // so a CustomEvent is the bridge. The server validates ids against its
   // whitelist and persists them per wallet ('CHARACTER' variable).
   const engine: any = inject(ctx as any, RpgClientEngine);
-  let pending: string[] | null = null;
-  const send = (ids: unknown) => {
-    if (!Array.isArray(ids) || !ids.length) return;
-    pending = ids as string[];
-    engine?.processAction?.("character:set", { layers: ids });
+  // Debug handle: the only way to inspect live player/graphic state from a
+  // headless browser test. Harmless in production, invaluable when a sprite
+  // shows up wrong.
+  (window as any).__engine = engine;
+  // Applying the chosen character is not fire-and-forget: an action sent
+  // before the room is joined is dropped with no error, which is why a
+  // reloaded page used to come back as the default hero. So we keep sending
+  // until the server acknowledges, and re-apply after every map load.
+  let desired: string[] | null = null;
+  let confirmed = false;
+  const push = () => {
+    if (!desired || confirmed) return;
+    engine?.processAction?.("character:set", { layers: desired });
   };
+  const setCharacter = (ids: unknown) => {
+    if (!Array.isArray(ids) || !ids.length) return;
+    desired = ids as string[];
+    confirmed = false;
+    push();
+  };
+
   try {
-    send(JSON.parse(localStorage.getItem("sm-character") ?? "null"));
+    setCharacter(JSON.parse(localStorage.getItem("sm-character") ?? "null"));
   } catch {}
-  window.addEventListener("sm:character", (e) => send((e as CustomEvent).detail));
-  // processAction is silently dropped while the player can't act (e.g. before
-  // the first map is up) — re-send the last choice after each map load.
+  window.addEventListener("sm:character", (e) => setCharacter((e as CustomEvent).detail));
+
+  // retry until acknowledged, then stop
+  const retry = setInterval(() => {
+    if (confirmed || !desired) return;
+    push();
+  }, 700);
+  window.addEventListener("beforeunload", () => clearInterval(retry));
+
   engine?.mapLoadCompleted$?.subscribe?.((done: boolean) => {
-    if (done && pending) setTimeout(() => engine.processAction("character:set", { layers: pending }), 100);
+    // A map change re-creates the player object server-side, so re-assert.
+    if (done && desired) { confirmed = false; setTimeout(push, 150); }
   });
 
   // Battle visual scene: server pushes battle:state / battle:end over the
@@ -49,6 +71,7 @@ startGame(
   try {
     const socket: any = inject(ctx as any, WebSocketToken as any);
     if (socket?.on) {
+      socket.on("character:accepted", () => { confirmed = true; });
       mountBattleScene(socket);
       mountChatUi(engine, socket);
     }

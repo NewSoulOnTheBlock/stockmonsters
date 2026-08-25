@@ -403,6 +403,36 @@ Everything below is committed and was verified by running it.
 - ⚠️ This is literal Pokémon geography and Nintendo-derived tile art, and it
   is NOT reskinned. The unreskinned-art warning above applies to it.
 
+### 🔴 BLOCKER FOUND (session 3, headless-verified): reload kills all input
+
+**Symptom the user reported**: "picking a character doesn't start you with it."
+**Actual root cause, proven with puppeteer**: after a PAGE RELOAD the entire
+client -> server channel is dead. Not just character selection — ARROW KEYS
+DO NOTHING either. The player renders, has a server-assigned name, receives
+server->client sync, and `canMove` is true, but nothing it sends arrives.
+
+Evidence (scratchpad/char-test.mjs, run against the production server):
+- First load: movement works, 784,2020 -> 588,2020. Picking a character works
+  end-to-end; engine reports `graphics: ["ch-dog-01-2"]`.
+- After `page.reload()`: `graphics: ["hero"]`, movement 784,2000 -> 784,2000
+  (frozen), a manual `engine.processAction(...)` does nothing, and even
+  `engine.socket.emit('action', ...)` (bypassing every client guard) does
+  nothing. Server-side `onInput` logging confirms the action NEVER ARRIVES.
+- So it is not our validation, not the canMove guard, not stopProcessingInput.
+  Something about the reconnect leaves the socket unable to send actions.
+
+Suspects, in order: (a) the reload's new connection joins the lobby but the
+map room binding is lost, (b) `changeMap` inside `onConnected` on a fresh
+connection leaves the socket bound to the old room, (c) the previous page's
+websocket lingering server-side. NOT YET DIAGNOSED FURTHER.
+
+**This is the highest-priority bug in the project** — every returning player
+hits it. Mitigation already in place (an ack + retry loop in client.ts, server
+emits `character:accepted`) does NOT help, because the channel itself is dead.
+
+`window.__engine` is now exposed in client.ts specifically so this can be
+probed from a headless browser; keep it.
+
 ### Requested, not yet built (user, 2026-08-25 evening)
 
 - **In-game minigames** once the maps are done — small playable activities
