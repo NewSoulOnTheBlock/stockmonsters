@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>RPGJS Game</title>
+    <title>Stockmonsters</title>
     <meta
       name="viewport"
       content="initial-scale=1, maximum-scale=1, user-scalable=no, minimum-scale=1, width=device-width, height=device-height"
@@ -18,10 +18,87 @@
         height: 100vh;
         width: 100vw;
         overflow: hidden;
+        background: #000;
       }
+      /* --- Title screen ------------------------------------------------- */
+      #title-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background: #000;
+        cursor: pointer;
+        overflow: hidden;
+        transition: opacity .8s ease;
+      }
+      #title-screen.hidden { opacity: 0; pointer-events: none; }
+      #title-screen .art {
+        position: absolute;
+        inset: 0;
+        background: url("/titles/background.png") center / cover no-repeat;
+        image-rendering: pixelated;
+        animation: kenburns 24s ease-in-out infinite alternate;
+      }
+      @keyframes kenburns {
+        from { transform: scale(1); }
+        to   { transform: scale(1.07) translateY(-1.5%); }
+      }
+      #title-screen .vignette {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%);
+      }
+      /* The art has "PRESS START" baked in — pulse a glow over the whole
+         frame instead of drawing a second button */
+      #title-screen .hint {
+        position: absolute;
+        left: 0; right: 0;
+        bottom: 6vh;
+        text-align: center;
+        font-family: "Fredoka", "Trebuchet MS", sans-serif;
+        font-weight: 600;
+        letter-spacing: .18em;
+        color: #fff;
+        text-shadow: 0 2px 0 #1a1a4e, 0 0 18px rgba(80,160,255,.9);
+        font-size: clamp(14px, 2.2vw, 22px);
+        animation: blink 1.4s steps(2, jump-none) infinite;
+        user-select: none;
+      }
+      @keyframes blink { 50% { opacity: .15; } }
+      #title-screen .fade-in {
+        position: absolute; inset: 0; background: #000;
+        animation: fadein 1.6s ease forwards;
+        pointer-events: none;
+      }
+      @keyframes fadein { to { opacity: 0; } }
     </style>
   </head>
   <body>
     <div id="rpg"></div>
+    <div id="title-screen">
+      <div class="art"></div>
+      <div class="vignette"></div>
+      <div class="hint">TIKLA / DOKUN — BAŞLA</div>
+      <div class="fade-in"></div>
+    </div>
+    <script>
+      (function () {
+        var el = document.getElementById("title-screen");
+        var started = false;
+        function start() {
+          if (started) return;
+          started = true;
+          // A user gesture is required for fullscreen — this is the one
+          if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(function () {});
+          }
+          el.classList.add("hidden");
+          setTimeout(function () { el.remove(); }, 900);
+        }
+        el.addEventListener("click", start);
+        window.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") start();
+        });
+      })();
+    </script>
   </body>
 </html>
