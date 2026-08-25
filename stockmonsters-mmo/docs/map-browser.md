@@ -9,7 +9,7 @@ Three pieces:
 | file | what it is |
 | --- | --- |
 | `tools/render-map-thumbs.mjs` | generator: preview PNGs **and** the catalogue |
-| `public/mapthumbs/<id>.png` | one preview per map, ~320px on the long edge |
+| `public/previews/<id>.png` | one preview per map, ~320px on the long edge |
 | `src/data/map-catalog.ts` | generated data the window reads |
 | `src/map-browser.ts` | the window itself |
 

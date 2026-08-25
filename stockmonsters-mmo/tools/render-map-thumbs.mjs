@@ -6,7 +6,7 @@
  *
  * Two outputs, one pass over src/tiled:
  *
- *   public/mapthumbs/<id>.png   a downscaled composite of every visible tile
+ *   public/previews/<id>.png   a downscaled composite of every visible tile
  *                               layer of <id>.tmx (~320px on the long edge)
  *   src/data/map-catalog.ts     { id, name, region, width, height, thumb,
  *                                 connections[] } for every map
@@ -27,6 +27,10 @@
  * the thing that must never drift).
  */
 
+// NOTE: the output folder must not start with "map". The tiled plugin in
+// vite.config.ts claims publicPath '/map', and it matches by PREFIX — so
+// /mapthumbs/foo.png was swallowed and 404'd while /dex/foo.png worked.
+// That cost an afternoon; keep the name as 'previews'.
 import { readFileSync, writeFileSync, mkdirSync, statSync, readdirSync } from 'node:fs'
 import { join, dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -35,7 +39,7 @@ import sharp from 'sharp'
 const HERE = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(HERE, '..')
 const TILED = join(ROOT, 'src', 'tiled')
-const OUT_DIR = join(ROOT, 'public', 'mapthumbs')
+const OUT_DIR = join(ROOT, 'public', 'previews')
 const CATALOG = join(ROOT, 'src', 'data', 'map-catalog.ts')
 const CONNECTIONS = join(ROOT, 'src', 'data', 'rmxp-connections.json')
 
@@ -424,7 +428,7 @@ for (const m of maps) {
     region: m.region,
     width,
     height,
-    thumb: `/mapthumbs/${m.id}.png`,
+    thumb: `/previews/${m.id}.png`,
     connections: [...(adj.get(m.id) ?? [])].sort(),
   })
 }
@@ -496,7 +500,7 @@ for (const c of catalog) byRegion[c.region] = (byRegion[c.region] ?? 0) + 1
 
 console.log(`\nmaps ${maps.length} · rendered ${rendered.length} · skipped (fresh) ${skipped.length} · failed ${failed.length}`)
 console.log(`regions ${Object.entries(byRegion).map(([k, v]) => `${k} ${v}`).join(' · ')}`)
-console.log(`public/mapthumbs: ${readdirSync(OUT_DIR).filter((f) => f.endsWith('.png')).length} png, ${(bytes / 1048576).toFixed(2)} MB`)
+console.log(`public/previews: ${readdirSync(OUT_DIR).filter((f) => f.endsWith('.png')).length} png, ${(bytes / 1048576).toFixed(2)} MB`)
 if (failed.length) {
   console.log('FAILED:')
   for (const f of failed) console.log(`  ${f.id}: ${f.why}`)
