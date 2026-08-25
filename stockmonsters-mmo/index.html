@@ -50,88 +50,105 @@
         position: fixed;
         inset: 0;
         z-index: 1000;
-        background: #000;
-        cursor: pointer;
+        background: #060913;
         overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         transition: opacity .8s ease;
       }
       #title-screen.hidden { opacity: 0; pointer-events: none; }
-      #title-screen .art {
+      /* The art is a 1448x1086 SVG. Wrapping it in an element that shrink-wraps
+         to the same aspect lets the buttons be positioned as a PERCENTAGE of the
+         artwork, so they stay glued to the plate the art was drawn with at every
+         window size. */
+      #title-stage {
+        position: relative;
+        aspect-ratio: 1448 / 1086;
+        width: min(100vw, calc(100vh * 1448 / 1086));
+        height: auto;
+        max-height: 100vh;
+      }
+      #title-stage img {
         position: absolute;
         inset: 0;
-        background: url("/titles/background.png") center / contain no-repeat;
+        width: 100%;
+        height: 100%;
         image-rendering: pixelated;
-        animation: kenburns 24s ease-in-out infinite alternate;
-      }
-      @keyframes kenburns {
-        from { transform: scale(1); }
-        to   { transform: scale(1.07) translateY(-1.5%); }
-      }
-      #title-screen .vignette {
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%);
-      }
-      /* The art has "PRESS START" baked in — pulse a glow over the whole
-         frame instead of drawing a second button */
-      #title-screen .hint {
-        position: absolute;
-        left: 0; right: 0;
-        bottom: 6vh;
-        text-align: center;
-        font-family: "Fredoka", "Trebuchet MS", sans-serif;
-        font-weight: 600;
-        letter-spacing: .18em;
-        color: #fff;
-        text-shadow: 0 2px 0 #1a1a4e, 0 0 18px rgba(80,160,255,.9);
-        font-size: clamp(14px, 2.2vw, 22px);
-        animation: blink 1.4s steps(2, jump-none) infinite;
         user-select: none;
+        -webkit-user-drag: none;
       }
-      @keyframes blink { 50% { opacity: .15; } }
+      /* Covers the "PRESS START" plate baked into the artwork and replaces it
+         with real buttons. Measured from the rendered SVG. */
+      /* Sits exactly over the plate that used to hold PRESS START (those
+         paths are deleted from the SVG now, leaving a hole this panel fills). */
+      #title-actions {
+        position: absolute;
+        left: 19.3%;
+        top: 50.0%;
+        width: 32.9%;
+        /* The removed PRESS START plate leaves a transparent hole 10.4% of the
+           artwork tall; the panel must be at least that tall or the page
+           background shows through under the buttons. */
+        min-height: 10.5%;
+        display: flex;
+        flex-direction: column;
+        background: #26213a;
+        border: 3px solid #f6c177;
+        box-shadow: 5px 5px 0 #09070f;
+        overflow: hidden;
+      }
+      .title-btn {
+        display: block;
+        flex: 1 1 auto;
+        width: 100%;
+        padding: 3.4% 4%;
+        font-family: "Courier New", ui-monospace, monospace;
+        font-weight: 700;
+        font-size: clamp(11px, 1.55vw, 20px);
+        letter-spacing: .08em;
+        color: #fff1c7;
+        background: #26213a;
+        border: 0;
+        border-radius: 0;
+        cursor: pointer;
+        image-rendering: pixelated;
+        text-align: center;
+        white-space: nowrap;
+      }
+      .title-btn + .title-btn { border-top: 3px solid #f6c177; }
+      /* .title-btn sets display:block, which outranks the UA rule for
+         [hidden] — without this the button shows even when hidden. */
+      .title-btn[hidden] { display: none; }
+      .title-btn:hover { background: #322a4d; }
+      .title-btn:active { filter: brightness(.85); }
+      .title-btn.primary {
+        background: #7ecf6b;
+        color: #09070f;
+      }
+      .title-btn.primary:hover { background: #93dd80; }
+      .title-btn.secondary {
+        font-size: clamp(9px, 1.15vw, 15px);
+        padding: 2.4% 4%;
+      }
+      #title-wallet-line {
+        flex: 0 0 auto;
+        padding: 1.4% 0;
+        text-align: center;
+        font-family: "Courier New", ui-monospace, monospace;
+        font-size: clamp(9px, 1.05vw, 13px);
+        letter-spacing: .06em;
+        color: #7ecf6b;
+        background: #1b1730;
+      }
+      #title-wallet-line:empty { display: none; }
       #title-screen .fade-in {
         position: absolute; inset: 0; background: #000;
         animation: fadein 1.6s ease forwards;
         pointer-events: none;
+        z-index: 3;
       }
       @keyframes fadein { to { opacity: 0; } }
-      #wallet-btn {
-        position: absolute;
-        right: 16px; bottom: 16px;
-        z-index: 5;
-        padding: 10px 14px;
-        font-family: "Courier New", ui-monospace, monospace;
-        font-weight: 700;
-        font-size: 13px;
-        letter-spacing: .08em;
-        color: #fff1c7;
-        background: #26213a;
-        border: 3px solid #f6c177;
-        border-radius: 0;
-        box-shadow: 3px 3px 0 #09070f;
-        cursor: pointer;
-        image-rendering: pixelated;
-      }
-      #wallet-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #09070f; }
-      #wallet-btn.connected { border-color: #7ecf6b; color: #7ecf6b; }
-      #char-btn {
-        position: absolute;
-        left: 16px; bottom: 16px;
-        z-index: 5;
-        padding: 10px 14px;
-        font-family: "Courier New", ui-monospace, monospace;
-        font-weight: 700;
-        font-size: 13px;
-        letter-spacing: .08em;
-        color: #fff1c7;
-        background: #26213a;
-        border: 3px solid #f6c177;
-        border-radius: 0;
-        box-shadow: 3px 3px 0 #09070f;
-        cursor: pointer;
-        image-rendering: pixelated;
-      }
-      #char-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #09070f; }
       /* --- Create Your Character ---------------------------------------- */
       #char-screen {
         position: fixed;
@@ -223,11 +240,16 @@
   <body>
     <div id="rpg"></div>
     <div id="title-screen">
-      <div class="art"></div>
-      <div class="vignette"></div>
-      <div class="hint">CLICK OR TAP TO START</div>
-      <button id="char-btn">CREATE YOUR CHARACTER</button>
-      <button id="wallet-btn">CONNECT WALLET</button>
+      <div id="title-stage">
+        <img src="/titles/background.svg" alt="Stockmonsters">
+        <div id="title-actions">
+          <button id="btn-primary" class="title-btn primary">CONNECT WALLET</button>
+          <button id="btn-character" class="title-btn secondary" hidden>CHANGE YOUR CHARACTER</button>
+          <button id="btn-nfts" class="title-btn secondary" hidden>MY STOCKMONSTERS / NFTS</button>
+          <button id="btn-settings" class="title-btn secondary" hidden>GAME SETTINGS</button>
+          <div id="title-wallet-line"></div>
+        </div>
+      </div>
       <div class="fade-in"></div>
     </div>
     <div id="char-screen">
@@ -257,79 +279,62 @@
         var x = document.querySelector(".rpg-ui-close-button");
         if (x) { e.preventDefault(); x.click(); }
       });
-      // Wallet login: the server issues a nonce, the wallet signs it, and the
-      // server hands back an opaque connectionId derived from the address with
-      // a secret it alone holds (see auth.mjs). The client never picks its own
-      // identity — otherwise typing someone else's address would load their
-      // save. Reconnecting later reuses the stored connectionId.
+      // ---------------------------------------------------------------
+      // Title screen flow
+      //
+      //   not connected  ->  [CONNECT WALLET]
+      //   connected      ->  [PLAY GAME]  +  [CHANGE YOUR CHARACTER]
+      //
+      // The wallet signs a server-issued nonce; the server verifies it and
+      // returns an opaque connection identity (auth.mjs). A first-time player
+      // is sent through the character picker before the world appears.
+      // ---------------------------------------------------------------
       (function () {
-        var btn = document.getElementById("wallet-btn");
-        function short(a) { return a.slice(0, 6) + "…" + a.slice(-4); }
-        try {
-          var saved = JSON.parse(localStorage.getItem("sm-wallet") || "null");
-          if (saved && saved.address && saved.connectionId) {
-            btn.textContent = short(saved.address);
-            btn.classList.add("connected");
-          }
-        } catch (e) {}
-        btn.addEventListener("click", async function (e) {
-          e.stopPropagation(); // don't start the game
-          if (!window.ethereum) { btn.textContent = "NO WALLET FOUND"; return; }
-          var original = btn.textContent;
-          try {
-            btn.textContent = "SIGNING…";
-            var accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-            var address = accounts[0];
-            var nonce = (await (await fetch("/auth/nonce")).json()).nonce;
-            var message =
-              "Stockmonsters login\nAddress: " + address + "\nNonce: " + nonce;
-            var signature = await window.ethereum.request({
-              method: "personal_sign", params: [message, address]
-            });
-            var verify = await fetch("/auth/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ address: address, message: message, signature: signature })
-            });
-            if (!verify.ok) throw new Error("verification failed");
-            var proof = await verify.json();
-            localStorage.setItem("sm-wallet", JSON.stringify(proof));
-            btn.textContent = short(proof.address);
-            btn.classList.add("connected");
-            // the identity only takes effect on the next boot
-            setTimeout(function () { location.reload(); }, 400);
-          } catch (err) {
-            btn.textContent = original === "SIGNING…" ? "CONNECT WALLET" : original;
-          }
-        });
-      })();
-      // Title curtain + "Create Your Character". A first-time player (or a
-      // click on the CREATE YOUR CHARACTER button) gets the picker between
-      // the title and the game; returning players skip straight in — their
-      // look is restored from localStorage and, authoritatively, from the
-      // server's per-wallet save.
-      (function () {
-        var el = document.getElementById("title-screen");
-        var screen = document.getElementById("char-screen");
+        var screen = document.getElementById("title-screen");
+        var stage = document.getElementById("title-stage");
+        var primary = document.getElementById("btn-primary");
+        var charBtn = document.getElementById("btn-character");
+        var nftBtn = document.getElementById("btn-nfts");
+        var settingsBtn = document.getElementById("btn-settings");
+        var walletLine = document.getElementById("title-wallet-line");
+        var picker = document.getElementById("char-screen");
         var grid = document.getElementById("char-grid");
         var confirmBtn = document.getElementById("char-confirm");
-        var started = false;
         var selectedId = null;
+        var started = false;
 
+        function short(a) { return a.slice(0, 6) + "\u2026" + a.slice(-4); }
+        function readJson(key) {
+          try { return JSON.parse(localStorage.getItem(key) || "null"); } catch (e) { return null; }
+        }
+        function wallet() {
+          var w = readJson("sm-wallet");
+          return w && w.connectionId ? w : null;
+        }
         function savedCharacter() {
-          try {
-            var ids = JSON.parse(localStorage.getItem("sm-character") || "null");
-            if (!Array.isArray(ids) || !ids.length) return null;
-            var ok = ids.every(function (id) {
-              return typeof id === "string" &&
-                (id === "hero" || id === "female" || id.indexOf("ch-") === 0);
-            });
-            return ok ? ids : null;
-          } catch (e) { return null; }
+          var ids = readJson("sm-character");
+          if (!Array.isArray(ids) || !ids.length) return null;
+          var ok = ids.every(function (id) {
+            return typeof id === "string" &&
+              (id === "hero" || id === "female" || id.indexOf("ch-") === 0);
+          });
+          return ok ? ids : null;
         }
 
+        function render() {
+          var w = wallet();
+          var connected = !!w;
+          primary.textContent = connected ? "PLAY GAME" : "CONNECT WALLET";
+          // Everything past connecting only makes sense with a wallet.
+          charBtn.hidden = !connected;
+          nftBtn.hidden = !connected;
+          settingsBtn.hidden = !connected;
+          walletLine.textContent = connected ? short(w.address) : "";
+        }
+
+        // --- character picker ------------------------------------------
         function openPicker() {
-          screen.classList.add("open");
+          picker.classList.add("open");
           if (grid.childElementCount) return;
           fetch("spritesheets/characters/catalog.json")
             .then(function (r) { return r.json(); })
@@ -351,7 +356,7 @@
                 grid.appendChild(cell);
               });
             })
-            .catch(function () { screen.classList.remove("open"); });
+            .catch(function () { picker.classList.remove("open"); });
         }
 
         confirmBtn.addEventListener("click", function () {
@@ -359,30 +364,91 @@
           var ids = [selectedId];
           localStorage.setItem("sm-character", JSON.stringify(ids));
           window.dispatchEvent(new CustomEvent("sm:character", { detail: ids }));
-          screen.classList.remove("open");
+          picker.classList.remove("open");
+          if (!started) enterWorld();
         });
 
-        function start(forcePicker) {
-          if (!started) {
-            started = true;
-            // A user gesture is required for fullscreen — this is the one
-            if (document.documentElement.requestFullscreen) {
-              document.documentElement.requestFullscreen().catch(function () {});
-            }
-            el.classList.add("hidden");
-            setTimeout(function () { el.remove(); }, 900);
+        // --- entering the world ----------------------------------------
+        function enterWorld() {
+          if (started) return;
+          started = true;
+          // A user gesture is required for fullscreen — this is the one
+          if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(function () {});
           }
-          if (forcePicker || !savedCharacter()) openPicker();
+          screen.classList.add("hidden");
+          setTimeout(function () { screen.remove(); }, 900);
         }
-        el.addEventListener("click", function () { start(false); });
+
+        // --- wallet connect --------------------------------------------
+        async function connect() {
+          if (!window.ethereum) { primary.textContent = "NO WALLET FOUND"; return; }
+          var previous = primary.textContent;
+          try {
+            primary.textContent = "SIGNING\u2026";
+            var accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+            var address = accounts[0];
+            var nonce = (await (await fetch("/auth/nonce")).json()).nonce;
+            var message = "Stockmonsters login\nAddress: " + address + "\nNonce: " + nonce;
+            var signature = await window.ethereum.request({
+              method: "personal_sign", params: [message, address]
+            });
+            var res = await fetch("/auth/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ address: address, message: message, signature: signature })
+            });
+            if (!res.ok) throw new Error("verification failed");
+            localStorage.setItem("sm-wallet", JSON.stringify(await res.json()));
+            render();
+          } catch (err) {
+            primary.textContent = previous;
+            walletLine.textContent = "Connection cancelled.";
+          }
+        }
+
+        primary.addEventListener("click", function (e) {
+          e.stopPropagation();
+          if (!wallet()) { connect(); return; }
+          if (!savedCharacter()) { openPicker(); return; } // must pick once
+          enterWorld();
+        });
+        charBtn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          openPicker();
+        });
+        // These two enter the world and open the matching in-game window, so
+        // there is one place that owns each panel rather than two copies.
+        nftBtn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          enterWorld();
+          setTimeout(function () {
+            window.dispatchEvent(new CustomEvent("sm:open", { detail: "marketplace" }));
+          }, 1000);
+        });
+        settingsBtn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          enterWorld();
+          setTimeout(function () {
+            window.dispatchEvent(new CustomEvent("sm:open", { detail: "settings" }));
+          }, 1000);
+        });
+        // Clicking the artwork itself is the classic "press start", but only
+        // once there is a wallet — otherwise it would skip the connect step.
+        stage.addEventListener("click", function () {
+          if (!wallet() || picker.classList.contains("open")) return;
+          if (!savedCharacter()) { openPicker(); return; }
+          enterWorld();
+        });
         window.addEventListener("keydown", function (e) {
-          if (screen.classList.contains("open")) return; // picker owns keys
-          if (e.key === "Enter" || e.key === " ") start(false);
+          if (started || picker.classList.contains("open")) return;
+          if (e.key !== "Enter" && e.key !== " ") return;
+          if (!wallet()) return;
+          if (!savedCharacter()) { openPicker(); return; }
+          enterWorld();
         });
-        document.getElementById("char-btn").addEventListener("click", function (e) {
-          e.stopPropagation(); // don't let the curtain's click handler double-fire
-          start(true);
-        });
+
+        render();
       })();
     </script>
   </body>

@@ -124,6 +124,17 @@ export function mountChatUi(engine: Engine, socket: Socket) {
     s.replace(/[&<>"']/g, (c) =>
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string)
 
+  // The title screen owns the whole viewport until the player enters the
+  // world; opening the name modal before that darkens the title art and
+  // hijacks the flow. Wait for the curtain to be gone.
+  function whenInWorld(fn: () => void) {
+    const tick = () => {
+      if (!document.getElementById('title-screen')) setTimeout(fn, 600)
+      else setTimeout(tick, 300)
+    }
+    tick()
+  }
+
   // --- name ---------------------------------------------------------------
   let named = localStorage.getItem('sm-name')
   const openNameModal = () => {
@@ -169,7 +180,7 @@ export function mountChatUi(engine: Engine, socket: Socket) {
   })()
   if (hasWallet) {
     if (named) engine.processAction?.('name:set', { name: named })
-    else setTimeout(openNameModal, 1200) // let the map finish loading first
+    else whenInWorld(openNameModal)
   } else {
     input.placeholder = 'Connect a wallet to chat'
   }
