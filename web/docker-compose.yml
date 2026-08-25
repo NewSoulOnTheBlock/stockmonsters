@@ -74,7 +74,7 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      GAME_DOMAIN: ${GAME_DOMAIN:?set GAME_DOMAIN in web/.env to use the tls profile}
+      GAME_DOMAIN: ${GAME_DOMAIN:-}
     volumes:
       - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddydata:/data
