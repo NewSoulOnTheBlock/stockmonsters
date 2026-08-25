@@ -1,4 +1,5 @@
-import { Move, RpgEvent } from '@rpgjs/server'
+import { Move, RpgEvent, RpgPlayer } from '@rpgjs/server'
+import { startWildBattle } from './battle'
 import { MAPS, type Rect } from '../../tiled/manifest'
 import { OW_TICKERS } from '../../data/ow-spritesheets'
 import dex from '../../data/dex.json'
@@ -69,6 +70,12 @@ function creature(ticker: string) {
       this.setGraphic(`ow-${ticker}`)
       this.speed = 1
       this.infiniteMoveRoute([Move.tileRandom()])
+    },
+    onPlayerTouch(this: RpgEvent, player: RpgPlayer) {
+      void startWildBattle(player, ticker)
+    },
+    onAction(this: RpgEvent, player: RpgPlayer) {
+      void startWildBattle(player, ticker)
     },
   }
 }
