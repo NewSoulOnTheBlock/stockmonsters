@@ -7,6 +7,7 @@ import { mountHud } from "./hud";
 import { mountCharacterDesigner } from "./character-designer";
 import { mountMarketplace, openMarketplace } from "./marketplace";
 import { closeCharacterDesigner, isCharacterDesignerOpen } from "./character-designer";
+import { mountMapBrowser, openMapBrowser } from "./map-browser";
 
 /*
  * Everything the player sees on top of the map: zoom, HUD, chat, battle scene,
@@ -137,6 +138,7 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
   mountChatUi(engine, socket);
   mountHud(engine, socket);
   mountMarketplace(engine, socket);
+  mountMapBrowser(engine, socket);
 
   // The title screen's NFT/settings buttons enter the world first and then ask
   // for a panel; the in-game window is the single owner of each.
@@ -152,6 +154,7 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
     const id = (e as CustomEvent).detail?.id;
     if (!id) return;
     if (id === "market") { openMarketplace(); return; }
+    if (id === "map") { openMapBrowser(); return; }
     if (id === "quit") { engine?.processAction?.("hud:quit", {}); return; }
     if (id === "character") { window.dispatchEvent(new CustomEvent("sm:open-designer")); return; }
     engine?.processAction?.("hud:" + id, {});

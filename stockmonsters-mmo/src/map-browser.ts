@@ -188,11 +188,13 @@ const CSS = `
   display: flex; align-items: center; justify-content: center;
   font-size: 18px; color: rgba(246,193,119,.28);
 }
+/* Above the thumbnail (which carries z-index 1 of its own), never under it. */
 #sm-mapbrowser .mb-shot .chip {
-  position: absolute; top: 5px; left: 5px;
+  position: absolute; top: 5px; left: 5px; z-index: 2;
   padding: 2px 5px; line-height: 1;
   font-size: 8px; font-weight: 700; letter-spacing: .08em;
   color: #09070f; border: 1px solid rgba(9,7,15,.55);
+  box-shadow: 1px 1px 0 rgba(9,7,15,.7);
 }
 #sm-mapbrowser .mb-card .name {
   font-size: 12px; font-weight: 700; letter-spacing: .04em;

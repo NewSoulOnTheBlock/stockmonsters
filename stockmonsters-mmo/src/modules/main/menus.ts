@@ -4,6 +4,14 @@ import speciesRaw from '../../data/studio/species.json'
 import type { CreatureInstance } from '../../battle/factory'
 import { profiles, hasProfileStore, collectState } from './profile'
 import { snapFree, TILE } from './geometry'
+import { MAPS as PSDK_MAPS } from '../../tiled/manifest'
+import { RMXP_MAPS } from '../../tiled/rmxp-manifest'
+
+const KNOWN_MAPS = new Set<string>([
+  ...PSDK_MAPS.map((m) => m.id),
+  ...RMXP_MAPS.map((m) => m.id),
+])
+const MAP_SIZE = new Map(RMXP_MAPS.map((m) => [m.id, { w: m.width, h: m.height }]))
 
 /*
  * Lightweight panels over the dialog GUI until real modals arrive with the
@@ -136,6 +144,26 @@ export async function quitToTitle(player: RpgPlayer) {
     await player.showText('Progress saved.')
   }
   player.emit('game:quit', {})
+}
+
+/**
+ * Fast travel from the world-map window. The client sends only a map id — the
+ * arrival tile is the server's business, because a client-chosen coordinate is
+ * a free teleport into any sealed room. The id itself is checked against the
+ * manifests: an unknown map would drop the player into a room that does not
+ * exist.
+ */
+export async function travelTo(player: RpgPlayer, mapId: unknown) {
+  if (typeof mapId !== 'string' || !KNOWN_MAPS.has(mapId)) return
+  const size = MAP_SIZE.get(mapId)
+  // Middle of the map, nudged off anything solid. Maps we have no size for
+  // (the PSDK set) keep their own default entry point.
+  if (size) {
+    const at = snapFree(mapId, Math.floor(size.w / 2), Math.floor(size.h / 2), 12)
+    player.changeMap(mapId, { x: at.x * TILE, y: at.y * TILE })
+  } else {
+    player.changeMap(mapId)
+  }
 }
 
 const menuOpen = new Set<string>()
