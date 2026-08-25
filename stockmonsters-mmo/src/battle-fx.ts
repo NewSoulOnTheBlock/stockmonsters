@@ -212,8 +212,9 @@ export function wipe(root: HTMLElement, dir: 'in' | 'out'): number {
 // ---------------------------------------------------------------------------
 
 export const FX_CSS = `
+/* the effect anchor sits high on the sprite so numbers rise clear of the art */
 #battle-scene .bs-fx {
-  position: absolute; left: 50%; top: 42%;
+  position: absolute; left: 50%; top: 28%;
   width: 0; height: 0; z-index: 6;
   pointer-events: none;
 }
@@ -274,7 +275,7 @@ export const FX_CSS = `
   background: ${C.dark}; color: ${C.text};
   border: 3px solid ${C.border};
   box-shadow: 4px 4px 0 ${C.shadow};
-  animation: bs-banner-pop 1.1s steps(1, jump-none) both;
+  animation: bs-banner-pop 1.1s steps(8, jump-none) both;
 }
 #battle-scene .bs-banner-super { border-color: ${C.border}; color: ${C.border}; font-size: 20px; }
 #battle-scene .bs-banner-crit  { border-color: ${C.danger}; color: ${C.danger}; }
@@ -369,33 +370,49 @@ export const FX_CSS = `
   56%  { transform: translate(calc(var(--lx) * 1.1), calc(var(--ly) * 1.1)); }
   100% { transform: translate(0, 0); }
 }
-#battle-scene .bs-shake.bs-shaking { animation: bs-shake .34s steps(1, jump-none) 3; }
+/*
+ * NOTE ON steps(): a timing function applies BETWEEN two keyframes, not across
+ * the whole animation. steps(2) on a 0%/50%/100% flash therefore gives a white
+ * frame lasting a quarter of the duration, not half — measured, not guessed.
+ * Anything that must HOLD a state uses steps(1, jump-end) (= step-end: hold the
+ * segment's start value, then jump), and the hold length is set by where the
+ * keyframe sits.
+ */
+#battle-scene .bs-shake.bs-shaking { animation: bs-shake .3s steps(1, jump-end) 3; }
 @keyframes bs-shake {
   0%   { transform: translate(calc(var(--sh) * -1), 0); }
-  25%  { transform: translate(var(--sh), calc(var(--sh) * -.5)); }
-  50%  { transform: translate(calc(var(--sh) * -.6), calc(var(--sh) * .5)); }
-  75%  { transform: translate(calc(var(--sh) * .6), 0); }
+  20%  { transform: translate(var(--sh), calc(var(--sh) * -.6)); }
+  40%  { transform: translate(calc(var(--sh) * -.7), calc(var(--sh) * .6)); }
+  60%  { transform: translate(calc(var(--sh) * .7), calc(var(--sh) * -.3)); }
+  80%  { transform: translate(calc(var(--sh) * -.35), 0); }
   100% { transform: translate(0, 0); }
 }
-#battle-scene .bs-flashwrap.bs-flash { animation: bs-flashk .3s steps(1, jump-none) 2; }
-#battle-scene .bs-flashwrap.bs-flash-hard { animation: bs-flashk .22s steps(1, jump-none) 4; }
+/* white for 55% of each iteration — long enough to actually read as an impact */
+#battle-scene .bs-flashwrap.bs-flash { animation: bs-flashk .34s steps(1, jump-end) 2; }
+#battle-scene .bs-flashwrap.bs-flash-hard { animation: bs-flashk .26s steps(1, jump-end) 3; }
 @keyframes bs-flashk {
   0%   { filter: brightness(0) invert(1) drop-shadow(0 6px 0 rgba(9,7,15,.55)); }
-  50%  { filter: none; }
+  55%  { filter: none; }
   100% { filter: none; }
 }
-#battle-scene .bs-flashwrap.bs-tinting { animation: bs-tint .9s steps(1, jump-none) 3; }
+#battle-scene .bs-flashwrap.bs-tinting { animation: bs-tint .42s steps(1, jump-end) 4; }
 @keyframes bs-tint {
-  0%   { filter: drop-shadow(0 0 0 var(--tint)) drop-shadow(0 0 5px var(--tint)) drop-shadow(0 0 5px var(--tint)); }
-  50%  { filter: drop-shadow(0 0 0 var(--tint)) drop-shadow(0 0 2px var(--tint)); }
+  0%   { filter: drop-shadow(0 0 0 var(--tint)) drop-shadow(0 0 6px var(--tint)) drop-shadow(0 0 6px var(--tint)) drop-shadow(0 0 6px var(--tint)); }
+  50%  { filter: drop-shadow(0 0 0 var(--tint)) drop-shadow(0 0 3px var(--tint)); }
   100% { filter: none; }
 }
-#battle-scene .bs-slot.bs-appearing { animation: bs-appear .62s steps(7, jump-none) 1; }
+#battle-scene .bs-slot.bs-appearing { animation: bs-appear .72s 1; }
 @keyframes bs-appear {
-  0%   { transform: translateX(var(--ax)); filter: brightness(0) invert(1); opacity: 1; }
-  70%  { transform: translateX(0); filter: brightness(0) invert(1); }
-  78%  { filter: none; }
-  86%  { filter: brightness(0) invert(1); }
+  /* slide in as a white silhouette in 6 hard steps… */
+  0%   { transform: translateX(var(--ax)); filter: brightness(0) invert(1);
+         animation-timing-function: steps(6, jump-none); }
+  /* …then two blow-out flashes as it lands */
+  60%  { transform: translateX(0); filter: brightness(0) invert(1);
+         animation-timing-function: steps(1, jump-end); }
+  70%  { transform: translateX(0); filter: none; animation-timing-function: steps(1, jump-end); }
+  80%  { transform: translateX(0); filter: brightness(0) invert(1);
+         animation-timing-function: steps(1, jump-end); }
+  90%  { transform: translateX(0); filter: none; animation-timing-function: steps(1, jump-end); }
   100% { transform: translateX(0); filter: none; }
 }
 #battle-scene .bs-slot.fainted .bs-lunge { animation: bs-faint .8s steps(6, jump-none) forwards; }
@@ -433,7 +450,7 @@ export const FX_CSS = `
   #battle-scene .bs-num,
   #battle-scene .bs-banner,
   #battle-scene .bs-puff-label,
-  #battle-scene .bs-stage-label { animation: bs-static-hold 1s steps(1, jump-none) forwards; }
+  #battle-scene .bs-stage-label { animation: bs-static-hold 1s steps(2, jump-none) forwards; }
   #battle-scene .bs-stage > i, #battle-scene .bs-puff > i { display: none; }
   @keyframes bs-static-hold {
     0% { opacity: 1; transform: translate(-50%, 0); }

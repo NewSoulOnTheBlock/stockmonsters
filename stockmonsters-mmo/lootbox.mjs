@@ -285,23 +285,30 @@ export function replayRoll(reveal) {
     tier: reveal.tier,
     address: reveal.address,
   })
-  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
   for (const k of ['dexId', 'level', 'natureId', 'shiny']) {
     if (rolled[k] !== reveal[k]) problems.push(`${k}: rolled ${rolled[k]}, server said ${reveal[k]}`)
   }
-  if (!same(rolled.ivs, reveal.ivs)) problems.push(`ivs: rolled ${rolled.ivs}, server said ${reveal.ivs}`)
+  if (JSON.stringify(rolled.ivs) !== JSON.stringify(reveal.ivs)) {
+    problems.push(`ivs: rolled [${rolled.ivs}], server said [${reveal.ivs}]`)
+  }
 
-  const commit = attrCommitment({
-    dexId: reveal.dexId,
-    level: reveal.level,
-    ivs: reveal.ivs,
-    natureId: reveal.natureId,
-    shiny: reveal.shiny,
-    caughtAt: reveal.caughtAt,
-    salt: reveal.salt,
-  })
-  if (commit.toLowerCase() !== String(reveal.attrCommit).toLowerCase()) {
-    problems.push(`attrCommit does not match the revealed attributes (${commit} != ${reveal.attrCommit})`)
+  // A malformed payload is a verification FAILURE, not a crash — this function
+  // is handed untrusted JSON by anyone auditing their box.
+  try {
+    const commit = attrCommitment({
+      dexId: reveal.dexId,
+      level: reveal.level,
+      ivs: reveal.ivs,
+      natureId: reveal.natureId,
+      shiny: reveal.shiny,
+      caughtAt: reveal.caughtAt,
+      salt: reveal.salt,
+    })
+    if (commit.toLowerCase() !== String(reveal.attrCommit).toLowerCase()) {
+      problems.push(`attrCommit does not match the revealed attributes (${commit} != ${reveal.attrCommit})`)
+    }
+  } catch (err) {
+    problems.push(`the revealed attributes do not form a valid commitment: ${err.message}`)
   }
   return { ok: problems.length === 0, problems, rolled }
 }
@@ -427,8 +434,12 @@ export function createBoxStore(opts = {}) {
       markUp()
       return res
     } catch (err) {
-      const constraint = typeof err?.code === 'string' && err.code.startsWith('23')
-      if (!constraint) markDown(err)
+      // A healthy database saying "no" is an ANSWER, not an outage, and must
+      // not trip the breaker: 22xx data exception, 23xx integrity violation,
+      // 42xx syntax/access, P0001 the boxes_no_delete trigger's RAISE. Only
+      // connection-shaped failures mean Postgres is actually gone.
+      const said = typeof err?.code === 'string' && /^(22|23|42|P0)/.test(err.code)
+      if (!said) markDown(err)
       counters.dbErrors++
       throw err
     }

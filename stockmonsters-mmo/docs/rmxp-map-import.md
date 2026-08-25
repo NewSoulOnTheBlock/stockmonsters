@@ -225,3 +225,98 @@ the offsets align the maps along the shared edge, in tiles:
 For a north/south link, `world_x(to) = world_x(from) + fromOffset - toOffset`;
 for east/west the same holds on `y`. Stepping off `from` at tile `(x, y)` lands
 on `to` at `x + fromOffset - toOffset` along the shared axis.
+
+## Internal warps: the pack has none
+
+Edge links only ever move you between two *outdoor* maps that touch. Every
+cave, dungeon floor, gym and house in RPG Maker XP is joined by an in-map
+**event** instead — an event carrying command **201, "Transfer Player"**, whose
+parameters are `[designationType, mapId, x, y, direction, fadeType]`
+(`designationType` 0 = literal ids, 1 = the values are *variable ids* and only
+resolvable at runtime). `tools/extract-rmxp-warps.rb` reads exactly that and
+writes `src/data/rmxp-warps.json`.
+
+Run against the bundled *Remastered Kanto Johto Map Pack*, it finds **nothing**:
+
+```
+$ ruby tools/extract-rmxp-warps.rb
+scanned 152 maps, 0 events
+201 transfer commands: 0 (usable 0, variable-driven 0, dropped-dest 0, dropped-dup 0)
+```
+
+That is not a parser bug. Every `Data/Map###.rxdata` in the pack unmarshals with
+`@events == {}` — 152 maps, zero events between them; the only other files are
+`MapInfos.rxdata`, `Tilesets.rxdata` and `map_connections.dat`. The pack is an
+**art pack for mappers**, not a playable project: you are meant to drop it into
+your own Essentials game and place the events yourself. (The PSDK project under
+`../Stockmonsters` is a different, 21-map game — those warps were extracted long
+ago into `src/tiled/warps.json`.)
+
+A second consequence of the same gap: the map set has **no interiors at all**.
+There is no Blackthorn Gym map, no house map, no Pokémon Center. Every door
+sprite you can see on a town map leads nowhere, and always will until somebody
+draws the interiors. The only internal links this world can ever want are
+dungeon entrances and the ladders between dungeon floors.
+
+### So the links are hand-authored
+
+`rmxp-warps.json` therefore has two lists with one shape:
+
+```json
+{ "from": "blackthorn-city", "x": 33, "y": 17, "trigger": "touch",
+  "to": "ice-path", "tx": 68, "ty": 59, "dir": 8 }
+```
+
+* `warps` — regenerated from the .rxdata on every run. Empty today.
+* `manual` — hand-authored, **preserved** across runs (so is `_manual_note`).
+
+`src/modules/main/rmxp-warps.ts` reads both and treats them identically, so
+importing a source project that *does* have events lights the extracted links up
+with no code change. `touch` becomes `onPlayerTouch`, `action` becomes
+`onAction`; arrivals go through `snapFree()`; and a small positional-immunity
+map (copied from `warps.ts`, keyed by `String(player.id)` because every map
+transfer hands the hooks a fresh `RpgPlayer`) stops the player ping-ponging
+straight back through the door they came in by.
+
+To add a link by hand: render the .tmx (a throwaway full-resolution renderer is
+the fastest way to see a cave mouth), read the tile coordinate off the art,
+**check it against `<id>.hitboxes.json`** — a warp on a blocked tile can never
+fire — and add both directions to `manual`.
+
+### What is wired today
+
+Ice Path and Dark Cave, both authored this way:
+
+| link | joins |
+| --- | --- |
+| `blackthorn-city (33,17)` ↔ `ice-path (68,59)` | Blackthorn ↔ Ice Path |
+| `route-44 (73,19)` ↔ `ice-path (25,76)` | Ice Path ↔ Route 44 |
+| `ice-path (68,25)` ↔ `ice-path-b1f (40,16)` | ladder |
+| `ice-path-b1f (21,28)` ↔ `ice-path-b2f (32,33)` | ladder |
+| `ice-path-b2f (23,40)` ↔ `ice-path-b3f (17,26)` | ladder |
+| `route-31 (55,30)` ↔ `dark-cave-west (20,45)` | Route 31 ↔ Dark Cave |
+| `route-46 (44,17)` ↔ `dark-cave-west (70,70)` | Dark Cave ↔ Route 46 |
+| `dark-cave-west (41,23)` ↔ `dark-cave-east (23,71)` | Dark Cave halves |
+
+Reachability from `new-bark-town`, walking only: **7 of 152 before, 21 after**.
+Maps with no connection of any kind: **75 before, 69 after** (25 of those 69 are
+RMXP folder markers — `map0xx`, `towns-54`, `routes-9`, `extra`,
+`johto-enhanced`, `kanto-remastered` — 20x15 blank pages, not places).
+
+Still unconnected and genuinely wanting a hand-authored entrance: Mt. Moon,
+Rock Tunnel, Union Cave, Slowpoke Well, Mt. Mortar, Whirl Islands, Seafoam
+Islands, Diglett's Cave, the Abandoned Mine, Tohjo Falls, Ilex Forest,
+Viridian Forest, National Park, Dragon's Den, Tower Path, Battle Tower and
+Cliff Edge Gate. `saffron-city` and `route-17` are outdoor maps that the PBS
+`map_connections.txt` simply never mentions — those want an *edge* link in
+`rmxp-connections.json`, not a warp.
+
+### The two worlds still do not touch
+
+Separately from all of the above: nothing links the PSDK island (`exterior`,
+`hub`, …) to the Kanto/Johto region. `travelTo` in `menus.ts` gates fast travel
+on having stood on the map before, and a fresh player has only ever stood on
+`exterior`, so today the whole 152-map region is unreachable in a real session.
+A single `manual` entry from an `exterior` tile to `new-bark-town` would open
+it — the warp runner already accepts a PSDK map as `from` — but that is a
+game-design call, not an import one, so it is deliberately not in the data.

@@ -169,8 +169,8 @@ const css = `
   background: ${C.purple}; color: ${C.shadow}; border: 2px solid ${C.shadow};
   text-transform: uppercase;
 }
-#battle-scene .bs-name .bs-status.pulsing { animation: bs-tag-pulse .5s steps(1, jump-none) 4; }
-@keyframes bs-tag-pulse { 0% { filter: brightness(2.2); } 50% { filter: none; } }
+#battle-scene .bs-name .bs-status.pulsing { animation: bs-tag-pulse .42s steps(1, jump-end) 5; }
+@keyframes bs-tag-pulse { 0% { filter: brightness(2.4); } 50% { filter: none; } 100% { filter: none; } }
 #battle-scene .bs-hpbar {
   height: 10px; background: ${C.shadow}; border: 2px solid ${C.frame};
 }
@@ -179,8 +179,8 @@ const css = `
   background: ${C.ok};
 }
 #battle-scene .bs-hpbar > i.low { background: ${C.border}; }
-#battle-scene .bs-hpbar > i.critical { background: ${C.danger}; animation: bs-hp-alarm .6s steps(1, jump-none) infinite; }
-@keyframes bs-hp-alarm { 50% { filter: brightness(1.6); } }
+#battle-scene .bs-hpbar > i.critical { background: ${C.danger}; animation: bs-hp-alarm .7s steps(1, jump-end) infinite; }
+@keyframes bs-hp-alarm { 0% { filter: none; } 50% { filter: brightness(1.7); } 100% { filter: none; } }
 #battle-scene .bs-hptext { margin-top: 6px; font-size: 12px; text-align: right; }
 ` + FX_CSS
 
@@ -504,8 +504,11 @@ export function mountBattleScene(socket: { on: (type: string, cb: (data: any) =>
             state.mine.shown = data.mine.hp
             state.wild.shown = data.wild.hp
             applySnapshot(data, false)
-            wipe(root, 'in')
-            play([{ type: 'appear', side: 1 }])
+            const ms = wipe(root, 'in')
+            // let the wipe get out of the way, then slide the wild one in —
+            // stacked they cancel each other out and nothing reads
+            if (reducedMotion()) play([{ type: 'appear', side: 1 }])
+            else setTimeout(() => play([{ type: 'appear', side: 1 }]), ms * 0.55)
             return
         }
         if (playing) { pending = data; return }   // held until the burst drains
