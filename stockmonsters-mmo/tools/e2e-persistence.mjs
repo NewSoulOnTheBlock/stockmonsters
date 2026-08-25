@@ -46,6 +46,10 @@ const SERVER_SECRET = process.env.E2E_SERVER_SECRET ?? randomBytes(32).toString(
 const PRIVATE_KEY = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 
 const CHARACTER = ['ch-cat-01-2'] // not the 'hero' default, so it is unmistakable
+const CHANGED = ['ch-dog-01-1'] // a deliberate later change, to prove the lock lifts
+// player.ts holds the client's boot replay off for BOOT_WINDOW_MS (8s) after
+// the wallet claim. Wait past it before pretending to be a real user choice.
+const BOOT_WINDOW_MARGIN_MS = 9000
 const NAME = 'Reload' + randomBytes(2).toString('hex') // globally unique in players.name
 
 // A party and a box as battle.ts would leave them. dbSymbol values are real
@@ -296,7 +300,14 @@ try {
 
   check('the character is back after the reload',
     !!back && back.graphics.includes(CHARACTER[0]), JSON.stringify(back?.graphics))
-  check('...and it did NOT come from localStorage', back?.localCharacter == null,
+  // The character cannot have come from localStorage: this session cleared it
+  // before connecting, so only the server could supply it. The client then
+  // REPAIRS localStorage from the server's answer, on purpose — otherwise the
+  // title screen keeps treating a returning player on a clean device as a
+  // first-timer and shows them the picker. So the assertion is that the value
+  // now present matches what the server sent, not that it stayed empty.
+  check('...and it came from the server, which then repaired localStorage',
+    JSON.stringify(JSON.parse(back?.localCharacter ?? 'null')) === JSON.stringify(CHARACTER),
     `sm-character = ${String(back?.localCharacter)}`)
 
   const nameBack = await until('the server to restore the name', async () => {
@@ -314,8 +325,15 @@ try {
     document.getElementById('title-screen')?.remove()
     window.__engine.processAction('escape')
   })
+  // The heading types itself out, so "MENU" is "MEN" for a frame — wait for a
+  // choice, which only appears once the dialog is fully rendered.
   const menuText = await until('the menu dialog', async () =>
-    page.evaluate(() => document.querySelector('.rpg-ui-dialog')?.innerText ?? null))
+    page.evaluate(() => {
+      const t = document.querySelector('.rpg-ui-dialog')?.innerText ?? ''
+      // The heading types itself out, so wait for BOTH the finished title and
+      // a choice — 'Team' alone shows up while the title still reads 'ME'.
+      return /MENU/i.test(t) && t.includes('Team') ? t : null
+    }))
   check('the escape menu opens', /MENU/i.test(menuText), menuText.replace(/\n/g, ' | ').slice(0, 80))
 
   // Choose "Team" — the first choice in the dialog.
@@ -324,11 +342,14 @@ try {
     const hit = [...dialog.querySelectorAll('*')].find((n) => n.children.length === 0 && n.textContent.trim() === 'Team')
     hit?.click()
   })
+  // The dialog types itself out a line at a time, so wait for the creature
+  // name rather than for the heading — "YOUR TEAM" appears seconds early.
   const teamText = await until('the team panel', async () =>
     page.evaluate(() => {
       const t = document.querySelector('.rpg-ui-dialog')?.innerText ?? ''
-      return /YOUR TEAM|no Stockmonsters/.test(t) ? t : null
-    }), { timeout: 10000 }).catch(() => '(team panel never appeared)')
+      return /Applion|no Stockmonsters/.test(t) ? t : null
+    }), { timeout: 15000 }).catch(async () =>
+      page.evaluate(() => document.querySelector('.rpg-ui-dialog')?.innerText ?? '(no dialog)'))
   check('the party restored from Postgres is shown in game',
     /YOUR TEAM/.test(teamText) && /Applion/.test(teamText),
     teamText.replace(/\n/g, ' | ').slice(0, 120))
@@ -338,6 +359,88 @@ try {
   check('the box was not clobbered by the reconnect',
     finalRow.rows[0]?.state?.box?.length === BOX.length,
     JSON.stringify(finalRow.rows[0]?.state?.box?.map((c) => c.dbSymbol)))
+
+  /* ----------------------------------------------------- session three ---*/
+  step('session 3 — a client whose localStorage disagrees with the server')
+  // The dangerous case, and the reason player.ts is not just "load and apply":
+  // localStorage is trivially editable, so a client claiming a different
+  // character must lose to the stored one — and keep losing, because the
+  // client re-asserts its copy after every map change.
+  await page.evaluate((w) => {
+    localStorage.clear()
+    localStorage.setItem('sm-wallet', JSON.stringify(w))
+    localStorage.setItem('sm-character', JSON.stringify(['female']))
+    localStorage.setItem('sm-name', 'Impostor')
+  }, wallet)
+  await page.reload({ waitUntil: 'domcontentloaded' })
+
+  const contested = await waitForPlayer(page, 'the contested session to load')
+  // Give the client's retry loop several rounds to try to win.
+  await sleep(4000)
+  const settled = await readPlayer(page)
+  check('the server character beats the localStorage claim',
+    settled.graphics.includes(CHARACTER[0]) && !settled.graphics.includes('female'),
+    `${JSON.stringify(contested.graphics)} -> ${JSON.stringify(settled.graphics)}`)
+  check('the server name beats the localStorage claim', settled.name === NAME, String(settled.name))
+  check('the client\'s stale name was corrected in localStorage', settled.localName === NAME,
+    `sm-name = ${String(settled.localName)}`)
+
+  const notOverwritten = await db.query(
+    'SELECT state FROM player_state WHERE wallet_id = $1', [wallet.connectionId])
+  check('and the forged character was never written to Postgres',
+    JSON.stringify(notOverwritten.rows[0]?.state?.character) === JSON.stringify(CHARACTER),
+    JSON.stringify(notOverwritten.rows[0]?.state?.character))
+
+  step('session 3 — a REAL character change still works and still persists')
+  // The mirror of the check above, and the one that catches over-defending:
+  // if "the server wins" were implemented as a permanent lock, the designer
+  // would silently stop working. Past the boot window a new pick is a genuine
+  // choice and must be accepted.
+  await sleep(BOOT_WINDOW_MARGIN_MS)
+  await page.evaluate((ids) => {
+    localStorage.setItem('sm-character', JSON.stringify(ids))
+    window.dispatchEvent(new CustomEvent('sm:character', { detail: ids }))
+  }, CHANGED)
+  const changed = await until('the new character to apply', async () => {
+    const p = await readPlayer(page)
+    return p && p.graphics.includes(CHANGED[0]) ? p : null
+  }).catch(async () => readPlayer(page))
+  check('a deliberate change after the boot window is accepted',
+    !!changed && changed.graphics.includes(CHANGED[0]), JSON.stringify(changed?.graphics))
+  const changedRow = await until('the change to reach Postgres', async () => {
+    const { rows } = await db.query(
+      'SELECT state FROM player_state WHERE wallet_id = $1', [wallet.connectionId])
+    return rows[0]?.state?.character?.[0] === CHANGED[0] ? rows[0] : null
+  }).catch(async () => (await db.query(
+    'SELECT state FROM player_state WHERE wallet_id = $1', [wallet.connectionId])).rows[0])
+  check('...and is persisted, replacing the old one',
+    JSON.stringify(changedRow?.state?.character) === JSON.stringify(CHANGED),
+    JSON.stringify(changedRow?.state?.character))
+
+  step('session 3 — a second wallet cannot steal the name')
+  // anvil account #1.
+  const rival = privateKeyToAccount('0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d')
+  const rivalWallet = await signIn(rival)
+  await db.query('DELETE FROM players WHERE wallet_id = $1', [rivalWallet.connectionId])
+  const rivalPage = await browser.newPage()
+  await rivalPage.goto(BASE, { waitUntil: 'domcontentloaded' })
+  await rivalPage.evaluate((w) => {
+    localStorage.clear()
+    localStorage.setItem('sm-wallet', JSON.stringify(w))
+  }, rivalWallet)
+  await rivalPage.reload({ waitUntil: 'domcontentloaded' })
+  await waitForPlayer(rivalPage, 'the rival session to load')
+  await rivalPage.evaluate((n) => window.__engine.processAction('name:set', { name: n }), NAME)
+  await sleep(2500)
+  const rivalState = await readPlayer(rivalPage)
+  check('the rival does not get the taken name', rivalState.name !== NAME, String(rivalState.name))
+  const rivalRow = await db.query('SELECT name FROM players WHERE wallet_id = $1', [rivalWallet.connectionId])
+  check('...and Postgres still shows the name unclaimed by them',
+    rivalRow.rows[0]?.name == null, String(rivalRow.rows[0]?.name))
+  const ownerRow = await db.query('SELECT name FROM players WHERE wallet_id = $1', [wallet.connectionId])
+  check('...and the original owner keeps it', ownerRow.rows[0]?.name === NAME, String(ownerRow.rows[0]?.name))
+  await rivalPage.close()
+  await db.query('DELETE FROM players WHERE wallet_id = $1', [rivalWallet.connectionId])
 
   /* -------------------------------------------- degradation, for real ----*/
   step('the same client against a server with NO database')
@@ -364,8 +467,14 @@ try {
   await page2.reload({ waitUntil: 'domcontentloaded' })
   const noDb = await waitForPlayer(page2, 'the world to load without a database')
   check('the game still loads and plays with no database', !!noDb, JSON.stringify(noDb.graphics))
-  check('...and falls back to the client-supplied character', noDb.graphics.includes('female'),
-    JSON.stringify(noDb.graphics))
+  // The client's localStorage copy is the only source of truth now, and it has
+  // to still work — that is the whole promise of degrading gracefully.
+  const fellBack = await until('the client-supplied character to apply', async () => {
+    const p = await readPlayer(page2)
+    return p && p.graphics.includes('female') ? p : null
+  }).catch(async () => readPlayer(page2))
+  check('...and falls back to the client-supplied character',
+    !!fellBack && fellBack.graphics.includes('female'), JSON.stringify(fellBack?.graphics))
 } catch (err) {
   failures++
   console.error('\nE2E ABORTED:', err.stack ?? err)

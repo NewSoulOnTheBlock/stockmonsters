@@ -637,6 +637,17 @@ export function openCharacterDesigner(): void {
   (instance ?? mountCharacterDesigner()).open();
 }
 
+/** Closes it if it is open. Used when the server turns out to already know
+ *  this player's character, so the picker should never have been shown. */
+export function closeCharacterDesigner(): void {
+  instance?.close();
+}
+
+/** True while the designer is on screen. */
+export function isCharacterDesignerOpen(): boolean {
+  return !!instance?.root?.classList.contains("scd-open");
+}
+
 /** CSS.escape isn't in every target browser; ids here are [a-z0-9-] anyway. */
 function CSS_ESCAPE(value: string): string {
   return value.replace(/["\\]/g, "\\$&");

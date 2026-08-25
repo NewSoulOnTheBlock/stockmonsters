@@ -6,6 +6,7 @@ import { mountChatUi } from "./chat-ui";
 import { mountHud } from "./hud";
 import { mountCharacterDesigner } from "./character-designer";
 import { mountMarketplace, openMarketplace } from "./marketplace";
+import { closeCharacterDesigner, isCharacterDesignerOpen } from "./character-designer";
 
 /*
  * Everything the player sees on top of the map: zoom, HUD, chat, battle scene,
@@ -85,8 +86,24 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
   } catch {}
   if (!socket?.on) socket = { on: () => {}, emit: () => {} };
 
-  socket.on("character:accepted", () => {
+  socket.on("character:accepted", (payload: { layers?: unknown }) => {
     confirmed = true;
+    // The server is authoritative, and on a clean device it knows a returning
+    // player's look before the browser does. Repair localStorage so the title
+    // screen stops treating them as a first-timer, and close the picker if it
+    // was opened only because the browser had nothing.
+    const layers = payload?.layers;
+    if (!Array.isArray(layers) || !layers.length) return;
+    const restored = JSON.stringify(layers);
+    let hadNone = false;
+    try {
+      hadNone = !localStorage.getItem("sm-character");
+      localStorage.setItem("sm-character", restored);
+    } catch {}
+    if (hadNone && isCharacterDesignerOpen()) {
+      closeCharacterDesigner();
+      window.dispatchEvent(new CustomEvent("sm:character-restored", { detail: layers }));
+    }
   });
   // Close the socket before the page goes away.
   const bye = () => {

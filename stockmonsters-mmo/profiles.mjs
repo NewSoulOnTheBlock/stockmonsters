@@ -258,6 +258,11 @@ export function createProfileStore(opts = {}) {
    * mutates PARTY on every turn produces one UPDATE, not twenty. Synchronous
    * and never rejects — callers are game event handlers.
    *
+   * `name` is NOT written from here even if a patch carries one — it is a
+   * globally unique, contended value and only claimName() may set it, because
+   * only claimName() can lose the race. A name in a patch updates the cache so
+   * the in-memory profile stays consistent, nothing more.
+   *
    * @param {string} walletId
    * @param {{name?: string|null, address?: string|null, character?: string[],
    *          party?: unknown[], box?: unknown[], bag?: object}} patch

@@ -456,6 +456,12 @@
         window.addEventListener("sm:character", function () {
           if (!started && wallet()) setTimeout(enterWorld, 300);
         });
+        // ...and a returning player on a clean device never should have seen
+        // the picker: the server knows their character, it just answers a
+        // moment after the click.
+        window.addEventListener("sm:character-restored", function () {
+          if (!started && wallet()) enterWorld();
+        });
         stage.addEventListener("click", function () {
           if (!wallet() || picker.classList.contains("open")) return;
           if (!savedCharacter()) { openPicker(); return; }
