@@ -236,6 +236,20 @@ Everything below is committed and was verified by running it.
   BOX variable — the NFT mint queue). Escape opens MENU -> Team / Box.
   Wild wanderer pool is BST-capped at 460.
 
+- **Battle core** complete through the status tranche (44 tests,
+  `npx vitest run`): Gen-4 damage, statuses, stat stages, catching, flee.
+- **Production MMO server WORKS**: `npm run build:mmo && npm start` →
+  `server.mjs` hosts client + /parties rooms + ws + SQLite persistence
+  (data/rooms.sqlite) on one Node process. Verified: two browsers see each
+  other on the exterior dock. Chunk streaming is REQUIRED in mmorpg mode
+  and is re-enabled (the old transfer breakage was the ping-pong loops,
+  not streaming).
+- Generated `src/data/ow-spritesheets.ts` must stay free of @rpgjs/client
+  imports (server reads it; client Presets applied in config.client.ts).
+- Tooling: `.claude/skills/tile-design` (autotiling reference, fetched from
+  GitHub source) and a `tiled` MCP server registered in the project config
+  (`npx tiled-mcp-server --project-root .../src/tiled`) — loads next session.
+
 ### Known issues
 
 - **Map-transfer camera flash**: on transfer the engine resets camera follow
@@ -250,6 +264,13 @@ Everything below is committed and was verified by running it.
   `stockmonsters-reskin/generate-overworld.mjs` pipeline).
 - PSDK maps 22-26 (Bull Canyon -> Exchange City) have encounter data but no
   geometry — that route must be authored from scratch.
+
+### Next steps (in order, user-confirmed)
+
+1. Deploy to the BitLaunch box with the lord-fishu pattern (bootstrap/sync/Caddy).
+2. Wallet login (SIWE) — identity + persistent saves keyed by wallet.
+3. `contracts/` folder: the NFT mint contract (after server work).
+4. Map expansion via the tile-design skill + tiled MCP (maps 22-26 first).
 
 ### Direction notes
 
