@@ -5,6 +5,7 @@ import { applyAutoZoom } from "./zoom";
 import { mountBattleScene } from "./battle-scene";
 import { mountChatUi } from "./chat-ui";
 import { mountHud } from "./hud";
+import { mountCharacterDesigner } from "./character-designer";
 import { mountMarketplace, openMarketplace } from "./marketplace";
 
 // A verified wallet becomes the stable game identity. The connectionId is
@@ -101,6 +102,7 @@ startGame(
       mountBattleScene(socket);
       mountChatUi(engine, socket);
       mountHud(engine, socket);
+      mountCharacterDesigner(engine);
       mountMarketplace(engine, socket);
       // The title screen's NFT/settings buttons enter the world first and then
       // ask for a panel; the in-game window is the single owner of each.

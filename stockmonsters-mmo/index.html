@@ -333,8 +333,13 @@
         }
 
         // --- character picker ------------------------------------------
+        // The full designer (ready-mades + layered builder) lives in
+        // src/character-designer.ts and registers window.openCharacterDesigner.
+        // This plain script can't import a module, so it calls through that.
         function openPicker() {
-          picker.classList.add("open");
+          var open = window.openCharacterDesigner;
+          if (typeof open === "function") { open(); return; }
+          picker.classList.add("open"); // fallback: the old 49-cell grid
           if (grid.childElementCount) return;
           fetch("spritesheets/characters/catalog.json")
             .then(function (r) { return r.json(); })
@@ -435,6 +440,11 @@
         });
         // Clicking the artwork itself is the classic "press start", but only
         // once there is a wallet — otherwise it would skip the connect step.
+        // A first-time pick made in the designer should drop straight into
+        // the world, the same as the old picker's CONFIRM did.
+        window.addEventListener("sm:character", function () {
+          if (!started && wallet()) setTimeout(enterWorld, 300);
+        });
         stage.addEventListener("click", function () {
           if (!wallet() || picker.classList.contains("open")) return;
           if (!savedCharacter()) { openPicker(); return; }
