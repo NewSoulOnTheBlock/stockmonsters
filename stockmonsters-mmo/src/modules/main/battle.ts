@@ -2,7 +2,7 @@ import { RpgPlayer } from '@rpgjs/server'
 import dexRaw from '../../data/dex.json'
 import speciesRaw from '../../data/studio/species.json'
 import { createWildCreature, type CreatureInstance } from '../../battle/factory'
-import { runTurn, attemptFlee, getMove, type Combatant } from '../../battle/turn'
+import { runTurn, attemptFlee, newBattle, type Combatant } from '../../battle/turn'
 import { tryCapture } from '../../battle/catching'
 import { totalExpForLevel, levelFromExp, maxHp } from '../../battle/stats'
 import type { Rng } from '../../battle/damage'
@@ -110,6 +110,7 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
     const wild = make(ticker, level)
     const myState: StatusState = {}
     const wildState: StatusState = {}
+    const battleState = newBattle()
     let fleeAttempts = 0
 
     await player.showText(`A wild ${nameOf(wild)} (L${wild.level}) appeared!`)
@@ -136,7 +137,7 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
             { battler: wild, state: wildState, move: wildMove },
           ]
           fleeAttempts = 0 // §1.14: reset when the player attacks
-          const events = runTurn(sides, rng)
+          const events = runTurn(sides, rng, battleState)
           await player.showText(describe(events, mine, wild))
           if (wild.hp <= 0) {
             await player.showText(awardExp(mine, wild))
