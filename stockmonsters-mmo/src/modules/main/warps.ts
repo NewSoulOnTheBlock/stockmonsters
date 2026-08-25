@@ -1,10 +1,37 @@
 import { RpgPlayer } from '@rpgjs/server'
 import warps from '../../tiled/warps.json'
+import { MAPS, type Rect } from '../../tiled/manifest'
 
 type Warp = { from: string; x: number; y: number; to: string; toX: number; toY: number; trigger: string }
 
 const TILE = 32
 const px = (t: number) => t * TILE + TILE / 2
+
+// PSDK sometimes drops arrivals on cells its passages layer marks blocked
+// (the wifi room's (24,18), for instance) — scripted walks made that fine in
+// the original, but our physics shoves the player into sealed areas. Snap
+// every arrival to the nearest passable cell instead.
+const hitboxesById: Record<string, Rect[]> = Object.fromEntries(
+  MAPS.map((m) => [m.id, m.hitboxes]),
+)
+const isBlocked = (mapId: string, tx: number, ty: number) => {
+  const cx = tx * TILE + 16, cy = ty * TILE + 16
+  return (hitboxesById[mapId] ?? []).some(
+    (r) => cx >= r.x && cx < r.x + r.width && cy >= r.y && cy < r.y + r.height,
+  )
+}
+function snapFree(mapId: string, tx: number, ty: number): { x: number; y: number } {
+  if (!isBlocked(mapId, tx, ty)) return { x: tx, y: ty }
+  for (let radius = 1; radius <= 4; radius++) {
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dx = -radius; dx <= radius; dx++) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius) continue
+        if (!isBlocked(mapId, tx + dx, ty + dy)) return { x: tx + dx, y: ty + dy }
+      }
+    }
+  }
+  return { x: tx, y: ty } // give up; better than crashing
+}
 
 // A player who just warped often lands on or next to the return door (the
 // PSDK data pairs them that way), which would ping-pong them between maps
@@ -24,8 +51,9 @@ const immune = (player: RpgPlayer) => {
 }
 const go = (player: RpgPlayer, to: string, toX: number, toY: number) => {
   if (immune(player)) return
-  arrival.set(String(player.id), { x: px(toX), y: px(toY), away: false })
-  return player.changeMap(to, { x: px(toX), y: px(toY) })
+  const cell = snapFree(to, toX, toY)
+  arrival.set(String(player.id), { x: px(cell.x), y: px(cell.y), away: false })
+  return player.changeMap(to, { x: px(cell.x), y: px(cell.y) })
 }
 
 // The elevators are a single PSDK event whose page branches on a floor choice,
@@ -63,8 +91,9 @@ function elevatorEvent(mapId: string) {
         const choice = await player.showChoices('Which floor?', floors.map((f, i) => ({ text: f.text, value: i })))
         if (choice == null) return
         const f = floors[choice.value as number]
-        arrival.set(String(player.id), { x: px(f.x), y: px(f.y), away: false })
-        await player.changeMap(f.to, { x: px(f.x), y: px(f.y) })
+        const cell = snapFree(f.to, f.x, f.y)
+        arrival.set(String(player.id), { x: px(cell.x), y: px(cell.y), away: false })
+        await player.changeMap(f.to, { x: px(cell.x), y: px(cell.y) })
       },
     },
   }
