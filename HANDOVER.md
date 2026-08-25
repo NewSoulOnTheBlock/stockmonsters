@@ -504,6 +504,35 @@ names when wiring the real source.
 - Not built: bids/offers (need WETH or escrow), EIP-1271 contract wallets,
   auctions, bundles, the order-book service.
 
+### Session-3 late additions (all committed, all verified running)
+
+- **THE ENTRY-POINT TRAP, remember this**: `npm run dev` boots
+  `src/standalone.ts`, NOT `src/client.ts`. UI wired into only one of them is
+  invisible in the other. Shared mounting now lives in `src/game-ui.ts` and
+  both entries call it. This cost a full round-trip with the user.
+- **Escape was unreliable**: the engine samples input per frame and drops a
+  short tap, so the in-game menu opened only if the key was HELD (~350ms).
+  `game-ui.ts` now forwards Escape itself; the server's menu guard makes the
+  double-fire harmless. Do not "simplify" that away.
+- **Save & quit to title**: escape menu + HUD gear. The server flushes the
+  profile and only then emits `game:quit`; a failed write keeps the player in
+  the world and says so. Returning shows PROGRESS SAVED and skips the picker.
+- **HUD action bar is wired**: BAG/DEX/TEAM open server dialogs, MAP opens the
+  world map, MARKET the marketplace, QUESTS says it is unbuilt. Silence reads
+  as broken, so nothing is silent.
+- **World map browser** (`src/map-browser.ts`, `tools/render-map-thumbs.mjs`):
+  171 rendered previews (0.89 MB), region filter (exchange 19 / kanto 53 /
+  johto 74 / other 25 — `other` is the RMXP folder markers, not a guess),
+  search, detail sheet with bordering maps, lazy-loaded thumbs.
+  Thumbnails shrink each TILESET once with a per-tile box average and blit
+  whole-pixel blocks; resizing a composited map instead bleeds neighbouring
+  tiles into each other.
+  `travel:to` takes ONLY a map id — the arrival tile is server-chosen and
+  `snapFree`d, because a client coordinate would be a teleport into any room.
+- Known noise: `TypeError: s.tilesets is not iterable` still logs during a
+  transfer (the old beta.33 streaming complaint). The transfer completes and
+  the destination renders and plays — verified. Worth chasing, not blocking.
+
 ### Requested, not yet built (user, 2026-08-25 evening)
 
 - **In-game minigames** once the maps are done — small playable activities
