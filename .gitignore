@@ -7,3 +7,5 @@ Stockmonsters/.tiledmcp/
 Thumbs.db
 todo.md
 stockmonsters-mmo/data/
+contracts/out/
+contracts/cache/
