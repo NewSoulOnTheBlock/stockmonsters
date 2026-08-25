@@ -8,12 +8,10 @@ export default createServer({
       provideMain(),
       provideSaveStorage(new LocalStorageSaveStorageStrategy({ key: "save" })),
       provideServerModules([]),
-      provideTiledMap({
-        basePath: "map",
-        // Progressive chunk streaming breaks on map transitions in beta.33
-        // ("f.tilesets is not iterable" client-side); our maps are 64x64 so
-        // whole-map direct loading costs nothing.
-        streaming: false
-      })
+      // Chunk streaming is the ONLY map delivery in real MMO mode (the
+      // server never exposes raw TMX there), so it stays on. The transfer
+      // breakage once blamed on it was actually the onConnected/warp
+      // ping-pong loops, fixed since.
+      provideTiledMap({ basePath: "map" })
     ]
   });

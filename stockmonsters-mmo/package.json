@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "test:production": "node --test test/production-preview.test.mjs"
+    "test:production": "node --test test/production-preview.test.mjs",
+    "build:mmo": "RPG_TYPE=mmorpg vite build",
+    "start": "node server.mjs"
   },
   "keywords": [],
   "author": "",
