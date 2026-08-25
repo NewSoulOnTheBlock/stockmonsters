@@ -18,6 +18,24 @@
 (function () {
   'use strict'
 
+  // Force embed mode before neko's app boots.
+  //
+  // Caddy redirects the bare domain to ?embed=1, but that only helps a fresh
+  // visit: a cached page, a bookmark, or a link someone copied mid-session can
+  // still land here without it, and then the player gets neko's full chrome —
+  // its logo, menus and GitHub link — instead of the game. This script is a
+  // classic <script> at the end of <body>, so it runs before neko's deferred
+  // module scripts read the URL.
+  try {
+    var q = new URLSearchParams(location.search)
+    if (q.get('embed') !== '1') {
+      q.set('embed', '1')
+      history.replaceState(null, '', location.pathname + '?' + q.toString())
+    }
+  } catch (err) {
+    /* never let this stop the game from loading */
+  }
+
   // X11 keysyms. Arrows are in the 0xff00 function-key block; letters are
   // just their ASCII value.
   var KEY = {
