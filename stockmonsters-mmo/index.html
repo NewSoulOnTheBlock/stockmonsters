@@ -95,6 +95,25 @@
         pointer-events: none;
       }
       @keyframes fadein { to { opacity: 0; } }
+      #wallet-btn {
+        position: absolute;
+        right: 16px; bottom: 16px;
+        z-index: 5;
+        padding: 10px 14px;
+        font-family: "Courier New", ui-monospace, monospace;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: .08em;
+        color: #fff1c7;
+        background: #26213a;
+        border: 3px solid #f6c177;
+        border-radius: 0;
+        box-shadow: 3px 3px 0 #09070f;
+        cursor: pointer;
+        image-rendering: pixelated;
+      }
+      #wallet-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #09070f; }
+      #wallet-btn.connected { border-color: #7ecf6b; color: #7ecf6b; }
     </style>
   </head>
   <body>
@@ -103,6 +122,7 @@
       <div class="art"></div>
       <div class="vignette"></div>
       <div class="hint">CLICK OR TAP TO START</div>
+      <button id="wallet-btn">CONNECT WALLET</button>
       <div class="fade-in"></div>
     </div>
     <script>
@@ -123,6 +143,35 @@
         var x = document.querySelector(".rpg-ui-close-button");
         if (x) { e.preventDefault(); x.click(); }
       });
+      // Wallet connect: sign a login message, persist the proof, and use
+      // the address as the game identity (client.ts feeds it to the room
+      // connection as connectionId). Server-side signature verification is
+      // the wallet stage's remaining glue — see HANDOVER.
+      (function () {
+        var btn = document.getElementById("wallet-btn");
+        function short(a) { return a.slice(0, 6) + "…" + a.slice(-4); }
+        try {
+          var saved = JSON.parse(localStorage.getItem("sm-wallet") || "null");
+          if (saved && saved.address) { btn.textContent = short(saved.address); btn.classList.add("connected"); }
+        } catch (e) {}
+        btn.addEventListener("click", async function (e) {
+          e.stopPropagation(); // don't start the game
+          if (!window.ethereum) { btn.textContent = "NO WALLET FOUND"; return; }
+          try {
+            var accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+            var address = accounts[0];
+            var message = "Stockmonsters login\n" + address + "\n" + new Date().toISOString();
+            var signature = await window.ethereum.request({
+              method: "personal_sign", params: [message, address]
+            });
+            localStorage.setItem("sm-wallet", JSON.stringify({ address: address, message: message, signature: signature }));
+            btn.textContent = short(address);
+            btn.classList.add("connected");
+          } catch (err) {
+            btn.textContent = "CONNECT WALLET";
+          }
+        });
+      })();
       (function () {
         var el = document.getElementById("title-screen");
         var started = false;

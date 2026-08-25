@@ -265,6 +265,17 @@ Everything below is committed and was verified by running it.
 - PSDK maps 22-26 (Bull Canyon -> Exchange City) have encounter data but no
   geometry — that route must be authored from scratch.
 
+- **Wallet identity (half done)**: title screen has a pixel CONNECT WALLET
+  button (eth_requestAccounts + personal_sign, proof in localStorage
+  `sm-wallet`); client.ts feeds the address into the room `connectionId`, so
+  saves key by wallet. REMAINING GLUE: server-side verification of the
+  stored signature before trusting the identity (viem
+  `recoverMessageAddress`; wire into onConnected), plus a freshness/nonce
+  scheme.
+- **contracts/StockmonstersNFT.sol**: catch-to-mint ERC-721 with
+  server-signed EIP-712 vouchers, 4 forge tests green (`cd contracts &&
+  forge test`). Deploy steps in contracts/README.md.
+
 ### Next steps (in order, user-confirmed)
 
 1. Deploy to the BitLaunch box with the lord-fishu pattern (bootstrap/sync/Caddy).
