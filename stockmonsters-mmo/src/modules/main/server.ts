@@ -2,6 +2,7 @@ import { defineModule } from "@rpgjs/common";
 import { RpgServer } from "@rpgjs/server";
 import { player } from './player'
 import { warpEvents } from './warps'
+import { creatureEvents } from './creatures'
 import { MAPS } from '../../tiled/manifest'
 // import { Npc } from "./event";
 
@@ -28,5 +29,5 @@ export default defineModule<RpgServer>({
       mapData.hitboxes = [...kept, ...rects.map((r, i) => ({ id: HITBOX_ID + i, ...r }))]
     },
   },
-  maps: MAPS.map(({ id }) => ({ id, events: warpEvents(id) })),
+  maps: MAPS.map(({ id }) => ({ id, events: [...warpEvents(id), ...creatureEvents(id)] })),
 });

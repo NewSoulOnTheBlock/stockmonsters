@@ -1,6 +1,7 @@
 import { provideClientGlobalConfig, provideClientModules, Presets } from "@rpgjs/client";
 import { provideMain } from "../modules/main";
 import { provideTiledMap } from "@rpgjs/tiledmap/client";
+import { owSpritesheets } from "../data/ow-spritesheets";
 
 export default {
   providers: [
@@ -21,7 +22,8 @@ export default {
             id: 'female',
             image: 'spritesheets/female.png',
              ...Presets.RMSpritesheet(3, 4)
-          }
+          },
+          ...owSpritesheets
         ]
       }
     ])
