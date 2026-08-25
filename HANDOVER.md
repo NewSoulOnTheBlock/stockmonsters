@@ -231,6 +231,11 @@ Everything below is committed and was verified by running it.
   order, minimal 1v1 loop, wild-creature factory. 29 golden tests green
   (`npx vitest run`).
 
+- **In-game battles**: touching a wild creature opens a dialog-driven wild
+  battle (starter trio on first touch; Fight/Ball/Run; catches land in the
+  BOX variable — the NFT mint queue). Escape opens MENU -> Team / Box.
+  Wild wanderer pool is BST-capped at 460.
+
 ### Known issues
 
 - **Map-transfer camera flash**: on transfer the engine resets camera follow

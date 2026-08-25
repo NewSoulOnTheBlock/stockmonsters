@@ -55,9 +55,15 @@ function pickCells(mapId: string, n: number): { x: number; y: number }[] {
   return cells
 }
 
+const bst = (e: any) =>
+  e.stats.hp + e.stats.atk + e.stats.def + e.stats.spd + e.stats.ats + e.stats.dfs
+
 function roster(types: string[], rand: () => number): string[] {
   const pool = (dex as any[])
     .filter((e) => owSet.has(e.ticker))
+    // keep legendaries out of the starter-level wild pool (a zapdos-based
+    // wanderer was one-shotting L10 starters with level-1 thunderbolt)
+    .filter((e) => bst(e) <= 460)
     .filter((e) => types.length === 0 || e.types.some((t: string) => types.includes(t)))
     .map((e) => e.ticker)
   const src = pool.length >= 3 ? pool : [...owSet]

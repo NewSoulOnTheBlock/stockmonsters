@@ -1,4 +1,5 @@
 import { RpgPlayer, type RpgPlayerHooks } from '@rpgjs/server'
+import { openMenu } from './menus'
 
 export const player: RpgPlayerHooks = {
     onConnected(player: RpgPlayer) {
@@ -20,8 +21,8 @@ export const player: RpgPlayerHooks = {
         player.setGraphic('hero')
     },
     onInput(player: RpgPlayer, { action }) {
-        if (action == 'escape') {
-            player.callMainMenu()
-        }
+        // Escape opens our menu (the built-in main menu comes later with
+        // proper GUIs); hotbar keys never reach onInput in beta.33.
+        if (action == 'escape') void openMenu(player)
     }
 }
