@@ -7,6 +7,25 @@ import { Components } from '@rpgjs/server'
 
 const DEFAULT_GRAPHIC = 'hero'
 
+// The engine's default text component renders large and anti-aliased, which
+// sat on top of the sprite and read as a browser overlay rather than part of
+// the game. Small, monospaced and hard-outlined matches the pixel theme; the
+// margin lifts it clear of the character's head.
+function applyNameTag(player: RpgPlayer) {
+    player.setComponentsTop(
+        Components.text('{name}', {
+            fontFamily: 'Courier New, monospace',
+            fontSize: 11,
+            fontWeight: 'bold',
+            fill: '#fff1c7',
+            stroke: '#09070f',
+            strokeThickness: 4,
+            align: 'center',
+        }),
+        { width: 96, height: 14, marginBottom: 6 },
+    )
+}
+
 // The whole character-selector security model: the client sends graphic ids,
 // the server accepts only whitelisted ones. An unknown id would render the
 // player invisible to everyone with no error (engine has no fallback), so
@@ -28,7 +47,7 @@ export const player: RpgPlayerHooks = {
 
         // Name tag above every character — synced to all clients by the engine
         player.name = (player.getVariable('NAME') as string | undefined) ?? 'Trader'
-        player.setComponentsTop(Components.text('{name}'))
+        applyNameTag(player)
 
         // Every map transfer reconnects the socket and fires onConnected
         // again — spawning unconditionally here yanks the player back to the
@@ -64,7 +83,7 @@ export const player: RpgPlayerHooks = {
             }
             player.setVariable('NAME', result.name)
             player.name = result.name
-            player.setComponentsTop(Components.text('{name}'))
+            applyNameTag(player)
             player.emit('name:accepted', { name: result.name })
             return
         }
