@@ -591,6 +591,31 @@ Three traps that cost real time here, all worth remembering:
 Verified in the running game: one step west of the spawn boards the ship and
 lands in Olivine City.
 
+### Battle animations (session 4)
+
+`src/battle-fx.ts` + `src/battle-scene.ts` play a turn out instead of snapping
+to the result: the attacker lunges, the target shakes and flashes, a damage
+number rises, SUPER EFFECTIVE / CRITICAL banners appear, HP drains in steps and
+turns amber then red, misses puff, statuses pulse in their own colour, stat
+stages show arrows, faints drop and fade, and the scene wipes in and out.
+`src/modules/main/battle.ts` emits three channels — `battle:state` (the
+snapshot, and the SOURCE OF TRUTH for HP), `battle:turn` (the rules engine's
+own event list, played beat by beat) and `battle:end`. A snapshot arriving
+mid-burst is held and applied when the queue drains, so the scene can never
+disagree with the server.
+
+**How it is verified, and why that shape.** 87 browser frames prove the overlay
+renders the payloads (scratchpad `battlefx-*.png`). Proving the SERVER produces
+them needed a different tool: walking a headless player into a wandering
+creature is unreliable — the six creatures on `exterior` sit at (49,6) (49,50)
+(41,45) (50,28) (25,33) (49,14) and a naive walker gets stuck against the
+buildings long before reaching one. So `src/modules/main/battle.spec.ts` drives
+a REAL battle through a fake player and asserts the wire traffic: the scene
+opens before the first line, the turn list is the engine's own events (not a
+re-description), the last snapshot's HP is always in range, and a second battle
+cannot start while one runs. `battle.ts` now imports `RpgPlayer` as a TYPE —
+a value import drags canvasengine (and its need for `window`) into any test.
+
 ### Requested, not yet built (user, 2026-08-25 evening)
 
 - **In-game minigames** once the maps are done — small playable activities

@@ -1,4 +1,7 @@
-import { RpgPlayer } from '@rpgjs/server'
+// Type-only: nothing here constructs an RpgPlayer, and a value import would
+// drag the whole server package (and through it canvasengine, which needs a
+// `window`) into any test that wants to drive a battle.
+import type { RpgPlayer } from '@rpgjs/server'
 import dexRaw from '../../data/dex.json'
 import speciesRaw from '../../data/studio/species.json'
 import { createWildCreature, type CreatureInstance } from '../../battle/factory'
