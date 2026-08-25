@@ -27,6 +27,22 @@ const nameOf = (inst: CreatureInstance) => {
 
 const rng: Rng = (min, max) => min + Math.floor(Math.random() * (max - min + 1))
 
+// --- battle visual scene -----------------------------------------------------
+// The client mounts a DOM overlay (src/battle-scene.ts) fed over the custom
+// websocket channel. We push a full snapshot whenever HP/level/status can
+// have changed; the overlay animates the diffs.
+const entryOf = (inst: CreatureInstance) => dex.find((e) => dbSymbolByDexId[e.dexId] === inst.dbSymbol)
+const viewOf = (inst: CreatureInstance) => ({
+  name: nameOf(inst),
+  level: inst.level,
+  hp: inst.hp,
+  maxHp: inst.maxHp,
+  sprite: entryOf(inst)?.sprite ?? '',
+  status: inst.status ?? undefined,
+})
+const emitScene = (player: RpgPlayer, mine: CreatureInstance, wild: CreatureInstance) =>
+  player.emit('battle:state', { mine: viewOf(mine), wild: viewOf(wild) })
+
 const STARTERS = [
   { ticker: 'AAPL', label: 'Applion ($AAPL) — Flora' },
   { ticker: 'NVDA', label: 'Nvidrake ($NVDA) — Blaze' },
@@ -113,6 +129,7 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
     const battleState = newBattle()
     let fleeAttempts = 0
 
+    emitScene(player, mine, wild) // scene up before the first line of text
     await player.showText(`A wild ${nameOf(wild)} (L${wild.level}) appeared!`)
 
     // entry abilities (Intimidate)
@@ -150,6 +167,7 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
           ]
           fleeAttempts = 0 // §1.14: reset when the player attacks
           const events = runTurn(sides, rng, battleState)
+          emitScene(player, mine, wild)
           await player.showText(describe(events, mine, wild))
           if (wild.hp <= 0) {
             bag.balls++ // win faucet until shops/money arrive
@@ -168,6 +186,7 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
           bag.potions--
           const heal = Math.min(20, mine.maxHp - mine.hp) // Potion = 20 HP (§5.3)
           mine.hp += heal
+          emitScene(player, mine, wild)
           await player.showText(`${nameOf(mine)} recovered ${heal} HP! (${mine.hp}/${mine.maxHp})`)
           break
         }
@@ -206,6 +225,7 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
     player.setVariable('PARTY', party)
     player.setVariable('BAG', bag)
   } finally {
+    player.emit('battle:end', {})
     inBattle.delete(id)
   }
 }

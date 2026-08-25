@@ -260,8 +260,9 @@ Everything below is committed and was verified by running it.
   textures); repeat visits are fast. Candidate fix: preload adjacent maps.
 - Map chunk streaming is disabled (`streaming: false` in `src/server.ts`) —
   transfers break with it in beta.33 ("f.tilesets is not iterable").
-- 186 missing overworld charsets (regenerate via
-  `stockmonsters-reskin/generate-overworld.mjs` pipeline).
+- ~~186 missing overworld charsets~~ SOLVED session 3: `tools/gen-ow.mjs`
+  fallback generation from dex fronts (real art can replace them anytime —
+  the generator skips existing files).
 - PSDK maps 22-26 (Bull Canyon -> Exchange City) have encounter data but no
   geometry — that route must be authored from scratch.
 
@@ -284,14 +285,51 @@ Everything below is committed and was verified by running it.
   on anvil: deploy -> `tools/sign-voucher.mjs` (viem, the production signer
   path) -> player claims for 0.01 ETH -> sealed reads empty -> open reveals
   shiny Nvidrake. viem is now a dependency of stockmonsters-mmo.
-- **Character selector research running**: an Opus agent is dissecting
-  WorkAdventure's Woka system (ready-made picker + layered "make your
-  character" builder, asset licenses, other-players-sync) into
-  `docs/woka-character-selector.md`.
-- **`Ultimate Gen 4 Overworlds Pack/`** (sibling folder): 495 PNGs of Gen-4
-  style overworld sprites usable for NPCs/characters — CREDIT REQUIRED
-  (PurpleZaffre per included txt). Candidate source for the NPC charsets and
-  the character selector's ready-made options.
+- **`new-assets/Ultimate Gen 4 Overworlds Pack/`**: 495 PNGs of Gen-4 style
+  HUMAN overworld sprites (334 official NPCs + 75 Zaffre originals + effect
+  animations: exclamation, grass, dust, splashes) — CREDIT REQUIRED
+  (PurpleZaffre per included txt; credited in stockmonsters-mmo/CREDITS.md).
+  No creature overworlds in it. Candidate source for NPC charset variety.
+- **`new-assets/Remastered Kanto Johto Map Pack/`**: RMXP map data (152
+  Map*.rxdata), tilesets, autotiles, PBS connection data, BGM — candidate
+  raw material for the map-expansion stage (importer already speaks rxdata).
+
+### Session-3 progress (2026-08-25, evening — committed)
+
+- **"Create Your Character" selector SHIPPED** (user renamed it from Woka —
+  the word "woka" must not appear anywhere): research in
+  `docs/woka-character-selector.md` (engine-verified; key facts:
+  `setGraphic()` accepts an ARRAY = native layer stacking synced to all
+  peers; Pipoya sprites are license-clear, WorkAdventure's customisation/
+  layers are NOT — provenance unresolved, gate for the layered builder;
+  unknown graphic id = invisible player, silently). Implementation:
+  `tools/import-characters.mjs` copies 49 curated Pipoya sheets (18 male,
+  25 female, 3 cats, 3 dogs) -> `public/spritesheets/characters/` +
+  generated `src/data/character-catalog.ts` + `catalog.json` for the DOM.
+  Picker overlay in `index.html` (pixel theme, CREATE YOUR CHARACTER button
+  on title + auto-open for first-timers), event seam `sm:character` ->
+  `client.ts` -> `processAction('character:set')` -> `player.ts` validates
+  against `CHARACTER_IDS` whitelist (anti-invisibility) and persists in the
+  `CHARACTER` variable (per-wallet via connectionId), restored on every
+  reconnect BEFORE the SPAWNED guard. localStorage mirror: `sm-character`.
+- **All 254 creature overworld charsets exist now**: `tools/gen-ow.mjs`
+  (sharp) generates fallback 128x128 4x4 charsets from dex fronts for the
+  186 missing (alpha-trim, fit 28x28, bottom-center, right row mirrored,
+  1px bob walk), never overwrites the 68 real PSDK sheets, plus border-only
+  magenta-halo erosion that spares genuinely pink creatures (LADYS/GME/…).
+  `tools/ow-spritesheets-emit.mjs` is the single shared emitter of
+  `src/data/ow-spritesheets.ts` (dir scan; import-overworld.mjs calls it
+  too, so run order no longer matters). Every creature can wander.
+- **Battle visual scene SHIPPED**: server `player.emit('battle:state'|
+  'battle:end')` snapshots from `battle.ts` (start/turn/potion/end);
+  client `src/battle-scene.ts` DOM overlay (z 800, under dialogs at 1000):
+  enemy front sprite top-right + mirrored ally bottom-left, pixel HP panels
+  (green/amber/red, stepped animation), damage flash, status tag. Channel:
+  `inject(ctx, WebSocketToken)` + `socket.on(...)` — the documented custom
+  event path in beta.33.
+- Verified: `RPG_TYPE=mmorpg npx vite build` green, 63 vitest green,
+  production `server.mjs` smoke test serves picker catalog (49), generated
+  ow sheets, and a "woka"-free page.
 
 ### Next steps (in order, user-confirmed)
 

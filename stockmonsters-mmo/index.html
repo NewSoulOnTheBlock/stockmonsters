@@ -114,6 +114,110 @@
       }
       #wallet-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #09070f; }
       #wallet-btn.connected { border-color: #7ecf6b; color: #7ecf6b; }
+      #char-btn {
+        position: absolute;
+        left: 16px; bottom: 16px;
+        z-index: 5;
+        padding: 10px 14px;
+        font-family: "Courier New", ui-monospace, monospace;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: .08em;
+        color: #fff1c7;
+        background: #26213a;
+        border: 3px solid #f6c177;
+        border-radius: 0;
+        box-shadow: 3px 3px 0 #09070f;
+        cursor: pointer;
+        image-rendering: pixelated;
+      }
+      #char-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #09070f; }
+      /* --- Create Your Character ---------------------------------------- */
+      #char-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 1001;
+        background: rgba(9, 7, 15, .88);
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      #char-screen.open { display: flex; }
+      #char-screen .panel {
+        width: min(640px, 94vw);
+        max-height: 88vh;
+        display: flex;
+        flex-direction: column;
+        background: #26213a;
+        border: 4px solid #f6c177;
+        box-shadow: 6px 6px 0 #09070f;
+        image-rendering: pixelated;
+      }
+      #char-screen h1 {
+        margin: 0;
+        padding: 14px 20px;
+        font-family: "Fredoka", "Trebuchet MS", sans-serif;
+        font-weight: 600;
+        letter-spacing: .14em;
+        font-size: clamp(15px, 2.4vw, 20px);
+        color: #fff1c7;
+        text-shadow: 2px 2px 0 #09070f;
+        border-bottom: 3px solid #f6c177;
+        text-align: center;
+      }
+      #char-grid {
+        flex: 1;
+        overflow-y: auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+        gap: 10px;
+        padding: 16px;
+        scrollbar-width: thin;
+      }
+      .char-cell {
+        position: relative;
+        height: 76px;
+        background: #1b1730;
+        border: 3px solid #4a4368;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .char-cell:hover { border-color: #fff1c7; }
+      .char-cell.selected { border-color: #7ecf6b; box-shadow: 0 0 0 1px #7ecf6b inset; }
+      /* one 32x32 idle-facing-down frame (col 1, row 0), scaled 2x */
+      .char-cell > i {
+        width: 32px; height: 32px;
+        background-repeat: no-repeat;
+        background-position: -32px 0;
+        transform: scale(2);
+        image-rendering: pixelated;
+        pointer-events: none;
+      }
+      #char-screen .footer {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        padding: 14px;
+        border-top: 3px solid #f6c177;
+      }
+      #char-confirm {
+        padding: 10px 22px;
+        font-family: "Courier New", ui-monospace, monospace;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: .08em;
+        color: #09070f;
+        background: #7ecf6b;
+        border: 3px solid #f6c177;
+        border-radius: 0;
+        box-shadow: 3px 3px 0 #09070f;
+        cursor: pointer;
+        image-rendering: pixelated;
+      }
+      #char-confirm:disabled { opacity: .4; cursor: default; }
+      #char-confirm:not(:disabled):active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #09070f; }
     </style>
   </head>
   <body>
@@ -122,8 +226,18 @@
       <div class="art"></div>
       <div class="vignette"></div>
       <div class="hint">CLICK OR TAP TO START</div>
+      <button id="char-btn">CREATE YOUR CHARACTER</button>
       <button id="wallet-btn">CONNECT WALLET</button>
       <div class="fade-in"></div>
+    </div>
+    <div id="char-screen">
+      <div class="panel">
+        <h1>CREATE YOUR CHARACTER</h1>
+        <div id="char-grid"></div>
+        <div class="footer">
+          <button id="char-confirm" disabled>CONFIRM</button>
+        </div>
+      </div>
     </div>
     <script>
       // Classic RPG dialog feel: click the window (or Space/Enter) to
@@ -172,22 +286,85 @@
           }
         });
       })();
+      // Title curtain + "Create Your Character". A first-time player (or a
+      // click on the CREATE YOUR CHARACTER button) gets the picker between
+      // the title and the game; returning players skip straight in — their
+      // look is restored from localStorage and, authoritatively, from the
+      // server's per-wallet save.
       (function () {
         var el = document.getElementById("title-screen");
+        var screen = document.getElementById("char-screen");
+        var grid = document.getElementById("char-grid");
+        var confirmBtn = document.getElementById("char-confirm");
         var started = false;
-        function start() {
-          if (started) return;
-          started = true;
-          // A user gesture is required for fullscreen — this is the one
-          if (document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen().catch(function () {});
-          }
-          el.classList.add("hidden");
-          setTimeout(function () { el.remove(); }, 900);
+        var selectedId = null;
+
+        function savedCharacter() {
+          try {
+            var ids = JSON.parse(localStorage.getItem("sm-character") || "null");
+            if (!Array.isArray(ids) || !ids.length) return null;
+            var ok = ids.every(function (id) {
+              return typeof id === "string" &&
+                (id === "hero" || id === "female" || id.indexOf("ch-") === 0);
+            });
+            return ok ? ids : null;
+          } catch (e) { return null; }
         }
-        el.addEventListener("click", start);
+
+        function openPicker() {
+          screen.classList.add("open");
+          if (grid.childElementCount) return;
+          fetch("spritesheets/characters/catalog.json")
+            .then(function (r) { return r.json(); })
+            .then(function (items) {
+              items.forEach(function (item) {
+                var cell = document.createElement("div");
+                cell.className = "char-cell";
+                cell.dataset.id = item.id;
+                var i = document.createElement("i");
+                i.style.backgroundImage = 'url("' + item.image + '")';
+                cell.appendChild(i);
+                cell.addEventListener("click", function () {
+                  var prev = grid.querySelector(".selected");
+                  if (prev) prev.classList.remove("selected");
+                  cell.classList.add("selected");
+                  selectedId = item.id;
+                  confirmBtn.disabled = false;
+                });
+                grid.appendChild(cell);
+              });
+            })
+            .catch(function () { screen.classList.remove("open"); });
+        }
+
+        confirmBtn.addEventListener("click", function () {
+          if (!selectedId) return;
+          var ids = [selectedId];
+          localStorage.setItem("sm-character", JSON.stringify(ids));
+          window.dispatchEvent(new CustomEvent("sm:character", { detail: ids }));
+          screen.classList.remove("open");
+        });
+
+        function start(forcePicker) {
+          if (!started) {
+            started = true;
+            // A user gesture is required for fullscreen — this is the one
+            if (document.documentElement.requestFullscreen) {
+              document.documentElement.requestFullscreen().catch(function () {});
+            }
+            el.classList.add("hidden");
+            setTimeout(function () { el.remove(); }, 900);
+          }
+          if (forcePicker || !savedCharacter()) openPicker();
+        }
+        el.addEventListener("click", function () { start(false); });
         window.addEventListener("keydown", function (e) {
-          if (e.key === "Enter" || e.key === " ") start();
+          if (screen.classList.contains("open")) return; // picker owns keys
+          if (e.key === "Enter" || e.key === " ") start(false);
+        });
+        document.getElementById("char-btn").addEventListener("click", function (e) {
+          e.stopPropagation(); // don't let the curtain's click handler double-fire
+          start(true);
         });
       })();
     </script>
