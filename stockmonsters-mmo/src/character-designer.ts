@@ -83,38 +83,48 @@ const CSS = `
   text-shadow: 2px 2px 0 #09070f; text-align: center;
   border-bottom: 3px solid #f6c177;
 }
-.scd-tabs { display: flex; border-bottom: 3px solid #f6c177; }
-.scd-tab {
-  flex: 1 1 0; padding: 11px 8px;
-  font: inherit; font-size: 13px; color: #b9b2d6;
-  background: #1b1730; border: 0; border-radius: 0; cursor: pointer;
-  image-rendering: pixelated;
-}
-.scd-tab + .scd-tab { border-left: 3px solid #f6c177; }
-.scd-tab:hover { color: #fff1c7; background: #322a4d; }
-.scd-tab.scd-active { color: #09070f; background: #f6c177; }
 .scd-body { flex: 1 1 auto; min-height: 0; display: flex; }
-.scd-pane { display: none; flex: 1 1 auto; min-width: 0; min-height: 0; }
-.scd-pane.scd-active { display: flex; }
-.scd-build { gap: 0; }
+/* The preview column is shared by both screens — one canvas, two sources. */
 .scd-preview-col {
   flex: 0 0 auto; width: 190px;
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  padding: 16px 14px; border-right: 3px solid #f6c177;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: 18px 14px; border-right: 3px solid #f6c177;
+}
+.scd-content { flex: 1 1 auto; min-width: 0; min-height: 0; display: flex; }
+.scd-pane { display: none; flex: 1 1 auto; min-width: 0; min-height: 0;
+  flex-direction: column; padding: 16px 16px 0; }
+.scd-pane.scd-active { display: flex; }
+.scd-collection {
+  flex: 0 0 auto; margin-bottom: 10px;
+  font-size: 10px; letter-spacing: .12em; color: #6f6790;
+}
+.scd-partheading {
+  flex: 0 0 auto; margin: 14px 0 2px;
+  font-family: "Fredoka", "Trebuchet MS", sans-serif; font-weight: 600;
+  font-size: 15px; letter-spacing: .08em; color: #fff1c7;
 }
 .scd-stage {
+  position: relative;
   width: 148px; height: 148px;
   display: flex; align-items: center; justify-content: center;
   background: #1b1730; border: 3px solid #4a4368;
 }
 .scd-stage canvas { width: 128px; height: 128px; image-rendering: pixelated; }
+.scd-rotate {
+  position: absolute; right: -3px; bottom: -3px;
+  width: 30px; height: 30px; line-height: 1;
+  font: inherit; font-size: 16px; color: #fff1c7;
+  background: #26213a; border: 3px solid #f6c177; border-radius: 0;
+  cursor: pointer; image-rendering: pixelated;
+}
+.scd-rotate:hover { background: #322a4d; }
+.scd-rotate:active { transform: translate(1px, 1px); }
 .scd-summary {
   font-size: 10px; line-height: 1.5; letter-spacing: .04em;
   color: #b9b2d6; text-align: center; word-break: break-all;
 }
-.scd-parts { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
 .scd-parttabs {
-  display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 12px 0;
+  flex: 0 0 auto; display: flex; flex-wrap: wrap; gap: 6px;
 }
 .scd-parttab {
   padding: 7px 10px; font: inherit; font-size: 11px;
@@ -127,11 +137,11 @@ const CSS = `
 .scd-grid {
   flex: 1 1 auto; min-height: 120px; overflow-y: auto;
   display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
-  gap: 9px; padding: 12px; scrollbar-width: thin;
+  gap: 9px; padding-bottom: 16px; scrollbar-width: thin;
 }
 /* one scroller, six grids inside it — only the active part's grid is shown,
    so switching tabs costs nothing and each grid is built once, on first use */
-.scd-partscroll { flex: 1 1 auto; min-height: 120px; overflow-y: auto; padding: 12px; scrollbar-width: thin; }
+.scd-partscroll { flex: 1 1 auto; min-height: 120px; overflow-y: auto; padding-bottom: 16px; scrollbar-width: thin; }
 .scd-partgrid { display: none; }
 .scd-partgrid.scd-active {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 9px;
@@ -158,10 +168,14 @@ const CSS = `
   padding: 2px 0; font-size: 9px; letter-spacing: .06em; text-align: center;
   color: #f6c177; background: rgba(9, 7, 15, .82); pointer-events: none;
 }
+/* Two equal actions filling the bar: the secondary switches screens, the
+   primary commits — the same shape on both screens, so the exit is always
+   in the same place. */
 .scd-footer {
-  display: flex; justify-content: center; gap: 12px;
-  padding: 13px; border-top: 3px solid #f6c177;
+  display: flex; gap: 14px;
+  padding: 14px; border-top: 3px solid #f6c177;
 }
+.scd-footer > .scd-btn { flex: 1 1 0; padding: 13px 20px; font-size: 14px; }
 .scd-btn {
   padding: 10px 20px; font: inherit; font-size: 13px;
   color: #fff1c7; background: #26213a;
@@ -238,33 +252,32 @@ export function mountCharacterDesigner(engine?: CharacterEngine | null): Designe
   root.id = "sm-character-designer";
   root.innerHTML = `
     <div class="scd-panel" tabindex="-1">
-      <h1 class="scd-title">CREATE YOUR CHARACTER</h1>
-      <div class="scd-tabs">
-        <button type="button" class="scd-tab scd-active" data-mode="preset">PICK A TRADER</button>
-        <button type="button" class="scd-tab" data-mode="build">BUILD YOUR OWN</button>
-      </div>
+      <h1 class="scd-title">SELECT CHARACTER</h1>
       <div class="scd-body">
-        <div class="scd-pane scd-active" data-pane="preset">
-          <div class="scd-grid" data-grid="preset"></div>
-        </div>
-        <div class="scd-pane scd-build" data-pane="build">
-          <div class="scd-preview-col">
-            <div class="scd-stage">
-              <canvas width="${PREVIEW_SIZE}" height="${PREVIEW_SIZE}"></canvas>
-            </div>
-            <button type="button" class="scd-btn scd-wide" data-act="rotate">ROTATE</button>
-            <button type="button" class="scd-btn scd-wide" data-act="randomize">RANDOMIZE</button>
-            <div class="scd-summary"></div>
+        <div class="scd-preview-col">
+          <div class="scd-stage">
+            <canvas width="${PREVIEW_SIZE}" height="${PREVIEW_SIZE}"></canvas>
+            <button type="button" class="scd-rotate" data-act="rotate" title="Turn around">&#8635;</button>
           </div>
-          <div class="scd-parts">
+          <button type="button" class="scd-btn scd-wide" data-act="randomize"></button>
+          <div class="scd-summary"></div>
+        </div>
+        <div class="scd-content">
+          <div class="scd-pane scd-active" data-pane="preset">
+            <div class="scd-collection">DEFAULT COLLECTION</div>
+            <div class="scd-grid" data-grid="preset"></div>
+          </div>
+          <div class="scd-pane" data-pane="build">
             <div class="scd-parttabs"></div>
+            <div class="scd-partheading"></div>
+            <div class="scd-collection">DEFAULT COLLECTION</div>
             <div class="scd-partscroll" data-grid="parts"></div>
           </div>
         </div>
       </div>
       <div class="scd-footer">
-        <button type="button" class="scd-btn" data-act="cancel">CANCEL</button>
-        <button type="button" class="scd-btn scd-primary" data-act="confirm">CONFIRM</button>
+        <button type="button" class="scd-btn" data-act="secondary"></button>
+        <button type="button" class="scd-btn scd-primary" data-act="confirm"></button>
       </div>
     </div>`;
   document.body.appendChild(root);
@@ -277,6 +290,10 @@ export function mountCharacterDesigner(engine?: CharacterEngine | null): Designe
   const canvas = $<HTMLCanvasElement>("canvas");
   const summary = $<HTMLDivElement>(".scd-summary");
   const confirmBtn = $<HTMLButtonElement>('[data-act="confirm"]');
+  const secondaryBtn = $<HTMLButtonElement>('[data-act="secondary"]');
+  const randomBtn = $<HTMLButtonElement>('[data-act="randomize"]');
+  const title = $<HTMLHeadingElement>(".scd-title");
+  const partHeading = $<HTMLDivElement>(".scd-partheading");
   const ctx = canvas.getContext("2d");
 
   // --- state ---------------------------------------------------------------
@@ -321,7 +338,10 @@ export function mountCharacterDesigner(engine?: CharacterEngine | null): Designe
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, PREVIEW_SIZE, PREVIEW_SIZE);
     const row = DIR_ROWS[dirStep % DIR_ROWS.length];
-    for (const id of currentIds()) {
+    // The selection screen previews the highlighted ready-made; the builder
+    // previews the stack. One canvas, two sources.
+    const ids = mode === "preset" ? (presetId ? [presetId] : []) : currentIds();
+    for (const id of ids) {
       const img = image(imageUrl(id));
       if (!img.complete || !img.naturalWidth) continue;
       ctx.drawImage(
@@ -330,7 +350,7 @@ export function mountCharacterDesigner(engine?: CharacterEngine | null): Designe
         0, 0, PREVIEW_SIZE, PREVIEW_SIZE
       );
     }
-    summary.textContent = currentIds().length + " LAYERS";
+    summary.textContent = mode === "build" ? currentIds().length + " LAYERS" : "";
   }
 
   // --- cells ---------------------------------------------------------------
@@ -379,6 +399,7 @@ export function mountCharacterDesigner(engine?: CharacterEngine | null): Designe
     cell.addEventListener("click", () => {
       presetId = item.id;
       markSelected(presetGrid, cell);
+      drawPreview(); // the shared preview shows whatever is highlighted
       updateConfirm();
     });
     presetGrid.appendChild(cell);
@@ -448,6 +469,7 @@ export function mountCharacterDesigner(engine?: CharacterEngine | null): Designe
       el.classList.toggle("scd-active", CHARACTER_PARTS[i] === part)
     );
     for (const [p, grid] of gridForPart) grid.classList.toggle("scd-active", p === part);
+    partHeading.textContent = part.toUpperCase() + " OPTIONS";
     buildPartGrid(part);
     partGrids.scrollTop = 0;
   }
@@ -455,29 +477,48 @@ export function mountCharacterDesigner(engine?: CharacterEngine | null): Designe
   // --- actions --------------------------------------------------------------
   function setMode(next: "preset" | "build") {
     mode = next;
-    for (const tab of Array.from(root.querySelectorAll(".scd-tab"))) {
-      tab.classList.toggle("scd-active", (tab as HTMLElement).dataset.mode === next);
-    }
     for (const pane of Array.from(root.querySelectorAll(".scd-pane"))) {
       pane.classList.toggle("scd-active", (pane as HTMLElement).dataset.pane === next);
     }
-    if (next === "build") {
-      // First visit with nothing saved: seed a complete random character.
-      // The raw defaults (first body, first eyes, nothing else) are a naked
-      // black silhouette — a bad first impression and a bad starting point.
+    // The two screens are the same window wearing different labels — WorkAdventure's
+    // shape, which reads better than tabs because each screen has one obvious exit.
+    if (next === "preset") {
+      title.textContent = "SELECT CHARACTER";
+      secondaryBtn.textContent = "CREATE YOUR OWN";
+      confirmBtn.textContent = "CONTINUE";
+      randomBtn.textContent = "SELECT RANDOMLY";
+    } else {
+      title.textContent = "CREATE YOUR OWN";
+      secondaryBtn.textContent = "BACK TO SELECTION";
+      confirmBtn.textContent = "FINISH";
+      randomBtn.textContent = "RANDOMIZE";
       if (!builderSeeded) {
+        // First visit with nothing saved: seed a complete random character.
+        // The raw defaults (first body, first eyes, nothing else) are a naked
+        // black silhouette — a bad first impression and a bad starting point.
         builderSeeded = true;
-        buildPartGrid(activePart);
+        selectPart(activePart);
         randomize();
+        updateConfirm();
         return;
       }
-      buildPartGrid(activePart);
-      drawPreview();
+      selectPart(activePart);
     }
+    drawPreview();
     updateConfirm();
   }
 
   function randomize() {
+    if (mode === "preset") {
+      const items = CHARACTER_PRESETS;
+      if (!items.length) return;
+      presetId = pick(items).id;
+      const cell = presetGrid.querySelector(`[data-id="${CSS_ESCAPE(presetId)}"]`);
+      markSelected(presetGrid, cell);
+      drawPreview();
+      updateConfirm();
+      return;
+    }
     for (const part of CHARACTER_PARTS) {
       const items = CHARACTER_LAYERS[part];
       if (!items.length) { chosen[part] = null; continue; }
@@ -521,12 +562,11 @@ export function mountCharacterDesigner(engine?: CharacterEngine | null): Designe
       const which = act.dataset.act;
       if (which === "rotate") { dirStep = (dirStep + 1) % DIR_ROWS.length; drawPreview(); }
       else if (which === "randomize") randomize();
-      else if (which === "cancel") close();
+      else if (which === "secondary") setMode(mode === "preset" ? "build" : "preset");
       else if (which === "confirm") confirm();
       return;
     }
-    const tab = (e.target as HTMLElement)?.closest?.(".scd-tab") as HTMLElement | null;
-    if (tab?.dataset.mode) setMode(tab.dataset.mode as "preset" | "build");
+
   });
 
   // Keys typed inside the overlay are the overlay's business — don't let them
