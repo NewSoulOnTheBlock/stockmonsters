@@ -3,6 +3,15 @@ import { openMenu, openHudPanel, quitToTitle, travelTo, markVisited, visitedMaps
 import { CHARACTER_IDS } from '../../data/character-catalog'
 import { validateName } from './names'
 import { handleChat, addChatMember, removeChatMember } from './chat'
+import {
+    addDmMember,
+    removeDmMember,
+    handleDmNearby,
+    handleDmSend,
+    handleDmBlock,
+    handleDmUnblock,
+    handleDmGiftInfo,
+} from './dm'
 import { Components } from '@rpgjs/server'
 import {
     applyInventory,
@@ -257,6 +266,9 @@ export const player: RpgPlayerHooks = {
         // Chat reaches everyone connected, not just this map, so the roster has
         // to be kept here rather than read off a single room.
         addChatMember(player)
+        // DMs need the same roster for the opposite reason: to know who is
+        // standing where. Both are refreshed again in onJoinMap.
+        addDmMember(player)
 
         // Name tag above every character — synced to all clients by the engine
         player.name = (player.getVariable('NAME') as string | undefined) ?? 'Trader'
@@ -279,6 +291,7 @@ export const player: RpgPlayerHooks = {
     },
     onDisconnected(player: RpgPlayer) {
         removeChatMember(player)
+        removeDmMember(player)
         // Last write of the session. The store batches, so without this the
         // final few seconds of a battle would be lost on a clean exit.
         const walletId = walletOf(player)
@@ -294,6 +307,10 @@ export const player: RpgPlayerHooks = {
         // a fresh RpgPlayer, and `emit` on a stale one silently does nothing
         // (it needs a current map), so a broadcast would reach nobody.
         addChatMember(player)
+        // Same object, same reason — and the DM roster additionally reads this
+        // object's position, so a stale one would place the player on the map
+        // they just left.
+        addDmMember(player)
 
         const id = String(map?.id ?? '').replace(/^map-/, '')
         const isNew = markVisited(player, id)
@@ -395,6 +412,15 @@ export const player: RpgPlayerHooks = {
             handleChat(player, data)
             return
         }
+        // Direct messages. The action key is handled CLIENT-side (dm-ui.ts)
+        // because an RPG-JS onAction only fires for events the player faces,
+        // and players are not events — so the client asks and the server
+        // decides who is close enough. See docs/dm.md.
+        if (action == 'dm:nearby') { handleDmNearby(player); return }
+        if (action == 'dm:send') { handleDmSend(player, data); return }
+        if (action == 'dm:block') { handleDmBlock(player, data); return }
+        if (action == 'dm:unblock') { handleDmUnblock(player, data); return }
+        if (action == 'dm:gift-info') { handleDmGiftInfo(player, data); return }
         // Anything else the player did is a decent moment to persist whatever
         // battle.ts has been mutating. The store diffs and batches, so this is
         // free when nothing changed.

@@ -3,7 +3,7 @@ import { inject } from "@signe/di";
 import { applyAutoZoom } from "./zoom";
 import { mountBattleScene } from "./battle-scene";
 import { mountChatUi } from "./chat-ui";
-import { mountHud } from "./hud";
+import { mountHud, getHud } from "./hud";
 import { mountCharacterDesigner } from "./character-designer";
 import { mountMarketplace, openMarketplace } from "./marketplace";
 import { closeCharacterDesigner, isCharacterDesignerOpen } from "./character-designer";
@@ -150,6 +150,9 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
     const what = (e as CustomEvent).detail;
     if (what === "marketplace") openMarketplace();
     if (what === "boxes") openBoxShop();
+    // Without this GAME SETTINGS just dropped the player into the world and
+    // did nothing else, which reads as a broken button.
+    if (what === "settings") getHud()?.openSettings();
   });
 
   // The action bar only announced itself before — every button but MARKET did

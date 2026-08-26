@@ -18,6 +18,9 @@ export default defineConfig({
       // the battle overlay depends on
       'src/modules/main/battle.spec.ts',
       'src/modules/main/chat.spec.ts',
+      // direct messages: proximity, blocks and the wallet-keyed rate limit,
+      // driven through fake players the same way chat.spec.ts is
+      'src/modules/main/dm.spec.ts',
     ],
     environment: 'node',
   },

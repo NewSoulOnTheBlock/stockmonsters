@@ -200,11 +200,13 @@ export function mountChatUi(engine: Engine, socket: Socket) {
       // or it may predate a rule change. If the server refuses it we have no
       // name at all, so the modal has to open — see the 'name:rejected'
       // handler, which reopens it when nothing has been confirmed yet.
+      // A stored name is re-sent and that is the end of it. We do NOT open the
+      // modal just because the confirmation is slow: asking a returning player
+      // for their name on every single login is worse than briefly showing the
+      // old one, and the modal swallows every key while it is up. The only
+      // thing that reopens it is an explicit refusal from the server — see the
+      // 'name:rejected' handler.
       engine.processAction?.('name:set', { name: named })
-      // Give the server time to confirm before demanding a new one. The modal
-      // swallows every key while it is up, so opening it spuriously locks the
-      // player out of chat and movement for no reason.
-      whenInWorld(() => setTimeout(() => { if (!confirmedName) openNameModal() }, 3500))
     } else {
       whenInWorld(openNameModal)
     }

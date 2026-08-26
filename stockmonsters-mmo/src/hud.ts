@@ -72,6 +72,8 @@ export interface HudActionDef {
 export interface HudApi {
   update(patch: Partial<HudModel>): void
   getModel(): HudModel
+  /** Open the gear popover — the title screen's GAME SETTINGS lands here. */
+  openSettings(): void
   destroy(): void
   root: HTMLElement
 }
@@ -630,6 +632,7 @@ export function mountHud(engine?: EngineLike, socket?: SocketLike): HudApi {
   const api: HudApi = {
     root,
     getModel: () => ({ ...model }),
+    openSettings() { if (!settings.classList.contains('open')) toggleSettings() },
     update(patch) { Object.assign(model, patch); render() },
     destroy() {
       clearInterval(poll)

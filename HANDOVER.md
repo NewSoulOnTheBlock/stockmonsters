@@ -693,6 +693,23 @@ SCREEN was up. The modal covers the viewport at a higher z-index, so it hid
 PLAY GAME and the player could not get into the world to answer. It now waits
 for the world like every other path.
 
+### Returning players are not re-interrogated (session 4)
+
+Three bugs made every login feel like a first one:
+1. **The saved-character check only matched `ch-`**, but a character you BUILD
+   is a list of `chl-…` layer ids. So a designed character was never recognised
+   as saved and the picker reopened on every PLAY GAME. Both prefixes now count.
+2. **The name modal opened whenever confirmation was slow.** A stored name is
+   now simply re-sent; only an explicit `name:rejected` reopens the modal.
+   Asking a returning player to name themselves every login is worse than
+   briefly showing a stale name — and the modal swallows every key while up.
+3. **GAME SETTINGS on the title screen only entered the world** — nothing
+   listened for the `sm:open` detail 'settings'. `hud.ts` now exposes
+   `openSettings()` and `game-ui.ts` routes to it.
+
+Verified: second login goes straight into the world with the built character
+intact and no prompts; GAME SETTINGS lands on the gear panel.
+
 ### Requested, not yet built (user, 2026-08-25 evening)
 
 - **In-game minigames** once the maps are done — small playable activities

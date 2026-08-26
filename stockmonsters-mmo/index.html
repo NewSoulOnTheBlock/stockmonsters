@@ -315,8 +315,12 @@
           var ids = readJson("sm-character");
           if (!Array.isArray(ids) || !ids.length) return null;
           var ok = ids.every(function (id) {
+            // A built character's layers are prefixed "chl-", a ready-made is
+            // "ch-". Matching only "ch-" meant a character you designed yourself
+            // was never recognised as saved, so the picker reopened every time.
             return typeof id === "string" &&
-              (id === "hero" || id === "female" || id.indexOf("ch-") === 0);
+              (id === "hero" || id === "female" ||
+                id.indexOf("ch-") === 0 || id.indexOf("chl-") === 0);
           });
           return ok ? ids : null;
         }
