@@ -34,6 +34,11 @@ export default defineConfig({
       // the client hand-encodes its calldata; this checks it against viem,
       // where getting an offset wrong fails somewhere else entirely
       'src/duel-ui.spec.ts',
+      // the marketplace's hand-encoded calldata. fillOrder takes a struct of
+      // eleven value types, which is STATIC and encodes inline — encode it as
+      // dynamic and the fill fails with BAD_SIGNATURE, pointing at the wrong
+      // file entirely
+      'src/market-source-chain.spec.ts',
     ],
     environment: 'node',
   },

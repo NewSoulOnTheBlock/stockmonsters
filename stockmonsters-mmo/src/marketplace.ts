@@ -17,10 +17,19 @@
  * itself (see `watchGameDialog` in ui-kit.ts) instead of being buried by it.
  *
  * ── DATA SEAM ────────────────────────────────────────────────────────────────
- * The UI only ever talks to a `MarketSource`. `demoMarketSource` fabricates
- * listings from src/data/dex.json so the whole flow is explorable with no
- * backend at all. See the comment above `demoMarketSource` for exactly what to
- * replace when the EIP-712 marketplace contract lands.
+ * The UI only ever talks to a `MarketSource`. There are two implementations:
+ *
+ *   src/market-source-chain.ts  the real one — signed EIP-712 orders indexed by
+ *                               market.mjs, filled on chain, `settled` resolved
+ *                               from a receipt.
+ *   demoMarketSource() below    fabricated listings from src/data/dex.json, so
+ *                               the whole flow is explorable with no contract
+ *                               and no backend at all.
+ *
+ * `mountMarketplace` asks the server which it is (`GET /market`) and swaps the
+ * chain source in when there is one. The demo is never silent about being a
+ * demo: the banner under the toolbar says DEMO MODE for as long as the
+ * catalogue is invented.
  */
 
 import dex from './data/dex.json'
@@ -28,6 +37,16 @@ import {
   ensureUiKit, injectStyle, el, escapeHtml, guardKeys, pushLayer,
   makeDraggable, watchGameDialog, formatEth, parseEth, shortAddr, Z,
 } from './ui-kit'
+import { getTokenMeta } from './wallet-ui'
+
+/**
+ * The unit to print next to a price. A listing priced in the game token is a
+ * different offer from one priced in ETH, and showing "ETH" over both would be
+ * a lie the signed order itself contradicts.
+ */
+function unitFor(item: { currency?: string | null }): string {
+  return item.currency ? (getTokenMeta().symbol ?? 'TOKEN') : 'ETH'
+}
 
 /* ================================================================= TYPES ===*/
 
@@ -58,6 +77,12 @@ export interface MarketItem {
   /** Image URL relative to the site root, or undefined for a sealed box. */
   art?: string
   priceWei?: string
+  /**
+   * ERC-20 the price is denominated in, or null/undefined for native ETH. It
+   * is part of the SIGNED order on chain, so the unit shown next to a price
+   * has to come from the listing itself and never from a UI default.
+   */
+  currency?: string | null
   seller: string
   /** Sealed listings carry the commitment to the hidden attributes. */
   attrCommit?: string
@@ -103,14 +128,28 @@ export interface MarketSource {
   getItem(id: string): Promise<MarketItem | null>
   /** Sign + submit a fill for an existing order. */
   buy(id: string): Promise<TxHandle>
-  /** Sign a new sell order for one of the player's tokens. */
-  list(tokenId: string, priceWei: string): Promise<TxHandle>
+  /**
+   * Sign a new sell order for one of the player's tokens. `currency` is an
+   * ERC-20 address, or undefined for native ETH — it is part of the SIGNED
+   * order, so a price and the asset it is denominated in cannot be separated.
+   */
+  list(tokenId: string, priceWei: string, currency?: string): Promise<TxHandle>
   /** Cancel one of the player's own listings. */
   cancel(id: string): Promise<TxHandle>
   /** Tokens the player owns, listed or not. */
   myItems(): Promise<MarketItem[]>
   /** Connected account, for the wallet chip. Optional. */
   account?(): string | undefined
+  /**
+   * What the seller would actually receive at this price, in wei.
+   *
+   * Optional, and worth having because the alternative is a hardcoded "fee
+   * 2.5%" in the sell form. The protocol fee and the creator royalty both live
+   * on chain and both can be changed by their owners; a number typed into the
+   * UI is a promise nobody is keeping. When a source cannot answer, the form
+   * says the split is read from the contract instead of inventing one.
+   */
+  fees?(tokenId: string, priceWei: string): Promise<{ feeWei: string; royaltyWei: string; proceedsWei: string }>
 }
 
 /* ================================================== demo (no backend yet) ==*/
@@ -190,45 +229,24 @@ function makeItem(rnd: () => number, i: number, forceKind?: ItemKind): MarketIte
 }
 
 /**
- * ── REPLACE ME WHEN THE CONTRACT LANDS ──────────────────────────────────────
- * This whole object is scaffolding. The real implementation is a second file
- * (e.g. `src/market-source-chain.ts`) exporting a `MarketSource` built on viem
- * (already a dependency) and the EIP-712 off-chain-order marketplace another
- * agent is writing. Concretely:
+ * ── THE FALLBACK, NOT THE PRODUCT ───────────────────────────────────────────
+ * This object was the scaffolding that stood in for the contract. The contract
+ * landed: `src/market-source-chain.ts` implements the same interface against
+ * StockmonstersMarket and market.mjs, and `mountMarketplace` prefers it
+ * whenever `GET /market` says this server indexes one.
  *
- *   listItems / getItem / myItems
- *       → read from the order-book API (or an indexer/subgraph). Each order
- *         carries: maker, tokenId, priceWei, nonce, expiry, signature, and for
- *         a sealed token its `attrCommit`. Keep returning `MarketItem`s and no
- *         rendering code changes. A sealed item must keep `art`, `types` and
- *         `stats` undefined — the hidden contents ARE the product.
+ * What survives here is a genuinely useful thing — a fully explorable
+ * marketplace with no chain, no wallet and no database behind it, for design
+ * work and for a server that has not been given a contract address. It stays
+ * on exactly one condition: the window must SAY it is a demo, which is what
+ * the banner under the toolbar is for. A fabricated listing that looks real is
+ * worse than no marketplace.
  *
- *   list(tokenId, priceWei)
- *       → ensure setApprovalForAll(marketplace) once, then
- *         walletClient.signTypedData({ domain: { name, version, chainId,
- *         verifyingContract }, types: { Order: [...] }, primaryType: 'Order',
- *         message: { maker, tokenId, price, nonce, expiry, attrCommit } })
- *         and POST { order, signature } to the order book. No gas.
- *
- *   buy(id)
- *       → fetch the signed order, then
- *         walletClient.writeContract({ ...marketplaceAbi, functionName:
- *         'fillOrder', args: [order, signature], value: order.price }).
- *         Return the TxHandle immediately with status 'pending' and hash set,
- *         and resolve `settled` from waitForTransactionReceipt (→ 'confirmed'
- *         on status === 'success', otherwise 'failed').
- *
- *   cancel(id)
- *       → either DELETE on the order book (soft cancel) or on-chain
- *         `cancelNonce(nonce)`; same TxHandle shape.
- *
- *   account()
- *       → the connected wallet address (localStorage 'sm-wallet' already holds
- *         one for the game's own auth).
- *
- * The UI awaits `TxHandle.settled` to move a row in SESSION TRANSACTIONS from
- * pending to confirmed, so a signature-only action (list/cancel) can simply
- * resolve it right away.
+ * Two invariants the chain source inherits from the shape below and must keep:
+ *   - a sealed item leaves `art`, `types` and `stats` undefined; the hidden
+ *     contents ARE the product, and a listing card must not leak them;
+ *   - `TxHandle.settled` is what moves a row in SESSION TRANSACTIONS from
+ *     pending to confirmed. Here it is a timer. There it is a receipt.
  */
 export function demoMarketSource(): MarketSource {
   const rnd = mulberry32(0xc0ffee)
@@ -425,6 +443,21 @@ const CSS = `
 #sm-market .mk-toolbar .spacer { flex: 1 1 auto; }
 #sm-market .mk-toolbar strong { color: var(--sm-text); }
 #sm-market select.smui-input { width: auto; padding: 6px 8px; cursor: pointer; }
+/* The honesty line: DEMO MODE, then the narration of every wallet prompt. */
+#sm-market .mk-banner { display: none; }
+#sm-market .mk-banner.is-on {
+  display: block;
+  flex: 0 0 auto;
+  padding: 9px 14px;
+  border-bottom: 3px solid rgba(246,193,119,.24);
+  background: rgba(246,193,119,.10);
+  color: var(--sm-text);
+  font-size: 11px; line-height: 1.5; letter-spacing: .03em;
+}
+#sm-market .mk-banner.is-warn {
+  background: rgba(224,108,117,.14);
+  border-bottom-color: rgba(224,108,117,.5);
+}
 #sm-market .mk-grid {
   flex: 1 1 auto; min-height: 0;
   padding: 14px;
@@ -813,8 +846,31 @@ export function mountMarketplace(
     el('span', { class: 'spacer' }),
     el('span', { text: 'SORT' }), sortSel,
   ])
+
+  /*
+   * One line under the toolbar carrying two jobs, because they are the same
+   * job: telling the player what is actually happening. It starts as the DEMO
+   * MODE warning and becomes the step narration once a real source is in
+   * place — every wallet prompt this window opens is announced here first,
+   * the way duel-ui.ts narrates its four steps. An unexplained signature
+   * request with a token id on it is indistinguishable from a scam.
+   */
+  const banner = el('div', { class: 'mk-banner' })
+  function setNote(text: string, tone: 'info' | 'warn' = 'info') {
+    banner.textContent = text
+    banner.classList.toggle('is-warn', tone === 'warn')
+    banner.classList.toggle('is-on', !!text)
+  }
+  if (!opts?.source) {
+    setNote(
+      'DEMO MODE — no marketplace contract is configured on this server, so these listings are '
+      + 'fabricated and nothing is bought, sold or spent.',
+      'warn',
+    )
+  }
+
   const grid = el('div', { class: 'mk-grid smui-scroll' })
-  const main = el('div', { class: 'mk-main' }, [toolbar, grid])
+  const main = el('div', { class: 'mk-main' }, [toolbar, banner, grid])
 
   const body = el('div', { class: 'mk-body' }, [side, main])
 
@@ -872,7 +928,7 @@ export function mountMarketplace(
     if (item.priceWei) {
       price.append(
         el('span', { class: 'v', text: formatEth(item.priceWei) }),
-        el('span', { class: 'u', text: 'ETH' }),
+        el('span', { class: 'u', text: unitFor(item) }),
       )
     } else {
       price.appendChild(el('span', { class: 'free', text: 'NOT LISTED' }))
@@ -1040,7 +1096,7 @@ export function mountMarketplace(
       el('div', { class: 'foot' }, [
         el('div', { class: 'total' }, [
           el('span', { class: 'k', text: 'TOTAL' }),
-          el('span', { class: 'v', text: `${item.priceWei ? formatEth(item.priceWei, 5) : '—'} ETH` }),
+          el('span', { class: 'v', text: `${item.priceWei ? formatEth(item.priceWei, 5) : '—'} ${unitFor(item)}` }),
         ]),
         el('span', { class: 'spacer' }),
         cancelBtn, buyBtn,
@@ -1072,22 +1128,32 @@ export function mountMarketplace(
       placeholder: '0.05', 'aria-label': 'Price in ETH', autocomplete: 'off',
     })
     const err = el('div', { class: 'err' })
-    const payout = el('div', { class: 'mk-note', text: 'Marketplace fee 2.5% · you receive —' })
+    const IDLE_PAYOUT = 'Marketplace fee and creator royalty are read off the contract when you sign.'
+    const payout = el('div', { class: 'mk-note', text: IDLE_PAYOUT })
     const listBtn = el('button', { class: 'smui-btn is-primary', type: 'button', text: 'List', disabled: true })
     const cancelBtn = el('button', { class: 'smui-btn', type: 'button', text: 'Cancel' })
 
+    // One counter per keystroke, so a slow fee lookup for an old price cannot
+    // land after a newer one and show the wrong payout.
+    let quoteId = 0
     const validate = () => {
       const wei = parseEth(input.value)
+      const my = ++quoteId
       if (!wei) {
         listBtn.disabled = true
         err.textContent = input.value.trim() ? 'Enter a positive ETH amount.' : ''
-        payout.textContent = 'Marketplace fee 2.5% · you receive —'
+        payout.textContent = IDLE_PAYOUT
         return null
       }
       listBtn.disabled = false
       err.textContent = ''
-      const net = (BigInt(wei) * 975n) / 1000n
-      payout.textContent = `Marketplace fee 2.5% · you receive ${formatEth(net.toString(), 5)} ETH`
+      payout.textContent = `${IDLE_PAYOUT} Working out your share…`
+      void source.fees?.(item.tokenId, wei).then((f) => {
+        if (my !== quoteId) return
+        payout.textContent =
+          `Fee ${formatEth(f.feeWei, 5)} · royalty ${formatEth(f.royaltyWei, 5)} · `
+          + `you receive ${formatEth(f.proceedsWei, 5)} ETH`
+      }).catch(() => { if (my === quoteId) payout.textContent = IDLE_PAYOUT })
       return wei
     }
     input.addEventListener('input', validate)
@@ -1205,6 +1271,33 @@ export function mountMarketplace(
     },
   }
   instance = api
+
+  /*
+   * Ask the server whether it indexes a real marketplace, and switch to it if
+   * it does.
+   *
+   * Deliberately asynchronous and deliberately non-fatal. The window mounts at
+   * boot, on the demo catalogue, and upgrades itself a moment later — a
+   * marketplace that refuses to open because an RPC was slow is worse than one
+   * that opens honest about being a demo. The chain source is loaded with a
+   * dynamic import so a server with no contract never downloads it.
+   */
+  if (!opts?.source) {
+    void (async () => {
+      try {
+        const { chainMarketSourceIfAvailable } = await import('./market-source-chain')
+        const chain = await chainMarketSourceIfAvailable({ note: setNote })
+        if (!chain) return
+        api.setSource(chain)
+        // The demo warning has to go the moment it stops being true, and
+        // nothing replaces it until there is something to narrate.
+        setNote('')
+      } catch (err) {
+        console.warn('[market] staying on the demo catalogue:', err)
+      }
+    })()
+  }
+
   return api
 }
 

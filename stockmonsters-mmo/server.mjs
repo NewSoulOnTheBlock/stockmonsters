@@ -28,6 +28,7 @@ import { handleAuth } from './auth.mjs'
 import { createProfileStore } from './profiles.mjs'
 import { createBoxStore, handleBoxRoutes } from './lootbox.mjs'
 import { createTokenStore, handleTokenRoutes } from './token.mjs'
+import { createMarketStore, handleMarketRoutes } from './market.mjs'
 
 const PORT = Number(process.env.PORT ?? 3000)
 const CLIENT_DIR = resolve('./dist/client')
@@ -109,6 +110,25 @@ if (tokens.enabled) {
 }
 
 /*
+ * The player-to-player marketplace (/market/*). An INDEX of signed orders,
+ * nothing more: it holds no custody, holds no key that could move an NFT, and
+ * signs nothing on a seller's behalf. Losing the whole table costs the index
+ * and no assets — which is why, unlike the box store, it is allowed to degrade
+ * quietly. Without SM_MARKET_ADDRESS the routes answer { configured: false }
+ * and the game falls back to its demo catalogue, saying DEMO MODE on screen.
+ *
+ * The indexer is the part that must not be forgotten: a filled order left in
+ * the book makes every subsequent buyer pay gas to revert, so it runs on a
+ * timer rather than only when somebody opens the window.
+ */
+const marketplace = createMarketStore()
+globalThis.__smMarket = marketplace
+if (marketplace.enabled) {
+  marketplace.startIndexer()
+  console.log(`[market] indexing ${marketplace.market} on chain ${marketplace.chainId}`)
+}
+
+/*
  * Two chain ids are configured independently — BOX_CHAIN_ID signs NFT
  * vouchers, SM_CHAIN_ID signs wagers and reward claims — and nothing forced
  * them to agree. They must: the wallet can only be on one chain, and the
@@ -171,6 +191,7 @@ const server = http.createServer(async (req, res) => {
     if (await handleAuth(req, res)) return
     if (await handleBoxRoutes(req, res, boxes)) return
     if (await handleTokenRoutes(req, res, tokens, profiles)) return
+    if (await handleMarketRoutes(req, res, marketplace)) return
     const handled = await transport.handleNodeRequest(req, res, undefined, { mountedPath: '/parties' })
     if (handled) return
     serveStatic(req, res)
@@ -196,7 +217,7 @@ for (const signal of ['SIGINT', 'SIGTERM']) {
     if (closing) process.exit(1) // second Ctrl-C means "now"
     closing = true
     console.log(`\n[server] ${signal} — flushing player profiles`)
-    Promise.allSettled([profiles.close(), boxes.close()]).finally(() => {
+    Promise.allSettled([profiles.close(), boxes.close(), marketplace.close()]).finally(() => {
       server.close(() => process.exit(0))
       // Open websockets keep server.close() pending forever.
       setTimeout(() => process.exit(0), 1500).unref()
