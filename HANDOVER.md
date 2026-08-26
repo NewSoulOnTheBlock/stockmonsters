@@ -1020,21 +1020,68 @@ taxed. Set the buyback router. Move the three keys (deployer, box signer, claim
 signer) off the game server's disk; they are three keys precisely so they can
 live in three places. Pick a real ops wallet — it is the deployer today.
 
-### Requested, not yet built (user, 2026-08-25 evening)
+### WHERE THIS STANDS — end of session 5 (2026-08-26)
 
-- **In-game minigames** once the maps are done — small playable activities
-  inside the world.
-- **NFT staking area**: a physical location on a map the player walks to and
-  stakes their minted Stockmonsters.
-- **Play-to-earn features** built around the above.
-  (Sequencing per user: maps first, then these.)
+The game is playable end to end, on desktop and on a phone, against a live
+economy on Sepolia. Nothing is deployed to a public server yet: that is still
+LAST, by the user's instruction.
 
-### Next steps (in order, user-confirmed)
+**Works, and was driven in a real browser to prove it:** one walkable world of
+171 maps · wallet login with server-verified signatures · Postgres profiles ·
+character designer · names (unique, 16 chars, one change a day) · global chat ·
+proximity DMs, blocking and gifting · friends with remote DMs and presence ·
+fast travel gated on having walked there · wild battles with animation and
+sound · sealed loot boxes (provably fair, buyable in ETH **or** SMON) · an NFT
+marketplace contract · reward claims paid on chain · blind-pick duels for real
+tokens · player-held gyms.
 
-1. Deploy to the BitLaunch box with the lord-fishu pattern (bootstrap/sync/Caddy).
-2. Wallet login (SIWE) — identity + persistent saves keyed by wallet.
-3. `contracts/` folder: the NFT mint contract (after server work).
-4. Map expansion via the tile-design skill + tiled MCP (maps 22-26 first).
+**Live on Sepolia** (addresses in `stockmonsters-mmo/deployments/sepolia.json`,
+full write-up in `stockmonsters-mmo/docs/token-economy.md`): token, rewards
+pool, treasury, NFT, marketplace, gyms, arena. NOT verified on Etherscan — the
+user asked for the deploy without it.
+
+**Tests:** `npx vitest run` 229 · `cd contracts && forge test` 156 (+8 more with
+`--fork-url` against real Uniswap) · four end-to-end runs that drive real
+browsers and real transactions: `test:e2e:persistence`, `test:e2e:friends`,
+`test:e2e:token`, `test:e2e:duel`.
+
+#### The three things blocking a public launch
+
+1. **The art is still Nintendo's.** Creature sprites are reskinned to tickers
+   (254 dex + 254 overworld), but the MAPS are Kanto/Johto, the tilesets are
+   PSDK's, the SOUND is a fan rip, and species internals still carry names like
+   `bulbasaur`. Testable privately; not publishable.
+2. **NFT images 404.** The metadata is on chain and fine; `imageBaseURI` points
+   at a domain that does not exist. `node tools/ipfs.mjs pack` has the folder
+   ready (509 files, 4.8 MB) — it needs a pinning account, then
+   `node tools/ipfs.mjs set --cid <cid>`.
+3. **Three keys sit on the game server's disk** (box signer, reward signer,
+   battle signer) and the ops wallet is the deployer. Fine for a testnet.
+
+#### What the user asked for that is NOT built
+
+- **WalletConnect.** A normal mobile browser cannot connect a wallet;
+  `window.ethereum` only exists inside a wallet's in-app browser. The title
+  screen says so rather than showing a dead button.
+- **A real marketplace back end.** The contract is deployed and the UI works,
+  but the listings are still `demoMarketSource()` — there is no order book
+  storing signed orders yet.
+- **Trainer XP.** The HUD's LV 12 / 640-1000 XP is still invented; creature
+  XP is real. The design (battles, first catches, map discovery) is agreed but
+  unbuilt.
+- **In-game minigames, NFT staking, play-to-earn beyond duels and gyms.**
+- **Deploy.** The lord-fishu pattern (bootstrap/sync/Caddy) is the plan.
+
+#### If you change one thing, know this first
+
+- `npm run dev` boots `src/standalone.ts`, NOT `src/client.ts`. Shared UI lives
+  in `src/game-ui.ts` so both get it. Vite knows nothing about `server.mjs`:
+  every API route must be mounted in `vite.config.ts` too.
+- The mobile stylesheet must be injected LAST (`mountMobileLayout()` at the end
+  of `mountGameUi`), or every panel's own CSS silently overrules it.
+- `forge build` needs `via_ir`; without it the NFT is 334 bytes over EIP-170.
+- Delete `data/` if a player cannot move. It is disposable; `server.mjs` now
+  clears it on boot.
 
 ### Direction notes
 
