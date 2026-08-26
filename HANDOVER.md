@@ -1112,6 +1112,14 @@ which `ipfs.mjs set` now refuses to do otherwise.)
 - `npm run dev` boots `src/standalone.ts`, NOT `src/client.ts`. Shared UI lives
   in `src/game-ui.ts` so both get it. Vite knows nothing about `server.mjs`:
   every API route must be mounted in `vite.config.ts` too.
+- **Bare `vite` does not put `.env` into `process.env`** — it loads it for
+  `import.meta.env` in the client only. Production runs with
+  `--env-file-if-exists=.env`, so for a long time dev quietly ran an
+  unconfigured world: no token, no chain, boxes stuck in DEMO MODE on chain
+  31337, and `/token/chain` answering `chainId: 0` so no wallet could connect.
+  Nothing errored, because every store is built to degrade politely when
+  unconfigured. `vite.config.ts` now loads it explicitly before building any
+  store. If dev ever looks like the economy vanished, check this first.
 - The mobile stylesheet must be injected LAST (`mountMobileLayout()` at the end
   of `mountGameUi`), or every panel's own CSS silently overrules it.
 - `forge build` needs `via_ir`; without it the NFT is 334 bytes over EIP-170.
