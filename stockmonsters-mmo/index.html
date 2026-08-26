@@ -58,12 +58,12 @@
         transition: opacity .8s ease;
       }
       #title-screen.hidden { opacity: 0; pointer-events: none; }
-      /* The art is the game's own 320x240 title screen, scaled up with
-         pixelated rendering — the same 4:3 the traced SVG had, so every
-         percentage below still lands where it was measured. Wrapping it in an
-         element that shrink-wraps to that aspect lets the buttons be
-         positioned as a PERCENTAGE of the artwork, so they stay glued to the
-         plate the art was drawn with at every window size. */
+      /* The art is the 1448x1086 title screen (exactly 4:3, which is what the
+         traced SVG was measured against, so every percentage below still lands
+         where it was measured). Wrapping it in an element that shrink-wraps to
+         that aspect lets the buttons be positioned as a PERCENTAGE of the
+         artwork, so they stay glued to the plate the art was drawn with at
+         every window size. */
       #title-stage {
         position: relative;
         aspect-ratio: 4 / 3;
@@ -242,7 +242,7 @@
     <div id="rpg"></div>
     <div id="title-screen">
       <div id="title-stage">
-        <img src="/titles/title.png" alt="Stockmonsters">
+        <img src="/titles/background.png" alt="Stockmonsters">
         <div id="title-actions">
           <button id="btn-primary" class="title-btn primary">CONNECT WALLET</button>
           <button id="btn-character" class="title-btn secondary" hidden>CHANGE YOUR CHARACTER</button>
