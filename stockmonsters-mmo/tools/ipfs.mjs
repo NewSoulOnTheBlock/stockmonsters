@@ -2,8 +2,22 @@
  * The NFT art, packed for IPFS.
  *
  *   node tools/ipfs.mjs pack                  # build the folder, no network
- *   node tools/ipfs.mjs upload --provider pinata
+ *   node tools/ipfs.mjs upload                # needs PINATA_JWT in .env
+ *   node tools/ipfs.mjs check --cid bafy…     # does a gateway actually serve it?
  *   node tools/ipfs.mjs set --cid bafy…       # point the contract at it
+ *
+ * ## Which .env, and is a gateway needed
+ *
+ * `PINATA_JWT` goes in **stockmonsters-mmo/.env** — the same file the game
+ * server reads, and the one this tool loads. (contracts/.env holds only the
+ * deploy key; nothing there needs pinning credentials.)
+ *
+ * A gateway is **not** required. What goes on chain is `ipfs://<cid>/…`, and
+ * wallets and marketplaces resolve that themselves. `PINATA_GATEWAY` is
+ * optional and used for one thing only: proving, right after the upload, that
+ * the art is really retrievable. Set it to your dedicated gateway host
+ * (`something.mypinata.cloud`) if you have one — otherwise this falls back to
+ * public gateways, which are rate limited but fine for a spot check.
  *
  * ## What actually needs uploading, and what does not
  *
@@ -123,22 +137,27 @@ async function pack() {
 
 /* -------------------------------------------------------------- upload ---*/
 
+/** Every file under `dir`, as paths relative to it, depth first and sorted. */
+function walk(dir, prefix = '') {
+  const out = []
+  for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {
+    const rel = prefix ? `${prefix}/${entry.name}` : entry.name
+    if (entry.isDirectory()) out.push(...walk(join(dir, entry.name), rel))
+    else out.push(rel)
+  }
+  return out
+}
+
 /**
- * Uploading needs somebody's key. Rather than half-guess a provider, this says
- * exactly what is missing and stops — a pinning service that silently drops
- * the pin is worse than one that was never used.
+ * Pin the packed folder to Pinata in one request.
+ *
+ * The whole trick is the filename: giving each part a path like
+ * `art/AAPL/regular.png` makes Pinata rebuild the directory tree and return the
+ * CID of the ROOT folder, which is exactly what `imageBaseURI` needs. Upload
+ * the files flat and you get 509 unrelated CIDs and no folder to point at.
  */
 async function upload() {
   const provider = flag('provider', 'pinata')
-  const keys = {
-    pinata: 'PINATA_JWT',
-    web3storage: 'WEB3_STORAGE_TOKEN',
-    kubo: null, // a local node needs no key
-  }
-  if (!(provider in keys)) {
-    console.error(`unknown provider "${provider}" — try: ${Object.keys(keys).join(', ')}`)
-    process.exit(1)
-  }
   if (!existsSync(OUT)) {
     console.error('nothing packed yet — run: node tools/ipfs.mjs pack')
     process.exit(1)
@@ -152,25 +171,97 @@ async function upload() {
     console.log('\nA local pin is not a hosted pin: something has to keep serving it.')
     return
   }
-
-  const key = env[keys[provider]]
-  if (!key) {
-    console.error(`${keys[provider]} is not set.`)
-    console.error(`Put it in .env (it is gitignored) and run this again.`)
-    console.error(provider === 'pinata'
-      ? '  Pinata → API Keys → New Key → copy the JWT'
-      : '  web3.storage → Account → Create API token')
+  if (provider !== 'pinata') {
+    console.error(`unknown provider "${provider}" — try: pinata, kubo`)
     process.exit(1)
   }
-  console.error(
-    `Uploading ${OUT} to ${provider} is not wired up yet — deliberately.\n` +
-    'It is one call, but pinning is a paid, account-bound action and this tool\n' +
-    'has never been run against a real account. Use the provider\'s own CLI:\n' +
-    provider === 'pinata'
-      ? '  npx pinata-cli -u ' + OUT
-      : '  npx w3 up ' + OUT,
-  )
-  process.exit(1)
+
+  const jwt = env.PINATA_JWT
+  if (!jwt) {
+    console.error('PINATA_JWT is not set.')
+    console.error(`Put it in ${join(ROOT, '.env')} (that file is gitignored) and run this again:`)
+    console.error('  PINATA_JWT=eyJhbGciOi…')
+    console.error('\nPinata → API Keys → New Key → pinFileToIPFS permission → copy the JWT')
+    console.error('(the JWT, not the "API Key"/"API Secret" pair)')
+    process.exit(1)
+  }
+
+  const files = walk(OUT)
+  const form = new FormData()
+  let bytes = 0
+  for (const rel of files) {
+    const buf = readFileSync(join(OUT, rel))
+    bytes += buf.length
+    // The leading folder name is arbitrary — Pinata strips it and returns the
+    // CID of what is inside — but it must be the SAME for every file.
+    form.append('file', new Blob([buf], { type: 'image/png' }), `art/${rel}`)
+  }
+  form.append('pinataOptions', JSON.stringify({ cidVersion: 1, wrapWithDirectory: false }))
+  form.append('pinataMetadata', JSON.stringify({ name: 'stockmonsters-art' }))
+
+  console.log(`uploading ${files.length} files (${human(bytes)}) to Pinata…`)
+  const res = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${jwt}` },
+    body: form,
+  })
+  const text = await res.text()
+  if (!res.ok) {
+    console.error(`Pinata refused it (HTTP ${res.status}):\n${text}`)
+    if (res.status === 401) console.error('\nA 401 is the JWT: expired, revoked, or the key lacks pinFileToIPFS.')
+    process.exit(1)
+  }
+  let body
+  try { body = JSON.parse(text) } catch { console.error(`unreadable response:\n${text}`); process.exit(1) }
+  const cid = body.IpfsHash
+  if (!cid) { console.error(`no CID in the response:\n${text}`); process.exit(1) }
+
+  console.log(`\n  cid: ${cid}`)
+  if (body.isDuplicate) console.log('  (already pinned — same bytes, same CID, nothing was charged)')
+  await check(cid)
+  console.log('\nNext: node tools/ipfs.mjs set --cid ' + cid)
+}
+
+/* --------------------------------------------------------------- check ---*/
+
+/**
+ * A pin that no gateway will serve is not a pin. Fetch two real paths — the
+ * ones the contract actually builds — before anybody points a contract at it.
+ */
+async function check(cid = flag('cid', '')) {
+  if (!/^(baf|Qm)[A-Za-z0-9]+$/.test(cid)) {
+    console.error('pass --cid <the folder cid>')
+    process.exit(1)
+  }
+  const hosts = [
+    env.PINATA_GATEWAY && `https://${env.PINATA_GATEWAY.replace(/^https?:\/\//, '').replace(/\/$/, '')}`,
+    'https://gateway.pinata.cloud',
+    'https://ipfs.io',
+    'https://dweb.link',
+  ].filter(Boolean)
+
+  // Not the first alphabetically: a ticker we know exists, plus the box art.
+  const paths = [`${cid}/AAPL/regular.png`, `${cid}/sealed.png`]
+  let served = false
+  for (const host of hosts) {
+    const results = []
+    for (const path of paths) {
+      try {
+        const r = await fetch(`${host}/ipfs/${path}`, { redirect: 'follow', signal: AbortSignal.timeout(20_000) })
+        results.push(r.ok ? `ok ${human(Number(r.headers.get('content-length') ?? 0))}` : `HTTP ${r.status}`)
+      } catch (e) {
+        results.push(e.name === 'TimeoutError' ? 'timed out' : e.message)
+      }
+    }
+    const ok = results.every((r) => r.startsWith('ok'))
+    console.log(`  ${ok ? 'serves' : 'no   '}  ${host}  ${results.join(' / ')}`)
+    if (ok) { served = true; break }
+  }
+  if (!served) {
+    console.log('\nNo gateway served it. A fresh pin can take a minute to propagate —')
+    console.log('re-run `node tools/ipfs.mjs check --cid ' + cid + '` before setting the contract.')
+  }
+  return served
 }
 
 /* ----------------------------------------------------------------- set ---*/
@@ -181,6 +272,13 @@ async function set() {
     console.error('pass --cid <the folder cid the upload printed>')
     process.exit(1)
   }
+  // Pointing the contract at art no gateway will serve gives every holder a
+  // broken image, and the fix is another transaction. Look first.
+  if (!args.includes('--force') && !(await check(cid))) {
+    console.error('\nrefusing to point the contract at art nothing serves (--force to override)')
+    process.exit(1)
+  }
+
   const { createPublicClient, createWalletClient, http, parseAbi } = await import('viem')
   const { privateKeyToAccount } = await import('viem/accounts')
   const { sepolia, foundry } = await import('viem/chains')
@@ -220,8 +318,9 @@ async function set() {
 
 if (command === 'pack') await pack()
 else if (command === 'upload') await upload()
+else if (command === 'check') await check()
 else if (command === 'set') await set()
 else {
-  console.error(`unknown command "${command}" — try: pack | upload | set`)
+  console.error(`unknown command "${command}" — try: pack | upload | check | set`)
   process.exit(1)
 }
