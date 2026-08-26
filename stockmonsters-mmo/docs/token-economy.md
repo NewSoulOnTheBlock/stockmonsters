@@ -254,6 +254,13 @@ Proven on Sepolia by `npm run test:e2e:duel` — two fresh wallets, a real
 
 ## Gyms
 
+> **Deployed, funded, and not wired to the game.** Everything below describes
+> `StockmonstersGyms` as it exists on Sepolia, and every word of it is true of
+> the contract. None of it is reachable from the game: there is no ABI, no
+> server module, no UI, and no gym anywhere in the world. `SM_GYMS_ADDRESS` is
+> read in `token.mjs` and echoed at `/token`, and that is the whole integration.
+> Read this as a design that is waiting to be built, not a feature players have.
+
 Players hold the gyms. Stake tokens to take one; anyone can pay an entry fee to
 challenge it.
 
