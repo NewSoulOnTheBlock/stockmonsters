@@ -52,16 +52,19 @@ ssh "$TARGET" "set -e
   cd '$APP'
   # npm ci only when the lockfile actually moved: it is the slowest step by far
   # and sharp has to compile.
-  if ! sudo -u stockmonsters npm ls --silent >/dev/null 2>&1; then
-    echo '    dependencies changed — npm ci'
-    sudo -u stockmonsters npm ci --silent
+  # sudo does not change directory and npm resolves everything from cwd, so
+  # every one of these carries its own cd. Without it npm looks in /root, finds
+  # no package.json, and fails with an error about a missing lockfile.
+  if ! sudo -u stockmonsters sh -c 'cd "$APP" && npm ls --silent' >/dev/null 2>&1; then
+    echo '    dependencies changed'
+    sudo -u stockmonsters sh -c "cd '$APP' && npm install --no-audit --no-fund" >/dev/null
   else
     echo '    dependencies unchanged'
   fi
-  sudo -u stockmonsters npm run --silent db:migrate
+  sudo -u stockmonsters sh -c "cd '$APP' && npm run --silent db:migrate"
   if [ '$BUILD' = 1 ]; then
-    sudo -u stockmonsters npm run --silent build:mmo
-    test -f dist/client/index.html || { echo 'the build produced no dist/client'; exit 1; }
+    sudo -u stockmonsters sh -c "cd '$APP' && npm run --silent build:mmo"
+    test -f '$APP/dist/client/index.html' || { echo 'the build produced no dist/client'; exit 1; }
   fi
 "
 

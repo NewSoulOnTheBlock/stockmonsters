@@ -35,6 +35,10 @@ die() { printf '\n\033[1;31m!! %s\033[0m\n' "$*" >&2; exit 1; }
 
 [ "$(id -u)" = 0 ] || die "run this as root"
 
+# `set -e` exits with a status and no message, which is how a failed npm left a
+# log ending mid-sentence and nothing to go on. Say which line died.
+trap 'die "failed at line $LINENO (exit $?) — the output above is the reason"' ERR
+
 # --------------------------------------------------------------- packages ---
 say "packages"
 export DEBIAN_FRONTEND=noninteractive
@@ -210,16 +214,26 @@ say "dependencies"
 # NOT --omit=dev: vite is a devDependency and build:mmo needs it. sharp is
 # native and per-platform, which is why this happens here and never gets
 # shipped from a laptop.
-sudo -u "$APP_USER" npm ci --silent
-ok "node_modules"
+#
+# `npm ci` first because it is reproducible — but this repo is developed with
+# pnpm and its package-lock.json is a stale side-artifact, so ci refuses on
+# peers it never recorded (@pixi/react wants react, and npm auto-installs a
+# non-optional peer that the lock does not list). Falling back to `npm install`
+# is honest about that; pretending ci works here would be false confidence.
+if ! sudo -u "$APP_USER" sh -c "cd '$APP' && npm ci --no-audit --no-fund" >/dev/null 2>&1; then
+  echo "    package-lock.json is not in sync — resolving with npm install"
+  sudo -u "$APP_USER" sh -c "cd '$APP' && npm install --no-audit --no-fund"
+fi
+[ -d "$APP/node_modules" ] || die "npm produced no node_modules"
+ok "node_modules $(du -sh "$APP/node_modules" | cut -f1)"
 
 say "migrations"
-sudo -u "$APP_USER" npm run --silent db:migrate
+sudo -u "$APP_USER" sh -c "cd '$APP' && npm run --silent db:migrate"
 
 say "build"
 # build:mmo, NOT build. Plain `npm run build` is the standalone build and it
 # WIPES dist/client, which is the directory server.mjs serves.
-sudo -u "$APP_USER" npm run --silent build:mmo
+sudo -u "$APP_USER" sh -c "cd '$APP' && npm run --silent build:mmo"
 [ -f "$APP/dist/client/index.html" ] || die "the build produced no dist/client — wrong build script?"
 [ -f "$APP/dist/server/server.js" ] || die "the build produced no dist/server"
 ok "dist/client $(du -sh "$APP/dist/client" | cut -f1)"
