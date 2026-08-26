@@ -16,6 +16,7 @@ import { mountWalletUi, openWallet } from "./wallet-ui";
 import { mountDuelUi, openDuelOffer } from "./duel-ui";
 import { mountSfx } from "./sfx";
 import { mountTouchControls, mountMobileLayout } from "./touch-controls";
+import { mountMapTransition } from "./map-transition";
 
 /*
  * Everything the player sees on top of the map: zoom, HUD, chat, battle scene,
@@ -116,6 +117,10 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
     push();
   }, 700);
   window.addEventListener("beforeunload", () => clearInterval(retry));
+
+  // The curtain between two maps. Mounted early so it is already listening
+  // when the first transfer happens.
+  mountMapTransition(engine);
 
   engine?.mapLoadCompleted$?.subscribe?.((done: boolean) => {
     // A map change re-creates the player object server-side, so re-assert.
