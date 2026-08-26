@@ -56,6 +56,8 @@ interface Eip1193 { request(args: { method: string; params?: unknown[] }): Promi
 
 export interface DmUiApi {
   openWith(id: string, name?: string): void
+  /** Open on a known peer. `remote: true` skips the "who is next to me?" ask. */
+  openPeer(peer: DmPeer, opts?: { remote?: boolean }): void
   close(): void
   isOpen(): boolean
   destroy(): void
@@ -224,6 +226,8 @@ export function mountDmUi(engine?: EngineLike, socket?: SocketLike): DmUiApi {
   const blocked = new Set<string>()
   /** Names learned from nearby results and messages, for openDmWith(id). */
   const names = new Map<string, string>()
+  /** Peers we have already explained the friends exception to, once each. */
+  const remoteNoted = new Set<string>()
   /** 'token' | 'nft' while a gift sheet is waiting for the peer's address. */
   let giftKind: 'token' | 'nft' | null = null
   let nftContract: string | null | undefined // undefined = not fetched yet
@@ -769,6 +773,23 @@ export function mountDmUi(engine?: EngineLike, socket?: SocketLike): DmUiApi {
       // tell us whether a gift is even possible.
       askNearby()
     },
+    /**
+     * Open on a peer we already know everything about — the friends panel has
+     * their name, their live connection id and whether they hold a wallet.
+     *
+     * `remote` matters: asking `dm:nearby` for a friend on another map would
+     * answer "nobody is standing close enough", which is true and completely
+     * beside the point. The server decides whether the message may travel
+     * (friends.ts + dm.ts); this only stops the window contradicting it.
+     */
+    openPeer(next: DmPeer, opts?: { remote?: boolean }) {
+      setPeer(next, peer?.id === next.id)
+      open()
+      if (!opts?.remote) { askNearby(); return }
+      if (remoteNoted.has(next.id)) return
+      remoteNoted.add(next.id)
+      system(`You and ${next.name} are friends, so you can talk from anywhere in the world.`)
+    },
     destroy() {
       stopAsking()
       clearTimeout(giftTimer)
@@ -788,6 +809,13 @@ export function mountDmUi(engine?: EngineLike, socket?: SocketLike): DmUiApi {
 export function openDmWith(id: string, name?: string): DmUiApi {
   const api = instance ?? mountDmUi()
   api.openWith(id, name)
+  return api
+}
+
+/** Open the DM window on a fully-known peer — used by the friends panel. */
+export function openDmWithPeer(peer: DmPeer, opts?: { remote?: boolean }): DmUiApi {
+  const api = instance ?? mountDmUi()
+  api.openPeer(peer, opts)
   return api
 }
 

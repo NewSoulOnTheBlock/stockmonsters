@@ -445,6 +445,202 @@ export function createProfileStore(opts = {}) {
     }
   }
 
+  /* ------------------------------------------------------------- friends ---*/
+  /*
+   * Friends are NOT part of the profile blob.
+   *
+   * A friendship belongs to two players at once. Putting it in one player's
+   * JSON means the other half is written by a different flush, on a different
+   * timer, possibly on a different process — and the two halves disagree the
+   * moment either write is lost. These are relational rows with a primary key
+   * that makes a duplicate impossible; see db/migrations/0004_friends.sql.
+   *
+   * Every function here returns NULL when the database could not answer, which
+   * the caller must not confuse with "no". src/modules/main/friends.ts turns
+   * null into a visible "friends are unavailable right now" rather than a
+   * silent no-op.
+   */
+
+  /**
+   * Runs `fn(client)` in a transaction on one connection.
+   *
+   * Accepting a friend request is a DELETE and an INSERT that must both happen
+   * or neither: a crash between them either drops the request without making
+   * the friendship, or makes it while leaving the request sitting in the
+   * receiver's list forever. run() cannot express that — it is one statement
+   * per call, each on whatever connection the pool hands out.
+   */
+  async function tx(fn) {
+    if (!usable()) return null
+    let client = null
+    try {
+      client = await pool.connect()
+    } catch (err) {
+      markDown(err)
+      return null
+    }
+    try {
+      await client.query('BEGIN')
+      const out = await fn(client)
+      await client.query('COMMIT')
+      markUp()
+      return out
+    } catch (err) {
+      try { await client.query('ROLLBACK') } catch { /* the connection is going away anyway */ }
+      const constraint = typeof err?.code === 'string' && err.code.startsWith('23')
+      if (!constraint) markDown(err)
+      counters.writeErrors++
+      return null
+    } finally {
+      client.release()
+    }
+  }
+
+  /** Canonical (lo, hi) ordering — the friendships PK depends on it. */
+  const pair = (a, b) => (a < b ? [a, b] : [b, a])
+
+  /**
+   * Wallet id for a player-visible name, case-insensitively.
+   *
+   * @returns null when the database could not answer, `{walletId: null}` when
+   *          there is no such player — two different things to tell a player.
+   */
+  async function findPlayerByName(name) {
+    if (typeof name !== 'string' || !name.trim()) return { walletId: null, name: null }
+    const res = await run('SELECT wallet_id, name FROM players WHERE lower(name) = lower($1)', [name.trim()])
+    if (!res) return null
+    const row = res.rows[0]
+    return row ? { walletId: row.wallet_id, name: row.name } : { walletId: null, name: null }
+  }
+
+  /**
+   * Everything one player's friends panel needs, in one round trip: accepted
+   * friends, requests waiting for them, and requests they are waiting on.
+   */
+  async function friendState(walletId) {
+    if (!isWalletId(walletId)) return { friends: [], incoming: [], outgoing: [] }
+    const res = await run(
+      `SELECT 'friend' AS kind, p.wallet_id, p.name
+         FROM friendships f
+         JOIN players p
+           ON p.wallet_id = CASE WHEN f.wallet_lo = $1 THEN f.wallet_hi ELSE f.wallet_lo END
+        WHERE f.wallet_lo = $1 OR f.wallet_hi = $1
+       UNION ALL
+       SELECT 'incoming', p.wallet_id, p.name
+         FROM friend_requests r JOIN players p ON p.wallet_id = r.from_wallet
+        WHERE r.to_wallet = $1
+       UNION ALL
+       SELECT 'outgoing', p.wallet_id, p.name
+         FROM friend_requests r JOIN players p ON p.wallet_id = r.to_wallet
+        WHERE r.from_wallet = $1`,
+      [walletId],
+    )
+    if (!res) return null
+    const out = { friends: [], incoming: [], outgoing: [] }
+    for (const row of res.rows) {
+      const entry = { walletId: row.wallet_id, name: row.name ?? null }
+      if (row.kind === 'friend') out.friends.push(entry)
+      else if (row.kind === 'incoming') out.incoming.push(entry)
+      else out.outgoing.push(entry)
+    }
+    return out
+  }
+
+  /**
+   * Ask `to` to be friends.
+   *
+   * A request in the OPPOSITE direction is treated as acceptance and the pair
+   * becomes friends immediately: both players have now said yes, and making
+   * them wait for a click that adds no information reads as a bug.
+   *
+   * @returns {'requested'|'friends'|'duplicate'|'already-friends'} as
+   *          `{status}`, or null when the database could not answer.
+   */
+  async function requestFriend(from, to) {
+    if (!isWalletId(from) || !isWalletId(to) || from === to) return { status: 'invalid' }
+    const [lo, hi] = pair(from, to)
+    return tx(async (c) => {
+      const existing = await c.query(
+        'SELECT 1 FROM friendships WHERE wallet_lo = $1 AND wallet_hi = $2',
+        [lo, hi],
+      )
+      if (existing.rowCount) return { status: 'already-friends' }
+
+      const reverse = await c.query(
+        'DELETE FROM friend_requests WHERE from_wallet = $1 AND to_wallet = $2 RETURNING 1',
+        [to, from],
+      )
+      if (reverse.rowCount) {
+        await c.query(
+          'INSERT INTO friendships (wallet_lo, wallet_hi) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+          [lo, hi],
+        )
+        await c.query('DELETE FROM friend_requests WHERE from_wallet = $1 AND to_wallet = $2', [from, to])
+        return { status: 'friends' }
+      }
+
+      const made = await c.query(
+        `INSERT INTO friend_requests (from_wallet, to_wallet) VALUES ($1, $2)
+         ON CONFLICT DO NOTHING RETURNING 1`,
+        [from, to],
+      )
+      return { status: made.rowCount ? 'requested' : 'duplicate' }
+    })
+  }
+
+  /** `me` accepts the request `other` sent. Deleting it and creating the
+   *  friendship are one transaction — half of this is worse than neither. */
+  async function acceptFriend(me, other) {
+    if (!isWalletId(me) || !isWalletId(other) || me === other) return { ok: false, reason: 'invalid' }
+    const [lo, hi] = pair(me, other)
+    return tx(async (c) => {
+      const taken = await c.query(
+        'DELETE FROM friend_requests WHERE from_wallet = $1 AND to_wallet = $2 RETURNING 1',
+        [other, me],
+      )
+      if (!taken.rowCount) {
+        // No request. Either it was withdrawn, or the pair is already friends
+        // (two accepts racing, or an accept after a mutual request) — which is
+        // success, not an error the player should see.
+        const already = await c.query(
+          'SELECT 1 FROM friendships WHERE wallet_lo = $1 AND wallet_hi = $2',
+          [lo, hi],
+        )
+        return already.rowCount ? { ok: true, already: true } : { ok: false, reason: 'no-request' }
+      }
+      await c.query(
+        'INSERT INTO friendships (wallet_lo, wallet_hi) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        [lo, hi],
+      )
+      // If we had also asked them, that ask is answered now.
+      await c.query('DELETE FROM friend_requests WHERE from_wallet = $1 AND to_wallet = $2', [me, other])
+      return { ok: true }
+    })
+  }
+
+  /** Refuse a request sent to `me` (or withdraw one `me` sent). Same row. */
+  async function dropRequest(from, to) {
+    if (!isWalletId(from) || !isWalletId(to)) return { ok: false }
+    const res = await run(
+      'DELETE FROM friend_requests WHERE from_wallet = $1 AND to_wallet = $2 RETURNING 1',
+      [from, to],
+    )
+    if (!res) return null
+    return { ok: !!res.rowCount }
+  }
+
+  /** End a friendship. Undirected: either side removes the single row. */
+  async function removeFriend(me, other) {
+    if (!isWalletId(me) || !isWalletId(other)) return { ok: false }
+    const [lo, hi] = pair(me, other)
+    const res = await run(
+      'DELETE FROM friendships WHERE wallet_lo = $1 AND wallet_hi = $2 RETURNING 1',
+      [lo, hi],
+    )
+    if (!res) return null
+    return { ok: !!res.rowCount }
+  }
+
   /** Flush and drop the cache entry — call on disconnect. */
   async function release(walletId) {
     await flush(walletId)
@@ -478,6 +674,15 @@ export function createProfileStore(opts = {}) {
     loadProfile,
     saveProfile,
     claimName,
+    // Friends. src/modules/main/friends.ts treats the presence of these
+    // methods as "this server can persist friendships" and falls back to a
+    // session-only store — which it says on screen — when they are missing.
+    findPlayerByName,
+    friendState,
+    requestFriend,
+    acceptFriend,
+    dropRequest,
+    removeFriend,
     flush,
     flushAll,
     release,

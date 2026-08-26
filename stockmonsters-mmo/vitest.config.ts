@@ -21,6 +21,10 @@ export default defineConfig({
       // direct messages: proximity, blocks and the wallet-keyed rate limit,
       // driven through fake players the same way chat.spec.ts is
       'src/modules/main/dm.spec.ts',
+      // friend requests, presence, and the acceptance gate that lets a DM
+      // travel across the world — against the session-only store, so it needs
+      // no database (test/friends.test.mjs covers the SQL one)
+      'src/modules/main/friends.spec.ts',
     ],
     environment: 'node',
   },

@@ -11,6 +11,7 @@ import { mountMapBrowser, openMapBrowser } from "./map-browser";
 import { mountExitHints } from "./exit-hints";
 import { mountDmUi } from "./dm-ui";
 import { mountBoxShop, openBoxShop } from "./box-shop";
+import { mountFriendsUi, getFriendsUi } from "./friends-ui";
 
 /*
  * Everything the player sees on top of the map: zoom, HUD, chat, battle scene,
@@ -145,6 +146,10 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
   mountExitHints(engine);
   mountBoxShop(engine, socket);
   mountDmUi(engine, socket);
+  // The friends panel owns the left edge. It mounts collapsed, but its tab is
+  // always visible: a friend request that only shows up in a panel you happen
+  // to have open is a request that never arrives.
+  mountFriendsUi(engine, socket);
 
   // The title screen's NFT/settings buttons enter the world first and then ask
   // for a panel; the in-game window is the single owner of each.
@@ -168,6 +173,7 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
     if (id === "map") { openMapBrowser(); return; }
     if (id === "boxes") { openBoxShop(); return; }
     if (id === "quit") { engine?.processAction?.("hud:quit", {}); return; }
+    if (id === "friends") { getFriendsUi()?.toggle(); return; }
     if (id === "character") { window.dispatchEvent(new CustomEvent("sm:open-designer")); return; }
     engine?.processAction?.("hud:" + id, {});
   });

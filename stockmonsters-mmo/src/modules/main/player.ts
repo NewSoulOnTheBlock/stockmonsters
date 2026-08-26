@@ -4,6 +4,17 @@ import { CHARACTER_IDS } from '../../data/character-catalog'
 import { validateName } from './names'
 import { handleChat, addChatMember, removeChatMember } from './chat'
 import {
+    friendsConnected,
+    friendsRefresh,
+    friendsDisconnected,
+    handleFriendsList,
+    handleFriendAdd,
+    handleFriendAccept,
+    handleFriendDecline,
+    handleFriendCancel,
+    handleFriendRemove,
+} from './friends'
+import {
     addDmMember,
     removeDmMember,
     handleDmNearby,
@@ -256,6 +267,57 @@ async function applyName(player: RpgPlayer, name: string) {
     useName(player, claim.name)
 }
 
+/* ------------------------------------------------------------ leaving ----*/
+/*
+ * WHO NOTICES WHEN A PLAYER GOES AWAY.
+ *
+ * `onDisconnected` is documented by RPG-JS and NEVER CALLED in beta.33 — the
+ * engine dispatches `server-player-onConnected`, `-onJoinMap` and
+ * `-onLeaveMap`, and nothing else. Verified by instrumenting it and closing a
+ * real browser: the hook did not fire. Everything hung off it was therefore
+ * dead code: the chat roster, the DM roster and the final profile save.
+ *
+ * So leaving is detected from `onLeaveMap` instead. That fires for a MAP
+ * TRANSFER as well — the engine reconnects the socket and builds a fresh
+ * player for the new room — so acting on it immediately would drop a walking
+ * player out of chat and tell their friends they had logged off every time
+ * they went through a door.
+ *
+ * Hence the delay: leaving schedules the goodbye, arriving cancels it. A
+ * transfer takes well under a second; a player who is really gone never
+ * arrives anywhere.
+ */
+const GOODBYE_MS = 5000
+const goodbyes = new Map<string, ReturnType<typeof setTimeout>>()
+
+function cancelGoodbye(player: RpgPlayer) {
+    const key = String(player.id)
+    const timer = goodbyes.get(key)
+    if (!timer) return
+    clearTimeout(timer)
+    goodbyes.delete(key)
+}
+
+function scheduleGoodbye(player: RpgPlayer) {
+    const key = String(player.id)
+    cancelGoodbye(player)
+    const timer = setTimeout(() => {
+        goodbyes.delete(key)
+        removeChatMember(player)
+        removeDmMember(player)
+        friendsDisconnected(player)
+        // The last write of the session. The store batches, so without this
+        // the final few seconds of a battle are lost on a clean exit — and
+        // untrackPlayer is also what stops the background sweeper holding a
+        // player who left forever.
+        const walletId = walletOf(player)
+        if (walletId) void untrackPlayer(walletId).catch(logProfileError)
+    }, GOODBYE_MS)
+    // Never hold the process open just to say goodbye.
+    ;(timer as unknown as { unref?: () => void }).unref?.()
+    goodbyes.set(key, timer)
+}
+
 export const player: RpgPlayerHooks = {
     onConnected(player: RpgPlayer) {
         // Restore the chosen look on EVERY connect — map transfers reconnect
@@ -289,13 +351,20 @@ export const player: RpgPlayerHooks = {
             y: 2000
         })
     },
+    /**
+     * Dead in beta.33 — see the note above. Kept wired so the behaviour is
+     * correct if a later version starts calling it, and harmless if both fire:
+     * the goodbye is keyed by player id and re-scheduling only resets it.
+     */
     onDisconnected(player: RpgPlayer) {
-        removeChatMember(player)
-        removeDmMember(player)
-        // Last write of the session. The store batches, so without this the
-        // final few seconds of a battle would be lost on a clean exit.
-        const walletId = walletOf(player)
-        if (walletId) void untrackPlayer(walletId).catch(logProfileError)
+        scheduleGoodbye(player)
+    },
+    /**
+     * Fires for a real disconnect AND for every map transfer, which is why it
+     * schedules rather than acts.
+     */
+    onLeaveMap(player: RpgPlayer) {
+        scheduleGoodbye(player)
     },
     /**
      * Standing on a map is what unlocks fast travel to it later, so record it
@@ -303,6 +372,9 @@ export const player: RpgPlayerHooks = {
      * the write path for ordinary movement.
      */
     onJoinMap(player: RpgPlayer, map: { id?: string }) {
+        // They arrived somewhere, so they did not leave: this is the other
+        // half of the goodbye above.
+        cancelGoodbye(player)
         // Refresh the chat roster with THIS object: the engine hands each room
         // a fresh RpgPlayer, and `emit` on a stale one silently does nothing
         // (it needs a current map), so a broadcast would reach nobody.
@@ -311,6 +383,9 @@ export const player: RpgPlayerHooks = {
         // object's position, so a stale one would place the player on the map
         // they just left.
         addDmMember(player)
+        // Third roster, same trap: a friend's remote DM is emitted through the
+        // object held here.
+        friendsRefresh(player)
 
         const id = String(map?.id ?? '').replace(/^map-/, '')
         const isNew = markVisited(player, id)
@@ -395,6 +470,9 @@ export const player: RpgPlayerHooks = {
             // would take the whole Node process down with it. It must not be
             // possible for a database hiccup to end the server.
             void hydrate(player, id, addr).catch(logProfileError)
+            // Friends key off the wallet, which only exists from here on — so
+            // this, not onConnected, is where a player joins the friend roster.
+            void friendsConnected(player).catch(logProfileError)
             return
         }
         // HUD action bar. Each of these owns a dialog the player can actually
@@ -421,6 +499,15 @@ export const player: RpgPlayerHooks = {
         if (action == 'dm:block') { handleDmBlock(player, data); return }
         if (action == 'dm:unblock') { handleDmUnblock(player, data); return }
         if (action == 'dm:gift-info') { handleDmGiftInfo(player, data); return }
+        // Friends. Every one of these is a database round trip, so they are
+        // async and fire-and-forget — and every rejection lands in the logger,
+        // because an unhandled one would take the whole Node process down.
+        if (action == 'friends:list') { void handleFriendsList(player).catch(logProfileError); return }
+        if (action == 'friends:add') { void handleFriendAdd(player, data).catch(logProfileError); return }
+        if (action == 'friends:accept') { void handleFriendAccept(player, data).catch(logProfileError); return }
+        if (action == 'friends:decline') { void handleFriendDecline(player, data).catch(logProfileError); return }
+        if (action == 'friends:cancel') { void handleFriendCancel(player, data).catch(logProfileError); return }
+        if (action == 'friends:remove') { void handleFriendRemove(player, data).catch(logProfileError); return }
         // Anything else the player did is a decent moment to persist whatever
         // battle.ts has been mutating. The store diffs and batches, so this is
         // free when nothing changed.

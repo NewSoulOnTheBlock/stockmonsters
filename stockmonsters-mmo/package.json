@@ -15,7 +15,9 @@
     "db:reset": "node --env-file-if-exists=.env db/migrate.mjs --reset",
     "db:psql": "docker compose exec postgres psql -U stockmonsters -d stockmonsters",
     "test:profiles": "node --env-file-if-exists=.env --test test/profiles.test.mjs",
-    "test:e2e:persistence": "node --env-file-if-exists=.env tools/e2e-persistence.mjs"
+    "test:friends": "node --env-file-if-exists=.env --test test/friends.test.mjs",
+    "test:e2e:persistence": "node --env-file-if-exists=.env tools/e2e-persistence.mjs",
+    "test:e2e:friends": "node --env-file-if-exists=.env tools/e2e-friends.mjs"
   },
   "keywords": [],
   "author": "",

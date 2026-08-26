@@ -20,7 +20,7 @@
  */
 import http from 'node:http'
 import { createRequire } from 'node:module'
-import { createReadStream, existsSync, mkdirSync, statSync } from 'node:fs'
+import { createReadStream, existsSync, mkdirSync, rmSync, statSync } from 'node:fs'
 import { extname, join, normalize, resolve } from 'node:path'
 import { createRpgServerTransport, createSqliteNodeRoomStorage } from '@rpgjs/server/node'
 import serverModule from './dist/server/server.js'
@@ -32,6 +32,28 @@ const PORT = Number(process.env.PORT ?? 3000)
 const CLIENT_DIR = resolve('./dist/client')
 const DATA_DIR = resolve('./data')
 mkdirSync(DATA_DIR, { recursive: true })
+
+/*
+ * START WITH EMPTY ROOMS.
+ *
+ * The room store keeps every player it has ever seen, keyed by the ephemeral
+ * transport id. Nothing ever removes them, so a restarted server resurrects
+ * the ghosts of old sessions: characters standing on the dock with names of
+ * people who are not connected, walking into the live ones. Worse, a large
+ * stale file has frozen movement outright (HANDOVER: an 18MB rooms.sqlite made
+ * the player unable to move at all, and cost a whole debugging session).
+ *
+ * Nothing of value is in here: it is room runtime state keyed by an id that is
+ * deliberately thrown away on every page load. Everything that must survive —
+ * character, name, party, box, visited maps, friends — lives in Postgres.
+ *
+ * Set SM_KEEP_ROOMS=1 to keep it when debugging the transport itself.
+ */
+if (process.env.SM_KEEP_ROOMS !== '1') {
+  for (const name of ['rooms.sqlite', 'rooms.sqlite-shm', 'rooms.sqlite-wal']) {
+    rmSync(join(DATA_DIR, name), { force: true })
+  }
+}
 
 /*
  * The bridge to the game code.

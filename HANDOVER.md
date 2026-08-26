@@ -773,6 +773,72 @@ directory. If movement is dead and the code looks fine, delete `data/` FIRST.
    then reveals — and it stops touching the viewport afterwards so it never
    fights the engine's own follow.
 
+### Friends, remote DMs and presence (session 5, 2026-08-26)
+
+Built end to end and verified in two real browsers (`npm run test:e2e:friends`,
+29 checks). Full write-up: `stockmonsters-mmo/docs/friends.md`.
+
+- A friend request does NOTHING until the other side presses ACCEPT. That
+  acceptance is the only thing that lets a DM travel: `dm.ts` still refuses any
+  message between players more than 64px apart unless `areFriends()` says yes,
+  and it asks per MESSAGE, so un-friending cuts the line immediately.
+- Friendships are relational rows (`db/migrations/0004_friends.sql`), not part
+  of the save blob — a friendship belongs to two players at once. ONE row per
+  pair, enforced by storing the wallet ids in canonical order as the primary
+  key; `(a,b)` and `(b,a)` as separate keys would let a double-accept leave a
+  pair friends twice and un-friends once.
+- Panel on the left edge, always-visible tab carrying the count of waiting
+  requests. Not a modal: you can walk with it open.
+- Without a database it degrades to a session-only store AND SAYS SO on screen.
+
+### ⚠️ RPG-JS beta.33 NEVER CALLS `onDisconnected`
+
+The player hook is documented and dead. The engine dispatches
+`server-player-onConnected`, `-onJoinMap` and `-onLeaveMap` — nothing else.
+Verified by instrumenting the hook and closing a real browser: it did not fire.
+
+Everything hanging off it was dead code: the chat roster, the DM roster, and the
+final profile save on exit (so `untrackPlayer` never ran and the background
+sweeper held departed players forever). `player.ts` now detects leaving from
+`onLeaveMap`, which ALSO fires on every map transfer — so it schedules the
+goodbye and `onJoinMap` cancels it. A player who really left never arrives
+anywhere; a player walking through a door does, within a fraction of a second.
+
+Two more things this uncovered:
+
+- **A navigated-away tab is not a closed session.** Chrome keeps the page and
+  its websocket in the back/forward cache, so the server sees nothing until the
+  tab or browser actually closes. Any test that "leaves" by going to
+  `about:blank` is not testing a disconnect.
+- **The room store resurrects ghosts.** It keeps every player it has ever seen,
+  keyed by the ephemeral transport id, and nothing removes them — so a restart
+  put the characters of old test sessions back on the dock. `server.mjs` now
+  deletes `data/rooms.sqlite` on boot (`SM_KEEP_ROOMS=1` to keep it). This also
+  makes the freeze in the section above impossible to hit again.
+
+### The name was being dropped on a cold load
+
+The user reported still being "Trader" with a name they had already chosen.
+Cause: the client's stored name was claimed with a single `name:set` at mount,
+and `processAction` is dropped SILENTLY while the player cannot act — which at
+boot means "until the room is joined". The character had a retry loop for
+exactly this reason; the name did not. It does now (`chat-ui.ts`), it stops on
+the first acceptance or on a rejection, and if nothing is ever confirmed the
+name modal opens rather than leaving the player nameless.
+
+Also: the title screen greets a returning player — `WELCOME, <name> · 0xf39f…`
+— and the HUD avatar now draws the player's ACTUAL character, all layers
+stacked in draw order. It was blank before: the id-to-file mapping was string
+surgery that only worked for ready-made presets, so a built character
+(`chl-body-01`) and the two engine defaults both resolved to a 404.
+
+### Title art is the game's own PNG again
+
+`public/titles/title.png` (the 320x240 PSDK title, scaled with pixelated
+rendering) replaces the traced SVG. Same 4:3, so every button percentage still
+lands where it was measured, and the opaque button panel covers the PRESS START
+plate baked into the art.
+
 ### Requested, not yet built (user, 2026-08-25 evening)
 
 - **In-game minigames** once the maps are done — small playable activities

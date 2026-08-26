@@ -31,6 +31,7 @@ import {
   ensureUiKit, injectStyle, el, escapeHtml, guardKeys, pushLayer, watchGameDialog, Z,
 } from './ui-kit'
 import { openMarketplace } from './marketplace'
+import { CHARACTER_PRESETS, CHARACTER_LAYERS } from './data/character-catalog'
 
 /* ---------------------------------------------------------------- types ---*/
 
@@ -56,7 +57,12 @@ export interface HudModel {
   xp: number
   xpNext: number
   /** Character sheet URL — 96x128, 3 cols x 4 rows of 32x32. */
-  avatarSheet: string
+  /**
+   * The player's character, as spritesheet URLs in draw order — a built
+   * character is up to six of them stacked, exactly like the sprite on the
+   * map. One url would show a body with no hair or clothes.
+   */
+  avatarLayers: string[]
   chips: HudChip[]
   banners: HudBanner[]
 }
@@ -90,7 +96,7 @@ interface SocketLike {
 
 export type IconName =
   | 'bag' | 'dex' | 'team' | 'market' | 'quest' | 'map' | 'gear'
-  | 'coin' | 'gem' | 'box' | 'star' | 'bolt'
+  | 'coin' | 'gem' | 'box' | 'star' | 'bolt' | 'friends'
 
 /**
  * Icons are drawn as lists of [x, y, w, h] rectangles on a 16x16 grid — the
@@ -115,6 +121,11 @@ const ICON_RECTS: Record<IconName, Rect[]> = {
   team: [
     [3, 5, 2, 3], [6, 3, 2, 3], [9, 3, 2, 3], [12, 5, 2, 3],
     [4, 9, 9, 4], [5, 8, 7, 1],
+  ],
+  // two people, one behind the other
+  friends: [
+    [3, 2, 4, 4], [1, 7, 8, 3], [2, 10, 6, 4],
+    [9, 4, 4, 3], [8, 8, 7, 2], [9, 10, 5, 4],
   ],
   // shopping cart
   market: [
@@ -190,7 +201,9 @@ export function demoHudModel(): HudModel {
     level: 12,
     xp: 640,
     xpNext: 1000,
-    avatarSheet: 'spritesheets/characters/female-01.png',
+    // The engine's default graphic, so the tile is never empty before the
+    // real character arrives.
+    avatarLayers: ['spritesheets/hero.png'],
     chips: [
       { id: 'eth', icon: 'gem', label: 'ETH', value: '0.482' },      // PLACEHOLDER
       { id: 'smon', icon: 'coin', label: 'SMON', value: '12,400' },  // PLACEHOLDER
@@ -222,10 +235,35 @@ function currentPlayer(engine: EngineLike | undefined): any {
   } catch { return undefined }
 }
 
-/** `ch-female-01` -> `spritesheets/characters/female-01.png` */
-function sheetFor(id: string): string {
-  const slug = id.replace(/^ch-/, '')
-  return `spritesheets/characters/${slug}.png`
+/**
+ * Graphic id -> spritesheet url, from the SAME catalog the designer and the
+ * server whitelist use.
+ *
+ * This used to be string surgery (`ch-` off the front, `.png` on the end),
+ * which quietly produced a 404 for every id that is not a ready-made preset:
+ * a built character (`chl-body-01`) became `characters/l-body-01.png`, and the
+ * two engine defaults live one directory up. Both drew an empty box in the
+ * corner of the screen, which is what the player actually saw.
+ */
+const SHEET_BY_ID = new Map<string, string>()
+for (const item of CHARACTER_PRESETS) SHEET_BY_ID.set(item.id, item.image)
+for (const items of Object.values(CHARACTER_LAYERS)) {
+  for (const item of items) SHEET_BY_ID.set(item.id, item.image)
+}
+// Predate the imported pack and sit outside characters/.
+SHEET_BY_ID.set('hero', 'spritesheets/hero.png')
+SHEET_BY_ID.set('female', 'spritesheets/female.png')
+
+/** Every layer we can resolve, in order. Unknown ids are dropped, not guessed. */
+function sheetsFor(ids: unknown): string[] {
+  const list = Array.isArray(ids) ? ids : [ids]
+  const out: string[] = []
+  for (const raw of list) {
+    const id = typeof raw === 'string' ? raw : (raw as any)?.id ?? (raw as any)?.graphic ?? (raw as any)?.name
+    const url = typeof id === 'string' ? SHEET_BY_ID.get(id) : undefined
+    if (url) out.push(url)
+  }
+  return out
 }
 
 function readEngine(engine: EngineLike | undefined): Partial<HudModel> {
@@ -235,10 +273,9 @@ function readEngine(engine: EngineLike | undefined): Partial<HudModel> {
   if (name) out.name = name
 
   // graphics is a signal holding either ids or {id}/{graphic} layer objects.
-  const g: any = sig<any>(player?.graphics)
-  const first = Array.isArray(g) ? g[0] : g
-  const gid = typeof first === 'string' ? first : (first?.id ?? first?.graphic ?? first?.name)
-  if (typeof gid === 'string' && gid) out.avatarSheet = sheetFor(gid)
+  // ALL of them: the stack is the character.
+  const layers = sheetsFor(sig<any>(player?.graphics))
+  if (layers.length) out.avatarLayers = layers
 
   // Fallbacks: the picker in index.html and chat-ui.ts both persist locally.
   if (!out.name) {
@@ -247,10 +284,10 @@ function readEngine(engine: EngineLike | undefined): Partial<HudModel> {
       if (n) out.name = n
     } catch { /* private mode */ }
   }
-  if (!out.avatarSheet) {
+  if (!out.avatarLayers) {
     try {
-      const layers = JSON.parse(localStorage.getItem('sm-character') ?? 'null')
-      if (Array.isArray(layers) && typeof layers[0] === 'string') out.avatarSheet = sheetFor(layers[0])
+      const stored = sheetsFor(JSON.parse(localStorage.getItem('sm-character') ?? 'null'))
+      if (stored.length) out.avatarLayers = stored
     } catch { /* private mode */ }
   }
   return out
@@ -285,6 +322,7 @@ const CSS = `
   box-shadow: inset 0 0 0 3px rgba(9,7,15,.55);
   overflow: hidden;
 }
+#sm-hud .hud-avatar-stack { position: absolute; inset: 0; }
 #sm-hud .hud-avatar i {
   position: absolute; left: 50%; top: 52%;
   width: 32px; height: 32px;
@@ -430,9 +468,9 @@ export function mountHud(engine?: EngineLike, socket?: SocketLike): HudApi {
   const tl = el('div', { class: 'hud-cluster hud-tl' })
   const card = el('div', { class: 'hud-card smui-panel' })
   const avatar = el('div', { class: 'hud-avatar' })
-  const avatarImg = el('i')
+  const avatarStack = el('div', { class: 'hud-avatar-stack' })
   const lvlTag = el('span', { class: 'lvl' })
-  avatar.append(avatarImg, lvlTag)
+  avatar.append(avatarStack, lvlTag)
   const nameEl = el('div', { class: 'hud-name' })
   const subEl = el('div', { class: 'hud-sub' })
   const xp = el('div', { class: 'hud-xp' })
@@ -464,6 +502,7 @@ export function mountHud(engine?: EngineLike, socket?: SocketLike): HudApi {
     { id: 'quests', icon: 'quest', label: 'QUESTS', hotkey: '5' },
     { id: 'map', icon: 'map', label: 'MAP', hotkey: '6' },
     { id: 'boxes', icon: 'box', label: 'BOXES', hotkey: '7' },
+    { id: 'friends', icon: 'friends', label: 'FRIENDS', hotkey: '8' },
   ]
   const barWrap = el('div', { class: 'hud-cluster hud-bar-wrap' })
   const bar = el('div', { class: 'hud-bar smui-panel', role: 'toolbar', 'aria-label': 'Actions' })
@@ -578,9 +617,18 @@ export function mountHud(engine?: EngineLike, socket?: SocketLike): HudApi {
     nameEl.textContent = model.name || 'TRADER'
     subEl.textContent = `LV ${model.level} · TRAINER`
     lvlTag.textContent = String(model.level)
-    avatarImg.style.backgroundImage = `url("${model.avatarSheet}")`
-    // 3x the 96x128 sheet, so a 32x32 frame reads crisply in the tile.
-    avatarImg.style.backgroundSize = '96px 128px'
+    // One <i> per layer, stacked in draw order — the same order the engine
+    // uses on the map, so the face in the corner is the character you are
+    // walking around as.
+    avatarStack.textContent = ''
+    for (const url of model.avatarLayers.length ? model.avatarLayers : ['spritesheets/hero.png']) {
+      const layer = el('i')
+      layer.style.backgroundImage = `url("${url}")`
+      // The sheet is 96x128 (3 cols x 4 rows of 32x32); the CSS picks the
+      // idle-facing-down frame out of it.
+      layer.style.backgroundSize = '96px 128px'
+      avatarStack.appendChild(layer)
+    }
     const pct = model.xpNext > 0 ? Math.max(0, Math.min(100, (model.xp / model.xpNext) * 100)) : 0
     xpFill.style.width = `${pct}%`
     xpText.textContent = `${model.xp}/${model.xpNext} XP`
@@ -623,8 +671,8 @@ export function mountHud(engine?: EngineLike, socket?: SocketLike): HudApi {
     const live = readEngine(engine)
     let changed = false
     if (live.name && live.name !== model.name) { model.name = live.name; changed = true }
-    if (live.avatarSheet && live.avatarSheet !== model.avatarSheet) {
-      model.avatarSheet = live.avatarSheet; changed = true
+    if (live.avatarLayers?.length && live.avatarLayers.join('|') !== model.avatarLayers.join('|')) {
+      model.avatarLayers = live.avatarLayers; changed = true
     }
     if (changed) render()
   }, 1000)

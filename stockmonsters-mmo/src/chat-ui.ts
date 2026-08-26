@@ -162,15 +162,21 @@ export function mountChatUi(engine: Engine, socket: Socket) {
   })
 
   socket.on('name:accepted', (d: { name: string }) => {
+    // The server confirms on every reconnect and after every retry, so greet
+    // only when this is actually news — otherwise chat opens with the same
+    // welcome line two or three times.
+    const isNews = confirmedName !== d.name
     named = d.name
     confirmedName = d.name
+    stopClaiming()
     localStorage.setItem('sm-name', d.name)
     modal.classList.remove('open')
     input.disabled = false
     input.placeholder = 'Press Enter to chat'
-    append(`Welcome, <span class="who">${escape(d.name)}</span>.`, 'sys')
+    if (isNews) append(`Welcome, <span class="who">${escape(d.name)}</span>.`, 'sys')
   })
   socket.on('name:rejected', (d: { reason: string }) => {
+    stopClaiming() // a refused name must not be re-sent every second
     nameErr.textContent = d.reason
     if (!confirmedName) {
       // Rejected before anything was confirmed means this player still has no
@@ -189,6 +195,37 @@ export function mountChatUi(engine: Engine, socket: Socket) {
     else append(`<span class="who">${escape(d.from ?? '?')}</span>: ${escape(d.text)}`)
   })
 
+  /*
+   * CLAIMING A STORED NAME IS NOT FIRE-AND-FORGET.
+   *
+   * `processAction` is dropped, silently and with no error, while the player
+   * cannot act — which at boot means "until the room is joined". A single
+   * `name:set` at mount therefore reached nobody on a cold load, the server
+   * never learned the name, and the player was left as the engine's default
+   * "Trader" with their real name still sitting in localStorage. Exactly the
+   * bug the character had, fixed the same way: keep asking until the server
+   * says it stuck.
+   *
+   * The retry stops on the first acceptance, and on a rejection — a refused
+   * name must not be re-sent every second.
+   */
+  let claimTimer: ReturnType<typeof setInterval> | null = null
+  function stopClaiming() {
+    if (!claimTimer) return
+    clearInterval(claimTimer)
+    claimTimer = null
+  }
+  function claimName(name: string) {
+    engine.processAction?.('name:set', { name })
+    stopClaiming()
+    let tries = 0
+    claimTimer = setInterval(() => {
+      if (confirmedName || ++tries > 20) { stopClaiming(); return }
+      engine.processAction?.('name:set', { name })
+    }, 700)
+  }
+  window.addEventListener('beforeunload', stopClaiming)
+
   // A wallet-connected player must have a name; without a wallet they can look
   // around but not chat.
   const hasWallet = (() => {
@@ -206,7 +243,18 @@ export function mountChatUi(engine: Engine, socket: Socket) {
       // old one, and the modal swallows every key while it is up. The only
       // thing that reopens it is an explicit refusal from the server — see the
       // 'name:rejected' handler.
-      engine.processAction?.('name:set', { name: named })
+      claimName(named)
+      // ...and if the server never confirms anything, this player effectively
+      // has no name: the stored one is a browser claim, and the game shows
+      // them as "Trader" to everyone else. Ask, once, well after the retries
+      // have had their chance — never for a slow confirmation, only for none.
+      whenInWorld(() => {
+        setTimeout(() => {
+          if (confirmedName || modal.classList.contains('open')) return
+          nameErr.textContent = ''
+          openNameModal()
+        }, 16_000)
+      })
     } else {
       whenInWorld(openNameModal)
     }

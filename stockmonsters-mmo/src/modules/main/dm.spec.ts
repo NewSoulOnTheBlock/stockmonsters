@@ -12,6 +12,13 @@ import {
     handleDmGiftInfo,
     resetDm,
 } from './dm'
+import {
+    friendsConnected,
+    handleFriendAdd,
+    handleFriendAccept,
+    handleFriendRemove,
+    resetFriends,
+} from './friends'
 
 /*
  * The fake player is deliberately dumb: plain x/y numbers, a plain map string,
@@ -60,8 +67,8 @@ function trader(opts: {
 
 const wallet = (n: string) => 'w:' + n.repeat(32).slice(0, 32)
 
-beforeEach(() => { resetDm(); vi.useFakeTimers() })
-afterEach(() => { vi.useRealTimers() })
+beforeEach(() => { resetDm(); resetFriends(); vi.useFakeTimers() })
+afterEach(() => { resetFriends(); vi.useRealTimers() })
 
 /* ------------------------------------------------------------- roster --- */
 
@@ -486,5 +493,87 @@ describe('dmGiftInfo', () => {
 
         expect(a.of('dm:gift-result')[0].error).toMatch(/blocked/i)
         expect(b.of('dm:gift-result')[0].error).toMatch(/blocked/i)
+    })
+})
+
+/* ------------------------------------------------------------ friends --- */
+/*
+ * The one exception to proximity, and the only one: two players who have
+ * ACCEPTED each other. Everything here is about that permission being read per
+ * message rather than captured when a window opened.
+ */
+
+const HEX_A = wallet('a')
+const HEX_B = wallet('b')
+
+/** Walk the pair through the real request/accept flow — no shortcuts. */
+async function befriend(a: any, b: any, aName: string, bName: string) {
+    await friendsConnected(a.player)
+    await friendsConnected(b.player)
+    await handleFriendAdd(a.player, { name: bName })
+    await handleFriendAccept(b.player, { key: HEX_A })
+    // Sanity: the fixture must not silently fail to make them friends.
+    expect(a.of('friends:state').at(-1).friends.map((f: any) => f.name)).toEqual([bName])
+    expect(aName).toBeTruthy()
+}
+
+describe('friends can talk across the world', () => {
+    it('delivers a message between friends who are nowhere near each other', async () => {
+        const a = trader({ id: 'a', name: 'Alice', wallet: HEX_A, map: 'exterior', x: 0, y: 0 })
+        const b = trader({ id: 'b', name: 'Bob', wallet: HEX_B, map: 'olivine-city', x: 900, y: 900 })
+        addDmMember(a.player)
+        addDmMember(b.player)
+        await befriend(a, b, 'Alice', 'Bob')
+
+        handleDmSend(a.player, { to: 'b', text: 'meet me at the dock' })
+
+        expect(b.messages().map((m: any) => m.text)).toEqual(['meet me at the dock'])
+        expect(b.messages()[0]).toMatchObject({ from: 'Alice', mine: false })
+    })
+
+    it('still refuses two strangers on different maps', () => {
+        const a = trader({ id: 'a', name: 'Alice', wallet: HEX_A, map: 'exterior' })
+        const b = trader({ id: 'b', name: 'Bob', wallet: HEX_B, map: 'olivine-city' })
+        addDmMember(a.player)
+        addDmMember(b.player)
+
+        handleDmSend(a.player, { to: 'b', text: 'hello stranger' })
+
+        expect(b.messages()).toHaveLength(0)
+        expect(a.system()[0]).toMatch(/stand next to them|add them as a friend/i)
+    })
+
+    it('cuts the line the moment one of them removes the other', async () => {
+        const a = trader({ id: 'a', name: 'Alice', wallet: HEX_A, map: 'exterior' })
+        const b = trader({ id: 'b', name: 'Bob', wallet: HEX_B, map: 'olivine-city' })
+        addDmMember(a.player)
+        addDmMember(b.player)
+        await befriend(a, b, 'Alice', 'Bob')
+
+        handleDmSend(a.player, { to: 'b', text: 'first' })
+        await handleFriendRemove(b.player, { key: HEX_A })
+        vi.advanceTimersByTime(3000) // clear of the DM rate limit
+        handleDmSend(a.player, { to: 'b', text: 'second' })
+
+        // The permission is re-read per message, so the window being open is
+        // not a channel that outlives the friendship.
+        expect(b.messages().map((m: any) => m.text)).toEqual(['first'])
+        expect(a.system().join(' ')).toMatch(/add them as a friend/i)
+    })
+
+    it('lets a friend set up a gift from anywhere, and a stranger from nowhere', async () => {
+        const addr = (c: string) => '0x' + c.repeat(40)
+        const a = trader({ id: 'a', name: 'Alice', wallet: HEX_A, address: addr('a'), map: 'exterior' })
+        const b = trader({ id: 'b', name: 'Bob', wallet: HEX_B, address: addr('b'), map: 'olivine-city' })
+        addDmMember(a.player)
+        addDmMember(b.player)
+
+        handleDmGiftInfo(a.player, { id: 'b' })
+        expect(a.of('dm:gift-result').at(-1).error).toMatch(/walked away/i)
+
+        await befriend(a, b, 'Alice', 'Bob')
+        handleDmGiftInfo(a.player, { id: 'b' })
+
+        expect(a.of('dm:gift-result').at(-1)).toMatchObject({ name: 'Bob', address: addr('b') })
     })
 })

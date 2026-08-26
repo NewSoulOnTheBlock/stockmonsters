@@ -1,5 +1,6 @@
 import type { RpgPlayer } from '@rpgjs/server'
 import { filterChat } from './chat-filter'
+import { areFriends } from './friends'
 
 /*
  * dm.ts — player-to-player direct messages and gifting.
@@ -15,11 +16,18 @@ import { filterChat } from './chat-filter'
  *     A message exists exactly as long as the two sockets that carried it. The
  *     client says so on screen, because a chat window that looks like every
  *     other chat window will be assumed to have history.
- *   · Not a whisper channel. A DM is refused unless the two players are still
- *     standing next to each other — see NEAR_PX. That is the whole privacy
- *     model: to talk to someone you have to be able to see them, and to escape
- *     someone you can walk away. Cross-world whispering would turn this into an
- *     unmoderatable spam pipe overnight.
+ *   · Not an open whisper channel. A DM is refused unless the two players are
+ *     still standing next to each other — see NEAR_PX. That is the whole
+ *     privacy model: to talk to someone you have to be able to see them, and to
+ *     escape someone you can walk away. Cross-world whispering to anyone would
+ *     turn this into an unmoderatable spam pipe overnight.
+ *
+ *     FRIENDS ARE THE ONE EXCEPTION, and they are an exception the recipient
+ *     granted themselves: friends.ts only makes two people friends after the
+ *     OTHER side pressed ACCEPT. Once they have, distance stops mattering for
+ *     that pair — that is the entire reward for adding someone. Un-friending
+ *     revokes it immediately, because `areFriends` is read on every message
+ *     rather than captured when the window opened.
  *   · Not a payment rail. dmGiftInfo hands over an address. That is all it
  *     does. No key on this server ever touches player funds.
  *
@@ -381,8 +389,14 @@ export function handleDmSend(player: RpgPlayer, data: unknown) {
         return
     }
 
-    if (!stillTogether(player, recipient)) {
-        system(player, `You have walked away from ${target.name}. Stand next to them to talk.`, target)
+    // Distance, unless they have accepted each other as friends. Checked per
+    // message, not once per window: removing a friend has to cut the line
+    // immediately, and two friends who fall out mid-conversation must not keep
+    // a remote channel open because the window was opened while they were.
+    if (!stillTogether(player, recipient) && !areFriends(mine, target.key)) {
+        system(player,
+            `You have walked away from ${target.name}. Stand next to them to talk, ` +
+            'or add them as a friend to message them from anywhere.', target)
         return
     }
 
@@ -437,10 +451,11 @@ export function handleDmUnblock(player: RpgPlayer, data: unknown) {
  * THE SERVER NEVER MOVES VALUE. All this returns is the recipient's wallet
  * address; the player's own wallet builds, signs and pays for the transfer.
  *
- * It does disclose an address to whoever is standing next to you. That is
- * inherent to gifting — you cannot send to an address you are not told — and
- * the mitigations are that both parties must be within NEAR_PX of each other
- * and that a block cuts it off. Said plainly in docs/dm.md rather than hidden.
+ * It does disclose an address to whoever is standing next to you — or to a
+ * friend, from anywhere. That is inherent to gifting — you cannot send to an
+ * address you are not told — and the mitigations are that the other player
+ * either stood next to you or accepted your friend request, and that a block
+ * cuts it off. Said plainly in docs/dm.md rather than hidden.
  */
 export function handleDmGiftInfo(player: RpgPlayer, data: unknown) {
     addDmMember(player)
@@ -453,8 +468,10 @@ export function handleDmGiftInfo(player: RpgPlayer, data: unknown) {
 
     const mine = identityOf(player)
     if (eitherBlocks(mine, target.key)) { fail('You cannot send anything to a blocked player.'); return }
-    if (!stillTogether(player, recipient)) {
-        fail(`You have walked away from ${target.name}. Stand next to them to send a gift.`)
+    if (!stillTogether(player, recipient) && !areFriends(mine, target.key)) {
+        fail(
+            `You have walked away from ${target.name}. Stand next to them to send a gift, ` +
+            'or add them as a friend to send one from anywhere.')
         return
     }
     if (!addressOf(player)) { fail('Connect your wallet before sending a gift.'); return }

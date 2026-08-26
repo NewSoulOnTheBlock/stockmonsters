@@ -58,14 +58,16 @@
         transition: opacity .8s ease;
       }
       #title-screen.hidden { opacity: 0; pointer-events: none; }
-      /* The art is a 1448x1086 SVG. Wrapping it in an element that shrink-wraps
-         to the same aspect lets the buttons be positioned as a PERCENTAGE of the
-         artwork, so they stay glued to the plate the art was drawn with at every
-         window size. */
+      /* The art is the game's own 320x240 title screen, scaled up with
+         pixelated rendering — the same 4:3 the traced SVG had, so every
+         percentage below still lands where it was measured. Wrapping it in an
+         element that shrink-wraps to that aspect lets the buttons be
+         positioned as a PERCENTAGE of the artwork, so they stay glued to the
+         plate the art was drawn with at every window size. */
       #title-stage {
         position: relative;
-        aspect-ratio: 1448 / 1086;
-        width: min(100vw, calc(100vh * 1448 / 1086));
+        aspect-ratio: 4 / 3;
+        width: min(100vw, calc(100vh * 4 / 3));
         height: auto;
         max-height: 100vh;
       }
@@ -78,18 +80,17 @@
         user-select: none;
         -webkit-user-drag: none;
       }
-      /* Covers the "PRESS START" plate baked into the artwork and replaces it
-         with real buttons. Measured from the rendered SVG. */
-      /* Sits exactly over the plate that used to hold PRESS START (those
-         paths are deleted from the SVG now, leaving a hole this panel fills). */
+      /* Sits exactly over the PRESS START plate baked into the artwork and
+         replaces it with real buttons. Measured against the art, so it has to
+         stay at least as tall as the plate or the original would show through
+         underneath. */
       #title-actions {
         position: absolute;
         left: 19.3%;
         top: 50.0%;
         width: 32.9%;
-        /* The removed PRESS START plate leaves a transparent hole 10.4% of the
-           artwork tall; the panel must be at least that tall or the page
-           background shows through under the buttons. */
+        /* The plate in the artwork is 10.4% of its height; the panel must be
+           at least that tall to cover it completely. */
         min-height: 10.5%;
         display: flex;
         flex-direction: column;
@@ -241,7 +242,7 @@
     <div id="rpg"></div>
     <div id="title-screen">
       <div id="title-stage">
-        <img src="/titles/background.svg" alt="Stockmonsters">
+        <img src="/titles/title.png" alt="Stockmonsters">
         <div id="title-actions">
           <button id="btn-primary" class="title-btn primary">CONNECT WALLET</button>
           <button id="btn-character" class="title-btn secondary" hidden>CHANGE YOUR CHARACTER</button>
@@ -327,6 +328,13 @@
 
         // Coming back from "Save & quit": the character is known, so PLAY GAME
         // must not bounce the player through the picker again.
+        function savedName() {
+          try {
+            var n = localStorage.getItem("sm-name");
+            return n && n.trim() ? n.trim() : "";
+          } catch (e) { return ""; }
+        }
+
         var returned = false;
         try {
           returned = sessionStorage.getItem("sm-returned-to-title") === "1";
@@ -341,8 +349,14 @@
           charBtn.hidden = !connected;
           nftBtn.hidden = !connected;
           settingsBtn.hidden = !connected;
+          // Greet a player the game already knows by name. The name is
+          // repaired from the server on every login (chat-ui.ts writes it
+          // back), so this is the same name their character carries in world,
+          // not a stale browser guess.
+          var who = savedName();
           walletLine.textContent = connected
-            ? short(w.address) + (returned ? "  ·  PROGRESS SAVED" : "")
+            ? (who ? "WELCOME, " + who + "  ·  " : "") + short(w.address) +
+              (returned ? "  ·  PROGRESS SAVED" : "")
             : "";
         }
 
