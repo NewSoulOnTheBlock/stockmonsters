@@ -137,6 +137,15 @@ export function mountChatUi(engine: Engine, socket: Socket) {
     tick()
   }
 
+  /** No keyboard means no "press Enter", so the copy has to change. */
+  const touchDevice = () => {
+    try {
+      return window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0
+    } catch {
+      return false
+    }
+  }
+
   // --- name ---------------------------------------------------------------
   let named = localStorage.getItem('sm-name')
   /** Set only when the SERVER accepts a name; a stored one does not count. */
@@ -172,7 +181,7 @@ export function mountChatUi(engine: Engine, socket: Socket) {
     localStorage.setItem('sm-name', d.name)
     modal.classList.remove('open')
     input.disabled = false
-    input.placeholder = 'Press Enter to chat'
+    input.placeholder = touchDevice() ? 'Tap to chat' : 'Press Enter to chat'
     if (isNews) append(`Welcome, <span class="who">${escape(d.name)}</span>.`, 'sys')
   })
   socket.on('name:rejected', (d: { reason: string }) => {
@@ -261,6 +270,13 @@ export function mountChatUi(engine: Engine, socket: Socket) {
   } else {
     input.placeholder = 'Connect a wallet to chat'
   }
+
+  /*
+   * A phone has no Enter key to press, and the placeholder said to press one.
+   * Tapping the field is the whole interaction there, so it says that instead
+   * — and the field is focusable rather than only reachable by keyboard.
+   */
+  if (touchDevice() && !input.disabled) input.placeholder = 'Tap to chat'
 
   // Choosing a name is mandatory, so while the modal is up the world must not
   // be playable behind it: without this the player just walks away from the

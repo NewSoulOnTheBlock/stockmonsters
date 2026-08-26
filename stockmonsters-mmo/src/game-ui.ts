@@ -1,4 +1,4 @@
-import { RpgClientEngine, WebSocketToken } from "@rpgjs/client";
+import { RpgClientEngine, WebSocketToken, KeyboardControls } from "@rpgjs/client";
 import { inject } from "@signe/di";
 import { applyAutoZoom } from "./zoom";
 import { mountBattleScene } from "./battle-scene";
@@ -15,6 +15,7 @@ import { mountFriendsUi, getFriendsUi } from "./friends-ui";
 import { mountWalletUi, openWallet } from "./wallet-ui";
 import { mountDuelUi, openDuelOffer } from "./duel-ui";
 import { mountSfx } from "./sfx";
+import { mountTouchControls, mountMobileLayout } from "./touch-controls";
 
 /*
  * Everything the player sees on top of the map: zoom, HUD, chat, battle scene,
@@ -33,6 +34,35 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
   // Sound first: it listens for the first interaction, which may be the click
   // that dismissed the title screen a moment ago.
   mountSfx();
+  // A phone has no keyboard: a d-pad and two buttons that synthesise one.
+  // No-op on anything with a real one.
+  // Debug handle, like __engine: the only way to see from a headless browser
+  // whether the engine has handed us its controls yet.
+  const controlsNow = () => {
+    // RPG-JS stores the instance on ITS OWN context, not the one we were
+    // handed at boot: setKeyboardControls writes
+    // `context.values['inject:KeyboardControls'].values.get('__default__')`
+    // when the player's sprite mounts. `inject(ctx, ...)` returns null here —
+    // verified in a headless browser — so read where it actually lives, and
+    // keep inject as the fallback in case a later version moves it back.
+    try {
+      const engineCtx = (engine as any)?.context
+      const slot = engineCtx?.values?.['inject:KeyboardControls']
+      const direct = slot?.values?.get?.('__default__')
+      if (direct) return direct
+    } catch { /* fall through */ }
+    try {
+      return inject(ctx as any, KeyboardControls as any) as any
+    } catch {
+      return null
+    }
+  };
+  (window as any).__controls = controlsNow;
+  mountTouchControls(() => {
+    // RPG-JS injects this when the player's sprite mounts, so it does not
+    // exist at boot — look it up per press rather than capturing it once.
+    return controlsNow()
+  });
 
   const engine: any = inject(ctx as any, RpgClientEngine);
   // Debug handle: the only way to inspect live player/graphic state from a
@@ -161,6 +191,12 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
   void mountWalletUi();
   // Duels: offered to whoever you are standing next to, escrowed on chain.
   mountDuelUi(engine, socket);
+
+  // LAST, deliberately. Every panel injects its own stylesheet when it mounts,
+  // and equal-specificity rules are won by whichever came later in the
+  // document. Injected first, the phone layout was silently overruled by the
+  // HUD — the media queries matched and did nothing.
+  mountMobileLayout();
 
   // The title screen's NFT/settings buttons enter the world first and then ask
   // for a panel; the in-game window is the single owner of each.

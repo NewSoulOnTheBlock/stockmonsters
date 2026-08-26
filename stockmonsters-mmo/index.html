@@ -349,11 +349,12 @@
           // repaired from the server on every login (chat-ui.ts writes it
           // back), so this is the same name their character carries in world,
           // not a stale browser guess.
+          var hint = connected ? "" : walletHint();
           var who = savedName();
           walletLine.textContent = connected
             ? (who ? "WELCOME, " + who + "  ·  " : "") + short(w.address) +
               (returned ? "  ·  PROGRESS SAVED" : "")
-            : "";
+            : hint;
         }
 
         // --- character picker ------------------------------------------

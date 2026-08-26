@@ -895,6 +895,39 @@ challenger loses, and on a win the gym changes hands with a 20% takeover bounty
 out of the old holder's stake. No emissions anywhere — every payout is an entry
 fee somebody chose to pay.
 
+### Mobile: it plays on a phone (session 5, later)
+
+`src/touch-controls.ts` — a d-pad and A/B buttons, plus every phone layout
+override in one stylesheet. Verified on an emulated iPhone 14 (390x844): the
+character walks, nothing overlaps, the action bar fits.
+
+**⚠️ SYNTHETIC KEYBOARD EVENTS DO NOT MOVE THE CHARACTER.** I tried; it moved
+zero pixels. The engine binds its controls to the canvas directive, not to
+window. The working path is the engine's own API — and `inject(ctx,
+KeyboardControls)` returns NULL, because RPG-JS stores the instance on its own
+context when the player's sprite mounts:
+
+```js
+engine.context.values['inject:KeyboardControls'].values.get('__default__')
+```
+
+Control names, read off the live instance: `down up left right space shift
+escape`. There is no `action` — it is `space`. `window.__controls` is a debug
+handle for exactly this kind of digging.
+
+Our own UI (chat's Enter, the DM window's Space, the escape stack) DOES answer
+synthetic events, so the touch buttons fire both.
+
+**⚠️ Inject the mobile stylesheet LAST.** Every panel injects its own CSS when
+it mounts, and equal-specificity rules go to whichever came later in the
+document. Injected first, the phone layout matched and did nothing — the HUD
+silently overruled all of it.
+
+What a phone still cannot do: connect a wallet from a normal mobile browser.
+`window.ethereum` only exists inside a wallet's in-app browser, so the title
+screen now says to open the page there rather than leaving a dead button.
+WalletConnect is the real fix and is not built.
+
 ### Sound, and the IP problem that comes with it
 
 `public/audio/` holds twelve effects lifted from the same fan pack as the maps
