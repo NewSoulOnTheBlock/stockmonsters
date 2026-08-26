@@ -18,7 +18,8 @@
     "test:friends": "node --env-file-if-exists=.env --test test/friends.test.mjs",
     "test:e2e:persistence": "node --env-file-if-exists=.env tools/e2e-persistence.mjs",
     "test:e2e:friends": "node --env-file-if-exists=.env tools/e2e-friends.mjs",
-    "test:e2e:token": "node --env-file-if-exists=.env tools/e2e-token.mjs"
+    "test:e2e:token": "node --env-file-if-exists=.env tools/e2e-token.mjs",
+    "test:e2e:duel": "node --env-file-if-exists=.env tools/e2e-duel.mjs"
   },
   "keywords": [],
   "author": "",

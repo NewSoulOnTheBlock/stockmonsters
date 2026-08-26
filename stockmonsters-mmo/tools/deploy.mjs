@@ -51,6 +51,13 @@ const flag = (name, fallback) => {
 }
 const CHAIN_NAME = flag('chain', 'sepolia')
 const DRY_RUN = args.includes('--dry-run')
+/*
+ * `--only pvp` deploys just the gyms and the arena, against the token,
+ * treasury and NFT already in .env. A full redeploy would hand out fresh
+ * addresses for everything and orphan every box already minted — cheap on a
+ * testnet, but it throws away the state we are testing with.
+ */
+const ONLY = flag('only', null)
 
 const CHAINS = {
   sepolia: {
@@ -90,6 +97,19 @@ const PARAMS = {
   // NFT claim fee in ETH. Deliberately tiny on a testnet: faucet ETH is
   // annoying to get and the fee is not what we are testing.
   claimFeeEth: '0.0002',
+  gyms: {
+    // A gym nobody can afford to lose is not a contest; one that can hold a
+    // fortune is a bigger target than a testnet needs.
+    minStake: parseEther('1000'),
+    maxStake: parseEther('500000'),
+  },
+  arena: {
+    // The wager the game advertises. A duel for a million tokens is the
+    // headline; the cap is what stops one signature moving more than that.
+    maxWager: parseEther('1000000'),
+    // ...and this is what a leaked result signer could move in a day, total.
+    dailyPayoutCap: parseEther('20000000'),
+  },
   nft: {
     imageBaseURI: 'https://stockmonsters.game/dex/',
     sealedImageURI: 'https://stockmonsters.game/dex/sealed.png',
@@ -147,8 +167,14 @@ const mmoEnv = readEnvFile(mmoEnvPath)
 const newKeys = {}
 const gameSignerKey = mmoEnv.BOX_SIGNER_PK ?? (newKeys.BOX_SIGNER_PK = generatePrivateKey())
 const claimSignerKey = mmoEnv.REWARDS_SIGNER_PK ?? (newKeys.REWARDS_SIGNER_PK = generatePrivateKey())
+// One key for battle outcomes — gyms and duels are the same kind of claim,
+// and splitting them would double the key management without changing what a
+// compromise costs. It is separate from the box and reward signers, which is
+// where the blast radii actually differ.
+const battleSignerKey = mmoEnv.BATTLE_SIGNER_PK ?? (newKeys.BATTLE_SIGNER_PK = generatePrivateKey())
 const gameSigner = privateKeyToAccount(gameSignerKey)
 const claimSigner = privateKeyToAccount(claimSignerKey)
+const battleSigner = privateKeyToAccount(battleSignerKey)
 
 /* -------------------------------------------------------------- deploy ---*/
 
@@ -164,6 +190,7 @@ log(`rpc       ${target.rpc}`)
 log(`deployer  ${deployer.address}`)
 log(`game signer   ${gameSigner.address}${newKeys.BOX_SIGNER_PK ? '  (new)' : ''}`)
 log(`claim signer  ${claimSigner.address}${newKeys.REWARDS_SIGNER_PK ? '  (new)' : ''}`)
+log(`battle signer ${battleSigner.address}${newKeys.BATTLE_SIGNER_PK ? '  (new)' : ''}`)
 
 const balance = await publicClient.getBalance({ address: deployer.address })
 log(`balance   ${formatEther(balance)} ETH`)
@@ -197,6 +224,70 @@ async function send(label, contract, functionName, args_ = []) {
   log(`  ${label}`)
 }
 
+/* ----------------------------------------------------- pvp only ---------*/
+
+if (ONLY === 'pvp') {
+  const need = (key) => {
+    const v = mmoEnv[key]
+    if (!v) {
+      console.error(`--only pvp needs ${key} in .env — run a full deploy first`)
+      process.exit(1)
+    }
+    return v
+  }
+  const tokenAddress = need('SM_TOKEN_ADDRESS')
+  const treasuryAddress = need('SM_TREASURY_ADDRESS')
+
+  step('deploying gyms and the arena')
+  const gyms = await deploy('StockmonstersGyms', [
+    tokenAddress,
+    treasuryAddress,
+    battleSigner.address,
+    PARAMS.gyms.minStake,
+    PARAMS.gyms.maxStake,
+  ])
+  const arena = await deploy('StockmonstersArena', [
+    tokenAddress,
+    treasuryAddress,
+    battleSigner.address,
+    PARAMS.arena.maxWager,
+    PARAMS.arena.dailyPayoutCap,
+  ])
+
+  step('wiring')
+  const tokenContract = { address: tokenAddress, abi: artifact('StockmonstersToken').abi }
+  // Escrow contracts are not traders: a stake moving in or out must arrive
+  // whole, or the contract ends up owing more than it holds.
+  await send('token: gyms are tax-exempt', tokenContract, 'setTaxExempt', [gyms.address, true])
+  await send('token: the arena is tax-exempt', tokenContract, 'setTaxExempt', [arena.address, true])
+
+  upsertEnv(mmoEnvPath, {
+    ...newKeys,
+    SM_GYMS_ADDRESS: gyms.address,
+    SM_ARENA_ADDRESS: arena.address,
+  })
+
+  const file = join(MMO, 'deployments', `${CHAIN_NAME}.json`)
+  if (existsSync(file)) {
+    const existing = JSON.parse(readFileSync(file, 'utf8'))
+    existing.contracts.gyms = gyms.address
+    existing.contracts.arena = arena.address
+    existing.battleSigner = battleSigner.address
+    existing.params = { ...existing.params, gyms: {
+      minStake: PARAMS.gyms.minStake.toString(), maxStake: PARAMS.gyms.maxStake.toString(),
+    }, arena: {
+      maxWager: PARAMS.arena.maxWager.toString(), dailyPayoutCap: PARAMS.arena.dailyPayoutCap.toString(),
+    } }
+    writeFileSync(file, JSON.stringify(existing, null, 2) + '\n')
+    log(`\nupdated ${file}`)
+  }
+
+  step('done')
+  log(`  gyms   ${gyms.address}`)
+  log(`  arena  ${arena.address}`)
+  process.exit(0)
+}
+
 step('deploying')
 // The token's tax destinations cannot be their final values yet: neither
 // contract exists. Point them at the deployer and repoint below — the token is
@@ -218,6 +309,12 @@ const nft = await deploy('StockmonstersNFT', [
   PARAMS.nft.sealedImageURI,
 ])
 const market = await deploy('StockmonstersMarket', [nft.address, treasury.address, PARAMS.marketFeeBps])
+const gyms = await deploy('StockmonstersGyms', [
+  token.address, treasury.address, battleSigner.address, PARAMS.gyms.minStake, PARAMS.gyms.maxStake,
+])
+const arena = await deploy('StockmonstersArena', [
+  token.address, treasury.address, battleSigner.address, PARAMS.arena.maxWager, PARAMS.arena.dailyPayoutCap,
+])
 
 step('wiring')
 await send('token: tax → rewards pool + treasury', token, 'setTaxDestinations', [rewards.address, treasury.address])
@@ -228,6 +325,8 @@ await send('nft: accepts SMON', nft, 'setAcceptedCurrency', [token.address, true
 await send('nft: royalty → treasury', nft, 'setDefaultRoyalty', [treasury.address, PARAMS.royaltyBps])
 await send('nft: claim fee', nft, 'setClaimFee', [parseEther(PARAMS.claimFeeEth)])
 await send('market: accepts SMON', market, 'setAcceptedCurrency', [token.address, true])
+await send('token: gyms are tax-exempt', token, 'setTaxExempt', [gyms.address, true])
+await send('token: the arena is tax-exempt', token, 'setTaxExempt', [arena.address, true])
 
 step('funding the rewards pool')
 await send(
@@ -254,6 +353,7 @@ const deployment = {
   deployer: deployer.address,
   gameSigner: gameSigner.address,
   claimSigner: claimSigner.address,
+  battleSigner: battleSigner.address,
   epochDay0: DAY0,
   contracts: {
     token: token.address,
@@ -261,6 +361,8 @@ const deployment = {
     treasury: treasury.address,
     nft: nft.address,
     market: market.address,
+    gyms: gyms.address,
+    arena: arena.address,
   },
   params: {
     ...PARAMS,
@@ -283,6 +385,8 @@ const envUpdates = {
   SM_TREASURY_ADDRESS: treasury.address,
   SM_MARKET_ADDRESS: market.address,
   BOX_NFT_ADDRESS: nft.address,
+  SM_GYMS_ADDRESS: gyms.address,
+  SM_ARENA_ADDRESS: arena.address,
   BOX_CHAIN_ID: String(target.chain.id),
 }
 upsertEnv(mmoEnvPath, envUpdates)

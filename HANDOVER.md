@@ -866,6 +866,58 @@ EIP-1193 wallet into a headless browser: a reward claim paid the player on
 chain, and a loot box was bought with SMON (approve + mint), with the fee
 landing in the treasury.
 
+### Duels and gyms are on Sepolia too (session 5, later)
+
+```
+arena  0x4B4b255E47B7dFaE8B99fd5E7C60089A5E81a6e2
+gyms   0x8d697Bf3c383fC90204E9279413Fd3849794B7f1
+```
+
+Walk up to someone, bet tokens, fight for them. **Blind picks**: each side's
+creature is hashed with a random salt and both hashes go into the wager both
+players sign, so neither can see the other's and neither can substitute a
+counter afterwards — the reveal is checked against the commitment on chain.
+
+The fight is AUTO-RESOLVED from a seed committed before either player picked
+(`src/battle/duel.ts`). That is deliberate: a turn-by-turn wagered fight means
+somebody disconnects the moment they are losing, and the seed reveal lets
+anyone replay the duel and check the server.
+
+Only OPENED Stockmonsters may fight — a sealed box's contents are the product,
+and a replay would give them away.
+
+Proven on Sepolia: `npm run test:e2e:duel` runs a real 1,000,000 SMON duel
+between two fresh wallets. Escrow held 2M, winner took 1.94M, 60k of rake
+landed in the treasury.
+
+Gyms: stake to hold one, 5% entry fee to challenge, 70/30 fee split when the
+challenger loses, and on a win the gym changes hands with a 20% takeover bounty
+out of the old holder's stake. No emissions anywhere — every payout is an entry
+fee somebody chose to pay.
+
+### ⚠️ The contracts are fork-tested against real Uniswap
+
+`forge test --fork-url https://ethereum-rpc.publicnode.com --match-path
+StockmonstersFork.t.sol` — 8 tests against the actual V2 router on a mainnet
+fork. It corrected an assumption I had backwards:
+
+- a PLAIN buy through `swapExactETHForTokens` **works**; the buyer simply
+  receives 2% less than quoted, because the tax is taken after the pool is
+  already square;
+- a PLAIN sell **reverts** — the router tells the pair to expect the full
+  amount, less arrives, and K refuses it. Any UI, bot or aggregator selling
+  this token MUST use the `SupportingFeeOnTransferTokens` entry points.
+
+The suite skips itself (`vm.skip`) when run without `--fork-url`, so
+`forge test` stays green offline.
+
+### ⚠️ Foundry's expectRevert eats the wrong call
+
+`vm.expectRevert` arms against the NEXT external call — and `hashResult(...)`,
+`vm.sign(...)` or a view getter in the same expression IS that call. Seven PvP
+tests "did not revert as expected" until every argument was computed into a
+local first. If a revert test fails for no reason, look for a call in the args.
+
 ### ⚠️ Three traps this uncovered
 
 1. **The NFT went 334 bytes OVER the EIP-170 limit** once the ERC-20 mint path

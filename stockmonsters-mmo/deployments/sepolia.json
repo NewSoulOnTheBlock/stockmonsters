@@ -10,7 +10,9 @@
     "rewards": "0xB16624Ebb621Fff77cFdfBFcC138ce94FAbA74Cf",
     "treasury": "0x3313aa2f787cD4d8Ca158f7fB00beb9c67E1a577",
     "nft": "0xB0B5219CD63E505269E7327F048E0976eDeD799B",
-    "market": "0x095bdB719e6c626b69C0ab0b5f9C6B657bedbe2E"
+    "market": "0x095bdB719e6c626b69C0ab0b5f9C6B657bedbe2E",
+    "gyms": "0x8d697Bf3c383fC90204E9279413Fd3849794B7f1",
+    "arena": "0x4B4b255E47B7dFaE8B99fd5E7C60089A5E81a6e2"
   },
   "params": {
     "token": {
@@ -27,6 +29,15 @@
     "nft": {
       "imageBaseURI": "https://stockmonsters.game/dex/",
       "sealedImageURI": "https://stockmonsters.game/dex/sealed.png"
+    },
+    "gyms": {
+      "minStake": "1000000000000000000000",
+      "maxStake": "500000000000000000000000"
+    },
+    "arena": {
+      "maxWager": "1000000000000000000000000",
+      "dailyPayoutCap": "20000000000000000000000000"
     }
-  }
+  },
+  "battleSigner": "0xe84C2DCF55a25B2601C4520B76B6AAD5aE917fBC"
 }

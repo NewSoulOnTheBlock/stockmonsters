@@ -12,10 +12,16 @@ interface Vm {
     function stopPrank() external;
     function deal(address who, uint256 amount) external;
     function expectRevert(bytes calldata) external;
+    /// Any revert will do. Used where the revert comes from a THIRD-PARTY
+    /// contract (Uniswap) whose exact string is not ours to pin.
+    function expectRevert() external;
     function warp(uint256 timestamp) external;
     function chainId(uint256 id) external;
     function setNonce(address who, uint64 nonce) external;
     function load(address target, bytes32 slot) external view returns (bytes32);
+    /// Marks the whole test as skipped rather than failed. Used by the fork
+    /// suite, which is meaningless without `--fork-url`.
+    function skip(bool) external;
 }
 
 library TestLib {

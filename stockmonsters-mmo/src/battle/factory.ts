@@ -23,6 +23,53 @@ export interface CreatureInstance extends Battler {
   catchRate: number
 }
 
+/**
+ * A creature from attributes that are already fixed — an NFT's, revealed and
+ * stored — rather than rolled.
+ *
+ * A minted Stockmonster has exact IVs and an exact nature, committed on chain.
+ * Rebuilding it through `createWildCreature` would roll new ones and quietly
+ * produce a different animal with the same name, which in a wagered duel is
+ * the difference between the creature you bet on and one that looks like it.
+ */
+export function createExactCreature(
+  dbSymbol: string,
+  level: number,
+  ivs: Ivs,
+  natureName: string,
+): CreatureInstance {
+  const s = species[dbSymbol]
+  if (!s) throw new Error(`unknown specie: ${dbSymbol}`)
+  const n = natures[natureName] ?? natures[NATURE_NAMES[0]]
+  const learnable = (s.moveSet as { level: number; move: string }[])
+    .filter((m) => m.level <= level)
+    .sort((a, b) => a.level - b.level)
+  const moves = learnable.slice(-4).map((m) => m.move)
+  const hp = maxHp(s.baseHp, ivs.hp, 0, level)
+  return {
+    dbSymbol,
+    level,
+    types: [s.type1, s.type2].filter(Boolean),
+    stats: {
+      atk: statBasis(s.baseAtk, ivs.atk, 0, level, n.atk),
+      dfe: statBasis(s.baseDfe, ivs.dfe, 0, level, n.dfe),
+      spd: statBasis(s.baseSpd, ivs.spd, 0, level, n.spd),
+      ats: statBasis(s.baseAts, ivs.ats, 0, level, n.ats),
+      dfs: statBasis(s.baseDfs, ivs.dfs, 0, level, n.dfs),
+    },
+    maxHp: hp,
+    hp,
+    ivs,
+    nature: natureName,
+    moves: moves.length ? moves : ['tackle'],
+    gender: s.femaleRate < 0 ? 'none' : 'male',
+    shiny: false,
+    catchRate: s.catchRate,
+    status: null,
+    ability: s.abilities[0],
+  }
+}
+
 export function createWildCreature(dbSymbol: string, level: number, rng: Rng): CreatureInstance {
   const s = species[dbSymbol]
   if (!s) throw new Error(`unknown specie: ${dbSymbol}`)

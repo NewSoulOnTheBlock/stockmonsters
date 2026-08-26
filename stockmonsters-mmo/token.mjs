@@ -36,7 +36,7 @@
  * (epoch, amount) is harmless and re-issuing after a failed transaction is the
  * intended flow. Earnings that arrive after a claim land in the next epoch.
  */
-import { createPublicClient, http, parseAbi, formatUnits, parseUnits, getAddress } from 'viem'
+import { createPublicClient, http, parseAbi, formatUnits, parseUnits, getAddress, keccak256, encodeAbiParameters } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { timingSafeEqual } from 'node:crypto'
 import { connectionIdFor } from './auth.mjs'
@@ -57,6 +57,11 @@ const SELF_DESCRIBING_ABI = parseAbi([
   'function description() view returns (string)',
   'function liquidityPool() view returns (address)',
   'function socials() view returns (string twitter, string telegram, string discord, string website, string farcaster)',
+])
+
+const ARENA_ABI = parseAbi([
+  'function matches(bytes32) view returns (uint8 status, address playerA, address playerB, uint256 amount, uint64 openedAt, bytes32 seedCommit, bytes32 pickA, bytes32 pickB, bool aWithdrawn, bool bWithdrawn)',
+  'function maxWager() view returns (uint256)',
 ])
 
 const REWARDS_ABI = parseAbi([
@@ -93,15 +98,29 @@ export function createTokenStore(opts = {}) {
   const log = opts.log ?? console
   const tokenAddress = pick(opts, 'tokenAddress', process.env.SM_TOKEN_ADDRESS)
   const rewardsAddress = pick(opts, 'rewardsAddress', process.env.SM_REWARDS_ADDRESS)
+  const arenaAddress = pick(opts, 'arenaAddress', process.env.SM_ARENA_ADDRESS)
+  const gymsAddress = pick(opts, 'gymsAddress', process.env.SM_GYMS_ADDRESS)
   const treasuryAddress = pick(opts, 'treasuryAddress', process.env.SM_TREASURY_ADDRESS)
   const marketAddress = pick(opts, 'marketAddress', process.env.SM_MARKET_ADDRESS)
   const nftAddress = pick(opts, 'nftAddress', process.env.BOX_NFT_ADDRESS)
   const rpcUrl = pick(opts, 'rpcUrl', process.env.SM_RPC_URL)
   const chainId = Number(opts.chainId ?? process.env.SM_CHAIN_ID ?? 0)
   const signerPk = pick(opts, 'signerPk', process.env.REWARDS_SIGNER_PK)
+  // Battle outcomes — gyms and duels. A different key from the reward signer
+  // and from the box signer: three concerns, three blast radii.
+  const battlePk = pick(opts, 'battleSignerPk', process.env.BATTLE_SIGNER_PK)
 
   const configured = !!(tokenAddress && isAddress(tokenAddress) && rpcUrl)
   const client = configured ? createPublicClient({ transport: http(rpcUrl) }) : null
+
+  let battleSigner = null
+  if (battlePk) {
+    try {
+      battleSigner = privateKeyToAccount(battlePk.startsWith('0x') ? battlePk : `0x${battlePk}`)
+    } catch (err) {
+      log.warn?.(`[token] BATTLE_SIGNER_PK is not a valid key (${err.message}) — duels disabled`)
+    }
+  }
 
   let signer = null
   if (signerPk) {
@@ -184,6 +203,8 @@ export function createTokenStore(opts = {}) {
       socials,
       contracts: {
         token: getAddress(tokenAddress),
+        arena: isAddress(arenaAddress) ? getAddress(arenaAddress) : null,
+        gyms: isAddress(gymsAddress) ? getAddress(gymsAddress) : null,
         rewards: isAddress(rewardsAddress) ? getAddress(rewardsAddress) : null,
         treasury: isAddress(treasuryAddress) ? getAddress(treasuryAddress) : null,
         market: isAddress(marketAddress) ? getAddress(marketAddress) : null,
@@ -331,6 +352,103 @@ export function createTokenStore(opts = {}) {
      */
     decimalsSync() {
       return meta?.decimals ?? 18
+    },
+    get arena() {
+      return arenaAddress
+    },
+    /*
+     * The two commitments the arena checks. They live HERE, not in the game
+     * module, for one reason: src/modules/** is bundled into the browser, and
+     * pulling viem in there would put a crypto library in every player's page
+     * for a hash only the server ever computes.
+     */
+    /** keccak256(abi.encodePacked(seed)) — the arena's seedCommit. */
+    commitSeed(seed) {
+      return keccak256(seed)
+    },
+    /** keccak256(abi.encode(tokenId, salt)) — a blind creature pick. */
+    commitPick(tokenId, salt) {
+      return keccak256(
+        encodeAbiParameters([{ type: 'uint256' }, { type: 'bytes32' }], [BigInt(tokenId), salt]),
+      )
+    },
+    get canSignBattles() {
+      return !!battleSigner && !!arenaAddress
+    },
+    get battleSignerAddress() {
+      return battleSigner?.address ?? null
+    },
+    /**
+     * Sign the outcome of a duel.
+     *
+     * The picks are in the signature, so this cannot be used to settle a match
+     * with creatures nobody committed to; and the seed is in it, so the
+     * randomness is the one whose hash was published before the fight.
+     */
+    async signMatchResult({ matchId, winner, seed, tokenA, saltA, tokenB, saltB, ttlSeconds = 1800 }) {
+      if (!battleSigner) throw new TokenError(503, 'no-battle-signer', 'This server cannot sign duel results.')
+      if (!arenaAddress) throw new TokenError(503, 'no-arena', 'No arena contract is configured.')
+      const deadline = Math.floor(Date.now() / 1000) + ttlSeconds
+      const signature = await battleSigner.signTypedData({
+        domain: { name: 'StockmonstersArena', chainId, verifyingContract: getAddress(arenaAddress) },
+        types: {
+          MatchResult: [
+            { name: 'matchId', type: 'bytes32' },
+            { name: 'winner', type: 'address' },
+            { name: 'seed', type: 'bytes32' },
+            { name: 'tokenA', type: 'uint256' },
+            { name: 'saltA', type: 'bytes32' },
+            { name: 'tokenB', type: 'uint256' },
+            { name: 'saltB', type: 'bytes32' },
+            { name: 'deadline', type: 'uint64' },
+          ],
+        },
+        primaryType: 'MatchResult',
+        message: {
+          matchId,
+          winner: getAddress(winner),
+          seed,
+          tokenA: BigInt(tokenA),
+          saltA,
+          tokenB: BigInt(tokenB),
+          saltB,
+          deadline: Number(deadline),
+        },
+      })
+      return { contract: getAddress(arenaAddress), chainId, deadline, signature }
+    },
+    get gyms() {
+      return gymsAddress
+    },
+    /**
+     * What the ARENA says about a match — never what a client says.
+     *
+     * A player claiming "I opened the escrow" is a claim; this is the answer.
+     * Returns null when there is no arena configured or the read fails, which
+     * the caller must treat as "not verified" rather than as "no".
+     */
+    async readMatch(matchId) {
+      if (!configured || !arenaAddress || !isAddress(arenaAddress)) return null
+      try {
+        const m = await client.readContract({
+          address: getAddress(arenaAddress),
+          abi: ARENA_ABI,
+          functionName: 'matches',
+          args: [matchId],
+        })
+        return {
+          status: Number(m[0]), // 0 none, 1 open, 2 settled, 3 refunded
+          playerA: m[1],
+          playerB: m[2],
+          amount: m[3].toString(),
+          openedAt: Number(m[4]),
+          seedCommit: m[5],
+          pickA: m[6],
+          pickB: m[7],
+        }
+      } catch {
+        return null
+      }
     },
     get canSign() {
       return !!signer && configured

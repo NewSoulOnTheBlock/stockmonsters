@@ -13,6 +13,7 @@ import { mountDmUi } from "./dm-ui";
 import { mountBoxShop, openBoxShop } from "./box-shop";
 import { mountFriendsUi, getFriendsUi } from "./friends-ui";
 import { mountWalletUi, openWallet } from "./wallet-ui";
+import { mountDuelUi, openDuelOffer } from "./duel-ui";
 
 /*
  * Everything the player sees on top of the map: zoom, HUD, chat, battle scene,
@@ -154,9 +155,13 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
   // Reads /token and replaces the HUD's invented ETH/SMON numbers with the
   // real ones — or removes those chips when this server has no currency.
   void mountWalletUi();
+  // Duels: offered to whoever you are standing next to, escrowed on chain.
+  mountDuelUi(engine, socket);
 
   // The title screen's NFT/settings buttons enter the world first and then ask
   // for a panel; the in-game window is the single owner of each.
+  window.addEventListener("sm:duel", () => openDuelOffer());
+
   window.addEventListener("sm:open", (e) => {
     const what = (e as CustomEvent).detail;
     if (what === "marketplace") openMarketplace();
@@ -179,6 +184,7 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
     if (id === "quit") { engine?.processAction?.("hud:quit", {}); return; }
     if (id === "friends") { getFriendsUi()?.toggle(); return; }
     if (id === "wallet") { openWallet(); return; }
+    if (id === "duel") { openDuelOffer(); return; }
     if (id === "character") { window.dispatchEvent(new CustomEvent("sm:open-designer")); return; }
     engine?.processAction?.("hud:" + id, {});
   });

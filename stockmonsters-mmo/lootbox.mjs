@@ -550,6 +550,39 @@ export function createBoxStore(opts = {}) {
     return t && t.enabled ? t : null
   }
 
+  /**
+   * The creature behind a minted token id, for a duel.
+   *
+   * OPENED BOXES ONLY, and that is a product rule rather than a technical one:
+   * a sealed box's contents are the whole product, and letting one fight would
+   * reveal what it holds to anyone watching the replay. It also means both
+   * duellists are betting on something they can actually see the stats of.
+   *
+   * Returns null for anything else — a token that is not ours, not theirs, or
+   * still sealed.
+   */
+  async function creatureForToken({ walletId, tokenId }) {
+    if (!isWalletId(walletId)) return null
+    if (!/^\d{1,20}$/.test(String(tokenId))) return null
+    const res = await q(
+      `SELECT dex_id, level, ivs, nature_id, shiny, status, token_id
+         FROM boxes
+        WHERE wallet_id = $1 AND token_id = $2
+        LIMIT 1`,
+      [walletId, String(tokenId)],
+    )
+    const row = res?.rows?.[0]
+    if (!row || row.status !== 'opened') return null
+    return {
+      tokenId: String(row.token_id),
+      dexId: Number(row.dex_id),
+      level: Number(row.level),
+      ivs: row.ivs,
+      natureId: Number(row.nature_id),
+      shiny: !!row.shiny,
+    }
+  }
+
   async function issueVoucher({ walletId, address, tier, commitId, clientSeed, currency }) {
     if (!account) throw new BoxError(503, 'no-signer', 'Box sales are not configured on this server.')
     if (!contract) throw new BoxError(503, 'no-contract', 'No NFT contract is configured on this server.')
@@ -943,6 +976,7 @@ export function createBoxStore(opts = {}) {
     issueVoucher,
     reveal,
     listBoxes,
+    creatureForToken,
     syncMints,
     _q: q,
     async close() {

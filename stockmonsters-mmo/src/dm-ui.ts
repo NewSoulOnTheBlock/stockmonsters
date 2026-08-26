@@ -293,10 +293,14 @@ export function mountDmUi(engine?: EngineLike, socket?: SocketLike): DmUiApi {
   const row = el('div', { class: 'dm-row' }, [input, sendBtn])
 
   const blockBtn = el('button', { class: 'smui-btn is-danger', type: 'button', text: 'BLOCK' })
+  // A duel is offered to whoever you are standing next to — the same person
+  // this window is already about, so this is where the button belongs.
+  const duelBtn = el('button', { class: 'smui-btn', type: 'button', text: '⚔ DUEL' })
+  duelBtn.addEventListener('click', () => window.dispatchEvent(new CustomEvent('sm:duel')))
   const tokenBtn = el('button', { class: 'smui-btn', type: 'button', text: '◈ SEND TOKEN' })
   const nftBtn = el('button', { class: 'smui-btn', type: 'button', text: '▣ SEND NFT' })
   const actions = el('div', { class: 'dm-actions' }, [
-    blockBtn, el('span', { class: 'spacer' }), tokenBtn, nftBtn,
+    blockBtn, el('span', { class: 'spacer' }), duelBtn, tokenBtn, nftBtn,
   ])
 
   const body = el('div', { class: 'dm-body' }, [ephemeral, banner, log, row, actions])

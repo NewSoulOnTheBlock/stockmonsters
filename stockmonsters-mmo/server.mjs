@@ -81,6 +81,9 @@ console.log(
  * unless BOX_SIGNER_PK and BOX_NFT_ADDRESS are set — /box/quote still answers.
  */
 const boxes = createBoxStore()
+// The duel flow needs to turn a token id into the creature it holds, and
+// src/modules/** cannot import this file (it is bundled into the browser).
+globalThis.__smBoxes = boxes
 console.log(
   boxes.enabled
     ? `[boxes] selling sealed boxes on chain ${boxes.chainId} via ${boxes.contract} (signer ${boxes.signer})`

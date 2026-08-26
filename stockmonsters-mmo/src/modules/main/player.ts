@@ -16,6 +16,16 @@ import {
 } from './friends'
 import { credit, flushPendingRewards } from './earnings'
 import {
+    addDuelMember,
+    removeDuelMember,
+    handleDuelOffer,
+    handleDuelRespond,
+    handleDuelPick,
+    handleDuelSigned,
+    handleDuelOpened,
+    handleDuelCancel,
+} from './duel'
+import {
     addDmMember,
     removeDmMember,
     handleDmNearby,
@@ -306,6 +316,7 @@ function scheduleGoodbye(player: RpgPlayer) {
         goodbyes.delete(key)
         removeChatMember(player)
         removeDmMember(player)
+        removeDuelMember(player)
         friendsDisconnected(player)
         // The last write of the session. The store batches, so without this
         // the final few seconds of a battle are lost on a clean exit — and
@@ -332,6 +343,8 @@ export const player: RpgPlayerHooks = {
         // DMs need the same roster for the opposite reason: to know who is
         // standing where. Both are refreshed again in onJoinMap.
         addDmMember(player)
+        // ...and duels, which are offered to whoever you are standing next to.
+        addDuelMember(player)
 
         // Name tag above every character — synced to all clients by the engine
         player.name = (player.getVariable('NAME') as string | undefined) ?? 'Trader'
@@ -387,6 +400,7 @@ export const player: RpgPlayerHooks = {
         // Third roster, same trap: a friend's remote DM is emitted through the
         // object held here.
         friendsRefresh(player)
+        addDuelMember(player)
 
         const id = String(map?.id ?? '').replace(/^map-/, '')
         const isNew = markVisited(player, id)
@@ -522,6 +536,14 @@ export const player: RpgPlayerHooks = {
         if (action == 'friends:decline') { void handleFriendDecline(player, data).catch(logProfileError); return }
         if (action == 'friends:cancel') { void handleFriendCancel(player, data).catch(logProfileError); return }
         if (action == 'friends:remove') { void handleFriendRemove(player, data).catch(logProfileError); return }
+        // Duels. Money is involved, so every one of these is checked against
+        // the chain or against proximity — never against what the client says.
+        if (action == 'duel:offer') { void handleDuelOffer(player, data).catch(logProfileError); return }
+        if (action == 'duel:respond') { handleDuelRespond(player, data); return }
+        if (action == 'duel:pick') { void handleDuelPick(player, data).catch(logProfileError); return }
+        if (action == 'duel:signed') { handleDuelSigned(player, data); return }
+        if (action == 'duel:opened') { void handleDuelOpened(player, data).catch(logProfileError); return }
+        if (action == 'duel:cancel') { handleDuelCancel(player, data); return }
         // Anything else the player did is a decent moment to persist whatever
         // battle.ts has been mutating. The store diffs and batches, so this is
         // free when nothing changed.

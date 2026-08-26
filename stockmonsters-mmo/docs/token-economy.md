@@ -205,22 +205,82 @@ credited correctly by playing is covered exactly — and in milliseconds — by
 
 ---
 
-## Not built yet
+## Duels
 
-**Gyms.** A player stakes tokens to hold one; challengers pay an entry fee;
-losing a challenge splits the fee to the holder and the treasury; winning takes
-the gym and a slice of the old holder's stake. It funds itself out of entry
-fees, needs no emissions, gives the 171-map world a destination, and is a
-tournament rather than a bet between two people.
+```
+arena  0x4B4b255E47B7dFaE8B99fd5E7C60089A5E81a6e2
+gyms   0x8d697Bf3c383fC90204E9279413Fd3849794B7f1
+```
 
-**Wagered PvP.** Both players sign, the stakes escrow, the server signs the
-result. The trust surface is the same signing-key problem as above but with
-locked money behind it, so it needs its own key, a wager cap, a rolling daily
-payout cap, and a **timeout refund** so a server crash never locks a player's
-stake. It is also gambling in many jurisdictions — a business decision to make
-before the contract is written, not after it is deployed.
+Walk up to someone, bet tokens, and fight for them. **Both picks are blind**:
+each player chooses a Stockmonster, the server hashes it with a random salt,
+and the two hashes go into the wager they both sign. Neither can see the
+other's, and neither can substitute a counter after the fact — the reveal at
+settlement is checked against the commitment, on chain.
 
-Gyms first, for those reasons.
+```
+1. offer     you must be standing next to them (the same proximity rule DMs use)
+2. accept    nothing is escrowed yet; declining costs nothing
+3. pick      each side locks a creature, hashed with a random salt
+4. sign      ONE wager, BOTH signatures — a bet, not something done to somebody
+5. open      the challenger sends open(); both stakes escrow on chain
+6. fight     only after the SERVER reads the escrow back off the chain
+7. settle    the winner sends settle() and takes the pot minus the rake
+```
+
+**The fight is auto-resolved from the committed seed.** A wagered duel cannot
+be played turn-by-turn: somebody would disconnect the moment they were losing,
+and "the server says you forfeited" is not a judgement a bet should need. The
+seed's hash is published before either player picks and the seed itself is
+revealed on settlement, so the whole fight can be replayed and checked —
+`src/battle/duel.ts` is the function to run.
+
+Only OPENED Stockmonsters can fight. A sealed box's contents are the product;
+letting one duel would reveal what it holds to anyone reading the replay.
+
+| | |
+|---|---|
+| rake | 3% of the pot, to the treasury |
+| max wager | 1,000,000 SMON |
+| daily payout cap | 20,000,000 SMON |
+| result window | 30 minutes, then **either player takes their own stake back** |
+
+The refund is the important one: a server that crashes mid-duel cannot hold
+anybody's money, and neither player has to wait for the other to act.
+
+Proven on Sepolia by `npm run test:e2e:duel` — two fresh wallets, a real
+1,000,000 SMON wager, escrow opened, result signed, winner paid 1,940,000 and
+60,000 of rake in the treasury.
+
+## Gyms
+
+Players hold the gyms. Stake tokens to take one; anyone can pay an entry fee to
+challenge it.
+
+```
+challenger loses  ->  70% of the fee to the holder, 30% to the treasury
+challenger wins   ->  the gym changes hands; the old holder keeps their stake
+                      minus a 20% takeover bounty, which goes to the winner
+```
+
+Entry fee is 5% of the holder's stake. A challenger posts their own stake up
+front — a winner has to be able to hold what they took — and gets it straight
+back if they lose. Nothing here is minted: every payout is an entry fee
+somebody chose to pay.
+
+Same shape of protection as the arena: a result is bound to ONE challenge (the
+gym, the challenger, and the moment it opened) so it cannot be replayed against
+the next one, results expire, and `resolveTimeout` gives the challenger their
+money back if no result is signed. There is a per-gym cooldown so a holder
+cannot be ground down by twenty challenges a minute.
+
+## What is still a decision, not a task
+
+**Wagered PvP is gambling in many jurisdictions.** The contract is written,
+tested and deployed to a testnet; whether it ships on mainnet is a business
+call. Gyms are a tournament with an entry fee, which is a materially different
+thing — that is why they exist as a separate contract rather than as a mode of
+the arena.
 
 ## Before mainnet
 

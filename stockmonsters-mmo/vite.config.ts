@@ -15,6 +15,7 @@ const apiDevServer = {
   name: 'stockmonsters-api',
   configureServer(server: any) {
     const boxes = createBoxStore();
+    (globalThis as any).__smBoxes = boxes;
     const tokens = createTokenStore();
     // The dev server has no game process of its own, so nothing has injected
     // a profile store: make one here, or /rewards/mine has nowhere to read a
