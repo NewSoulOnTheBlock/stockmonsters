@@ -289,7 +289,6 @@
       // ---------------------------------------------------------------
       (function () {
         var screen = document.getElementById("title-screen");
-        var stage = document.getElementById("title-stage");
         var primary = document.getElementById("btn-primary");
         var charBtn = document.getElementById("btn-character");
         var nftBtn = document.getElementById("btn-nfts");
@@ -474,8 +473,6 @@
             window.dispatchEvent(new CustomEvent("sm:open", { detail: "settings" }));
           }, 1000);
         });
-        // Clicking the artwork itself is the classic "press start", but only
-        // once there is a wallet — otherwise it would skip the connect step.
         // A first-time pick made in the designer should drop straight into
         // the world, the same as the old picker's CONFIRM did.
         window.addEventListener("sm:character", function () {
@@ -487,14 +484,21 @@
         window.addEventListener("sm:character-restored", function () {
           if (!started && wallet()) enterWorld();
         });
-        stage.addEventListener("click", function () {
-          if (!wallet() || picker.classList.contains("open")) return;
-          if (!savedCharacter()) { openPicker(); return; }
-          enterWorld();
-        });
+        // NOTHING ELSE ENTERS THE WORLD. Clicking the artwork used to count as
+        // "press start", which meant a click anywhere — the sky, a building,
+        // the space beside a button — dropped the player into the game when
+        // they were only trying to read the screen or move the pointer. The
+        // buttons are the only way in now, and they say what they do.
+        //
+        // Enter and Space still work, because they are a deliberate press
+        // rather than a stray click, but only while the page itself has focus:
+        // with a button focused the browser already activates THAT button, and
+        // this would otherwise start the game on top of it.
         window.addEventListener("keydown", function (e) {
           if (started || picker.classList.contains("open")) return;
           if (e.key !== "Enter" && e.key !== " ") return;
+          var focused = document.activeElement;
+          if (focused && focused !== document.body && focused.tagName !== "HTML") return;
           if (!wallet()) return;
           if (!savedCharacter()) { openPicker(); return; }
           enterWorld();
