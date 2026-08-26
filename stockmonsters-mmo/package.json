@@ -43,6 +43,7 @@
   },
   "private": true,
   "dependencies": {
+    "ws": "^8.21.0",
     "@canvasengine/presets": "2.2.0",
     "@rpgjs/action-battle": "5.0.0-beta.33",
     "@rpgjs/client": "5.0.0-beta.33",

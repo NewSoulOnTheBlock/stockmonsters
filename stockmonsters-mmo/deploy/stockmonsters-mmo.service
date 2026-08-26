@@ -1,0 +1,67 @@
+# The game server. Installed by deploy/bootstrap.sh to
+# /etc/systemd/system/stockmonsters-mmo.service.
+#
+#   systemctl status stockmonsters-mmo
+#   journalctl -u stockmonsters-mmo -f
+#
+# Postgres and Redis are containers; this is a plain Node process. That is
+# deliberate — it is how the game is developed and how every end-to-end test
+# runs it, so production is not a fourth environment with its own surprises.
+
+[Unit]
+Description=Stockmonsters MMO
+Documentation=https://github.com/NewSoulOnTheBlock/stockmonsters
+# The database lives in Docker, so Docker has to be up first. `Wants` rather
+# than `Requires`: if Docker restarts we should not be torn down with it, we
+# should reconnect.
+After=network-online.target docker.service
+Wants=network-online.target docker.service
+
+[Service]
+Type=simple
+User=stockmonsters
+Group=stockmonsters
+
+# server.mjs resolves ./dist/client, ./src/tiled and ./data relative to the
+# working directory, and `--env-file-if-exists=.env` is a relative path too.
+# Getting this wrong produces a server that boots and serves nothing.
+WorkingDirectory=/opt/stockmonsters-mmo
+
+# The secrets reach Node through the .env file and ONLY through it. Never
+# `Environment=` lines here: those are readable by anyone who can run
+# `systemctl show`, and this process holds three signing keys plus the HMAC
+# secret that is the primary key of every player's save.
+ExecStart=/usr/bin/node --env-file-if-exists=.env server.mjs
+
+Restart=always
+RestartSec=3
+
+# THE SHUTDOWN WINDOW MATTERS.
+#
+# server.mjs traps SIGTERM and flushes the batched profile, box and market
+# writes before exiting, with its own 1.5s cap. Anything shorter than that
+# here turns a routine restart into lost player progress.
+KillSignal=SIGTERM
+TimeoutStopSec=20
+
+# Hardening. The process needs to write exactly one directory — data/, which
+# holds the disposable room sqlite — and to read the rest.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+ReadWritePaths=/opt/stockmonsters-mmo/data
+
+# The build output and node_modules are read-only at runtime; deploys stop the
+# service, write, and start it again.
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=stockmonsters
+
+[Install]
+WantedBy=multi-user.target

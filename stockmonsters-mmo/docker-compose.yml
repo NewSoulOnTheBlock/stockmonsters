@@ -20,7 +20,15 @@ services:
       # behaves the same on every machine.
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
     ports:
-      - "${POSTGRES_PORT:-5433}:5432"
+      # BOUND TO LOOPBACK ON PURPOSE.
+      #
+      # Docker writes its own iptables rules and they are evaluated before
+      # ufw's, so a port published on 0.0.0.0 is reachable from the internet
+      # no matter what the firewall says. Published wide, this is a Postgres
+      # on the public internet whose default password is in this file.
+      # Nothing outside this box needs to reach it: the game server runs on
+      # the box, and a developer can forward it over ssh.
+      - "${POSTGRES_BIND:-127.0.0.1}:${POSTGRES_PORT:-5433}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -43,7 +51,8 @@ services:
     restart: unless-stopped
     command: ["redis-server", "--appendonly", "no", "--save", ""]
     ports:
-      - "${REDIS_PORT:-6380}:6379"
+      # Loopback for the same reason as Postgres above.
+      - "${REDIS_BIND:-127.0.0.1}:${REDIS_PORT:-6380}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s

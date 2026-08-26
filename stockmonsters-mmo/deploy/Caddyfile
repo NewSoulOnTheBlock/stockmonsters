@@ -1,0 +1,45 @@
+# Stockmonsters MMO, behind Caddy.
+#
+# Installed to /etc/caddy/Caddyfile by deploy/bootstrap.sh, with {$SM_DOMAIN}
+# supplied from the environment. Caddy runs on the host here rather than in a
+# container: the game server is a plain host process on :3000, and a
+# containerised proxy would have to reach back out through host.docker.internal
+# for no benefit.
+#
+# Caddy provisions and renews the certificate on its own. Nothing about TLS is
+# configured below because nothing needs to be.
+
+{$SM_DOMAIN} {
+	# WEBSOCKETS ARE THE WHOLE GAME.
+	#
+	# The RPGJS transport lives under /parties and every connected player holds
+	# one open socket for their entire session. Caddy v2 handles the upgrade
+	# natively — there is no nginx-style Upgrade header dance to write — but the
+	# default read timeout would drop a player who stands still, so it is
+	# raised. A player reading their inventory sends nothing for minutes.
+	reverse_proxy localhost:3000 {
+		transport http {
+			read_timeout 24h
+			write_timeout 24h
+		}
+	}
+
+	# dist/client is ~35 MB and server.mjs serves it with no caching headers at
+	# all. Vite fingerprints everything under /assets, so those are immutable by
+	# construction and a returning player should never fetch them twice.
+	@immutable path /assets/* /spritesheets/* /dex/* /previews/* /map/*
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+	# index.html and the API must never be cached: the first carries the script
+	# tags that point at those fingerprinted files, and a stale copy pins a
+	# player to a build that no longer exists.
+	@nocache path / /index.html /token* /box/* /market* /market/* /auth/* /rewards/* /health
+	header @nocache Cache-Control "no-store"
+
+	encode zstd gzip
+
+	log {
+		output file /var/log/caddy/stockmonsters.log
+		format console
+	}
+}
