@@ -37,6 +37,10 @@ const css = `
   outline: none;
 }
 #chat-input::placeholder { color: #6f6790; }
+/* The sheet header and the unread pill only exist on a phone — the mobile
+   stylesheet (touch-controls.ts, injected last) reveals them. */
+#chat-head { display: none; }
+#chat-badge { display: none; }
 #chat-input:disabled { opacity: .55; }
 /* --- name modal --- */
 #name-screen {
@@ -91,10 +95,63 @@ export function mountChatUi(engine: Engine, socket: Socket) {
   const panel = document.createElement('div')
   panel.id = 'chat-panel'
   panel.innerHTML =
+    '<div id="chat-head"><span>CHAT</span><button id="chat-close" type="button" ' +
+    'aria-label="Close chat">\u2715</button></div>' +
     '<div id="chat-log"></div>' +
     '<div id="chat-row"><input id="chat-input" maxlength="140" ' +
     'placeholder="Press Enter to chat" disabled></div>'
   document.body.appendChild(panel)
+
+  /*
+   * ON A PHONE, CHAT IS A SHEET BEHIND A BADGE.
+   *
+   * A permanently visible log on a 390px screen sits in the middle of the
+   * world and covers the person you are talking to — seen on a real handset,
+   * with the other player hidden behind "Tap to chat". So on touch devices the
+   * panel is hidden until asked for, and this pill is what asks: it shows how
+   * much has been said since you last looked, and opening it clears the count.
+   *
+   * The badge is created unconditionally and CSS decides whether it exists —
+   * `touchDevice()` at mount would be wrong for a tablet that gets rotated or
+   * a laptop with a touchscreen, and a media query re-evaluates itself.
+   */
+  const badge = document.createElement('button')
+  badge.id = 'chat-badge'
+  badge.type = 'button'
+  badge.innerHTML = '<span class="ic">\u{1F4AC}</span><span class="n"></span>'
+  badge.setAttribute('aria-label', 'Open chat')
+  document.body.appendChild(badge)
+
+  const badgeCount = badge.querySelector('.n') as HTMLElement
+  let unread = 0
+  const isChatOpen = () => panel.classList.contains('open')
+  /**
+   * Is the log actually on screen? Asked of the CSS rather than of a device
+   * check, so the desktop layout — where the panel is always visible — never
+   * accumulates an unread count nobody asked for.
+   */
+  const chatVisible = () => {
+    try { return getComputedStyle(panel).display !== 'none' } catch { return true }
+  }
+  function showUnread() {
+    // Past a hundred the exact number stops meaning anything and the pill
+    // starts changing width every message.
+    badgeCount.textContent = unread > 99 ? '99+' : unread ? String(unread) : ''
+    badge.classList.toggle('has-unread', unread > 0)
+  }
+  function openChat() {
+    panel.classList.add('open')
+    unread = 0
+    showUnread()
+    if (!input.disabled) setTimeout(() => input.focus(), 50)
+  }
+  function closeChat() {
+    panel.classList.remove('open')
+    input.blur()
+  }
+  badge.addEventListener('click', () => (isChatOpen() ? closeChat() : openChat()))
+  panel.querySelector('#chat-close')?.addEventListener('click', () => closeChat())
+  showUnread()
 
   const modal = document.createElement('div')
   modal.id = 'name-screen'
@@ -121,6 +178,9 @@ export function mountChatUi(engine: Engine, socket: Socket) {
     log.appendChild(line)
     while (log.childElementCount > 60) log.removeChild(log.firstChild as Node)
     log.scrollTop = log.scrollHeight
+    // Anything that arrives while the log is hidden is something the player has
+    // not seen. On desktop the panel is always displayed, so this never fires.
+    if (!chatVisible()) { unread++; showUnread() }
   }
   const escape = (s: string) =>
     s.replace(/[&<>"']/g, (c) =>

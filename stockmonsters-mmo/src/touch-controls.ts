@@ -653,13 +653,69 @@ const MOBILE_CSS = `
    * The zone is a touch target, not a picture: anything overlapping it is
    * unreachable even where nothing is drawn.
    */
+  /*
+   * CHAT IS A SHEET BEHIND A BADGE, NOT A PANEL ON THE WORLD.
+   *
+   * It used to sit permanently at the left, and on a 390px screen that is the
+   * middle of the playfield: on a real handset the log covered the other
+   * player entirely, so the person being talked to was hidden behind the words
+   * "Tap to chat". There is no arrangement of a always-on log that does not
+   * cost world — the screen is simply too small — so it is hidden until asked
+   * for.
+   */
   #chat-panel {
-    left: 8px; right: auto;
-    bottom: calc(330px + env(safe-area-inset-bottom, 0px));
-    width: min(58vw, 240px);
+    display: none;
+    left: 0; right: 0; bottom: 0; width: auto;
+    max-height: min(62vh, 460px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: #1b1730;
+    border-top: 3px solid #f6c177;
+    z-index: 960;
   }
-  #chat-log { max-height: 18vh; font-size: 11px; }
+  #chat-panel.open { display: flex; }
+  #chat-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 12px;
+    font-weight: 700; letter-spacing: .1em; font-size: 12px; color: #f6c177;
+    border-bottom: 2px solid rgba(246,193,119,.35);
+  }
+  #chat-close {
+    background: #3a2230; color: #fff1c7;
+    border: 2px solid #f6c177; border-radius: 0;
+    padding: 4px 10px; font: inherit; font-size: 14px; line-height: 1;
+    min-width: 44px; min-height: 32px; cursor: pointer;
+  }
+  #chat-log {
+    flex: 1; max-height: none; font-size: 13px;
+    border: none; background: transparent;
+    padding: 10px 12px;
+  }
+  /* :empty hides it on desktop, which would collapse the sheet to a strip. */
+  #chat-log:empty { display: block; }
+  #chat-row { padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px)); }
   #chat-input { font-size: 16px; } /* 16px stops iOS zooming on focus */
+
+  /*
+   * The pill. Top-right, under the HUD's gear and clear of the player card,
+   * where nothing else lives and a thumb can still reach it.
+   */
+  #chat-badge {
+    display: flex; align-items: center; gap: 6px;
+    position: fixed; z-index: 970;
+    right: calc(8px + env(safe-area-inset-right, 0px));
+    top: calc(76px + env(safe-area-inset-top, 0px));
+    min-width: 44px; min-height: 44px; padding: 0 10px;
+    background: rgba(27,23,48,.94); color: #fff1c7;
+    border: 3px solid #f6c177; border-radius: 0;
+    box-shadow: 3px 3px 0 #09070f;
+    font-family: "Courier New", ui-monospace, monospace;
+    font-size: 15px; line-height: 1; cursor: pointer;
+  }
+  #chat-badge .n { font-weight: 700; font-size: 12px; color: #09070f; }
+  #chat-badge.has-unread { background: #7ecf6b; }
+  #chat-badge.has-unread .ic { filter: grayscale(1) brightness(.2); }
+  #chat-badge:not(.has-unread) .n { display: none; }
+  #chat-badge:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 #09070f; }
 
   /* --- side panels become bottom sheets ---------------------------------
    *
@@ -745,9 +801,10 @@ const MOBILE_CSS = `
    one. Pull everything in tighter. */
 @media (max-height: 480px) and (pointer: coarse) {
   #sm-hud .hud-chips { display: none; }
-  /* Landscape has vertical room for one of chat and the stick, not both, so
-     chat moves up over the stick's zone rather than into it. */
-  #chat-panel { bottom: 206px; width: min(40vw, 200px); }
+  /* Chat is a sheet here too, just a shorter one — landscape has almost no
+     vertical budget, and the old rule put it back over the world. */
+  #chat-panel { max-height: 76vh; }
+  #chat-badge { top: calc(8px + env(safe-area-inset-top, 0px)); }
   #sm-touch .stick { bottom: 44px; height: 150px; right: 56%; }
   #sm-touch .stick-base { width: 104px; height: 104px; margin: -52px 0 0 -52px; }
   #sm-touch .stick-knob { width: 42px; height: 42px; }

@@ -349,12 +349,22 @@ function render() {
    * like a button that had done nothing, and the natural conclusion was that
    * the challenge never reached the other side. It had.
    */
-  // 'waiting' is the local phase set the moment CHALLENGE is pressed; 'offered'
-  // is what the SERVER calls the same thing once it has created the duel, and
-  // it arrives a moment later on `duel:state`. Both are "sent, waiting for
-  // them" and both must draw the same screen — handling only one of them is how
-  // this ended up blank.
-  if (phase === 'waiting' || phase === 'offered') {
+  /*
+   * 'offered' MEANS THE OPPOSITE THING ON EACH SIDE.
+   *
+   * 'waiting' is local, set the moment CHALLENGE is pressed. 'offered' is the
+   * SERVER's name for the same duel, and it arrives on `duel:state` a beat
+   * later — to BOTH players. Treating it as "waiting" for everyone told the
+   * person who was supposed to accept that they were waiting to be accepted,
+   * which is how two players ended up both challenging each other and neither
+   * ever seeing an ACCEPT button.
+   *
+   * `isChallenger` comes from the server precisely so this can be told apart.
+   * Undefined means the state came from the local CHALLENGE press, which only
+   * the challenger does.
+   */
+  const iOffered = state?.isChallenger !== false
+  if (phase === 'waiting' || (phase === 'offered' && iOffered)) {
     const cancel = el('button', { class: 'smui-btn is-ghost', type: 'button', text: 'CANCEL' })
     cancel.addEventListener('click', () => {
       // The id only exists once the server has echoed the duel back; before
@@ -381,23 +391,28 @@ function render() {
     )
   }
 
-  if (phase === 'invited') {
-    const amountWhole = state.invite?.amountWhole ?? '?'
+  if (phase === 'invited' || (phase === 'offered' && !iOffered)) {
+    // `duel:state` merges over `duel:invite`, so the invite payload may be
+    // gone by the time this draws. Everything needed is in the state too.
+    const duelId = state.invite?.id ?? state.id
+    const from = state.invite?.from ?? state.opponent?.name ?? 'Someone'
+    const amountWhole = state.invite?.amountWhole
+      ?? (state.amount ? formatUnits(state.amount, meta.decimals ?? 18, 0) : '?')
     const accept = el('button', { class: 'smui-btn is-primary', type: 'button', text: 'ACCEPT' })
     const decline = el('button', { class: 'smui-btn is-ghost', type: 'button', text: 'DECLINE' })
     accept.addEventListener('click', () => {
-      engineRef?.processAction?.('duel:respond', { id: state.invite.id, accept: true })
-      state = { ...state, phase: 'picking', id: state.invite.id }
+      engineRef?.processAction?.('duel:respond', { id: duelId, accept: true })
+      state = { ...state, phase: 'picking', id: duelId }
       void loadBoxes()
       render()
     })
     decline.addEventListener('click', () => {
-      engineRef?.processAction?.('duel:respond', { id: state.invite.id, accept: false })
+      engineRef?.processAction?.('duel:respond', { id: duelId, accept: false })
       closeDuel()
     })
     body.append(
       el('div', { class: 'd-note' }, [
-        el('span', { html: `<b>${state.invite?.from ?? 'Someone'}</b> challenges you for <b>${amountWhole} ${symbol}</b>.` }),
+        el('span', { html: `<b>${from}</b> challenges you for <b>${amountWhole} ${symbol}</b>.` }),
       ]),
       el('div', { class: 'd-actions' }, [accept, decline]),
     )
