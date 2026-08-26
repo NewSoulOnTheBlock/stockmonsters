@@ -86,9 +86,30 @@ export function filterChat(raw: unknown): FilterResult {
     const sq = squashed(text)
     const dt = dotted(text)
     if (PROTOCOL.test(dt) || DOMAIN_DOTTED.test(dt)) return { ok: false, reason: 'No links in chat.' }
-    // squashed is one long run for a whole sentence, so only test its tail
-    for (const run of sq.split(/[^a-z0-9]+/)) {
-        if (DOMAIN_SQUASHED.test(run)) return { ok: false, reason: 'No links in chat.' }
+
+    /*
+     * THE SQUASHED VIEW NEEDS EVIDENCE OF HIDING.
+     *
+     * Squashing removes every separator, so a whole sentence becomes one run —
+     * and a run ending in any two-letter TLD then looks like a domain. English
+     * is full of those: "call me", "text me", "trust me", "go to" all end in a
+     * real TLD, and the leet folding makes it worse, because 3 folds to e and
+     * "spam 3" becomes "spame" — "spa" plus ".me". Watched two real players get
+     * ordinary sentences refused as links, which is a far worse failure than
+     * letting one obfuscated domain through.
+     *
+     * A person hiding a domain leaves a mark: a dot, a bracket, a dash, the
+     * word "dot", or letters spaced one apart. Somebody typing a sentence does
+     * not. So the squashed rule only runs when the raw text carries one of
+     * those marks — "e x a m p l e . c o m" still has its dot, and
+     * "example(dot)com" still has its brackets.
+     */
+    const HIDING = /[.\-_()\[\]{}/\\|:*+]|\bd\s*o\s*t\b|(?:\b[a-z0-9]\s+){3,}/i
+    if (HIDING.test(text)) {
+        // squashed is one long run for a whole sentence, so only test its tail
+        for (const run of sq.split(/[^a-z0-9]+/)) {
+            if (DOMAIN_SQUASHED.test(run)) return { ok: false, reason: 'No links in chat.' }
+        }
     }
     for (const word of text.split(/\s+/)) {
         if (LONG_TOKEN.test(word)) return { ok: false, reason: 'That looks like an address or key.' }

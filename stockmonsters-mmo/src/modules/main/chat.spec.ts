@@ -28,17 +28,23 @@ beforeEach(() => { resetChatLimits(); vi.useFakeTimers() })
 afterEach(() => { vi.useRealTimers() })
 
 describe('chat rate limiting', () => {
-    it('allows one message, then refuses the next within 5 seconds', () => {
+    it('lets a real conversation run, then throttles a flood', () => {
+        // This used to be one message every five seconds flat, and two people
+        // talking hit the wall on nearly every line — the game told them to
+        // slow down when they were not being fast. A burst is what an actual
+        // exchange looks like; the wall is for the sixth line in fifteen
+        // seconds, not the second.
         const a = talker({ wallet: 'w:' + 'a'.repeat(32) })
         addChatMember(a.player)
 
-        say(a.player, 'hello there')
-        expect(a.got.filter((m) => !m.system)).toHaveLength(1)
+        for (let i = 0; i < 5; i++) say(a.player, `line ${i}`)
+        expect(a.got.filter((m) => !m.system)).toHaveLength(5)
+        expect(a.system()).toHaveLength(0)
 
-        say(a.player, 'and another thing')
+        say(a.player, 'one too many')
         const refused = a.system()
         expect(refused).toHaveLength(1)
-        expect(refused[0]).toMatch(/one message every 5s/i)
+        expect(refused[0]).toMatch(/5 messages every 15s/i)
     })
 
     it('lets the next one through once the window has passed', () => {
@@ -46,7 +52,7 @@ describe('chat rate limiting', () => {
         addChatMember(a.player)
 
         say(a.player, 'first')
-        vi.advanceTimersByTime(5_100)
+        vi.advanceTimersByTime(15_100)
         say(a.player, 'second')
 
         expect(a.got.filter((m) => !m.system).map((m) => m.text)).toEqual(['first', 'second'])
@@ -56,16 +62,18 @@ describe('chat rate limiting', () => {
         const wallet = 'w:' + 'c'.repeat(32)
         const before = talker({ wallet, id: 'conn-1' })
         addChatMember(before.player)
-        say(before.player, 'spam one')
+        for (let i = 0; i < 5; i++) say(before.player, `spam ${i}`)
+        expect(before.got.filter((m) => !m.system)).toHaveLength(5)
 
         // Same player, new page load: RPG-JS hands out a brand new connection id.
+        // The budget must NOT reset — pressing F5 is exactly what a spammer does.
         removeChatMember(before.player)
         const after = talker({ wallet, id: 'conn-2' })
         addChatMember(after.player)
-        say(after.player, 'spam two')
+        say(after.player, 'spam again')
 
         expect(after.got.filter((m) => !m.system)).toHaveLength(0)
-        expect(after.system()[0]).toMatch(/slow down/i)
+        expect(after.system()[0]).toMatch(/easy/i)
     })
 
     it('refuses the same line repeated, even after the rate window', () => {

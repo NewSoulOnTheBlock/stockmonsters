@@ -298,10 +298,28 @@ export function mountDmUi(engine?: EngineLike, socket?: SocketLike): DmUiApi {
   // this window is already about, so this is where the button belongs.
   const duelBtn = el('button', { class: 'smui-btn', type: 'button', text: '⚔ DUEL' })
   duelBtn.addEventListener('click', () => window.dispatchEvent(new CustomEvent('sm:duel')))
+  /*
+   * ADD THEM AS A FRIEND, FROM HERE.
+   *
+   * The friends panel could only add by TYPING a name, which means the one
+   * moment you actually want to add somebody — you are standing next to them,
+   * talking — was the one moment you could not, unless you retyped their name
+   * exactly. Two real players hit this. The window already knows who they are.
+   */
+  const friendBtn = el('button', { class: 'smui-btn', type: 'button', text: '★ ADD FRIEND' })
+  friendBtn.addEventListener('click', () => {
+    if (!peer?.name) return
+    engine?.processAction?.('friends:add', { name: peer.name })
+    // The reply comes back on the friends channel, which owns that panel — so
+    // say something here too rather than leaving the click looking ignored.
+    system(`Asked ${peer.name} to be friends. They have to accept.`, 'sys')
+    friendBtn.disabled = true
+    setTimeout(() => { friendBtn.disabled = false }, 5000)
+  })
   const tokenBtn = el('button', { class: 'smui-btn', type: 'button', text: '◈ SEND TOKEN' })
   const nftBtn = el('button', { class: 'smui-btn', type: 'button', text: '▣ SEND NFT' })
   const actions = el('div', { class: 'dm-actions' }, [
-    blockBtn, el('span', { class: 'spacer' }), duelBtn, tokenBtn, nftBtn,
+    blockBtn, el('span', { class: 'spacer' }), friendBtn, duelBtn, tokenBtn, nftBtn,
   ])
 
   const body = el('div', { class: 'dm-body' }, [ephemeral, banner, log, row, actions])

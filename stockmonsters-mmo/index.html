@@ -418,10 +418,15 @@
         function enterWorld() {
           if (started) return;
           started = true;
-          // A user gesture is required for fullscreen — this is the one
-          if (document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen().catch(function () {});
-          }
+          // NO FULLSCREEN, DELIBERATELY.
+          //
+          // This used to request it here, because entering the world is the one
+          // user gesture that allows it. But a wallet extension's popup is a
+          // browser-chrome window, and a fullscreen tab covers it: MetaMask
+          // opens behind the game and the player sees a transaction that never
+          // arrives. Every interesting thing this game does — minting a box,
+          // opening it, a duel wager, claiming rewards — needs that popup, so
+          // the game stays in an ordinary tab.
           screen.classList.add("hidden");
           setTimeout(function () { screen.remove(); }, 900);
         }

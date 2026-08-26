@@ -50,6 +50,29 @@ describe('chat filter — links and evasion', () => {
         'ｅxample.com', // fullwidth homoglyph
         'exampl3.c0m', // leetspeak
     ])('blocks %j', (msg) => expect(blocked(msg)).toBe(true))
+
+    /*
+     * The other half of the job, and the half that was broken.
+     *
+     * Squashing removes every separator, so a sentence becomes one run and any
+     * run ending in a two-letter TLD reads as a domain. English is full of
+     * them, and the leet folding makes it worse: 3 folds to e, so "spam 3"
+     * became "spame" — "spa" plus ".me" — and was refused as a link. Two real
+     * players hit this while simply talking to each other.
+     */
+    it.each([
+        'call me',
+        'text me when you are on',
+        'trust me',
+        'spam 3',
+        'go to the shop',
+        'that one is mine',
+        'meet me at the dock',
+        'i will buy nft box',
+        'click boxes bottom menu',
+        'hey',
+        'good luck in the duel',
+    ])('lets %j through', (msg) => expect(blocked(msg)).toBe(false))
 })
 
 describe('chat filter — basics', () => {

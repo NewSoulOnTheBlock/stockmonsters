@@ -14,9 +14,22 @@ import { filterChat } from './chat-filter'
  * spammer does.
  */
 
-/** One message every 5 seconds. Chat is cheap to spam and expensive to moderate. */
-const RATE_WINDOW_MS = 5_000
-const RATE_MAX = 1
+/*
+ * A BURST, THEN A THROTTLE.
+ *
+ * This was one message every 5 seconds flat, which made an ordinary
+ * conversation impossible: two people talking hit the wall on nearly every
+ * line, and the game told them to slow down when they were not being fast.
+ * Watched it happen live between two real players.
+ *
+ * A sliding window of 5 messages per 15 seconds lets a real exchange run at
+ * its natural pace — including the short back-and-forth that follows a
+ * question — while still bounding a spammer to 20 lines a minute. The
+ * duplicate-message rule below is what actually stops the copy-paste flood,
+ * and it is untouched.
+ */
+const RATE_WINDOW_MS = 15_000
+const RATE_MAX = 5
 /** Repeating yourself is the cheapest spam there is; hold it for longer. */
 const REPEAT_WINDOW_MS = 30_000
 const PRUNE_AFTER_MS = 5 * 60_000
@@ -70,7 +83,7 @@ function checkLimits(key: string, text: string): Refusal {
     if (t.hits.length >= RATE_MAX) {
         talkers.set(key, t)
         const wait = Math.max(1, Math.ceil((RATE_WINDOW_MS - (now - t.hits[0])) / 1000))
-        return { reason: `Slow down — one message every ${RATE_WINDOW_MS / 1000}s. Try again in ${wait}s.` }
+        return { reason: `Easy — ${RATE_MAX} messages every ${RATE_WINDOW_MS / 1000}s. ${wait}s.` }
     }
     if (text === t.lastText && now - t.lastTextAt < REPEAT_WINDOW_MS) {
         talkers.set(key, t)

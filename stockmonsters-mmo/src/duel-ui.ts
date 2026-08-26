@@ -329,13 +329,55 @@ function render() {
     guardKeys(amount)
     const go = el('button', { class: 'smui-btn is-primary', type: 'button', text: 'CHALLENGE' })
     go.addEventListener('click', () => {
+      lastNote = ''
       engineRef?.processAction?.('duel:offer', { amount: amount.value.trim() })
-      state = { phase: 'waiting' }
+      state = { phase: 'waiting', amountWhole: amount.value.trim(), since: Date.now() }
       render()
     })
     body.append(
       el('div', { class: 'd-note', text: 'Whoever you are standing next to gets the challenge. Both of you keep your pick secret until the fight is over.' }),
       el('div', { class: 'd-row' }, [el('span', { class: 'k', text: 'BET' }), amount, el('span', { class: 'k', text: symbol }), go]),
+    )
+  }
+
+  /*
+   * WAITING HAD NO BRANCH AT ALL.
+   *
+   * Pressing CHALLENGE set this phase and re-rendered, and every branch below
+   * skipped it — so the player was left staring at the explainer and the four
+   * steps with no bet row, no confirmation and no way out. It looked exactly
+   * like a button that had done nothing, and the natural conclusion was that
+   * the challenge never reached the other side. It had.
+   */
+  // 'waiting' is the local phase set the moment CHALLENGE is pressed; 'offered'
+  // is what the SERVER calls the same thing once it has created the duel, and
+  // it arrives a moment later on `duel:state`. Both are "sent, waiting for
+  // them" and both must draw the same screen — handling only one of them is how
+  // this ended up blank.
+  if (phase === 'waiting' || phase === 'offered') {
+    const cancel = el('button', { class: 'smui-btn is-ghost', type: 'button', text: 'CANCEL' })
+    cancel.addEventListener('click', () => {
+      // The id only exists once the server has echoed the duel back; before
+      // that there is nothing to cancel but the screen.
+      engineRef?.processAction?.('duel:cancel', { id: state?.id })
+      closeDuel()
+      state = null
+    })
+    const bet = state?.amountWhole
+      ? `${state.amountWhole} ${symbol}`
+      : state?.amount
+        ? `${formatUnits(state.amount, meta.decimals ?? 18, 0)} ${symbol}`
+        : 'your bet'
+    const who = state?.opponent?.name ? `<b>${state.opponent.name}</b>` : 'whoever you were standing next to'
+    body.append(
+      el('div', { class: 'd-note' }, [
+        el('span', {
+          html: `<b>Challenge sent for ${bet}.</b> ${who} has to accept before anything ` +
+            'happens — nothing is signed and nothing has left your wallet yet. The offer ' +
+            'expires on its own after a minute.',
+        }),
+      ]),
+      el('div', { class: 'd-actions' }, [cancel]),
     )
   }
 
@@ -438,6 +480,14 @@ function render() {
     log.appendChild(el('div', { text: `Both picks are now public: ${Object.entries(r.picks ?? {}).map(([n, t]) => `${n} #${t}`).join(', ')}` }))
     log.appendChild(el('div', { text: `Seed ${shortAddr(r.seed ?? '')} — anyone can replay this fight with it.` }))
     body.appendChild(log)
+  }
+
+  // Every remaining server phase — opening, fighting — would otherwise draw an
+  // empty box. A modal that says nothing reads as one that is broken.
+  if (phase === 'opening' || phase === 'fighting') {
+    body.appendChild(el('div', { class: 'd-note', text: phase === 'opening'
+      ? 'Locking both stakes in the arena contract. Confirm anything your wallet asks for.'
+      : 'Both stakes are held. Working out who won…' }))
   }
 
   if (lastNote) body.appendChild(el('div', { class: 'd-note', text: lastNote }))
