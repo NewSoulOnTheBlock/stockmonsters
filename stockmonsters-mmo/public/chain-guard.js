@@ -154,12 +154,29 @@
                 throw isRejection(addErr)
                   ? fail('rejected', info.name + ' was not added to your wallet.')
                   : addErr;
+              })
+              .then(function () {
+                // Adding a chain is not selecting it. Some wallets switch as a
+                // side effect and some leave you exactly where you were, so the
+                // switch has to be asked for again — proven in a real browser,
+                // where skipping this left the wallet on mainnet.
+                return eth.request({
+                  method: 'wallet_switchEthereumChain',
+                  params: [{ chainId: hex }]
+                });
+              })
+              .catch(function (againErr) {
+                if (isRejection(againErr)) {
+                  throw fail('rejected', 'Staying on the wrong network — ' + info.name
+                    + ' is where this game lives.');
+                }
+                // Not fatal on its own: the read below is the real verdict.
+                return null;
               });
           })
           .then(function () {
-            // Adding a chain does not always select it, and some wallets
-            // resolve the switch before it has taken. Trust the read, not the
-            // resolved promise.
+            // Some wallets resolve the switch before it has taken. Trust the
+            // read, not the resolved promise.
             return current(eth);
           })
           .then(function (now) {

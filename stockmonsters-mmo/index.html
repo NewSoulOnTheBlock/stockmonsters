@@ -341,6 +341,18 @@
           if (returned) sessionStorage.removeItem("sm-returned-to-title");
         } catch (e) {}
 
+        // What to tell someone who has not connected yet. This was being
+        // called before it existed, so render() threw for every disconnected
+        // player and the line under the button was always blank — including
+        // the one case it matters, a phone browser with no wallet in it.
+        function walletHint() {
+          if (window.ethereum) return "";
+          var mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+          return mobile
+            ? "No wallet here. Open this page inside your wallet's browser to play."
+            : "No browser wallet found. Install one, then reload.";
+        }
+
         function render() {
           var w = wallet();
           var connected = !!w;
