@@ -97,11 +97,10 @@ if [ -d "$DIR/.git" ]; then
   git -C "$DIR" checkout --quiet -B "$BRANCH" "origin/$BRANCH"
   git -C "$DIR" reset --hard --quiet "origin/$BRANCH"
 else
-  git clone --quiet --branch "$BRANCH" "$REPO" "$DIR.repo"
-  # The repo has the game in a subdirectory; the service wants it at the root
-  # of DIR so WorkingDirectory and the relative paths in server.mjs line up.
-  mv "$DIR.repo" "$DIR.tmp"
-  mv "$DIR.tmp" "$DIR"
+  # A different directory from the old streaming app's /opt/stockmonsters, on
+  # purpose: sync.sh untars without deleting, so two apps sharing a directory
+  # would silently blend into each other.
+  git clone --quiet --branch "$BRANCH" "$REPO" "$DIR"
 fi
 APP="$DIR/stockmonsters-mmo"
 [ -d "$APP" ] || die "$APP is missing — is the branch right? (BRANCH=$BRANCH)"
