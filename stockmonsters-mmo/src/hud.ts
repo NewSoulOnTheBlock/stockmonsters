@@ -198,9 +198,12 @@ function iconSvg(name: IconName, size = 22): string {
 export function demoHudModel(): HudModel {
   return {
     name: 'TRADER',
-    level: 12,
-    xp: 640,
-    xpNext: 1000,
+    // A new trainer, not an invented one. The server replaces these the
+    // moment it knows who is playing (`trainer:xp` at hydrate); showing
+    // level 1 in the meantime is true of a player it has never seen.
+    level: 1,
+    xp: 0,
+    xpNext: 100,
     // The engine's default graphic, so the tile is never empty before the
     // real character arrives.
     avatarLayers: ['spritesheets/hero.png'],
@@ -309,6 +312,17 @@ const CSS = `
 
 /* --- top-left: player card ---------------------------------------------- */
 #sm-hud .hud-tl { top: 14px; left: 14px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+/* A level-up: the card's border flares and settles. Short, and it respects a
+   player who has asked the OS for less motion. */
+@keyframes sm-hud-levelup {
+  0%   { box-shadow: 0 0 0 0 rgba(246,193,119,.85); }
+  35%  { box-shadow: 0 0 0 8px rgba(246,193,119,0); }
+  100% { box-shadow: 0 0 0 0 rgba(246,193,119,0); }
+}
+#sm-hud .hud-card.is-levelup { animation: sm-hud-levelup 1.1s ease-out 2; border-color: #fff1c7; }
+@media (prefers-reduced-motion: reduce) {
+  #sm-hud .hud-card.is-levelup { animation: none; border-color: #fff1c7; }
+}
 #sm-hud .hud-card {
   display: flex; align-items: stretch; gap: 12px;
   padding: 10px;
@@ -659,6 +673,26 @@ export function mountHud(engine?: EngineLike, socket?: SocketLike): HudApi {
   })
   // Forward-looking seam: the server can push a Partial<HudModel> here.
   socket?.on?.('hud:update', (d: Partial<HudModel>) => api.update(d ?? {}))
+
+  /*
+   * THE TRAINER'S REAL LEVEL.
+   *
+   * Until this existed the card showed LV 12 and 640/1000 XP to everyone,
+   * forever — invented numbers in `demoHudModel()`. The server sends the real
+   * progress once at hydrate and again on every award, so the bar moves when
+   * the player does something rather than on a timer.
+   */
+  socket?.on?.('trainer:xp', (d: { level?: number; into?: number; span?: number; levelUp?: number; gained?: number }) => {
+    if (typeof d?.level !== 'number') return
+    api.update({ level: d.level, xp: d.into ?? 0, xpNext: d.span ?? 0 })
+    // A level-up is worth saying out loud: the bar resetting to nearly empty
+    // otherwise reads as progress being lost.
+    if (d.levelUp) {
+      window.dispatchEvent(new CustomEvent('sm:levelup', { detail: { level: d.levelUp } }))
+      card.classList.add('is-levelup')
+      setTimeout(() => card.classList.remove('is-levelup'), 2200)
+    }
+  })
 
   const stopDialogWatch = watchGameDialog((dialogOpen) => {
     root.classList.toggle('dialog-open', dialogOpen)

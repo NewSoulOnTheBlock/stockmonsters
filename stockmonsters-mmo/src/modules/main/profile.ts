@@ -28,6 +28,8 @@ export interface StoredProfile {
     visited: string[] | null
     /** Per-epoch reward ledger: { [epoch]: base-unit string }. */
     earned: Record<string, string> | null
+    /** The TRAINER's lifetime XP. Level and bar are derived from it. */
+    trainerXp: number | null
     version: number
 }
 
@@ -117,6 +119,7 @@ export const VARS = {
     bag: 'BAG',
     visited: 'VISITED',
     earned: 'EARNED',
+    trainerXp: 'TRAINER_XP',
     walletId: 'WALLET_ID',
     walletAddress: 'WALLET_ADDRESS',
 } as const
@@ -140,6 +143,8 @@ export function collectState(player: PlayerLike): ProfilePatch {
     if (isStringArray(visited)) patch.visited = visited
     const earned = player.getVariable(VARS.earned)
     if (isLedger(earned)) patch.earned = earned
+    const trainerXp = player.getVariable(VARS.trainerXp)
+    if (typeof trainerXp === 'number' && Number.isFinite(trainerXp)) patch.trainerXp = trainerXp
     const address = player.getVariable(VARS.walletAddress)
     if (typeof address === 'string') patch.address = address
     return patch
@@ -176,6 +181,10 @@ export function applyInventory(player: PlayerLike, profile: StoredProfile): stri
     if (isLedger(profile.earned) && Object.keys(profile.earned).length) {
         player.setVariable(VARS.earned, profile.earned)
         restored.push('earned')
+    }
+    if (typeof profile.trainerXp === 'number' && Number.isFinite(profile.trainerXp)) {
+        player.setVariable(VARS.trainerXp, Math.max(0, Math.floor(profile.trainerXp)))
+        restored.push(`xp:${Math.floor(profile.trainerXp)}`)
     }
     return restored
 }

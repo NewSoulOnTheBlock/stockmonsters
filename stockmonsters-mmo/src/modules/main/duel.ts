@@ -4,6 +4,7 @@ import { resolveDuel, type DuelSide } from '../../battle/duel'
 import { createExactCreature } from '../../battle/factory'
 import speciesRaw from '../../data/studio/species.json'
 import dexRaw from '../../data/dex.json'
+import { awardXp } from './trainer'
 
 /*
  * duel.ts — walk up to someone, bet on your Stockmonster, and find out.
@@ -471,6 +472,11 @@ async function fight(duel: Duel): Promise<void> {
     duel.winner = result.winner === 0 ? duel.a.address : duel.b.address
     const winnerFighter = result.winner === 0 ? duel.a : duel.b
     const loserFighter = result.winner === 0 ? duel.b : duel.a
+    // Trainer XP, not money — the tokens are settled on chain by the winner.
+    // A duel is worth the most of anything because another player had to agree
+    // to lose it, which is the one thing a script cannot manufacture alone.
+    const winnerPlayer = playerFor(winnerFighter)
+    if (winnerPlayer) awardXp(winnerPlayer, 'duelWin')
 
     /*
      * THE FIGHT, ANIMATED, THROUGH THE SCENE THAT ALREADY EXISTS.

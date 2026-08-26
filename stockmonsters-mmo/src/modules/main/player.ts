@@ -35,6 +35,7 @@ import {
     handleDmGiftInfo,
 } from './dm'
 import { Components } from '@rpgjs/server'
+import { awardXp, progressOf } from './trainer'
 import {
     applyInventory,
     collectState,
@@ -407,6 +408,7 @@ export const player: RpgPlayerHooks = {
         if (isNew) {
             // Exploration is content: somewhere nobody has stood pays a little.
             credit(player, 'newMap')
+            awardXp(player, 'newMap')
             const walletId = player.getVariable('WALLET_ID') as string | undefined
             if (walletId) {
                 profiles().saveProfile(walletId, collectState(player))
@@ -496,6 +498,10 @@ export const player: RpgPlayerHooks = {
                     // Anything earned before we knew who they were — the spawn
                     // map is the common case — moves into the ledger now.
                     if (flushPendingRewards(player)) syncPlayer(id, player)
+                    // The HUD drew an invented level until the moment it was
+                    // told a real one. This is the first point at which the
+                    // stored XP exists, so it is the first point it can be.
+                    player.emit?.('trainer:xp', { kind: 'hydrate', gained: 0, levelUp: 0, ...progressOf(player) })
                 })
                 .catch(logProfileError)
             // Friends key off the wallet, which only exists from here on — so

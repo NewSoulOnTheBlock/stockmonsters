@@ -11,6 +11,7 @@ import { totalExpForLevel, levelFromExp, maxHp } from '../../battle/stats'
 import { credit } from './earnings'
 import type { Rng } from '../../battle/damage'
 import type { StatusState } from '../../battle/status'
+import { awardXp } from './trainer'
 
 /*
  * Wild battles over the dialog GUI (showText/showChoices) — the proven RPC
@@ -202,6 +203,7 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
             bag.balls++ // win faucet until shops/money arrive
             // Winning pays, out of the rewards pool — never newly minted.
             const won = credit(player, 'battleWin')
+            awardXp(player, 'battleWin')
             await player.showText(
               awardExp(mine, wild) + '\nFound a Ball! (+1)' +
                 (won ? `\nEarned ${won} tokens — claim them from the wallet panel.` : ''),
@@ -243,6 +245,7 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
             box.push(wild)
             player.setVariable('BOX', box)
             const paid = credit(player, isNew ? 'firstCatch' : 'catch')
+            awardXp(player, isNew ? 'firstCatch' : 'catch')
             await player.showText(
               `Gotcha! ${nameOf(wild)} was caught${r.criticalCapture ? ' (critical capture!)' : ''}!\n` +
               `It was sent to your Box. (${box.length} in Box)` +
