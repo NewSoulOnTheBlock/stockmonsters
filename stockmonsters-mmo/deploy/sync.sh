@@ -48,25 +48,40 @@ git archive --format=tar HEAD stockmonsters-mmo \
   | ssh "$TARGET" "mkdir -p '$DIR' && tar -x -C '$DIR' && chown -R stockmonsters:stockmonsters '$DIR'"
 
 say "installing and building on the box"
-ssh "$TARGET" "set -e
-  cd '$APP'
-  # npm ci only when the lockfile actually moved: it is the slowest step by far
-  # and sharp has to compile.
-  # sudo does not change directory and npm resolves everything from cwd, so
-  # every one of these carries its own cd. Without it npm looks in /root, finds
-  # no package.json, and fails with an error about a missing lockfile.
-  if ! sudo -u stockmonsters sh -c 'cd "$APP" && npm ls --silent' >/dev/null 2>&1; then
-    echo '    dependencies changed'
-    sudo -u stockmonsters sh -c "cd '$APP' && npm install --no-audit --no-fund" >/dev/null
-  else
-    echo '    dependencies unchanged'
-  fi
-  sudo -u stockmonsters sh -c "cd '$APP' && npm run --silent db:migrate"
-  if [ '$BUILD' = 1 ]; then
-    sudo -u stockmonsters sh -c "cd '$APP' && npm run --silent build:mmo"
-    test -f '$APP/dist/client/index.html' || { echo 'the build produced no dist/client'; exit 1; }
-  fi
-"
+# The remote script goes over STDIN, not inside a quoted argument.
+#
+# Embedding it in a quoted string meant three levels of quoting — local shell,
+# ssh's own re-parse, and the inner sh -c — and one wrong nesting produced
+# `bash: -c: line 11: syntax error`, which ssh happily reported while the
+# script sailed on and announced a successful deploy of nothing. Heredoc into
+# `bash -s` has exactly one level.
+SHA="$(git rev-parse --short HEAD)"
+ssh "$TARGET" "APP='$APP' BUILD='$BUILD' SHA='$SHA' bash -s" <<'REMOTE' || die "the remote build failed — nothing was deployed"
+set -euo pipefail
+run() { sudo -u stockmonsters sh -c "cd '$APP' && $1"; }
+
+# npm only when the tree actually needs it: it is the slowest step by far and
+# sharp has to compile.
+if ! run 'npm ls --silent' >/dev/null 2>&1; then
+  echo '    dependencies changed'
+  run 'npm install --no-audit --no-fund' >/dev/null
+else
+  echo '    dependencies unchanged'
+fi
+
+run 'npm run --silent db:migrate'
+
+if [ "$BUILD" = 1 ]; then
+  run 'npm run --silent build:mmo'
+  test -f "$APP/dist/client/index.html" || { echo 'the build produced no dist/client'; exit 1; }
+  # Stamp what was built. A health check proves the server is UP, not that it is
+  # running the code you just sent — the first version of this script reported a
+  # successful deploy of nothing, because the build had failed and the old
+  # process restarted happily.
+  printf '%s\n' "$SHA" > "$APP/dist/client/BUILD"
+  echo "    built $SHA at $(date -u +%H:%M:%SZ)"
+fi
+REMOTE
 
 say "restarting"
 # A restart, not a reload: server.mjs flushes its batched writes on SIGTERM and
@@ -92,5 +107,12 @@ node -e '
     process.exit(1);
   }
 ' "$health"
+
+# What is actually being SERVED, not what is on disk next to it.
+served="$(ssh "$TARGET" "curl -fsS http://localhost:3000/BUILD 2>/dev/null" | tr -d '[:space:]' || true)"
+if [ "$BUILD" = 1 ]; then
+  [ "$served" = "$SHA" ] || die "the server is serving ${served:-nothing}, not $SHA — the build did not take"
+  echo "  serving $served"
+fi
 
 printf '\n\033[32mdeployed\033[0m  %s\n\n' "$(git log --oneline -1)"
