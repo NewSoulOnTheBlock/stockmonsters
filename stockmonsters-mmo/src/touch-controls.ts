@@ -5,10 +5,11 @@
  *
  * ┌──────────────────────────────────────────────┐
  * │                                              │
- * │                                    ( B )     │
- * │      ▲                                       │
- * │   ◀  ●  ▶                        ( A )       │
- * │      ▼                                       │
+ * │  ╭───────────╮                     ( B )     │
+ * │  │     ▲     │                               │
+ * │  │  ◀ (●) ▶  │                   ( A )       │
+ * │  │     ▼     │                               │
+ * │  ╰───────────╯                               │
  * └──────────────────────────────────────────────┘
  *
  * ## How a thumb becomes a held key
@@ -26,16 +27,32 @@
  *    a synthetic event.
  *
  * Doing only the first would leave B unable to open the menu; only the second
- * would leave the d-pad dead. Both, and the whole game answers a thumb.
+ * would leave the stick dead. Both, and the whole game answers a thumb.
  *
- * ## Two things it is careful about
+ * ## Why an analog stick and not a d-pad
  *
- * **It never fires while you are typing.** A d-pad under a focused text field
+ * The square d-pad that used to live here asked a thumb to find a 56px cell it
+ * could not see under its own knuckle, and it could only ever be pressed in one
+ * place. A stick is aimed instead of aimed at: it appears wherever the thumb
+ * lands and is steered by direction, which is the one thing a thumb is good at.
+ * The engine still only understands four held keys, so the analog vector is
+ * quantised back down — see `steer` for the dead zone and the hysteresis that
+ * stops a diagonal thumb from rattling between two directions.
+ *
+ * ## Three things it is careful about
+ *
+ * **It never fires while you are typing.** A stick under a focused text field
  * would make the character wander while someone writes a message.
  *
- * **It releases on loss.** `pointercancel`, `pointerleave`, a backgrounded tab
- * — every one of them sends the keyup. A key left down because a browser ate
- * the release means a character walking into a wall forever.
+ * **It releases on loss.** `pointercancel`, a backgrounded tab, a pointer the
+ * browser handed to someone else — every one of them sends the keyup. A key
+ * left down because a browser ate the release means a character walking into a
+ * wall forever.
+ *
+ * **It is multi-touch from the ground up.** Every gesture is keyed by
+ * `pointerId`, so the left thumb can steer while the right thumb hits A. Code
+ * that assumes one live touch breaks the moment a player does both at once,
+ * which is most of the time.
  */
 
 import { injectStyle, el } from './ui-kit'
@@ -61,38 +78,106 @@ const CSS = `
   z-index: 760; pointer-events: none;
   display: none;
   /* Sits above the action bar's own safe area on a notched phone. */
-  padding: 0 14px calc(10px + env(safe-area-inset-bottom, 0px));
+  padding: 0 0 calc(10px + env(safe-area-inset-bottom, 0px));
 }
 #sm-touch.on { display: block; }
-#sm-touch .pad {
-  position: absolute; left: 14px; bottom: 96px;
-  width: 168px; height: 168px;
+
+/* --- the analog stick ---------------------------------------------------- *
+ *
+ * .stick is the catchment area, not the widget: a thumb landing anywhere in
+ * it summons the base under itself. It stops short of the action bar below and
+ * of the chat box above, both of which are laid out against these numbers in
+ * MOBILE_CSS — move one and move the other.
+ */
+#sm-touch .stick {
+  position: absolute; left: 0; right: 50%;
+  /* An absolutely positioned child is laid out against the padding box, so the
+     container's own bottom padding does NOT push it up — the safe area has to
+     be spent here, above the action bar, or the two overlap by a thumb. */
+  bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+  height: 240px;
+  /* Not for layout: an abs-positioned child's origin is the padding box's own
+     edge, so this shifts nothing. It is how JS reads the notch inset, which is
+     otherwise only knowable to CSS. See safeLeft(). */
+  padding-left: env(safe-area-inset-left, 0px);
   pointer-events: auto;
   touch-action: none;
-  display: grid;
-  grid-template-areas: ". up ." "left mid right" ". down .";
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
-  opacity: .82;
-}
-#sm-touch .key {
   -webkit-tap-highlight-color: transparent;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(38, 33, 58, .92);
-  border: 3px solid #f6c177;
-  box-shadow: 3px 3px 0 #09070f;
-  color: #fff1c7; font-size: 20px; line-height: 1;
   user-select: none;
 }
-#sm-touch .key.pressed { background: #f6c177; color: #09070f; transform: translate(1px, 1px); box-shadow: 1px 1px 0 #09070f; }
-#sm-touch .up { grid-area: up; }
-#sm-touch .down { grid-area: down; }
-#sm-touch .left { grid-area: left; }
-#sm-touch .right { grid-area: right; }
-#sm-touch .mid {
-  grid-area: mid;
-  background: rgba(27, 23, 48, .55); border: 3px solid rgba(246, 193, 119, .35);
-  box-shadow: none;
+/* Driven entirely by transform: left/top stay at the origin so one translate
+   places the CENTRE, which is the only coordinate the maths cares about. */
+#sm-touch .stick-base {
+  position: absolute; left: 0; top: 0;
+  width: 132px; height: 132px; margin: -66px 0 0 -66px;
+  /* A resting place for the first frame, before JS has measured the zone. */
+  transform: translate3d(94px, 152px, 0);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  /* A ground of its own. The map underneath is anything from black cave to
+     white tile, so the ring carries a dark fill AND a dark halo outside its
+     amber border — one of the two always separates it from the background. */
+  background: rgba(18, 14, 34, .70);
+  border: 3px solid rgba(246, 193, 119, .55);
+  box-shadow: 0 0 0 3px rgba(9, 7, 15, .55), 4px 4px 0 rgba(9, 7, 15, .40);
+  opacity: .62;
+  transition: opacity .12s linear, transform .18s ease-out,
+              border-color .12s linear, background .12s linear;
+}
+/* The gate the cap runs in — depth, and it reads as a thing with a mechanism. */
+#sm-touch .stick-base::before {
+  content: ""; position: absolute; inset: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(246, 193, 119, .14);
+}
+/* Live: full strength, and NO transform transition — the base must appear
+   under the thumb, not slide over to meet it. */
+#sm-touch .stick-base.live {
+  opacity: 1;
+  background: rgba(18, 14, 34, .80);
+  border-color: #f6c177;
+  transition: opacity .07s linear, border-color .07s linear, background .07s linear;
+}
+/*
+ * Direction marks sit OUTSIDE the ring, where the cap can never reach them —
+ * arrows drawn inside were lit and hidden at the same moment, by the very
+ * thumb that lit them.
+ */
+#sm-touch .stick-base i {
+  position: absolute;
+  background: rgba(246, 193, 119, .38);
+  box-shadow: 2px 2px 0 rgba(9, 7, 15, .55);
+  transition: background .06s linear;
+}
+#sm-touch .stick-base i.n, #sm-touch .stick-base i.s { width: 16px; height: 5px; left: 50%; margin-left: -8px; }
+#sm-touch .stick-base i.w, #sm-touch .stick-base i.e { width: 5px; height: 16px; top: 50%; margin-top: -8px; }
+#sm-touch .stick-base i.n { top: -13px; }
+#sm-touch .stick-base i.s { bottom: -13px; }
+#sm-touch .stick-base i.w { left: -13px; }
+#sm-touch .stick-base i.e { right: -13px; }
+#sm-touch .stick-base.is-up i.n,
+#sm-touch .stick-base.is-down i.s,
+#sm-touch .stick-base.is-left i.w,
+#sm-touch .stick-base.is-right i.e { background: #fff1c7; }
+#sm-touch .stick-knob {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(38, 33, 58, .96);
+  border: 3px solid #f6c177;
+  box-shadow: 2px 2px 0 rgba(9, 7, 15, .8);
+  color: rgba(246, 193, 119, .55);
+  font-family: "Courier New", monospace; font-size: 13px; line-height: 1;
+  /* Springs home when the thumb lets go; instant while it is being steered. */
+  transition: transform .16s cubic-bezier(.22, .9, .3, 1.25),
+              background .08s linear, color .08s linear;
+}
+#sm-touch .stick-base.live .stick-knob {
+  background: #f6c177; color: #09070f;
+  transition: background .08s linear, color .08s linear;
+}
+/* A spring that overshoots is a spring, and some people cannot stand it. */
+@media (prefers-reduced-motion: reduce) {
+  #sm-touch .stick-base, #sm-touch .stick-knob { transition: opacity .07s linear; }
 }
 
 #sm-touch .buttons {
@@ -130,15 +215,19 @@ interface Binding {
 /** Set by mountTouchControls; the engine's injected KeyboardControls. */
 let controlsOf: (() => { applyControl?: (name: string, down?: boolean) => unknown } | null) | null = null
 
-const DPAD: Binding[] = [
+const DIRECTIONS: Binding[] = [
   { key: 'ArrowUp', code: 'ArrowUp', label: '▲', cls: 'up', control: 'up' },
   { key: 'ArrowDown', code: 'ArrowDown', label: '▼', cls: 'down', control: 'down' },
   { key: 'ArrowLeft', code: 'ArrowLeft', label: '◀', cls: 'left', control: 'left' },
   { key: 'ArrowRight', code: 'ArrowRight', label: '▶', cls: 'right', control: 'right' },
 ]
 
-/** Keys currently held by a thumb, so a lost pointer can still release them. */
-const held = new Map<string, HTMLElement>()
+/**
+ * Keys currently held by a thumb, so a lost pointer can still release them.
+ * The value is the node to un-highlight, and the stick's directions have none —
+ * their feedback is the knob, which is not per-key.
+ */
+const held = new Map<string, HTMLElement | null>()
 
 function typing(): boolean {
   const a = document.activeElement as HTMLElement | null
@@ -163,30 +252,31 @@ function fire(type: 'keydown' | 'keyup', b: Binding) {
     try {
       void controlsOf?.()?.applyControl?.(b.control, type === 'keydown')
     } catch {
-      /* the controls are not up yet — the d-pad simply does nothing */
+      /* the controls are not up yet — the stick simply does nothing */
     }
   }
 }
 
-function press(b: Binding, node: HTMLElement) {
+function press(b: Binding, node: HTMLElement | null) {
   if (typing() || held.has(b.key)) return
   held.set(b.key, node)
-  node.classList.add('pressed')
+  node?.classList.add('pressed')
   fire('keydown', b)
 }
 
 function release(b: Binding) {
+  if (!held.has(b.key)) return
   const node = held.get(b.key)
-  if (!node) return
   held.delete(b.key)
-  node.classList.remove('pressed')
+  node?.classList.remove('pressed')
   fire('keyup', b)
 }
 
 /** Let go of everything. The safety net for a pointer the browser took away. */
 export function releaseAllTouchKeys(): void {
+  resetStick()
   for (const key of [...held.keys()]) {
-    const b = [...DPAD, ACTION, MENU].find((x) => x.key === key)
+    const b = [...DIRECTIONS, ACTION, MENU].find((x) => x.key === key)
     if (b) release(b)
   }
 }
@@ -195,6 +285,259 @@ export function releaseAllTouchKeys(): void {
 // down, up, left, right, space, shift, escape.
 const ACTION: Binding = { key: ' ', code: 'Space', label: 'A', cls: 'a', control: 'space' }
 const MENU: Binding = { key: 'Escape', code: 'Escape', label: 'B', cls: 'b', control: 'escape' }
+
+/* ============================================================= JOYSTICK ===*/
+
+const STICK = {
+  /**
+   * Under this fraction of the reach the thumb is resting, not steering. A
+   * stick with no dead zone drifts the moment a thumb settles on it.
+   */
+  dead: 0.28,
+  /**
+   * Degrees a thumb has to swing PAST a sector boundary before the direction
+   * flips. A thumb held on a diagonal sits exactly on a boundary and jitters
+   * across it by a degree or two; without this the character would stutter
+   * between two directions several times a second.
+   */
+  slack: 9,
+  /** Breathing room between the cap's rim and the ring's inner edge, in px. */
+  gate: 4,
+  /** How far outside the ring the direction marks sit, plus their own length. */
+  marks: 18,
+}
+
+/**
+ * Measured rather than hard-coded, because the landscape stylesheet shrinks the
+ * base and a reach that did not shrink with it would let the cap escape.
+ *
+ * `reach` is the whole point: the knob's CENTRE travels at most far enough that
+ * its rim lands just inside the ring. A reach expressed as a fraction of the
+ * radius does not know how big the cap is, and at full deflection the cap sat
+ * outside the ring with half of it off the screen — a puck that had fallen out
+ * of the joystick.
+ *
+ * `edge` is what the whole control needs to stay on screen: not the ring, but
+ * the ring plus whichever sticks out further, the deflected cap or the marks.
+ */
+function geometry() {
+  const radius = (base?.offsetWidth || 132) / 2
+  const knobR = (knob?.offsetWidth || 52) / 2
+  const reach = Math.max(12, radius - knobR - STICK.gate)
+  return { radius, knobR, reach, edge: Math.max(radius + STICK.marks, reach + knobR) }
+}
+
+/**
+ * The notch's width on the left, which only CSS knows. The zone carries it as a
+ * padding it does not otherwise use, purely so this can read it back.
+ */
+function safeLeft(): number {
+  if (!zone) return 0
+  return parseFloat(getComputedStyle(zone).paddingLeft) || 0
+}
+
+/**
+ * Eight sectors, clockwise from east, in SCREEN coordinates where y grows
+ * downwards. A sector never contains two opposing controls, which is what
+ * guarantees we can never hold left and right at once.
+ */
+const SECTORS: ReadonlyArray<readonly string[]> = [
+  ['right'],
+  ['right', 'down'],
+  ['down'],
+  ['left', 'down'],
+  ['left'],
+  ['left', 'up'],
+  ['up'],
+  ['right', 'up'],
+]
+
+let zone: HTMLElement | null = null
+let base: HTMLElement | null = null
+let knob: HTMLElement | null = null
+/** The one pointer steering, by id — any other finger belongs to a button. */
+let stickPointer: number | null = null
+/** Index into SECTORS, or -1 for "inside the dead zone, holding nothing". */
+let sector = -1
+
+const clamp = (v: number, lo: number, hi: number) => (v < lo ? lo : v > hi ? hi : v)
+
+/** Move the base's centre to a point in the zone's own coordinates. */
+function placeBase(x: number, y: number) {
+  if (base) base.style.transform = `translate3d(${Math.round(x)}px, ${Math.round(y)}px, 0)`
+}
+
+/**
+ * The resting place: bottom-left of the zone, where a right-handed thumb is.
+ *
+ * A hidden zone measures zero, and homing against zero once at mount put the
+ * stick above its own catchment area — visible, and untouchable. So the height
+ * has to be real before this means anything, and a ResizeObserver calls it back
+ * the moment it becomes real.
+ */
+function homeBase() {
+  if (!zone) return
+  const r = zone.getBoundingClientRect()
+  if (r.height < 80) return
+  const { edge } = geometry()
+  // Far enough in that the cap at full left deflection is still on the screen,
+  // notch included.
+  placeBase(edge + 10 + safeLeft(), r.height - edge - 4)
+}
+
+/**
+ * Hold exactly these controls and no others. Releases first and presses
+ * second, deliberately: applying `right` while `left` is still down is how a
+ * character ends up walking on the spot.
+ */
+function hold(names: readonly string[]) {
+  for (const b of DIRECTIONS) if (!names.includes(b.control!) && held.has(b.key)) release(b)
+  for (const b of DIRECTIONS) if (names.includes(b.control!)) press(b, null)
+}
+
+/** Light the ring's arrows for what the player MEANT, not for the current slice. */
+function lights(names: readonly string[]) {
+  base?.classList.toggle('is-up', names.includes('up'))
+  base?.classList.toggle('is-down', names.includes('down'))
+  base?.classList.toggle('is-left', names.includes('left'))
+  base?.classList.toggle('is-right', names.includes('right'))
+}
+
+/** How long each half of a diagonal owns the character, in ms. */
+const WEAVE = 150
+let weave: ReturnType<typeof setInterval> | null = null
+
+function stopWeave() {
+  if (weave === null) return
+  clearInterval(weave)
+  weave = null
+}
+
+/**
+ * Turn a sector into held keys.
+ *
+ * The engine walks in four directions and only one at a time: holding `right`
+ * and `down` together does not go south-east, it argues with itself and travels
+ * about 9px in a second and a half — measured. So a diagonal is WOVEN instead.
+ * Each direction owns the character for a moment and the path staircases,
+ * which is close enough to a diagonal that nobody notices, and is very much
+ * closer than standing still.
+ */
+function applySector(names: readonly string[]) {
+  stopWeave()
+  lights(names)
+  if (names.length < 2) { hold(names); return }
+  let turn = 0
+  hold([names[0]])
+  weave = setInterval(() => {
+    turn ^= 1
+    hold([names[turn]])
+  }, WEAVE)
+}
+
+function steer(dx: number, dy: number) {
+  if (Math.hypot(dx, dy) < STICK.dead * geometry().reach) {
+    if (sector !== -1) { sector = -1; applySector([]) }
+    return
+  }
+  const deg = (Math.atan2(dy, dx) * 180) / Math.PI
+  if (sector >= 0) {
+    // Signed difference folded into (-180, 180] so 350° and 10° are 20° apart.
+    const off = Math.abs(((deg - sector * 45 + 540) % 360) - 180)
+    if (off <= 22.5 + STICK.slack) return
+  }
+  sector = ((Math.round(deg / 45) % 8) + 8) % 8
+  applySector(SECTORS[sector])
+}
+
+function grab(e: PointerEvent) {
+  if (!zone || !base || !knob) return
+  // A second finger in the zone is a mis-grab, not a second stick.
+  if (stickPointer !== null || typing()) return
+  e.preventDefault()
+  stickPointer = e.pointerId
+  try { zone.setPointerCapture(e.pointerId) } catch { /* touch captures itself */ }
+  const r = zone.getBoundingClientRect()
+  const { edge } = geometry()
+  // Clamped by the WHOLE control's half-width, so that a thumb at the very edge
+  // of the screen still gets a stick whose cap stays on screen at full
+  // deflection. The base may end up a little to the side of the thumb, which
+  // nobody notices; a cap sliced off by the bezel is all anyone notices.
+  // To the right there is no bezel, only the middle of the screen, so it may
+  // lean further that way.
+  const lo = edge + safeLeft()
+  placeBase(
+    clamp(e.clientX - r.left, lo, Math.max(lo, r.width - edge + 30)),
+    clamp(e.clientY - r.top, edge, Math.max(edge, r.height - edge)),
+  )
+  knob.style.transform = 'translate3d(0, 0, 0)'
+  base.classList.add('live')
+  sfx('cursor')
+}
+
+function drag(e: PointerEvent) {
+  if (e.pointerId !== stickPointer || !zone || !base || !knob) return
+  e.preventDefault()
+  // The base was placed by transform, so its own rect is where it really is.
+  const b = base.getBoundingClientRect()
+  const dx = e.clientX - (b.left + b.width / 2)
+  const dy = e.clientY - (b.top + b.height / 2)
+  const dist = Math.hypot(dx, dy)
+  const { reach } = geometry()
+  const scale = dist > reach ? reach / dist : 1
+  knob.style.transform = `translate3d(${Math.round(dx * scale)}px, ${Math.round(dy * scale)}px, 0)`
+  steer(dx, dy)
+}
+
+function drop(e: PointerEvent) {
+  if (e.pointerId !== stickPointer) return
+  resetStick()
+}
+
+/** Everything the stick holds, let go of. Safe to call when it is not mounted. */
+function resetStick() {
+  if (!zone || !base || !knob) return
+  stickPointer = null
+  sector = -1
+  applySector([])
+  base.classList.remove('live')
+  knob.style.transform = 'translate3d(0, 0, 0)'
+  homeBase()
+}
+
+function buildStick(): HTMLElement {
+  zone = el('div', { class: 'stick' })
+  knob = el('div', { class: 'stick-knob', text: '●' })
+  base = el('div', { class: 'stick-base' }, [
+    el('i', { class: 'n' }),
+    el('i', { class: 'e' }),
+    el('i', { class: 's' }),
+    el('i', { class: 'w' }),
+    knob,
+  ])
+  zone.appendChild(base)
+
+  zone.addEventListener('pointerdown', grab)
+  zone.addEventListener('pointermove', drag)
+  zone.addEventListener('pointerup', drop)
+  zone.addEventListener('pointercancel', drop)
+  // Chrome fires this when a touch is cancelled by a gesture higher up the
+  // page; without it the character keeps the last direction forever.
+  zone.addEventListener('lostpointercapture', drop)
+  zone.addEventListener('contextmenu', (e) => e.preventDefault())
+  // The capture can be lost before the release ever reaches the zone, so the
+  // window gets the last word on whether the thumb is still down.
+  window.addEventListener('pointerup', drop)
+  window.addEventListener('pointercancel', drop)
+  // The zone's home depends on its measured height, which a rotation changes —
+  // and so does the panel being hidden for a dialog and coming back.
+  window.addEventListener('resize', homeBase)
+  window.addEventListener('orientationchange', homeBase)
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(() => { if (stickPointer === null) homeBase() }).observe(zone)
+  }
+  return zone
+}
 
 function bind(node: HTMLElement, b: Binding) {
   const down = (e: PointerEvent) => {
@@ -227,13 +570,7 @@ export function mountTouchControls(
 
   root = el('div', { id: 'sm-touch', class: 'on', 'aria-hidden': 'true' })
 
-  const pad = el('div', { class: 'pad' })
-  for (const b of DPAD) {
-    const node = el('div', { class: `key ${b.cls}`, text: b.label })
-    bind(node, b)
-    pad.appendChild(node)
-  }
-  pad.appendChild(el('div', { class: 'mid' }))
+  const stick = buildStick()
 
   const a = el('div', { class: 'round a', text: 'A' })
   const bBtn = el('div', { class: 'round b', text: 'B' })
@@ -241,14 +578,16 @@ export function mountTouchControls(
   bind(bBtn, MENU)
   const buttons = el('div', { class: 'buttons' }, [a, bBtn])
 
-  root.append(pad, buttons)
+  root.append(stick, buttons)
   document.body.appendChild(root)
+  // Only now does the zone have a height to measure a resting place against.
+  homeBase()
 
   // A backgrounded tab never delivers pointerup.
   document.addEventListener('visibilitychange', () => { if (document.hidden) releaseAllTouchKeys() })
   window.addEventListener('blur', releaseAllTouchKeys)
 
-  // Step aside whenever something is on top: a d-pad over a marketplace is
+  // Step aside whenever something is on top: a joystick over a marketplace is
   // both useless and in the way.
   const watch = () => {
     const busy =
@@ -308,13 +647,15 @@ const MOBILE_CSS = `
   /*
    * The vertical budget on a 390x844 screen, from the bottom up:
    *   0-68     the action bar
-   *   96-264   the d-pad (bottom: 96px, 168px tall)
-   *   264+     everything else
-   * so chat clears the thumb at 272px and no higher — measured, not guessed.
+   *   78-318   the joystick's catchment zone (CSS: bottom 78px, 240px tall)
+   *   318+     everything else
+   * so chat clears the thumb at 330px and no lower — measured, not guessed.
+   * The zone is a touch target, not a picture: anything overlapping it is
+   * unreachable even where nothing is drawn.
    */
   #chat-panel {
     left: 8px; right: auto;
-    bottom: calc(272px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(330px + env(safe-area-inset-bottom, 0px));
     width: min(58vw, 240px);
   }
   #chat-log { max-height: 18vh; font-size: 11px; }
@@ -404,8 +745,12 @@ const MOBILE_CSS = `
    one. Pull everything in tighter. */
 @media (max-height: 480px) and (pointer: coarse) {
   #sm-hud .hud-chips { display: none; }
-  #chat-panel { bottom: 78px; width: min(40vw, 200px); }
-  #sm-touch .pad { width: 132px; height: 132px; bottom: 74px; }
+  /* Landscape has vertical room for one of chat and the stick, not both, so
+     chat moves up over the stick's zone rather than into it. */
+  #chat-panel { bottom: 206px; width: min(40vw, 200px); }
+  #sm-touch .stick { bottom: 44px; height: 150px; right: 56%; }
+  #sm-touch .stick-base { width: 104px; height: 104px; margin: -52px 0 0 -52px; }
+  #sm-touch .stick-knob { width: 42px; height: 42px; }
   #sm-touch .round { width: 60px; height: 60px; }
   #sm-touch .round.b { width: 50px; height: 50px; }
   #sm-touch .buttons { bottom: 80px; gap: 10px; }
