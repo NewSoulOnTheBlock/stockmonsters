@@ -193,26 +193,15 @@
    "why": "Dark Cave east, south mouth -> Dark Cave west"
   },
   {
-   "from": "exterior",
-   "x": 23,
-   "y": 63,
-   "trigger": "touch",
-   "to": "olivine-city",
-   "tx": 33,
-   "ty": 43,
-   "dir": 2,
-   "why": "THE BRIDGE BETWEEN THE TWO WORLDS — without it the Kanto/Johto region is unreachable, and fast travel (which needs a prior visit) can never unlock any of it. Placed on the row the player actually walks: the engine settles the spawn at y=2020, i.e. tile row 63, NOT the row 62 the spawn coordinate suggests. Step west onto the gangplank and the ship sails."
-  },
-  {
    "from": "olivine-city",
-   "x": 33,
-   "y": 43,
+   "x": 24,
+   "y": 41,
    "trigger": "action",
    "to": "exterior",
    "tx": 24,
-   "ty": 62,
-   "dir": 8,
-   "why": "the return ferry"
+   "ty": 63,
+   "dir": 2,
+   "why": "Return ferry. The previous landing (33,43) was walled in — only TWO tiles were reachable from it, so anyone who sailed over was stuck on arrival. This one is in Olivine's main 584-tile area; the player lands on 42 and faces this tile."
   },
   {
    "from": "route-16",
@@ -2149,6 +2138,28 @@
    "ty": 46,
    "dir": 8,
    "why": "return leg"
+  },
+  {
+   "from": "exterior",
+   "x": 17,
+   "y": 63,
+   "trigger": "action",
+   "to": "olivine-city",
+   "tx": 24,
+   "ty": 42,
+   "dir": 2,
+   "why": "THE BRIDGE BETWEEN THE TWO WORLDS. At the WEST end of the pier, on the ship's hull: walk the length of the dock and press the action key. It used to be a floor trigger one step from the spawn and fired the moment anyone stepped back — an accidental teleport into a walled-in pocket. Two entries because the engine settles the player on row 63 or 64 depending on how they arrive, and an action event only fires for the tile actually faced."
+  },
+  {
+   "from": "exterior",
+   "x": 17,
+   "y": 64,
+   "trigger": "action",
+   "to": "olivine-city",
+   "tx": 24,
+   "ty": 42,
+   "dir": 2,
+   "why": "the same gangway, one row down"
   }
  ]
 }

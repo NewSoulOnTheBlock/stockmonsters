@@ -741,6 +741,38 @@ Known gaps: nothing watches the chain, so a recipient is not notified that a
 gift arrived (the sender's window says to tell them); no HUD entry point for
 opening a DM without walking up to someone.
 
+### ⚠️ A STALE data/rooms.sqlite FREEZES PLAYERS (found the hard way)
+
+Symptom: the player spawns and CANNOT MOVE — arrow keys, `processAction`, all
+of it. `stopProcessingInput` is false, `canMove` is true, the socket is up, no
+console errors. Everything looks healthy and nothing works.
+
+Cause: `data/rooms.sqlite` is the ROOM's persistent storage. It survives
+restarts and accumulates across every test run (mine had grown to 18 MB), and a
+wedged entry leaves the player unable to move. **`rm -rf data/` fixes it
+instantly.**
+
+I lost a long stretch bisecting my own code for this — disabling every panel,
+reverting the camera work, restoring event hitboxes, deleting warp entries —
+before proving with a git worktree that the SAME commit moved fine from a clean
+directory. If movement is dead and the code looks fine, delete `data/` FIRST.
+
+### Two glitches the user reported, both fixed
+
+1. **"Walking back from spawn teleports you somewhere random and stuck."** The
+   ferry was a floor trigger one tile from the spawn, so stepping back boarded
+   the ship by accident — and it landed in a pocket of Olivine with only TWO
+   reachable tiles, hence "stuck". It is now an ACTION on the ship's hull at
+   the WEST END of the pier (x=17, rows 63 AND 64 — the engine settles the
+   player on either, and an action fires only for the tile actually faced), and
+   it lands at (24,42) in Olivine's main 584-tile area.
+2. **"After a map transition it shows the wrong place until you move."** The
+   cover in `zoom.ts` lifted as soon as the map existed, but the engine re-arms
+   camera follow a few frames later. It now holds the cover until the local
+   player has a stable position, puts the camera on them explicitly, and only
+   then reveals — and it stops touching the viewport afterwards so it never
+   fights the engine's own follow.
+
 ### Requested, not yet built (user, 2026-08-25 evening)
 
 - **In-game minigames** once the maps are done — small playable activities
