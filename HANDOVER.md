@@ -895,6 +895,28 @@ challenger loses, and on a win the gym changes hands with a 20% takeover bounty
 out of the old holder's stake. No emissions anywhere — every payout is an entry
 fee somebody chose to pay.
 
+### NFT metadata is ON CHAIN; the images are not (and are broken)
+
+Checked against the deployed contract rather than assumed:
+
+- `tokenURI` returns `data:application/json;base64,…` built by the contract.
+  **There is nothing to pin and nothing that can rot.** Strictly better than
+  IPFS for the JSON, and already live.
+- That JSON points at `imageBaseURI + <TICKER> + "/regular.png"`, and
+  imageBaseURI is `https://stockmonsters.game/dex/` — **a domain that does not
+  exist**. Every minted token currently shows a broken image in a wallet.
+
+`node tools/ipfs.mjs pack` builds exactly the layout the contract expects from
+`public/dex/` — 254 species × (regular + shiny) + a sealed-box image, 509 files
+and 4.8 MB. Shinies are generated (a hue rotation), because the art set has one
+image per species.
+
+Uploading is NOT wired up: pinning is account-bound and paid, so the tool says
+which key is missing and stops rather than half-doing it. Once pinned:
+`node tools/ipfs.mjs set --cid <cid>` points the contract at `ipfs://<cid>/`
+and every token already minted picks it up immediately — there is no cached
+JSON to invalidate.
+
 ### Mobile: it plays on a phone (session 5, later)
 
 `src/touch-controls.ts` — a d-pad and A/B buttons, plus every phone layout
