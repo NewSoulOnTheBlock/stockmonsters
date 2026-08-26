@@ -18,6 +18,12 @@ pragma solidity ^0.8.24;
 ///
 /// No external dependencies: minimal ERC-721 + ERC-2981 + Base64 implemented
 /// inline so the file compiles standalone with solc >= 0.8.24.
+interface IERC20Payment {
+    function transferFrom(address from, address to, uint256 value) external returns (bool);
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address to, uint256 value) external returns (bool);
+}
+
 interface IERC721Receiver {
     function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data)
         external
@@ -186,6 +192,14 @@ contract StockmonstersNFT {
     string public imageBaseURI; // e.g. "ipfs://<cid>/" — "<ticker>/regular.png" is appended
     string public sealedImageURI; // one image for every sealed box
     uint256 public claimFee = 0.01 ether; // advertised price; the SIGNED fee is authoritative
+    /// Where claim fees end up. Set to StockmonstersTreasury, which splits
+    /// them: half buys the game token back for the players, half funds
+    /// operations. Zero means "hold here until someone sets it".
+    address public treasury;
+    /// ERC-20s a voucher may be priced in. A whitelist rather than "any
+    /// address the signer names", so a compromised signer cannot invent a fee
+    /// in a token it controls the supply of and mint for free.
+    mapping(address => bool) public acceptedCurrency;
     mapping(bytes32 => bool) public voucherUsed;
     mapping(uint256 => bytes32) public attrCommit; // sealed until opened
     mapping(uint256 => bool) public opened;
@@ -194,11 +208,20 @@ contract StockmonstersNFT {
         keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
     bytes32 public constant VOUCHER_TYPEHASH =
         keccak256("MintVoucher(address player,bytes32 attrCommit,bytes32 uid,uint256 fee,uint64 deadline)");
+    /// A SEPARATE type from the ETH voucher, not an extra field on it. Two
+    /// distinct type hashes mean an ETH voucher can never be replayed as a
+    /// token voucher (or the reverse) whatever the fee happens to be.
+    bytes32 public constant VOUCHER_ERC20_TYPEHASH = keccak256(
+        "MintVoucherERC20(address player,bytes32 attrCommit,bytes32 uid,address currency,uint256 fee,uint64 deadline)"
+    );
 
     event Minted(address indexed player, uint256 indexed tokenId, bytes32 uid);
     event Opened(uint256 indexed tokenId, uint16 dexId, bool shiny);
     event GameSignerChanged(address indexed signer);
     event ClaimFeeChanged(uint256 fee);
+    event TreasuryChanged(address indexed treasury);
+    event CurrencyAccepted(address indexed currency, bool accepted);
+    event Swept(uint256 ethAmount);
 
     constructor(address _gameSigner, string memory _imageBaseURI, string memory _sealedImageURI) {
         owner = msg.sender;
@@ -224,6 +247,29 @@ contract StockmonstersNFT {
     function setClaimFee(uint256 fee) external onlyOwner {
         claimFee = fee;
         emit ClaimFeeChanged(fee);
+    }
+
+    function setTreasury(address _treasury) external onlyOwner {
+        treasury = _treasury;
+        emit TreasuryChanged(_treasury);
+    }
+
+    function setAcceptedCurrency(address currency, bool accepted) external onlyOwner {
+        require(currency != address(0), "ZERO_CURRENCY");
+        acceptedCurrency[currency] = accepted;
+        emit CurrencyAccepted(currency, accepted);
+    }
+
+    /// @notice Push collected ETH fees to the treasury. Permissionless: the
+    ///         destination is fixed, so anyone may press it and nobody has to
+    ///         remember to.
+    function sweepToTreasury() public {
+        require(treasury != address(0), "NO_TREASURY");
+        uint256 amount = address(this).balance;
+        if (amount == 0) return;
+        (bool ok,) = treasury.call{value: amount}("");
+        require(ok, "SWEEP_FAILED");
+        emit Swept(amount);
     }
 
     function withdraw(address payable to) external onlyOwner {
@@ -258,15 +304,64 @@ contract StockmonstersNFT {
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR(), structHash));
         require(_recover(digest, signature) == gameSigner, "BAD_SIGNATURE");
 
+        tokenId = _mintSealed(msg.sender, attrCommitment, uid);
+    }
+
+    /// @notice The same claim, paid for in an ERC-20 the game accepts.
+    /// @dev Two guards that are not decoration:
+    ///      - `acceptedCurrency` is checked HERE, on chain. Trusting the
+    ///        signer's choice of token would let a compromised signer price a
+    ///        mint in a token it can print, i.e. mint for free.
+    ///      - the fee is measured as the treasury's BALANCE DELTA, not the
+    ///        number in the voucher. A token that taxes transfers would
+    ///        otherwise credit us less than the voucher said while the mint
+    ///        still succeeded.
+    function mintCaughtERC20(
+        bytes32 attrCommitment,
+        bytes32 uid,
+        address currency,
+        uint256 fee,
+        uint64 deadline,
+        bytes calldata signature
+    ) external returns (uint256 tokenId) {
+        require(block.timestamp <= deadline, "VOUCHER_EXPIRED");
+        require(acceptedCurrency[currency], "CURRENCY_NOT_ACCEPTED");
+        require(!voucherUsed[uid], "VOUCHER_USED");
+
+        bytes32 structHash =
+            keccak256(abi.encode(VOUCHER_ERC20_TYPEHASH, msg.sender, attrCommitment, uid, currency, fee, deadline));
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR(), structHash));
+        require(_recover(digest, signature) == gameSigner, "BAD_SIGNATURE");
+
+        if (fee > 0) {
+            address sink = treasury == address(0) ? address(this) : treasury;
+            uint256 before = IERC20Payment(currency).balanceOf(sink);
+            require(IERC20Payment(currency).transferFrom(msg.sender, sink, fee), "PAYMENT_FAILED");
+            require(IERC20Payment(currency).balanceOf(sink) - before == fee, "FEE_SHORTFALL");
+        }
+
+        tokenId = _mintSealed(msg.sender, attrCommitment, uid);
+    }
+
+    /// @notice Push collected ERC-20 fees to the treasury, for the window
+    ///         between deploying this contract and pointing it at one.
+    function sweepTokenToTreasury(address currency) external {
+        require(treasury != address(0), "NO_TREASURY");
+        uint256 amount = IERC20Payment(currency).balanceOf(address(this));
+        if (amount == 0) return;
+        require(IERC20Payment(currency).transfer(treasury, amount), "SWEEP_FAILED");
+    }
+
+    function _mintSealed(address to, bytes32 attrCommitment, bytes32 uid) private returns (uint256 tokenId) {
         voucherUsed[uid] = true;
         unchecked {
             tokenId = ++totalSupply;
-            _balanceOf[msg.sender]++;
+            _balanceOf[to]++;
         }
-        _ownerOf[tokenId] = msg.sender;
+        _ownerOf[tokenId] = to;
         attrCommit[tokenId] = attrCommitment;
-        emit Transfer(address(0), msg.sender, tokenId);
-        emit Minted(msg.sender, tokenId, uid);
+        emit Transfer(address(0), to, tokenId);
+        emit Minted(to, tokenId, uid);
     }
 
     /// @notice Open the sealed box: prove the attributes against the stored

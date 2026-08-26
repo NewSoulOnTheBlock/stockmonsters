@@ -26,6 +26,8 @@ export interface StoredProfile {
     bag: { balls: number; potions: number } | null
     /** Map ids the player has actually stood on — fast travel is gated on it. */
     visited: string[] | null
+    /** Per-epoch reward ledger: { [epoch]: base-unit string }. */
+    earned: Record<string, string> | null
     version: number
 }
 
@@ -79,6 +81,13 @@ const isStringArray = (v: unknown): v is string[] =>
 
 const isList = (v: unknown): v is unknown[] => Array.isArray(v)
 
+/** { "12": "5000000000000000000" } — epoch to base units, both as strings. */
+const isLedger = (v: unknown): v is Record<string, string> =>
+    !!v && typeof v === 'object' && !Array.isArray(v) &&
+    Object.entries(v as Record<string, unknown>).every(
+        ([k, amount]) => /^\d+$/.test(k) && typeof amount === 'string' && /^\d+$/.test(amount),
+    )
+
 const isBag = (v: unknown): v is { balls: number; potions: number } =>
     !!v &&
     typeof v === 'object' &&
@@ -107,6 +116,7 @@ export const VARS = {
     box: 'BOX',
     bag: 'BAG',
     visited: 'VISITED',
+    earned: 'EARNED',
     walletId: 'WALLET_ID',
     walletAddress: 'WALLET_ADDRESS',
 } as const
@@ -128,6 +138,8 @@ export function collectState(player: PlayerLike): ProfilePatch {
     if (isBag(bag)) patch.bag = bag
     const visited = player.getVariable(VARS.visited)
     if (isStringArray(visited)) patch.visited = visited
+    const earned = player.getVariable(VARS.earned)
+    if (isLedger(earned)) patch.earned = earned
     const address = player.getVariable(VARS.walletAddress)
     if (typeof address === 'string') patch.address = address
     return patch
@@ -160,6 +172,10 @@ export function applyInventory(player: PlayerLike, profile: StoredProfile): stri
     if (isStringArray(profile.visited) && profile.visited.length) {
         player.setVariable(VARS.visited, profile.visited)
         restored.push(`visited:${profile.visited.length}`)
+    }
+    if (isLedger(profile.earned) && Object.keys(profile.earned).length) {
+        player.setVariable(VARS.earned, profile.earned)
+        restored.push('earned')
     }
     return restored
 }

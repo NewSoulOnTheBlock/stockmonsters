@@ -60,6 +60,8 @@ export interface TierQuote {
   id: BoxTier
   label: string
   priceWei: string
+  /** Whole game tokens, when the box can also be bought with the token. */
+  priceTokens?: number | null
   level: [number, number]
   ivFloor: number
   shinyOneIn: number
@@ -71,6 +73,8 @@ export interface BoxQuote {
   chainId: number
   contract: string | null
   sellable: boolean
+  /** Present only when this server has a game token configured. */
+  token?: { address: string; symbol: string; decimals: number } | null
   tiers: TierQuote[]
   fairness: { algorithm: string; seedHash: string; commit: FairnessCommit | null; note: string }
 }
@@ -78,6 +82,9 @@ export interface BoxVoucher {
   uid: string; tier: BoxTier; attrCommit: string; fee: string; deadline: number
   signature: string; signer: string; chainId: number; contract: string
   serverSeedHash: string; clientSeed: string; commitId: string
+  /** ERC-20 the fee is priced in; null/absent = native ETH. */
+  currency?: string | null
+  priceTokens?: number | null
 }
 export interface BoxContents {
   dexId: number; ticker: string | null; name: string; types: string[]; sprite: string | null
@@ -86,7 +93,7 @@ export interface BoxContents {
 }
 export interface BoxRow {
   uid: string; tier: BoxTier; status: BoxStatus; tokenId: string | null
-  feeWei: string; deadline: number; attrCommit: string; signature: string
+  feeWei: string; currency?: string | null; deadline: number; attrCommit: string; signature: string
   serverSeedHash: string | null; clientSeed: string; createdAt: string
   openedAt: string | null; chainId: number; contract: string | null
   contents: BoxContents | null
@@ -131,6 +138,12 @@ interface MountOpts {
 export const SELECTORS = {
   // mintCaught(bytes32,bytes32,uint256,uint64,bytes)
   mintCaught: '0xaa220172',
+  // mintCaughtERC20(bytes32,bytes32,address,uint256,uint64,bytes)
+  mintCaughtERC20: '0xc4d409d0',
+  // approve(address,uint256) — the ERC-20 standard selector
+  approve: '0x095ea7b3',
+  // allowance(address,address)
+  allowance: '0xdd62ed3e',
   // open(uint256,uint16,uint8,uint8[6],uint8,bool,uint64,bytes32)
   open: '0xf0aaf959',
 } as const
@@ -167,6 +180,35 @@ export function encodeMintCaught(v: {
     + word(5 * 32) // offset to the `bytes` tail: five head words precede it
     + word(bytesLen)
     + padded
+}
+
+/** `mintCaughtERC20(bytes32,bytes32,address,uint256,uint64,bytes)` */
+export function encodeMintCaughtERC20(v: {
+  attrCommit: string; uid: string; currency: string; fee: string; deadline: number; signature: string
+}): string {
+  const sig = v.signature.replace(/^0x/, '')
+  if (sig.length % 2) throw new Error('signature is not whole bytes')
+  const bytesLen = sig.length / 2
+  const padded = sig.padEnd(Math.ceil(bytesLen / 32) * 64, '0')
+  return SELECTORS.mintCaughtERC20
+    + word(v.attrCommit)
+    + word(v.uid)
+    + word(v.currency)
+    + word(BigInt(v.fee))
+    + word(v.deadline)
+    + word(6 * 32) // six head words precede the `bytes` tail
+    + word(bytesLen)
+    + padded
+}
+
+/** `approve(address,uint256)` */
+export function encodeApprove(spender: string, amount: string): string {
+  return SELECTORS.approve + word(spender) + word(BigInt(amount))
+}
+
+/** `allowance(address,address)` */
+export function encodeAllowance(owner: string, spender: string): string {
+  return SELECTORS.allowance + word(owner) + word(spender)
 }
 
 /** `open(uint256,uint16,uint8,uint8[6],uint8,bool,uint64,bytes32)` — all static. */
@@ -344,6 +386,17 @@ const CSS = `
 #sm-boxshop .bx-facts .r:nth-child(odd) { background: rgba(27,23,48,.55); }
 #sm-boxshop .bx-facts .r .k { flex: 0 0 74px; color: var(--sm-muted); font-weight: 700; }
 #sm-boxshop .bx-facts .r .v { flex: 1 1 auto; }
+#sm-boxshop .bx-paywith {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: 8px;
+  background: var(--sm-dark, #1b1730); border: 2px solid var(--accent, #f6c177);
+  padding: 8px 10px;
+}
+#sm-boxshop .bx-paywith .k { font-size: 10px; letter-spacing: .14em; color: var(--sm-muted); }
+#sm-boxshop .bx-paywith .smui-btn { font-size: 11px; padding: 5px 12px; }
+#sm-boxshop .bx-paywith .spacer { flex: 1 1 auto; }
+#sm-boxshop .bx-paywith .note { font-size: 10px; color: var(--sm-muted); }
+
 #sm-boxshop .bx-price { display: flex; align-items: baseline; gap: 5px;
   border-top: 2px solid rgba(246,193,119,.24); padding-top: 8px; }
 #sm-boxshop .bx-price .v { font-size: 17px; font-weight: 700; color: var(--accent); letter-spacing: .04em; }
@@ -544,6 +597,20 @@ export function mountBoxShop(
 
   let tab: 'buy' | 'mine' = 'buy'
   let quote: BoxQuote | null = null
+  /**
+   * Which asset the player is buying with. Defaults to the game token when the
+   * server has one: it is the currency the game is about, and paying in it is
+   * the demand the whole economy rests on. ETH stays one click away.
+   */
+  let payWith: 'eth' | 'token' = 'token'
+  const tokenSymbol = () => quote?.token?.symbol ?? 'TOKEN'
+  const canPayInToken = (t?: TierQuote | null) =>
+    !!quote?.token && (t ? !!t.priceTokens : quote.tiers.some((x) => x.priceTokens))
+  /** What one box costs, in whatever the player is paying with. */
+  const priceOf = (t: TierQuote): { value: string; unit: string } =>
+    payWith === 'token' && canPayInToken(t)
+      ? { value: Number(t.priceTokens).toLocaleString('en-US'), unit: tokenSymbol() }
+      : { value: formatEth(t.priceWei), unit: 'ETH' }
   let boxes: BoxRow[] = []
   let clientSeed = randomSeed()
   let busy = false
@@ -789,6 +856,37 @@ export function mountBoxShop(
   /* -------------------------------------------------------------- render */
   function renderTiers() {
     tiersBox.textContent = ''
+
+    // The currency switch. Only drawn when there is a real choice — a toggle
+    // with one option is a decoration that implies a setting.
+    if (canPayInToken()) {
+      if (!quote?.token) payWith = 'eth'
+      const pick = (which: 'eth' | 'token') => {
+        payWith = which
+        renderTiers()
+      }
+      const button = (which: 'eth' | 'token', label: string) => {
+        const b = el('button', {
+          class: `smui-btn${payWith === which ? ' is-primary' : ' is-ghost'}`,
+          type: 'button',
+          text: label,
+        })
+        b.addEventListener('click', () => pick(which))
+        return b
+      }
+      tiersBox.appendChild(el('div', { class: 'bx-paywith' }, [
+        el('span', { class: 'k', text: 'PAY WITH' }),
+        button('token', tokenSymbol()),
+        button('eth', 'ETH'),
+        el('span', { class: 'spacer' }),
+        el('span', {
+          class: 'note',
+          text: payWith === 'token'
+            ? 'Two wallet prompts: allow, then buy.'
+            : 'One wallet prompt.',
+        }),
+      ]))
+    }
     if (!quote) {
       tiersBox.appendChild(el('div', { class: 'bx-empty', text: 'LOADING BOX PRICES…' }))
       return
@@ -826,8 +924,8 @@ export function mountBoxShop(
           factRow('SHINY', t.shinyOdds),
         ]),
         el('div', { class: 'bx-price' }, [
-          el('span', { class: 'v', text: formatEth(t.priceWei) }),
-          el('span', { class: 'u', text: 'ETH' }),
+          el('span', { class: 'v', text: priceOf(t).value }),
+          el('span', { class: 'u', text: priceOf(t).unit }),
         ]),
         buyBtn,
       ]))
@@ -1041,7 +1139,7 @@ export function mountBoxShop(
     const foot = el('div', { class: 'foot' }, [
       el('div', { class: 'total' }, [
         el('span', { class: 'k', text: 'YOU PAY' }),
-        el('span', { class: 'v', text: `${formatEth(t.priceWei)} ETH` }),
+        el('span', { class: 'v', text: `${priceOf(t).value} ${priceOf(t).unit}` }),
       ]),
       el('span', { class: 'spacer' }), doneBtn,
     ])
@@ -1068,6 +1166,8 @@ export function mountBoxShop(
           connectionId: w.connectionId, address: w.address, tier: t.id,
           commitId: quote?.fairness.commit?.commitId ?? null,
           clientSeed,
+          // The client ASKS; lootbox.mjs decides the price and the address.
+          currency: payWith === 'token' && canPayInToken(t) ? 'token' : null,
         }),
       })
       proof.innerHTML = ''
@@ -1080,7 +1180,7 @@ export function mountBoxShop(
       void loadQuote()
 
       flow.at(1, 'waiting for you…')
-      const hash = await sendMint(eth, w.address!, voucher)
+      const hash = await sendMint(eth, w.address!, voucher, (text) => flow.at(1, text))
 
       flow.at(2, hash ? shortAddr(hash) : '')
       await waitForBox(voucher.uid)
@@ -1111,10 +1211,15 @@ export function mountBoxShop(
     openModal('MINTING A SIGNED BOX', content)
     try {
       flow.at(0, 'waiting for you…')
-      await sendMint(eth, w.address!, {
-        uid: b.uid, attrCommit: b.attrCommit, fee: b.feeWei,
-        deadline: b.deadline, signature: b.signature, contract: b.contract ?? '',
-      } as BoxVoucher)
+      await sendMint(
+        eth,
+        w.address!,
+        {
+          uid: b.uid, attrCommit: b.attrCommit, fee: b.feeWei, currency: b.currency ?? null,
+          deadline: b.deadline, signature: b.signature, contract: b.contract ?? '',
+        } as BoxVoucher,
+        (text) => flow.at(0, text),
+      )
       flow.at(1)
       await waitForBox(b.uid)
       flow.done('minted')
@@ -1125,16 +1230,69 @@ export function mountBoxShop(
     }
   }
 
-  async function sendMint(eth: Eip1193, from: string, v: BoxVoucher): Promise<string> {
+  /**
+   * @param note tells the player which wallet prompt they are looking at.
+   *        Paying in tokens is two transactions and an unannounced second
+   *        prompt is indistinguishable from a page trying something on.
+   */
+  async function sendMint(
+    eth: Eip1193,
+    from: string,
+    v: BoxVoucher,
+    note: (text: string) => void = () => {},
+  ): Promise<string> {
     const to = v.contract || quote?.contract
     if (!to) throw new Error('This server has no NFT contract configured, so boxes cannot be minted.')
-    const data = encodeMintCaught({
-      attrCommit: v.attrCommit, uid: v.uid, fee: v.fee, deadline: v.deadline, signature: v.signature,
+
+    // Paying in ETH: one transaction, the fee as msg.value.
+    if (!v.currency) {
+      const data = encodeMintCaught({
+        attrCommit: v.attrCommit, uid: v.uid, fee: v.fee, deadline: v.deadline, signature: v.signature,
+      })
+      return await eth.request({
+        method: 'eth_sendTransaction',
+        params: [{ from, to, data, value: '0x' + BigInt(v.fee).toString(16) }],
+      })
+    }
+
+    // Paying in the game token: ERC-20 needs an allowance first. TWO WALLET
+    // PROMPTS, and the player is told that before the first one — an
+    // unexplained second prompt reads as a broken or malicious page.
+    const needed = BigInt(v.fee)
+    const current = BigInt(
+      (await eth.request({
+        method: 'eth_call',
+        params: [{ from, to: v.currency, data: encodeAllowance(from, to) }, 'latest'],
+      })) || '0x0',
+    )
+    if (current < needed) {
+      note('1 of 2 — allow the shop to spend your tokens')
+      const approveHash = await eth.request({
+        method: 'eth_sendTransaction',
+        params: [{ from, to: v.currency, data: encodeApprove(to, v.fee) }],
+      })
+      // The mint reverts if the allowance is not mined yet, so wait for it.
+      await waitForReceipt(eth, String(approveHash))
+    }
+    note('2 of 2 — buy the box')
+    const data = encodeMintCaughtERC20({
+      attrCommit: v.attrCommit, uid: v.uid, currency: v.currency,
+      fee: v.fee, deadline: v.deadline, signature: v.signature,
     })
-    return await eth.request({
-      method: 'eth_sendTransaction',
-      params: [{ from, to, data, value: '0x' + BigInt(v.fee).toString(16) }],
-    })
+    return await eth.request({ method: 'eth_sendTransaction', params: [{ from, to, data }] })
+  }
+
+  /** Poll for a receipt. `eth_getTransactionReceipt` is null until it lands. */
+  async function waitForReceipt(eth: Eip1193, hash: string, tries = 40): Promise<void> {
+    for (let i = 0; i < tries; i++) {
+      const receipt = await eth.request({ method: 'eth_getTransactionReceipt', params: [hash] })
+      if (receipt) {
+        if (receipt.status && BigInt(receipt.status) === 0n) throw new Error('The approval transaction failed.')
+        return
+      }
+      await new Promise((r) => setTimeout(r, i < 5 ? 1000 : 2500))
+    }
+    throw new Error('The approval is taking a long time to confirm. Try again in a moment.')
   }
 
   /** The server learns tokenIds from the chain, not from us. Poll until it has. */

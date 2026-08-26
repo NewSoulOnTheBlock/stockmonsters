@@ -25,6 +25,9 @@ export default defineConfig({
       // travel across the world — against the session-only store, so it needs
       // no database (test/friends.test.mjs covers the SQL one)
       'src/modules/main/friends.spec.ts',
+      // what a player is owed for playing, including the ordering trap where
+      // a reward is earned before the client has said which wallet they are
+      'src/modules/main/earnings.spec.ts',
     ],
     environment: 'node',
   },

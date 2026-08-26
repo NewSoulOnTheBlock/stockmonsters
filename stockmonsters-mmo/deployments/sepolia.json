@@ -1,0 +1,32 @@
+{
+  "chainId": 11155111,
+  "chain": "sepolia",
+  "deployedAt": "2026-08-26T03:46:49.230Z",
+  "deployer": "0x9D1236f89C5f680B6d380612F2b4f210F668Bb1a",
+  "gameSigner": "0x5dADa8e3cCA173a927A83b71d0Ba6d3c2C4616AD",
+  "claimSigner": "0x71592eEbEd7b76b186230b35229C33d7ddAaE2a3",
+  "contracts": {
+    "token": "0x9FF2cC8CdfC70d36e473Ae6cECCa0728D73c0580",
+    "rewards": "0xB16624Ebb621Fff77cFdfBFcC138ce94FAbA74Cf",
+    "treasury": "0x3313aa2f787cD4d8Ca158f7fB00beb9c67E1a577",
+    "nft": "0xB0B5219CD63E505269E7327F048E0976eDeD799B",
+    "market": "0x095bdB719e6c626b69C0ab0b5f9C6B657bedbe2E"
+  },
+  "params": {
+    "token": {
+      "name": "Stockmonsters",
+      "symbol": "SMON",
+      "supply": "1000000000000000000000000000",
+      "logo": "",
+      "description": "The currency of Stockmonsters: 254 tickers you can catch, trade and battle."
+    },
+    "rewardsSeed": "100000000000000000000000000",
+    "marketFeeBps": 250,
+    "royaltyBps": 500,
+    "claimFeeEth": "0.0002",
+    "nft": {
+      "imageBaseURI": "https://stockmonsters.game/dex/",
+      "sealedImageURI": "https://stockmonsters.game/dex/sealed.png"
+    }
+  }
+}

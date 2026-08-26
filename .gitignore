@@ -9,5 +9,10 @@ todo.md
 stockmonsters-mmo/data/
 contracts/out/
 contracts/cache/
+# NEVER commit a key. contracts/.env holds the deployer private key; the game's
+# own .env holds the two server signing keys. Both are real money on mainnet.
+.env
+contracts/.env
+stockmonsters-mmo/.env
 new-assets/
 workadventure-master/

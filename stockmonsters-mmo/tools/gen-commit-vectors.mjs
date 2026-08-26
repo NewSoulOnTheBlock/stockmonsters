@@ -121,6 +121,9 @@ const orderInput = {
   requireSealed: true,
   attrCommit: vectors[0].attrCommit,
   taker: '0x0000000000000000000000000000000000000000',
+  // address(0) = native ETH. The vector pins the DEFAULT currency; the token
+  // path is covered by the Solidity tests rather than by a second vector.
+  currency: '0x0000000000000000000000000000000000000000',
 }
 const { signature: orderSig } = await signOrder({
   pk: SELLER_PK, market: MARKET_ADDRESS, chainId: CHAIN_ID, order: orderInput,
@@ -140,6 +143,7 @@ const orderDigest = hashTypedData({
     requireSealed: orderInput.requireSealed,
     attrCommit: orderInput.attrCommit,
     taker: orderInput.taker,
+    currency: orderInput.currency,
   },
 })
 
@@ -212,6 +216,7 @@ push('        uint256 salt;')
 push('        bool requireSealed;')
 push('        bytes32 attrCommit;')
 push('        address taker;')
+push('        address currency;')
 push('        bytes32 digest;')
 push('        bytes signature;')
 push('    }')
@@ -227,6 +232,7 @@ push(`        o.salt = ${orderInput.salt};`)
 push(`        o.requireSealed = ${orderInput.requireSealed};`)
 push(`        o.attrCommit = ${orderInput.attrCommit};`)
 push(`        o.taker = ${orderInput.taker};`)
+push(`        o.currency = ${orderInput.currency};`)
 push(`        o.digest = ${orderDigest};`)
 push(`        o.signature = hex"${orderSig.slice(2)}";`)
 push('    }')

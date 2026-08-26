@@ -116,6 +116,7 @@ library CommitVectors {
         bool requireSealed;
         bytes32 attrCommit;
         address taker;
+        address currency;
         bytes32 digest;
         bytes signature;
     }
@@ -131,7 +132,8 @@ library CommitVectors {
         o.requireSealed = true;
         o.attrCommit = 0x9542b10ffc524505bd1ab8d635d3b25e32bac4cea084765f869a8a9d283b4bf2;
         o.taker = 0x0000000000000000000000000000000000000000;
-        o.digest = 0xe032b7bfb65d88ecd4705223ab77bfa8750c3a4652906811189174541ca63af1;
-        o.signature = hex"44229700faae877fb2224a33e1d4b871f993301e4f0468eebbfb6b9be3f638ed62e18a671d2913d7cba3f3a5a8a9af0c7e082a043d565f5b072ea9790157cba11c";
+        o.currency = 0x0000000000000000000000000000000000000000;
+        o.digest = 0x0a8405279c6b511022abd94672e6dd4d26f804ef3348124696f24cde008f4196;
+        o.signature = hex"f0994fff5423e090ffae2e86c4a331a9ad2e2799d29497a8abab0ecabfd2b47c08e714a0fa27e0aa9b9d45cbf69bc9ff99f5bf13848a22bde8c7027e26146f021b";
     }
 }

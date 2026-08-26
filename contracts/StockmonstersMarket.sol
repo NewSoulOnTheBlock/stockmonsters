@@ -15,8 +15,17 @@ pragma solidity ^0.8.24;
 /// - THE ORDER BINDS THE SEAL. `requireSealed` + `attrCommit` are checked
 ///   against live chain state at fill time, so a seller who opens the box (or
 ///   whose box was already open) cannot have a sealed-priced order filled.
-/// - ETH ONLY, ASK ORDERS ONLY. Bids need a pullable asset (WETH); see
-///   DESIGN.md §"Not built".
+/// - ASK ORDERS ONLY. Bids need a pullable asset (WETH); see DESIGN.md
+///   §"Not built".
+/// - PAYABLE IN ETH OR IN A WHITELISTED ERC-20. The currency is part of the
+///   SIGNED order, so a buyer cannot substitute one; and the whitelist is
+///   on-chain, so a seller cannot list against a token of their own invention
+///   and lure a buyer into approving it.
+interface IERC20Currency {
+    function transferFrom(address from, address to, uint256 value) external returns (bool);
+    function balanceOf(address account) external view returns (uint256);
+}
+
 interface IStockmonstersNFT {
     function ownerOf(uint256 tokenId) external view returns (address);
     function opened(uint256 tokenId) external view returns (bool);
@@ -61,6 +70,7 @@ contract StockmonstersMarket {
     address public feeRecipient;
 
     event FeeChanged(address indexed recipient, uint96 bps);
+    event CurrencyAccepted(address indexed currency, bool accepted);
 
     function setFee(address recipient, uint96 bps) external onlyOwner {
         require(bps <= MAX_FEE_BPS, "FEE_TOO_HIGH");
@@ -68,6 +78,19 @@ contract StockmonstersMarket {
         feeBps = bps;
         feeRecipient = recipient;
         emit FeeChanged(recipient, bps);
+    }
+
+    // --- accepted currencies ---------------------------------------------
+    /// address(0) (native ETH) is always accepted; everything else has to be
+    /// listed here by the owner. This is the whole defence against a fake-token
+    /// listing: the UI showing a price means nothing, an on-chain whitelist
+    /// does.
+    mapping(address => bool) public acceptedCurrency;
+
+    function setAcceptedCurrency(address currency, bool accepted) external onlyOwner {
+        require(currency != address(0), "ETH_ALWAYS_ACCEPTED");
+        acceptedCurrency[currency] = accepted;
+        emit CurrencyAccepted(currency, accepted);
     }
 
     // --- reentrancy guard -----------------------------------------------
@@ -92,6 +115,9 @@ contract StockmonstersMarket {
     /// @param requireSealed the token's `opened` flag must be `!requireSealed`
     /// @param attrCommit   must equal the token's on-chain commitment
     /// @param taker        address(0) = fillable by anyone; otherwise private
+    /// @param currency     address(0) = native ETH, otherwise an accepted
+    ///                     ERC-20. Signed, so the price and the asset it is
+    ///                     denominated in cannot be separated.
     struct Order {
         address seller;
         uint256 tokenId;
@@ -103,12 +129,13 @@ contract StockmonstersMarket {
         bool requireSealed;
         bytes32 attrCommit;
         address taker;
+        address currency;
     }
 
     bytes32 private constant DOMAIN_TYPEHASH =
         keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
     bytes32 public constant ORDER_TYPEHASH = keccak256(
-        "Order(address seller,uint256 tokenId,uint256 price,uint256 minProceeds,uint64 deadline,uint64 epoch,uint256 salt,bool requireSealed,bytes32 attrCommit,address taker)"
+        "Order(address seller,uint256 tokenId,uint256 price,uint256 minProceeds,uint64 deadline,uint64 epoch,uint256 salt,bool requireSealed,bytes32 attrCommit,address taker,address currency)"
     );
 
     /// Filled OR cancelled — one bit, one SSTORE, no nonce bookkeeping for
@@ -162,18 +189,28 @@ contract StockmonstersMarket {
                 o.salt,
                 o.requireSealed,
                 o.attrCommit,
-                o.taker
+                o.taker,
+                o.currency
             )
         );
         return keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR(), structHash));
     }
 
-    /// @notice Buy a listed Stockmonster. `msg.value` must equal the price
-    ///         exactly — no partial fills, no change to give back.
+    /// @notice Buy a listed Stockmonster. Paying in ETH means `msg.value` must
+    ///         equal the price exactly — no partial fills, no change to give
+    ///         back. Paying in an ERC-20 means approving this contract for the
+    ///         price first and sending no ETH at all.
     function fillOrder(Order calldata o, bytes calldata signature) external payable nonReentrant {
         // --- checks -------------------------------------------------------
         require(block.timestamp <= o.deadline, "ORDER_EXPIRED");
-        require(msg.value == o.price, "WRONG_PRICE");
+        if (o.currency == address(0)) {
+            require(msg.value == o.price, "WRONG_PRICE");
+        } else {
+            // Refusing stray ETH is not pedantry: accepting it here would
+            // strand it in a contract with no way to get it out.
+            require(msg.value == 0, "NO_ETH_FOR_TOKEN_ORDER");
+            require(acceptedCurrency[o.currency], "CURRENCY_NOT_ACCEPTED");
+        }
         require(msg.sender != o.seller, "SELF_FILL");
         require(o.taker == address(0) || o.taker == msg.sender, "NOT_TAKER");
         require(o.epoch == epochOf[o.seller], "ORDER_STALE");
@@ -201,9 +238,18 @@ contract StockmonstersMarket {
 
         // --- interactions -------------------------------------------------
         collection.safeTransferFrom(o.seller, msg.sender, o.tokenId);
-        _pay(feeRecipient, fee);
-        _pay(royaltyReceiver, royalty);
-        _pay(o.seller, proceeds);
+        if (o.currency == address(0)) {
+            _pay(feeRecipient, fee);
+            _pay(royaltyReceiver, royalty);
+            _pay(o.seller, proceeds);
+        } else {
+            // Straight from the buyer to each recipient: there is no pull
+            // fallback for an ERC-20 (nothing can be stranded, because this
+            // contract never holds it) and no approval for the seller to make.
+            _payToken(o.currency, msg.sender, feeRecipient, fee);
+            _payToken(o.currency, msg.sender, royaltyReceiver, royalty);
+            _payToken(o.currency, msg.sender, o.seller, proceeds);
+        }
 
         emit OrderFilled(orderHash, o.seller, msg.sender, o.tokenId, o.price, fee, royalty);
     }
@@ -250,6 +296,17 @@ contract StockmonstersMarket {
             pendingWithdrawals[to] += amount;
             emit PaymentPending(to, amount);
         }
+    }
+
+    /// Move `amount` of `currency` and CHECK IT LANDED. The delta check is
+    /// what makes a fee-on-transfer token safe here: it would credit the
+    /// recipient less than the order promised, and this reverts instead of
+    /// quietly short-paying the seller.
+    function _payToken(address currency, address from, address to, uint256 amount) private {
+        if (amount == 0 || to == address(0)) return;
+        uint256 before = IERC20Currency(currency).balanceOf(to);
+        require(IERC20Currency(currency).transferFrom(from, to, amount), "PAYMENT_FAILED");
+        require(IERC20Currency(currency).balanceOf(to) - before == amount, "PAYMENT_SHORTFALL");
     }
 
     function _recover(bytes32 digest, bytes calldata sig) private pure returns (address) {

@@ -119,7 +119,8 @@ contract StockmonstersMarketTest {
             salt: 1,
             requireSealed: true,
             attrCommit: commitment,
-            taker: address(0)
+            taker: address(0),
+            currency: address(0)
         });
     }
 
@@ -494,7 +495,8 @@ contract StockmonstersMarketTest {
                 o.salt,
                 o.requireSealed,
                 o.attrCommit,
-                o.taker
+                o.taker,
+                o.currency
             )
         );
         bytes32 expected = keccak256(abi.encodePacked("\x19\x01", market.DOMAIN_SEPARATOR(), structHash));

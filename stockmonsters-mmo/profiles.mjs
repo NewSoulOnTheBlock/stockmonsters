@@ -47,7 +47,10 @@ const isWalletId = (v) => typeof v === 'string' && /^w:[0-9a-f]{32}$/.test(v)
 /** Only these keys are ever persisted. Anything else in a patch is dropped. */
 // 'visited' is the set of map ids the player has actually stood on. Fast
 // travel is gated on it, so it has to survive a reload like everything else.
-const STATE_KEYS = ['character', 'party', 'box', 'bag', 'visited']
+// 'earned' is the per-epoch reward ledger: { "<epoch>": "<base units>" }.
+// It lives in the save rather than in its own table because it is small,
+// written by the same flush as everything else, and only ever read whole.
+const STATE_KEYS = ['character', 'party', 'box', 'bag', 'visited', 'earned']
 
 /** A name is one per wallet, changeable once a day. */
 const NAME_COOLDOWN_HOURS = 24
@@ -77,6 +80,7 @@ const emptyProfile = (walletId, address = null) => ({
   box: null,
   bag: null,
   visited: null,
+  earned: null,
   version: STATE_VERSION,
 })
 

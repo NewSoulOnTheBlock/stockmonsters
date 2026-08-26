@@ -14,6 +14,7 @@ import {
     handleFriendCancel,
     handleFriendRemove,
 } from './friends'
+import { credit, flushPendingRewards } from './earnings'
 import {
     addDmMember,
     removeDmMember,
@@ -390,9 +391,11 @@ export const player: RpgPlayerHooks = {
         const id = String(map?.id ?? '').replace(/^map-/, '')
         const isNew = markVisited(player, id)
         if (isNew) {
+            // Exploration is content: somewhere nobody has stood pays a little.
+            credit(player, 'newMap')
             const walletId = player.getVariable('WALLET_ID') as string | undefined
             if (walletId) {
-                profiles().saveProfile(walletId, { visited: [...visitedMaps(player)] })
+                profiles().saveProfile(walletId, collectState(player))
             }
         }
         // Always tell the client the full set, not just the delta: a client
@@ -469,7 +472,18 @@ export const player: RpgPlayerHooks = {
             // hydrate() is fire-and-forget, so an unhandled rejection in it
             // would take the whole Node process down with it. It must not be
             // possible for a database hiccup to end the server.
-            void hydrate(player, id, addr).catch(logProfileError)
+            // AFTER hydrate, not alongside it: hydrate applies the stored
+            // ledger to the player, so flushing first would have the load
+            // overwrite the credit a moment later. The reward would vanish and
+            // the map would stay marked as visited, so it could never be
+            // earned again.
+            void hydrate(player, id, addr)
+                .then(() => {
+                    // Anything earned before we knew who they were — the spawn
+                    // map is the common case — moves into the ledger now.
+                    if (flushPendingRewards(player)) syncPlayer(id, player)
+                })
+                .catch(logProfileError)
             // Friends key off the wallet, which only exists from here on — so
             // this, not onConnected, is where a player joins the friend roster.
             void friendsConnected(player).catch(logProfileError)

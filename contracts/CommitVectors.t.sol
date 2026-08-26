@@ -114,7 +114,8 @@ contract CommitVectorsTest {
             salt: ov.salt,
             requireSealed: ov.requireSealed,
             attrCommit: ov.attrCommit,
-            taker: ov.taker
+            taker: ov.taker,
+            currency: ov.currency
         });
         require(market.hashOrder(o) == ov.digest, "order digest: JS and Solidity disagree");
         require(_recover(ov.digest, ov.signature) == CommitVectors.SELLER, "order signature recovers the seller");

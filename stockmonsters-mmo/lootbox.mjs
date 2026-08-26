@@ -52,7 +52,7 @@ import { fileURLToPath } from 'node:url'
 import pg from 'pg'
 import { createPublicClient, http as viemHttp, parseAbi } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { attrCommitment, randomSalt, signVoucher } from './tools/voucher-lib.mjs'
+import { attrCommitment, randomSalt, signVoucher, signVoucherERC20 } from './tools/voucher-lib.mjs'
 import { connectionIdFor } from './auth.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
@@ -103,6 +103,9 @@ export const TIERS = {
     id: 'standard',
     label: 'Standard',
     priceWei: '10000000000000000', // 0.01 ETH
+    // ...or the same box in game tokens. Whole tokens; the decimals are read
+    // off the token itself at quote time, never assumed.
+    priceTokens: 2500,
     bands: { common: 7000, uncommon: 2000, rare: 900, elite: 100 },
     level: [5, 25],
     ivFloor: 0,
@@ -112,6 +115,7 @@ export const TIERS = {
     id: 'prime',
     label: 'Prime',
     priceWei: '30000000000000000', // 0.03 ETH
+    priceTokens: 7500,
     bands: { common: 4000, uncommon: 3000, rare: 2500, elite: 500 },
     level: [20, 45],
     ivFloor: 8,
@@ -121,6 +125,7 @@ export const TIERS = {
     id: 'apex',
     label: 'Apex',
     priceWei: '80000000000000000', // 0.08 ETH
+    priceTokens: 20000,
     bands: { common: 1500, uncommon: 2500, rare: 4500, elite: 1500 },
     level: [40, 70],
     ivFloor: 16,
@@ -321,6 +326,7 @@ export function quoteTiers() {
       id,
       label: t.label,
       priceWei: t.priceWei,
+      priceTokens: t.priceTokens ?? null,
       level: t.level,
       ivFloor: t.ivFloor,
       shinyOneIn: t.shinyOneIn,
@@ -534,7 +540,17 @@ export function createBoxStore(opts = {}) {
    * Roll, commit, sign, PERSIST, then hand back the voucher. The order matters:
    * the signature is only released after the salt is safely in Postgres.
    */
-  async function issueVoucher({ walletId, address, tier, commitId, clientSeed }) {
+  /**
+   * The game token, if this server has one. Read through the global the way
+   * everything else reaches it, so lootbox.mjs has no import of token.mjs and
+   * works unchanged on a server with no currency.
+   */
+  function currencyStore() {
+    const t = globalThis.__smTokens
+    return t && t.enabled ? t : null
+  }
+
+  async function issueVoucher({ walletId, address, tier, commitId, clientSeed, currency }) {
     if (!account) throw new BoxError(503, 'no-signer', 'Box sales are not configured on this server.')
     if (!contract) throw new BoxError(503, 'no-contract', 'No NFT contract is configured on this server.')
     if (!isTier(tier)) throw new BoxError(400, 'bad-tier', `Unknown tier "${tier}".`)
@@ -581,19 +597,42 @@ export function createBoxStore(opts = {}) {
       salt,
     })
     const uid = '0x' + randomBytes(32).toString('hex')
-    const fee = TIERS[tier].priceWei
     const deadline = caughtAt + ttlSeconds
+
+    // Which asset is this box priced in? The client ASKS, the server DECIDES:
+    // a price is only ever taken from our own tier table, never from the
+    // request, and the token address is ours rather than whatever was sent.
+    const tokens = currencyStore()
+    const payInToken = String(currency ?? '').toLowerCase() === 'token'
+    if (payInToken && !tokens) {
+      throw new BoxError(503, 'no-token', 'This server has no game token configured.')
+    }
+    const tokenAddress = payInToken ? tokens.address : null
+    const priceTokens = TIERS[tier].priceTokens
+    if (payInToken && !priceTokens) {
+      throw new BoxError(400, 'no-token-price', 'That box cannot be bought with tokens.')
+    }
+    const fee = payInToken
+      ? (await tokens.toBaseUnits(priceTokens)).toString()
+      : TIERS[tier].priceWei
 
     // tools/voucher-lib.mjs is THE signing path. Reimplementing the EIP-712
     // encoding here — even "just to avoid a key round-trip" — is how a
     // divergence gets in, and a divergence makes every token minted after it
     // permanently unopenable.
-    const signed = await signVoucher({
-      pk: normalisedPk,
-      contract,
-      chainId,
-      voucher: { player: address, attrCommit, uid, fee, deadline },
-    })
+    const signed = payInToken
+      ? await signVoucherERC20({
+          pk: normalisedPk,
+          contract,
+          chainId,
+          voucher: { player: address, attrCommit, uid, currency: tokenAddress, fee, deadline },
+        })
+      : await signVoucher({
+          pk: normalisedPk,
+          contract,
+          chainId,
+          voucher: { player: address, attrCommit, uid, fee, deadline },
+        })
 
     await q(
       `INSERT INTO players (wallet_id, wallet_address)
@@ -607,18 +646,18 @@ export function createBoxStore(opts = {}) {
          uid, wallet_id, wallet_address, tier, status,
          dex_id, level, ivs, nature_id, shiny, caught_at, salt, attr_commit,
          fee_wei, deadline, signature, signer, chain_id, contract,
-         commit_id, client_seed, server_seed_hash, roll_algorithm, band
+         commit_id, client_seed, server_seed_hash, roll_algorithm, band, currency
        ) VALUES (
          $1,$2,$3,$4,'issued',
          $5,$6,$7,$8,$9,$10,$11,$12,
          $13,$14,$15,$16,$17,$18,
-         $19,$20,$21,$22,$23
+         $19,$20,$21,$22,$23,$24
        )`,
       [
         uid, walletId, address.toLowerCase(), tier,
         rolled.dexId, rolled.level, rolled.ivs, rolled.natureId, rolled.shiny, caughtAt, salt, attrCommit,
         fee, deadline, signed.signature, signed.signer.toLowerCase(), chainId, contract.toLowerCase(),
-        usedCommitId, seed, serverSeedHash, ROLL_ALGORITHM, rolled.band,
+        usedCommitId, seed, serverSeedHash, ROLL_ALGORITHM, rolled.band, tokenAddress,
       ],
     )
     counters.vouchers++
@@ -631,6 +670,10 @@ export function createBoxStore(opts = {}) {
       tier,
       attrCommit,
       fee,
+      // null = native ETH. The client picks its calldata from this, so it is
+      // the server that decides which entry point gets called.
+      currency: tokenAddress,
+      priceTokens: payInToken ? priceTokens : null,
       deadline,
       signature: signed.signature,
       signer: signed.signer,
@@ -849,7 +892,7 @@ export function createBoxStore(opts = {}) {
       log.warn?.(`[boxes] mint sync failed for ${walletId}: ${err.message}`)
     })
     const res = await q(
-      `SELECT uid, tier, band, status, token_id, fee_wei, deadline, attr_commit, signature,
+      `SELECT uid, tier, band, status, token_id, fee_wei, currency, deadline, attr_commit, signature,
               server_seed_hash, client_seed, created_at, opened_at,
               dex_id, level, ivs, nature_id, shiny, caught_at
          FROM boxes WHERE wallet_id = $1 ORDER BY created_at DESC LIMIT 200`,
@@ -864,6 +907,7 @@ export function createBoxStore(opts = {}) {
         status: b.status,
         tokenId: b.token_id == null ? null : String(b.token_id),
         feeWei: String(b.fee_wei),
+        currency: b.currency ?? null,
         deadline: Number(b.deadline),
         attrCommit: b.attr_commit,
         signature: b.signature,
@@ -976,7 +1020,15 @@ export async function handleBoxRoutes(req, res, store) {
   try {
     if (path === '/box/quote' && (req.method === 'POST' || req.method === 'GET')) {
       const ip = req.socket?.remoteAddress ?? 'unknown'
-      json(res, 200, await store.quote({ withCommit: quoteBudget(ip) }))
+      const quote = await store.quote({ withCommit: quoteBudget(ip) })
+      const tokens = globalThis.__smTokens
+      if (tokens?.enabled) {
+        const meta = await tokens.metadata().catch(() => null)
+        if (meta?.configured) {
+          quote.token = { address: meta.address, symbol: meta.symbol, decimals: meta.decimals }
+        }
+      }
+      json(res, 200, quote)
       return true
     }
 
@@ -990,6 +1042,7 @@ export async function handleBoxRoutes(req, res, store) {
         tier: body.tier,
         commitId: body.commitId ?? null,
         clientSeed: body.clientSeed ?? '',
+        currency: body.currency ?? null,
       })
       json(res, 200, out)
       return true

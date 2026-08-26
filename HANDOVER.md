@@ -839,6 +839,56 @@ rendering) replaces the traced SVG. Same 4:3, so every button percentage still
 lands where it was measured, and the opaque button panel covers the PRESS START
 plate baked into the art.
 
+### The token economy is LIVE ON SEPOLIA (session 5, 2026-08-26)
+
+Full write-up: `stockmonsters-mmo/docs/token-economy.md`. Addresses are in
+`stockmonsters-mmo/deployments/sepolia.json` and `.env`. NOT verified on
+Etherscan — the user asked for the deploy without it.
+
+Five contracts: the token (SMON, 1B fixed, no mint function), the rewards pool
+players are paid from, the treasury that splits revenue, plus the existing NFT
+and marketplace extended to accept an ERC-20.
+
+- **Tax 2% buy / 2% sell, and 0% wallet-to-wallet.** 75% of it goes to players,
+  25% to the treasury, and the players' share cannot be set below half. Tax
+  only fires when one side is a registered AMM pair — anything the game itself
+  does moves exact amounts, and a token that delivers less than it was told to
+  would break escrow arithmetic everywhere.
+- **Revenue splits 50/50**: half back into the game (ETH is reserved for a
+  buyback whose output goes straight to the rewards pool; tokens go there
+  directly), half to ops. `route()` is permissionless.
+- **The game never mints.** Every reward is a claim on a pool that already
+  exists. `docs/token-economy.md` says why, and what to do instead if a faucet
+  is ever wanted.
+
+Proven on the real chain by `npm run test:e2e:token`, which injects a real
+EIP-1193 wallet into a headless browser: a reward claim paid the player on
+chain, and a loot box was bought with SMON (approve + mint), with the fee
+landing in the treasury.
+
+### ⚠️ Three traps this uncovered
+
+1. **The NFT went 334 bytes OVER the EIP-170 limit** once the ERC-20 mint path
+   was added — undeployable, and the legacy compiler pipeline could not fix it.
+   `via_ir = true` compiles the same source to 21,787 bytes with ~2.7 KB of
+   headroom. It costs ~45s of build time. Check `forge build --sizes` after
+   touching the NFT.
+2. **Rewards were earned before the wallet was known.** A player joins a map
+   several hundred ms before `auth:wallet` arrives, so crediting straight to
+   the ledger dropped the reward AND marked the map visited — unearnable
+   forever after. They are parked and flushed AFTER hydrate resolves; flushing
+   alongside it lets the profile load overwrite the credit.
+3. **The spawn map can never pay.** `visitedMaps()` always includes HOME_MAP,
+   by design. Any test that expects a fresh player to earn a
+   first-visit reward on spawn is testing a thing that cannot happen.
+
+### Before mainnet
+
+Register the AMM pair (`setPair`) once liquidity exists — until then nothing is
+taxed. Set the buyback router. Move the three keys (deployer, box signer, claim
+signer) off the game server's disk; they are three keys precisely so they can
+live in three places. Pick a real ops wallet — it is the deployer today.
+
 ### Requested, not yet built (user, 2026-08-25 evening)
 
 - **In-game minigames** once the maps are done — small playable activities

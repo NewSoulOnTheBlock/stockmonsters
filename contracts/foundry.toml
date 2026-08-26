@@ -5,7 +5,13 @@ libs = []
 solc_version = "0.8.24"
 # The on-chain metadata renderer (base64 + JSON string building) pushes the NFT
 # past EIP-170's 24,576-byte runtime limit unoptimised. `runs = 200` trades a
-# little call gas for the ~14 KB of code size we need. Check `forge build
+# little call gas for the code size we need.
+#
+# via_ir is not a preference: with the ERC-20 mint path added, the legacy
+# pipeline lands at 24,910 bytes — 334 OVER the limit, i.e. undeployable. The
+# IR pipeline compiles the same source to 21,787 and leaves ~2.7 KB of headroom
+# for the next feature. It costs ~45s of build time. Check `forge build
 # --sizes` after touching tokenURI.
 optimizer = true
 optimizer_runs = 200
+via_ir = true

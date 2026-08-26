@@ -27,6 +27,7 @@ import serverModule from './dist/server/server.js'
 import { handleAuth } from './auth.mjs'
 import { createProfileStore } from './profiles.mjs'
 import { createBoxStore, handleBoxRoutes } from './lootbox.mjs'
+import { createTokenStore, handleTokenRoutes } from './token.mjs'
 
 const PORT = Number(process.env.PORT ?? 3000)
 const CLIENT_DIR = resolve('./dist/client')
@@ -86,6 +87,24 @@ console.log(
     : '[boxes] not configured — /box/quote answers, /box/voucher refuses',
 )
 
+/*
+ * The game currency. One address in .env (SM_TOKEN_ADDRESS) switches it on;
+ * everything else — name, symbol, decimals, logo — is read off the token,
+ * which describes itself on chain. Unset means the game runs exactly as it did
+ * before there was a token, and says so.
+ */
+const tokens = createTokenStore()
+globalThis.__smTokens = tokens
+// Prime the metadata cache before anyone plays: `decimalsSync()` is what the
+// reward ledger multiplies by, and a wrong guess there is a 10^12 error in
+// what a player is owed.
+if (tokens.enabled) {
+  tokens
+    .metadata()
+    .then((m) => console.log(`[token] ${m.name} (${m.symbol}), ${m.decimals} decimals`))
+    .catch((err) => console.warn(`[token] could not read the token (${err.message}) — currency hidden`))
+}
+
 const { WebSocketServer } = createRequire(import.meta.url)('ws')
 
 const transport = createRpgServerTransport(serverModule.default ?? serverModule, {
@@ -126,6 +145,7 @@ const server = http.createServer(async (req, res) => {
     }
     if (await handleAuth(req, res)) return
     if (await handleBoxRoutes(req, res, boxes)) return
+    if (await handleTokenRoutes(req, res, tokens, profiles)) return
     const handled = await transport.handleNodeRequest(req, res, undefined, { mountedPath: '/parties' })
     if (handled) return
     serveStatic(req, res)

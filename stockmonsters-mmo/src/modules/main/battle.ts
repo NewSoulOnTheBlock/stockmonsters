@@ -8,6 +8,7 @@ import { createWildCreature, type CreatureInstance } from '../../battle/factory'
 import { runTurn, attemptFlee, newBattle, onBattleStart, type Combatant } from '../../battle/turn'
 import { tryCapture } from '../../battle/catching'
 import { totalExpForLevel, levelFromExp, maxHp } from '../../battle/stats'
+import { credit } from './earnings'
 import type { Rng } from '../../battle/damage'
 import type { StatusState } from '../../battle/status'
 
@@ -199,7 +200,12 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
           await player.showText(describe(events, mine, wild))
           if (wild.hp <= 0) {
             bag.balls++ // win faucet until shops/money arrive
-            await player.showText(awardExp(mine, wild) + '\nFound a Ball! (+1)')
+            // Winning pays, out of the rewards pool — never newly minted.
+            const won = credit(player, 'battleWin')
+            await player.showText(
+              awardExp(mine, wild) + '\nFound a Ball! (+1)' +
+                (won ? `\nEarned ${won} tokens — claim them from the wallet panel.` : ''),
+            )
             break battle
           }
           if (mine.hp <= 0) {
@@ -229,11 +235,18 @@ export async function startWildBattle(player: RpgPlayer, ticker: string) {
           emitTurn(player, [{ type: 'ball', side: 1, bounces: r.bounces, caught: r.caught }])
           if (r.caught) {
             const box = (player.getVariable('BOX') as CreatureInstance[] | undefined) ?? []
+            // Is this a species they have never had? The dex IS the
+            // collection, so the first of each is worth far more than the
+            // fifth — and it cannot be farmed twice.
+            const party = (player.getVariable('PARTY') as CreatureInstance[] | undefined) ?? []
+            const isNew = ![...box, ...party].some((c) => c?.dbSymbol === wild.dbSymbol)
             box.push(wild)
             player.setVariable('BOX', box)
+            const paid = credit(player, isNew ? 'firstCatch' : 'catch')
             await player.showText(
               `Gotcha! ${nameOf(wild)} was caught${r.criticalCapture ? ' (critical capture!)' : ''}!\n` +
-              `It was sent to your Box. (${box.length} in Box)`,
+              `It was sent to your Box. (${box.length} in Box)` +
+              (paid ? `\n${isNew ? 'A new species! ' : ''}Earned ${paid} tokens.` : ''),
             )
             break battle
           }

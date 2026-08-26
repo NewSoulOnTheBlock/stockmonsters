@@ -64,6 +64,20 @@ export const MINT_VOUCHER_TYPE = [
   { name: 'deadline', type: 'uint64' },
 ]
 
+/**
+ * The ERC-20 mint voucher is a DIFFERENT TYPE, not the ETH one with a field
+ * added. Two distinct type hashes mean an ETH voucher can never be replayed as
+ * a token voucher whatever the fee happens to be.
+ */
+export const MINT_VOUCHER_ERC20_TYPE = [
+  { name: 'player', type: 'address' },
+  { name: 'attrCommit', type: 'bytes32' },
+  { name: 'uid', type: 'bytes32' },
+  { name: 'currency', type: 'address' },
+  { name: 'fee', type: 'uint256' },
+  { name: 'deadline', type: 'uint64' },
+]
+
 export const ORDER_TYPE = [
   { name: 'seller', type: 'address' },
   { name: 'tokenId', type: 'uint256' },
@@ -75,6 +89,8 @@ export const ORDER_TYPE = [
   { name: 'requireSealed', type: 'bool' },
   { name: 'attrCommit', type: 'bytes32' },
   { name: 'taker', type: 'address' },
+  // Signed, so a price and the asset it is denominated in cannot be separated.
+  { name: 'currency', type: 'address' },
 ]
 
 /** Sign a MintVoucher. `voucher` = { player, attrCommit, uid, fee, deadline }. */
@@ -88,6 +104,25 @@ export async function signVoucher({ pk, contract, chainId, voucher }) {
       player: voucher.player,
       attrCommit: voucher.attrCommit,
       uid: voucher.uid,
+      fee: BigInt(voucher.fee),
+      deadline: Number(voucher.deadline),
+    },
+  })
+  return { signature, signer: account.address }
+}
+
+/** Sign a MintVoucherERC20 — the same claim, priced in a whitelisted token. */
+export async function signVoucherERC20({ pk, contract, chainId, voucher }) {
+  const account = privateKeyToAccount(pk)
+  const signature = await account.signTypedData({
+    domain: { name: EIP712_DOMAIN_NAME, chainId: Number(chainId), verifyingContract: contract },
+    types: { MintVoucherERC20: MINT_VOUCHER_ERC20_TYPE },
+    primaryType: 'MintVoucherERC20',
+    message: {
+      player: voucher.player,
+      attrCommit: voucher.attrCommit,
+      uid: voucher.uid,
+      currency: voucher.currency,
       fee: BigInt(voucher.fee),
       deadline: Number(voucher.deadline),
     },
@@ -109,6 +144,7 @@ export async function signOrder({ pk, market, chainId, order }) {
     requireSealed: Boolean(order.requireSealed),
     attrCommit: order.attrCommit,
     taker: order.taker ?? '0x0000000000000000000000000000000000000000',
+    currency: order.currency ?? '0x0000000000000000000000000000000000000000',
   }
   const signature = await account.signTypedData({
     domain: { name: MARKET_DOMAIN_NAME, chainId: Number(chainId), verifyingContract: market },
