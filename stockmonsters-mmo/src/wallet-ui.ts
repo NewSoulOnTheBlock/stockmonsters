@@ -147,7 +147,9 @@ const CSS = `
 #sm-wallet {
   display: none;
   z-index: ${Z.marketWindow};
-  left: 24px; top: 96px;
+  /* Clear of the HUD's player card and currency chips, which own the top-left
+     corner. It is draggable from there. */
+  left: 24px; top: 232px;
   width: min(360px, 92vw);
   font-size: 12px;
 }
