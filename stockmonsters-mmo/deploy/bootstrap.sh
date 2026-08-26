@@ -89,7 +89,13 @@ ok "$APP_USER"
 
 # ------------------------------------------------------------------- code ---
 say "code"
-if [ -d "$DIR/.git" ]; then
+# SKIP_CODE=1 when the tree was already put here by deploy/sync.sh. That path
+# ships the committed tree straight over ssh, so a deploy never depends on
+# GitHub having the branch — which matters while the branch is still local.
+if [ "${SKIP_CODE:-0}" = 1 ]; then
+  [ -d "$DIR/stockmonsters-mmo" ] || die "SKIP_CODE=1 but there is no code at $DIR"
+  ok "using the tree already at $DIR"
+elif [ -d "$DIR/.git" ]; then
   git -C "$DIR" fetch --quiet origin "$BRANCH"
   # Hard reset is safe here BECAUSE .env and data/ are gitignored and survive
   # it. Anything else edited in place on the box is meant to be lost — the box
@@ -104,7 +110,7 @@ else
 fi
 APP="$DIR/stockmonsters-mmo"
 [ -d "$APP" ] || die "$APP is missing — is the branch right? (BRANCH=$BRANCH)"
-ok "$(git -C "$DIR" log --oneline -1)"
+[ -d "$DIR/.git" ] && ok "$(git -C "$DIR" log --oneline -1)" || true
 
 # ------------------------------------------------------------------- .env ---
 say "configuration"
