@@ -710,6 +710,37 @@ Three bugs made every login feel like a first one:
 Verified: second login goes straight into the world with the built character
 intact and no prompts; GAME SETTINGS lands on the gear panel.
 
+### Player-to-player DMs and gifting (session 4)
+
+Walk next to someone, press the action key, talk. `src/modules/main/dm.ts`
+(server) + `src/dm-ui.ts` (window), wired in `game-ui.ts`.
+
+- **Nothing is stored.** No database, no log, no localStorage — the window says
+  so in as many words. Messages exist while both players are standing there.
+- **Proximity is server-side and re-checked on every send** (≤64px, same map):
+  players are not events, so RPG-JS's own interaction cannot do this. Walk away
+  mid-conversation and the next message is refused — otherwise "stand next to
+  someone to talk" quietly becomes a second broadcast channel.
+- **1 message / 2s charged to the wallet**, plus a 15s repeat guard. Chat's 5s
+  is right for a broadcast; a DM reaches one person who has a one-click off
+  switch, and 5s makes a real exchange unusable.
+- **Blocking is symmetric**: it stops their messages AND the blocker's, removes
+  both from each other's proximity offer, and refuses gifting. A block ends a
+  conversation rather than making it one-way. In memory, per process, keyed by
+  wallet so it survives the blocked player reloading.
+- **Gifting: the server never moves value.** It returns the recipient's address
+  and nothing else; the player's own wallet signs. ⚠️ That necessarily
+  discloses an address to whoever is standing next to you — inherent to
+  gifting, so it only happens once a gift is actually started, and both sides
+  need a wallet, proximity and no block. NFT transfer uses
+  `safeTransferFrom(address,address,uint256)` = `0x42842e0e`, verified against
+  the compiled artifact (the 4-arg overload `0xb88d4fde` is NOT it).
+- 34 tests in `src/modules/main/dm.spec.ts`; proven in two real browsers.
+
+Known gaps: nothing watches the chain, so a recipient is not notified that a
+gift arrived (the sender's window says to tell them); no HUD entry point for
+opening a DM without walking up to someone.
+
 ### Requested, not yet built (user, 2026-08-25 evening)
 
 - **In-game minigames** once the maps are done — small playable activities

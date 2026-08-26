@@ -9,6 +9,7 @@ import { mountMarketplace, openMarketplace } from "./marketplace";
 import { closeCharacterDesigner, isCharacterDesignerOpen } from "./character-designer";
 import { mountMapBrowser, openMapBrowser } from "./map-browser";
 import { mountExitHints } from "./exit-hints";
+import { mountDmUi } from "./dm-ui";
 import { mountBoxShop, openBoxShop } from "./box-shop";
 
 /*
@@ -143,6 +144,7 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
   mountMapBrowser(engine, socket);
   mountExitHints(engine);
   mountBoxShop(engine, socket);
+  mountDmUi(engine, socket);
 
   // The title screen's NFT/settings buttons enter the world first and then ask
   // for a panel; the in-game window is the single owner of each.
