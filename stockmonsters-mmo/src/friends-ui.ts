@@ -120,6 +120,7 @@ const CSS = `
 }
 #sm-friends .fr-head .spacer { flex: 1 1 auto; }
 #sm-friends .fr-head .count { font-size: 10px; color: ${THEME.muted}; letter-spacing: .06em; }
+#sm-friends .fr-head .smui-close { font-size: 11px; padding: 3px 8px; }
 
 #sm-friends .fr-body {
   flex: 1 1 auto; min-height: 0; overflow-y: auto;
@@ -202,10 +203,22 @@ export function mountFriendsUi(engine?: EngineLike, socket?: SocketLike): Friend
     'aria-label': 'Friends', title: 'Friends',
   }, [badge, document.createTextNode('FRIENDS'), onlineDot])
 
+  /*
+   * The close button is not optional, and it took a phone to notice: on a
+   * small screen the tab is hidden and the panel comes up as a sheet OVER the
+   * action bar — so the button that opened it is behind the thing it opened,
+   * and there was no way back out except a key a phone does not have.
+   */
+  const headClose = el('button', {
+    class: 'smui-btn smui-close is-danger', type: 'button',
+    'aria-label': 'Close friends', text: '✕',
+  })
+  headClose.addEventListener('click', () => close())
   const head = el('div', { class: 'fr-head' }, [
     el('span', { class: 'title', text: 'FRIENDS' }),
     el('span', { class: 'spacer' }),
     el('span', { class: 'count', text: '' }),
+    headClose,
   ])
   const body = el('div', { class: 'fr-body smui-scroll' })
   const status = el('div', { class: 'fr-status', text: '' })
@@ -269,6 +282,11 @@ export function mountFriendsUi(engine?: EngineLike, socket?: SocketLike): Friend
     onlineDot.textContent = String(onlineCount)
     badge.textContent = String(state.incoming.length)
     badge.hidden = state.incoming.length === 0
+    // On a phone the tab is hidden and the action bar is the way in, so the
+    // count has to live there too or a request arrives invisibly.
+    document
+      .querySelector('#sm-hud .hud-slot[data-action="friends"]')
+      ?.setAttribute('data-badge', String(state.incoming.length))
 
     // Not identified: there is nothing to show and nothing to do, so say why
     // rather than presenting an empty list that looks broken.

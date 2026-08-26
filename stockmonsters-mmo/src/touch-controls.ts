@@ -320,16 +320,73 @@ const MOBILE_CSS = `
   #chat-log { max-height: 18vh; font-size: 11px; }
   #chat-input { font-size: 16px; } /* 16px stops iOS zooming on focus */
 
-  /* --- side panels become sheets ---------------------------------------- */
-  #sm-friends { top: 42%; }
-  #sm-friends .fr-panel { width: min(300px, 82vw); max-height: 52vh; }
+  /* --- side panels become bottom sheets ---------------------------------
+   *
+   * A vertical FRIENDS tab down the middle of a phone screen is a desktop
+   * idea wearing a costume. On a phone the panel comes up from the bottom —
+   * where the thumb already is — and it is opened from the action bar, which
+   * has a FRIENDS button anyway. The tab itself is hidden entirely.
+   */
+  #sm-friends {
+    left: 0; right: 0; top: auto; bottom: 0;
+    transform: none;
+    display: block;
+    z-index: 900;
+    pointer-events: none;
+  }
+  #sm-friends .fr-tab { display: none; }
+  #sm-friends .fr-panel {
+    width: 100%; max-height: 74vh;
+    border-left: none; border-right: none; border-bottom: none;
+    box-shadow: 0 -6px 0 rgba(9, 7, 15, .45);
+    pointer-events: auto;
+    /* Off screen until it is opened, so it slides rather than appears. */
+    transform: translateY(100%);
+    transition: transform .18s ease-out;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  #sm-friends.open .fr-panel { transform: translateY(0); }
+  /* A grab bar, so it reads as something that came up and can go back down. */
+  #sm-friends .fr-head::before {
+    content: "";
+    position: absolute; left: 50%; top: 5px; transform: translateX(-50%);
+    width: 44px; height: 4px; background: var(--sm-muted, #b9b2d6); opacity: .5;
+  }
+  #sm-friends .fr-head { position: relative; padding-top: 16px; }
+  /* Bigger tap target for the way out, since the sheet covers the button
+     that opened it. */
+  #sm-friends .fr-head .smui-close { font-size: 14px; padding: 6px 12px; }
+  #sm-friends .fr-body { max-height: 52vh; }
+  #sm-friends .fr-row { padding: 10px 10px; }
+  #sm-friends .fr-row .smui-btn { font-size: 11px; padding: 7px 10px; }
 
-  /* --- windows become full screen --------------------------------------- */
-  #sm-market, #sm-boxshop, #sm-map, #sm-duel, #sm-wallet, #sm-dm {
+  /* The count moves to the action bar, which is the only way in now. */
+  #sm-hud .hud-slot[data-badge]:not([data-badge="0"])::after {
+    content: attr(data-badge);
+    position: absolute; top: -6px; right: -6px;
+    min-width: 16px; padding: 1px 4px;
+    background: var(--sm-danger, #e06c75); color: #fff;
+    font-size: 9px; font-weight: 700; line-height: 1.3; text-align: center;
+    box-shadow: 2px 2px 0 var(--sm-shadow, #09070f);
+  }
+  #sm-hud .hud-slot { position: relative; }
+
+  /* --- the rest become sheets or full screen ----------------------------- */
+  /* Big, browsable things take the screen. */
+  #sm-market, #sm-boxshop, #sm-map, #sm-duel {
     left: 0 !important; right: 0 !important; top: 0 !important; bottom: 0 !important;
     width: 100% !important; max-width: 100% !important;
     height: 100% !important; max-height: 100% !important;
     transform: none !important;
+  }
+  /* Small, glanceable ones sit at the bottom where the thumb is. */
+  #sm-wallet, #sm-dm {
+    left: 0 !important; right: 0 !important; top: auto !important; bottom: 0 !important;
+    width: 100% !important; max-width: 100% !important;
+    max-height: 76vh !important;
+    transform: none !important;
+    border-left: none; border-right: none; border-bottom: none;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   #sm-duel .d-picks { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 7px; }
   #sm-duel .d-pick .art { width: 64px; height: 64px; }
