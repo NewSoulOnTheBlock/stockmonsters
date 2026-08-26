@@ -41,6 +41,7 @@
  * a player's transaction.
  */
 
+import { ensureChain } from './chain-guard'
 import DEX from './data/dex.json'
 import NATURES from './data/studio/natures.json'
 import {
@@ -1244,6 +1245,12 @@ export function mountBoxShop(
     const to = v.contract || quote?.contract
     if (!to) throw new Error('This server has no NFT contract configured, so boxes cannot be minted.')
 
+    note('checking your network\u2026')
+    // The wallet must be on the chain this was signed for. A voucher
+    // signed for Sepolia is not a lesser transaction on mainnet, it is a
+    // transaction to a different contract.
+    await ensureChain(eth)
+
     // Paying in ETH: one transaction, the fee as msg.value.
     if (!v.currency) {
       const data = encodeMintCaught({
@@ -1338,6 +1345,7 @@ export function mountBoxShop(
           r.uid === b.uid ? { ...r, status: 'opened' as BoxStatus, openedAt: new Date().toISOString() } : r)
         writeDemoBoxes(rows)
       } else {
+        await ensureChain(eth)
         const data = encodeOpen({
           tokenId: b.tokenId!, dexId: reveal.dexId, level: reveal.level, ivs: reveal.ivs,
           natureId: reveal.natureId, shiny: reveal.shiny, caughtAt: reveal.caughtAt, salt: reveal.salt,

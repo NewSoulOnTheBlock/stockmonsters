@@ -41,6 +41,7 @@
  *    on chain cannot be undone.
  */
 
+import { ensureChain } from './chain-guard'
 import {
   ensureUiKit, injectStyle, el, guardKeys, pushLayer, layerDepth,
   makeDraggable, watchGameDialog, parseEth, formatEth, shortAddr, Z, THEME,
@@ -663,6 +664,9 @@ export function mountDmUi(engine?: EngineLike, socket?: SocketLike): DmUiApi {
     ui.confirm.disabled = true
     ui.confirm.textContent = 'WAITING FOR YOUR WALLET…'
     try {
+      // Sending on the wrong chain is the one mistake here that cannot be
+      // undone — the ETH is really gone, to a chain neither of you meant.
+      await ensureChain(eth)
       const hash = await eth.request({
         method: 'eth_sendTransaction',
         params: [{ from, to: to.address, value: '0x' + BigInt(wei).toString(16) }],
@@ -689,6 +693,7 @@ export function mountDmUi(engine?: EngineLike, socket?: SocketLike): DmUiApi {
     ui.confirm.disabled = true
     ui.confirm.textContent = 'WAITING FOR YOUR WALLET…'
     try {
+      await ensureChain(eth)
       const data = encodeSafeTransferFrom(from, to.address, tokenId)
       const hash = await eth.request({
         method: 'eth_sendTransaction',

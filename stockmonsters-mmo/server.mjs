@@ -108,6 +108,28 @@ if (tokens.enabled) {
     .catch((err) => console.warn(`[token] could not read the token (${err.message}) — currency hidden`))
 }
 
+/*
+ * Two chain ids are configured independently — BOX_CHAIN_ID signs NFT
+ * vouchers, SM_CHAIN_ID signs wagers and reward claims — and nothing forced
+ * them to agree. They must: the wallet can only be on one chain, and the
+ * client is now told to switch to SM_CHAIN_ID. If they disagree, every box
+ * voucher is signed for a chain the player was just moved off, and the mint
+ * reverts with a signature error that blames the signature.
+ *
+ * A warning rather than a refusal: a server that will not boot is worse than
+ * one that says exactly what is wrong, and the box store may legitimately be
+ * unconfigured.
+ */
+if (boxes.enabled && tokens.chainInfo().chainId && boxes.chainId !== tokens.chainInfo().chainId) {
+  console.warn(
+    `[chain] BOX_CHAIN_ID=${boxes.chainId} but SM_CHAIN_ID=${tokens.chainInfo().chainId}. `
+    + 'The client switches wallets to SM_CHAIN_ID, so box vouchers will be signed for a chain '
+    + 'nobody is on. Set them to the same value.',
+  )
+} else if (boxes.enabled) {
+  console.log(`[chain] everything signs for ${tokens.chainInfo().name} (${boxes.chainId})`)
+}
+
 const { WebSocketServer } = createRequire(import.meta.url)('ws')
 
 const transport = createRpgServerTransport(serverModule.default ?? serverModule, {

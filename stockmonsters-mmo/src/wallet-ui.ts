@@ -32,6 +32,7 @@ import {
   watchGameDialog, shortAddr, Z, THEME,
 } from './ui-kit'
 import { getHud } from './hud'
+import { ensureChain } from './chain-guard'
 
 /* ============================================================== CALLDATA ===*/
 
@@ -366,8 +367,10 @@ function render() {
     const eth = ethereum()
     if (!eth || !w?.address) { err.textContent = 'No browser wallet found.'; return }
     claimBtn.disabled = true
-    claimBtn.textContent = 'ASKING THE SERVER…'
+    claimBtn.textContent = 'CHECKING YOUR NETWORK…'
     try {
+      await ensureChain(eth)
+      claimBtn.textContent = 'ASKING THE SERVER…'
       const res = await fetch('/rewards/claim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

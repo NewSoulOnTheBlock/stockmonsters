@@ -78,6 +78,21 @@ const CLAIM_TYPE = [
   { name: 'deadline', type: 'uint64' },
 ]
 
+/*
+ * Names and explorers for the chains this game is ever pointed at. Only used
+ * to talk to the player — "switch to Sepolia" lands, "switch to 11155111" does
+ * not — so an unlisted chain degrades to the number rather than failing.
+ */
+const CHAIN_NAMES = {
+  1: 'Ethereum',
+  11155111: 'Sepolia',
+  31337: 'Anvil (local)',
+}
+const CHAIN_EXPLORERS = {
+  1: 'https://etherscan.io',
+  11155111: 'https://sepolia.etherscan.io',
+}
+
 const isAddress = (v) => typeof v === 'string' && /^0x[0-9a-fA-F]{40}$/.test(v)
 
 /** How long a signed claim stays valid. Long enough to approve and send. */
@@ -345,6 +360,22 @@ export function createTokenStore(opts = {}) {
       return configured
     },
     /**
+     * Which chain the player's wallet must be on.
+     *
+     * Deliberately independent of `configured`: the box shop signs vouchers
+     * bound to a chain id whether or not a game token exists, so the guard has
+     * to work before the token does. No RPC call, no token read — this must
+     * answer on a server whose RPC is down, because "switch network" is the
+     * advice that fixes half of those outages.
+     */
+    chainInfo() {
+      return {
+        chainId,
+        name: CHAIN_NAMES[chainId] ?? `chain ${chainId}`,
+        explorer: CHAIN_EXPLORERS[chainId] ?? null,
+      }
+    },
+    /**
      * The token's decimals, synchronously, for code that cannot await — the
      * game modules crediting rewards. Defaults to 18 until the first metadata
      * read lands, which server.mjs primes at boot precisely so this is never
@@ -555,6 +586,14 @@ export async function handleTokenRoutes(req, res, store, profiles) {
   if (path !== '/token' && !path.startsWith('/token/') && !path.startsWith('/rewards/')) return false
 
   try {
+    // Answered before /token so a dead RPC cannot take the chain guard down
+    // with it — the guard is what tells a player their wallet is on the wrong
+    // network, which is exactly when everything else looks broken too.
+    if (path === '/token/chain' && req.method === 'GET') {
+      json(res, 200, store.chainInfo())
+      return true
+    }
+
     if (path === '/token' && req.method === 'GET') {
       json(res, 200, await store.metadata())
       return true

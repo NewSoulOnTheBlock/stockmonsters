@@ -259,6 +259,10 @@
         </div>
       </div>
     </div>
+    <!-- Which chain the wallet must be on. Loaded before the inline script
+         below because the title screen's connect() needs it, and the bundled
+         game UI reads the same global through src/chain-guard.ts. -->
+    <script src="/chain-guard.js"></script>
     <script>
       // Classic RPG dialog feel: click the window (or Space/Enter) to
       // advance text. The engine only resolves showText via its close
@@ -415,9 +419,18 @@
           if (!window.ethereum) { primary.textContent = "NO WALLET FOUND"; return; }
           var previous = primary.textContent;
           try {
-            primary.textContent = "SIGNING\u2026";
+            primary.textContent = "CONNECTING\u2026";
             var accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
             var address = accounts[0];
+            // Put them on the right chain BEFORE the first signature. Every
+            // voucher, wager and claim this game issues is bound to a chain
+            // id; signing on the wrong one produces a message that looks
+            // valid and lands nowhere.
+            if (window.SMChain) {
+              primary.textContent = "NETWORK\u2026";
+              await window.SMChain.ensure(window.ethereum);
+            }
+            primary.textContent = "SIGNING\u2026";
             var nonceRes = await fetch("/auth/nonce");
             if (!nonceRes.ok) throw new Error("login service unavailable (" + nonceRes.status + ")");
             var nonce = (await nonceRes.json()).nonce;
@@ -439,10 +452,12 @@
             render();
           } catch (err) {
             primary.textContent = previous;
-            // Say what actually happened: a rejected signature and a dead
-            // login service are very different problems for the player.
-            walletLine.textContent =
-              (err && (err.code === 4001 || /user rejected|denied/i.test(err.message || "")))
+            // Say what actually happened: a rejected signature, a wallet on
+            // the wrong network and a dead login service are three different
+            // problems for the player, and only one of them is their doing.
+            walletLine.textContent = err && err.smCode
+              ? err.message
+              : (err && (err.code === 4001 || /user rejected|denied/i.test(err.message || "")))
                 ? "Signature rejected."
                 : "Login failed: " + ((err && err.message) || "unknown error");
           }

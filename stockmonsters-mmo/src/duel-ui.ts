@@ -35,6 +35,7 @@ import {
 } from './ui-kit'
 import { getTokenMeta, formatUnits, encodeApprove, encodeAllowance, word, bytesTail } from './wallet-ui'
 import { play as sfx } from './sfx'
+import { ensureChain, chainErrorMessage } from './chain-guard'
 
 /* ============================================================== CALLDATA ===*/
 
@@ -460,6 +461,15 @@ async function signWager() {
   const eth = ethereum()
   const w = wallet()
   if (!eth || !w?.address || !pendingSign) return
+  // The wager domain names a chain id. Signing it while parked on another
+  // chain produces a signature the arena will never accept, and the player
+  // only finds out when the escrow refuses them.
+  try {
+    await ensureChain(eth)
+  } catch (err) {
+    note(chainErrorMessage(err), 'warn')
+    return
+  }
   const typed = {
     domain: { name: 'StockmonstersArena', chainId: pendingSign.chainId, verifyingContract: pendingSign.arena },
     types: {
@@ -510,6 +520,7 @@ async function sendOpen(d: any) {
   const meta = getTokenMeta()
   if (!eth || !w?.address || !meta.contracts?.token) return
   try {
+    await ensureChain(eth)
     const needed = BigInt(d.amount)
     const current = BigInt(
       (await eth.request({
@@ -545,6 +556,7 @@ async function sendSettle(d: any) {
   const w = wallet()
   if (!eth || !w?.address) return
   try {
+    await ensureChain(eth)
     note('Step 4 of 4 — claiming the pot.')
     const hash = await eth.request({
       method: 'eth_sendTransaction',
