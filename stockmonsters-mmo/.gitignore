@@ -4,3 +4,4 @@ node_modules
 
 # Screenshots that end-to-end tests drop in the project root.
 first-login.png
+live.png

@@ -1022,9 +1022,25 @@ live in three places. Pick a real ops wallet — it is the deployer today.
 
 ### WHERE THIS STANDS — session 6 (2026-08-26)
 
+**IT IS DEPLOYED.** https://test.lordfishnu.com — Ubuntu 24.04 at
+66.179.31.212, one Node process behind Caddy, Postgres and Redis in Docker.
+The old WebRTC streaming stack that lived on that box was removed (its
+uncommitted local changes and its .env are backed up in
+/root/backup-streaming/, and Caddy's certificate volume was deliberately kept).
+
+Deploy tooling is `stockmonsters-mmo/deploy/` — bootstrap.sh, sync.sh, a
+Caddyfile and a systemd unit. To ship a new commit:
+
+    cd stockmonsters-mmo && ./deploy/sync.sh root@66.179.31.212
+
+Verify it with `npm run test:e2e:live`, which drives the real site in a real
+browser. THE WEBSOCKET IS WHAT MATTERS: a misconfigured proxy serves the title
+screen, the API and every asset perfectly and then silently fails the upgrade,
+so the site looks completely fine and the world never loads. A 200 proves
+nothing; a player object standing on a map does.
+
 The game is playable end to end, on desktop and on a phone, against a live
-economy on Sepolia. Nothing is deployed to a public server yet: that is still
-LAST, by the user's instruction.
+economy on Sepolia.
 
 **Works, and was driven in a real browser to prove it:** one walkable world of
 171 maps · wallet login with server-verified signatures · Postgres profiles ·
@@ -1091,12 +1107,16 @@ which `ipfs.mjs set` now refuses to do otherwise.)
 - **WalletConnect.** A normal mobile browser cannot connect a wallet;
   `window.ethereum` only exists inside a wallet's in-app browser. The title
   screen says so rather than showing a dead button.
-- **A real marketplace back end.** The contract is deployed and the UI works,
-  but the listings are still `demoMarketSource()` — there is no order book
-  storing signed orders yet.
-- **Trainer XP.** The HUD's LV 12 / 640-1000 XP is still invented; creature
-  XP is real. The design (battles, first catches, map discovery) is agreed but
-  unbuilt.
+- ~~A real marketplace back end~~ — BUILT. `market.mjs` indexes signed orders
+  and holds no custody. Two known gaps, documented in the code: a token bought
+  on the market does not appear in its new owner's MY LISTINGS (`/box/mine` is
+  keyed to the wallet that bought the box, and the NFT has no
+  `tokenOfOwnerByIndex`), and the sell form only prices in ETH though the SMON
+  path is proven end to end.
+- ~~Trainer XP~~ — BUILT. `src/modules/main/trainer.ts`. Deliberately not part
+  of the reward ledger: XP is not money, buys nothing and has no on-chain form,
+  which is why it can be generous where earnings.ts must be stingy. Keeping
+  them together would eventually cap the wrong one.
 - **Gyms. Not built at all** — an earlier version of this file wrongly listed
   them as working. `StockmonstersGyms` is deployed, configured and funded, and
   NOT ONE LINE OF CODE CALLS IT: no ABI, no server module, no UI, no gym
@@ -1105,7 +1125,14 @@ which `ipfs.mjs set` now refuses to do otherwise.)
   (players stake to hold a gym, challengers pay an entry fee to fight for it,
   every payout comes out of that fee so the loop is solvent by construction).
 - **In-game minigames, NFT staking, play-to-earn beyond duels.**
-- **Deploy.** The lord-fishu pattern (bootstrap/sync/Caddy) is the plan.
+- **A domain of its own.** It is on `test.lordfishnu.com` because that already
+  pointed at the box and had a certificate. One line in `.env` (`SM_DOMAIN`)
+  plus a `bootstrap.sh` re-run moves it.
+- **npm ci does not work on the box.** This repo is developed with pnpm and its
+  `package-lock.json` is a stale side-artifact, so ci refuses on peers it never
+  recorded (`@pixi/react` needs `react`, which npm auto-installs and the lock
+  does not list). bootstrap falls back to `npm install` and says so. Committing
+  a lock npm itself generated would fix it properly.
 
 #### If you change one thing, know this first
 

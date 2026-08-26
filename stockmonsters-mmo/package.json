@@ -25,6 +25,7 @@
     "test:e2e:sepolia": "node --env-file-if-exists=.env tools/e2e-sepolia.mjs",
     "test:e2e:chain": "node --env-file-if-exists=.env tools/e2e-chain-guard.mjs",
     "test:e2e:first-login": "node --env-file-if-exists=.env tools/e2e-first-login.mjs",
+    "test:e2e:live": "node --env-file-if-exists=.env tools/e2e-live.mjs",
     "ipfs:pack": "node tools/ipfs.mjs pack",
     "ipfs:upload": "node --env-file-if-exists=.env tools/ipfs.mjs upload"
   },
