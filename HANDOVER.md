@@ -1020,7 +1020,7 @@ taxed. Set the buyback router. Move the three keys (deployer, box signer, claim
 signer) off the game server's disk; they are three keys precisely so they can
 live in three places. Pick a real ops wallet — it is the deployer today.
 
-### WHERE THIS STANDS — end of session 5 (2026-08-26)
+### WHERE THIS STANDS — session 6 (2026-08-26)
 
 The game is playable end to end, on desktop and on a phone, against a live
 economy on Sepolia. Nothing is deployed to a public server yet: that is still
@@ -1031,19 +1031,43 @@ LAST, by the user's instruction.
 character designer · names (unique, 16 chars, one change a day) · global chat ·
 proximity DMs, blocking and gifting · friends with remote DMs and presence ·
 fast travel gated on having walked there · wild battles with animation and
-sound · sealed loot boxes (provably fair, buyable in ETH **or** SMON) · an NFT
-marketplace contract · reward claims paid on chain · blind-pick duels for real
-tokens · player-held gyms.
+sound · sealed loot boxes (provably fair, buyable in ETH **or** SMON, minted
+and opened with real transactions) · reward claims paid on chain · blind-pick
+duels for real tokens.
+
+**The wallet is now forced onto the right chain.** `public/chain-guard.js`
+switches it at connect — before the FIRST signature — and again before every
+send: mint, open, wager, settle, claim, and both DM gifts. Every signature this
+game makes is bound to a chain id, so a wallet parked on mainnet used to sign a
+valid-looking message and broadcast to an address that belongs to someone else.
+It is a classic script in `public/` because the title screen is inline ES5 and
+the game UI is bundled TypeScript; `src/chain-guard.ts` is a typed shim over the
+same global. Two callers, one implementation — do not fork it.
 
 **Live on Sepolia** (addresses in `stockmonsters-mmo/deployments/sepolia.json`,
 full write-up in `stockmonsters-mmo/docs/token-economy.md`): token, rewards
 pool, treasury, NFT, marketplace, gyms, arena. NOT verified on Etherscan — the
 user asked for the deploy without it.
 
+The NFT's 254-species registry is loaded (7 batches). It was EMPTY until
+session 6, which meant every reveal would have reverted. `freezeSpecies()` is
+still uncalled, deliberately — call it when the roster is final, and after that
+nobody can rewrite the species behind a token that is already sold.
+
 **Tests:** `npx vitest run` 229 · `cd contracts && forge test` 156 (+8 more with
-`--fork-url` against real Uniswap) · four end-to-end runs that drive real
+`--fork-url` against real Uniswap) · six end-to-end runs that drive real
 browsers and real transactions: `test:e2e:persistence`, `test:e2e:friends`,
-`test:e2e:token`, `test:e2e:duel`.
+`test:e2e:token`, `test:e2e:duel`, `test:e2e:sepolia` (voucher → mint → the
+server learns the token id off chain → reveal → `open()` → the token reads as a
+named creature with its IPFS art loading), `test:e2e:chain` (three wallets: one
+on mainnet that switches, one that answers 4902 and must be offered the chain,
+one whose owner refuses — and it asserts the ORDER, because a signature made on
+the wrong chain is bound to the wrong chain id and nothing downstream can tell).
+
+Every one of these must stay runnable. `test:e2e:token` now generates and funds
+a FRESH wallet per run: the rewards contract allows one claim per player per
+epoch, so reusing the deploy key made the test go red on its second run of the
+day for doing exactly the right thing.
 
 #### The three things blocking a public launch
 
@@ -1051,12 +1075,16 @@ browsers and real transactions: `test:e2e:persistence`, `test:e2e:friends`,
    (254 dex + 254 overworld), but the MAPS are Kanto/Johto, the tilesets are
    PSDK's, the SOUND is a fan rip, and species internals still carry names like
    `bulbasaur`. Testable privately; not publishable.
-2. **NFT images 404.** The metadata is on chain and fine; `imageBaseURI` points
-   at a domain that does not exist. `node tools/ipfs.mjs pack` has the folder
-   ready (509 files, 4.8 MB) — it needs a pinning account, then
-   `node tools/ipfs.mjs set --cid <cid>`.
-3. **Three keys sit on the game server's disk** (box signer, reward signer,
+2. **Three keys sit on the game server's disk** (box signer, reward signer,
    battle signer) and the ops wallet is the deployer. Fine for a testnet.
+
+(The old third blocker, NFT images 404ing, is FIXED. The art is pinned on
+Pinata and `imageBaseURI` points at `ipfs://bafybeickaanjlxwbmcxaccjylsedi7ome
+xniy56euyuio2agmffw5w3zrm/`. `PINATA_JWT` and the optional `PINATA_GATEWAY`
+live in `stockmonsters-mmo/.env`. A gateway is NOT required for anything to
+work — what goes on chain is `ipfs://`, which wallets resolve themselves — it
+is only used to prove the art is retrievable before pointing a contract at it,
+which `ipfs.mjs set` now refuses to do otherwise.)
 
 #### What the user asked for that is NOT built
 
@@ -1069,7 +1097,14 @@ browsers and real transactions: `test:e2e:persistence`, `test:e2e:friends`,
 - **Trainer XP.** The HUD's LV 12 / 640-1000 XP is still invented; creature
   XP is real. The design (battles, first catches, map discovery) is agreed but
   unbuilt.
-- **In-game minigames, NFT staking, play-to-earn beyond duels and gyms.**
+- **Gyms. Not built at all** — an earlier version of this file wrongly listed
+  them as working. `StockmonstersGyms` is deployed, configured and funded, and
+  NOT ONE LINE OF CODE CALLS IT: no ABI, no server module, no UI, no gym
+  anywhere in the world. `SM_GYMS_ADDRESS` is read in `token.mjs` and exposed
+  at `/token` and that is the entire integration. The contract is the good half
+  (players stake to hold a gym, challengers pay an entry fee to fight for it,
+  every payout comes out of that fee so the loop is solvent by construction).
+- **In-game minigames, NFT staking, play-to-earn beyond duels.**
 - **Deploy.** The lord-fishu pattern (bootstrap/sync/Caddy) is the plan.
 
 #### If you change one thing, know this first
@@ -1080,6 +1115,16 @@ browsers and real transactions: `test:e2e:persistence`, `test:e2e:friends`,
 - The mobile stylesheet must be injected LAST (`mountMobileLayout()` at the end
   of `mountGameUi`), or every panel's own CSS silently overrules it.
 - `forge build` needs `via_ir`; without it the NFT is 334 bytes over EIP-170.
+- **`npm run build` is NOT the production build.** It builds the standalone
+  game into `dist/`, wiping `dist/client` — which is what `server.mjs` serves.
+  Production is `npm run build:mmo` (`RPG_TYPE=mmorpg vite build`). Every
+  puppeteer test serves `dist/client`, so a stale build silently tests old
+  code: two "bugs" in session 6 were nothing but that.
+- `BOX_RPC_URL` and `BOX_FROM_BLOCK` are load-bearing. Without the first,
+  `lootbox.mjs` builds no chain client, the mint indexer never runs, and no box
+  ever learns its token id — which breaks opening a box AND empties the duel
+  fighter list, neither of which looks like a missing env var. Without the
+  second, every sync asks a public RPC for the whole chain and is refused.
 - Delete `data/` if a player cannot move. It is disposable; `server.mjs` now
   clears it on boot.
 
