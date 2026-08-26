@@ -460,7 +460,21 @@
               var why = await res.json().catch(function () { return {}; });
               throw new Error(why.error || ("verification failed (" + res.status + ")"));
             }
-            localStorage.setItem("sm-wallet", JSON.stringify(await res.json()));
+            var verified = await res.json();
+            localStorage.setItem("sm-wallet", JSON.stringify(verified));
+            /*
+             * TELL THE GAME. It is already mounted behind this screen.
+             *
+             * The title screen is an overlay on a game that booted before the
+             * player pressed anything, so every module that read the wallet at
+             * mount read `null` — and kept it. For a FIRST-TIME player that
+             * meant `auth:wallet` was never sent at all: the server never
+             * learned who they were, so no profile loaded, no name could be
+             * claimed, chat stayed locked, and they were "Trader" forever.
+             * Returning players were fine, because their wallet was already in
+             * localStorage when the page loaded, which is why this survived.
+             */
+            window.dispatchEvent(new CustomEvent("sm:wallet", { detail: verified }));
             render();
           } catch (err) {
             primary.textContent = previous;

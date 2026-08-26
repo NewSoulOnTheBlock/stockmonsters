@@ -223,6 +223,11 @@ export async function mountWalletUi(): Promise<void> {
   refreshTimer = setInterval(() => { void refresh() }, 30_000)
   window.addEventListener('beforeunload', () => clearInterval(refreshTimer))
   window.addEventListener('sm:wallet-refresh', () => { void refresh() })
+  // A first-time player connects their wallet AFTER this mounted — the title
+  // screen sits on top of an already-running game. Without this the HUD kept
+  // the placeholder chips (the invented `SMON 12,400`) for the whole session,
+  // which is the worst possible thing for a number to do.
+  window.addEventListener('sm:wallet', () => { void refresh() })
 }
 
 function build() {

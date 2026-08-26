@@ -237,10 +237,32 @@ export function mountChatUi(engine: Engine, socket: Socket) {
 
   // A wallet-connected player must have a name; without a wallet they can look
   // around but not chat.
-  const hasWallet = (() => {
+  const hasWallet = () => {
     try { return !!JSON.parse(localStorage.getItem('sm-wallet') ?? 'null')?.connectionId } catch { return false }
-  })()
-  if (hasWallet) {
+  }
+
+  /*
+   * THE WALLET USUALLY ARRIVES AFTER THIS MOUNTS.
+   *
+   * The title screen is an overlay on an already-running game, so a first-time
+   * player connects their wallet long after chat mounted. Reading the wallet
+   * once, here, left them locked out of chat and never asked for a name — they
+   * stayed "Trader" for the whole session. Returning players were unaffected,
+   * because their wallet was in localStorage before the page loaded, which is
+   * exactly why nobody noticed.
+   *
+   * So this runs on mount if there is a wallet, and otherwise the moment one
+   * shows up. It must never run twice: the name modal is modal.
+   */
+  let walletHandled = false
+  function onWalletReady() {
+    if (walletHandled || !hasWallet()) return
+    walletHandled = true
+    input.placeholder = touchDevice() ? 'Tap to chat' : 'Say something…'
+    input.disabled = false
+    // Re-read rather than trusting the value captured at mount: a name may
+    // have been written between then and the wallet arriving.
+    named = localStorage.getItem('sm-name')
     if (named) {
       // A stored name is only a claim: another wallet may have taken it since,
       // or it may predate a rule change. If the server refuses it we have no
@@ -267,16 +289,16 @@ export function mountChatUi(engine: Engine, socket: Socket) {
     } else {
       whenInWorld(openNameModal)
     }
-  } else {
-    input.placeholder = 'Connect a wallet to chat'
   }
 
-  /*
-   * A phone has no Enter key to press, and the placeholder said to press one.
-   * Tapping the field is the whole interaction there, so it says that instead
-   * — and the field is focusable rather than only reachable by keyboard.
-   */
-  if (touchDevice() && !input.disabled) input.placeholder = 'Tap to chat'
+  if (hasWallet()) {
+    onWalletReady()
+  } else {
+    input.placeholder = 'Connect a wallet to chat'
+    input.disabled = true
+    // index.html fires this the instant /auth/verify comes back.
+    window.addEventListener('sm:wallet', () => onWalletReady())
+  }
 
   // Choosing a name is mandatory, so while the modal is up the world must not
   // be playable behind it: without this the player just walks away from the

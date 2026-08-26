@@ -87,13 +87,24 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
     push();
   };
 
-  // Announce the wallet identity, if the server verified one earlier.
-  if (wallet?.connectionId) {
+  /*
+   * Announce the wallet identity.
+   *
+   * This has to work for a wallet that arrives AFTER mount. The title screen
+   * is an overlay on an already-running game, so a first-time player connects
+   * long after this code ran — and reading `wallet` once meant they never sent
+   * `auth:wallet` at all. The server then had no idea who they were: no
+   * profile, no name, no friends, no rewards, and "Trader" on their head.
+   */
+  const announceWallet = (w?: { address?: string; connectionId?: string } | null) => {
+    if (!w?.connectionId) return;
     const claim = () =>
-      engine?.processAction?.("auth:wallet", { id: wallet.connectionId, address: wallet.address });
+      engine?.processAction?.("auth:wallet", { id: w.connectionId, address: w.address });
     claim();
     setTimeout(claim, 900); // once more after the room is certainly joined
-  }
+  };
+  announceWallet(wallet);
+  window.addEventListener("sm:wallet", (e) => announceWallet((e as CustomEvent).detail));
 
   try {
     setCharacter(JSON.parse(localStorage.getItem("sm-character") ?? "null"));
