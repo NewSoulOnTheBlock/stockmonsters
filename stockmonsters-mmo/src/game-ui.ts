@@ -14,6 +14,7 @@ import { mountBoxShop, openBoxShop } from "./box-shop";
 import { mountFriendsUi, getFriendsUi } from "./friends-ui";
 import { mountWalletUi, openWallet } from "./wallet-ui";
 import { mountDuelUi, openDuelOffer } from "./duel-ui";
+import { mountSfx } from "./sfx";
 
 /*
  * Everything the player sees on top of the map: zoom, HUD, chat, battle scene,
@@ -29,6 +30,9 @@ import { mountDuelUi, openDuelOffer } from "./duel-ui";
 
 export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectionId?: string } | null) {
   applyAutoZoom(ctx);
+  // Sound first: it listens for the first interaction, which may be the click
+  // that dismissed the title screen a moment ago.
+  mountSfx();
 
   const engine: any = inject(ctx as any, RpgClientEngine);
   // Debug handle: the only way to inspect live player/graphic state from a

@@ -895,6 +895,30 @@ challenger loses, and on a win the gym changes hands with a 20% takeover bounty
 out of the old holder's stake. No emissions anywhere — every payout is an entry
 fee somebody chose to pay.
 
+### Sound, and the IP problem that comes with it
+
+`public/audio/` holds twelve effects lifted from the same fan pack as the maps
+(`new-assets/The Pokémon World Project - Kanto/Audio`). Wired in `src/sfx.ts`:
+hits by effectiveness, faints, ball shakes, UI clicks, and win/lose fanfares on
+a duel. It obeys the HUD's SOUND EFFECTS toggle live, stays silent until the
+first click (browsers refuse audio before a gesture), and swallows every
+failure — a missing file must never throw.
+
+**Same problem as the tilesets: this is Nintendo-derived audio.** Fine for a
+testnet, has to be replaced before anything is public.
+
+### ⚠️ Reward farming was open, now capped
+
+Nothing rate-limits wild battles, so a scripted client could win one every few
+seconds and grind `battleWin` for an income. The on-chain per-epoch budget
+bounds the POOL but not one bot's share of it.
+
+`earnings.ts` now caps ONE WALLET at 1,000 tokens per epoch, credits the part
+that fits rather than refusing a whole reward, and tells the player when they
+have hit it. That is a mitigation, not a fix — the real answer is rewarding
+things a bot cannot fake, which is what gyms and duels do (and why neither pays
+out of the reward pool).
+
 ### ⚠️ The contracts are fork-tested against real Uniswap
 
 `forge test --fork-url https://ethereum-rpc.publicnode.com --match-path

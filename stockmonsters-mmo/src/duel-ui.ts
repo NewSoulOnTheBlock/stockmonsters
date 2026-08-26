@@ -34,6 +34,7 @@ import {
   watchGameDialog, shortAddr, Z, THEME,
 } from './ui-kit'
 import { getTokenMeta, formatUnits, encodeApprove, encodeAllowance, word, bytesTail } from './wallet-ui'
+import { play as sfx } from './sfx'
 
 /* ============================================================== CALLDATA ===*/
 
@@ -84,25 +85,50 @@ interface EngineLike { processAction?: (a: string, d: unknown) => void }
 interface SocketLike { on?: (t: string, cb: (d: any) => void) => void }
 interface Eip1193 { request(a: { method: string; params?: unknown[] }): Promise<any> }
 
-interface MyBox { tokenId: string; name: string; level: number; ticker?: string | null; sprite?: string | null }
+interface MyBox {
+  tokenId: string
+  name: string
+  level: number
+  ticker?: string | null
+  sprite?: string | null
+  band?: string | null
+  /** Sum of the six IVs, 0..186 — the only "quality" number a player can act on. */
+  ivTotal?: number
+  shiny?: boolean
+}
 
 /* =============================================================== STYLES ===*/
 
 const CSS = `
+/* A duel is the biggest decision in the game — it gets the whole screen, the
+   way the marketplace does, rather than a corner window. */
+#sm-duel-backdrop {
+  position: fixed; inset: 0; z-index: ${Z.marketModal - 1};
+  background: rgba(9, 7, 15, .72);
+  display: none;
+}
+#sm-duel-backdrop.open { display: block; }
+
 #sm-duel {
   display: none;
+  position: fixed;
   z-index: ${Z.marketModal};
-  left: 50%; top: 12%;
-  transform: translateX(-50%);
-  width: min(460px, 94vw);
-  max-height: 80vh;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(880px, 94vw);
+  max-height: 88vh;
   font-size: 12px;
+  flex-direction: column;
 }
 #sm-duel.open { display: flex; }
 #sm-duel.dialog-hidden { display: none !important; }
 #sm-duel .d-body {
-  display: flex; flex-direction: column; gap: 10px; padding: 12px;
+  display: flex; flex-direction: column; gap: 12px; padding: 16px 18px;
   overflow-y: auto;
+}
+#sm-duel h3 {
+  margin: 0; font-family: ${THEME.display}; font-weight: 600;
+  font-size: 15px; letter-spacing: .12em; text-shadow: 2px 2px 0 ${THEME.shadow};
 }
 #sm-duel .d-warn {
   background: #3a1f24; border: 2px solid ${THEME.danger};
@@ -116,16 +142,42 @@ const CSS = `
 #sm-duel .d-row { display: flex; gap: 8px; align-items: center; }
 #sm-duel .d-row .smui-input { flex: 1 1 auto; min-width: 0; }
 #sm-duel .d-row .k { font-size: 10px; letter-spacing: .12em; color: ${THEME.muted}; }
-#sm-duel .d-picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; }
-#sm-duel .d-pick {
-  display: flex; flex-direction: column; gap: 2px; align-items: flex-start;
-  background: ${THEME.dark}; border: 2px solid #3b3459; padding: 7px 8px;
-  cursor: pointer; color: ${THEME.text}; text-align: left; font-family: inherit;
+#sm-duel .d-picks {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;
 }
-#sm-duel .d-pick:hover { border-color: ${THEME.border}; }
+#sm-duel .d-pick {
+  position: relative;
+  display: flex; flex-direction: column; gap: 4px; align-items: center;
+  background: ${THEME.dark}; border: 3px solid #3b3459; padding: 10px 8px 9px;
+  cursor: pointer; color: ${THEME.text}; font-family: inherit;
+  box-shadow: 3px 3px 0 ${THEME.shadow};
+}
+#sm-duel .d-pick:hover { border-color: ${THEME.border}; transform: translate(-1px, -1px); }
 #sm-duel .d-pick.is-chosen { border-color: ${THEME.ok}; background: #1f2b1c; }
-#sm-duel .d-pick .nm { font-weight: 700; font-size: 11px; }
+#sm-duel .d-pick .art {
+  width: 84px; height: 84px; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(#211c38, #171329); border: 2px solid #2f2947;
+}
+#sm-duel .d-pick .art img { width: 76px; height: 76px; object-fit: contain; image-rendering: pixelated; }
+#sm-duel .d-pick .nm { font-weight: 700; font-size: 12px; letter-spacing: .06em; }
 #sm-duel .d-pick .sub { font-size: 10px; color: ${THEME.muted}; }
+#sm-duel .d-pick .band {
+  position: absolute; top: -3px; right: -3px;
+  font-size: 9px; letter-spacing: .1em; padding: 2px 6px;
+  background: ${THEME.border}; color: #09070f; font-weight: 700;
+}
+#sm-duel .d-pick .band.rare { background: #7db7ff; }
+#sm-duel .d-pick .band.elite { background: #ffd166; }
+#sm-duel .d-pick .band.uncommon { background: #9be08a; }
+#sm-duel .d-pick .power {
+  display: flex; gap: 4px; align-items: center;
+  font-size: 10px; color: ${THEME.muted}; font-variant-numeric: tabular-nums;
+}
+#sm-duel .d-pick .power i {
+  display: block; height: 5px; width: 46px; background: var(--sm-darker, #141024);
+  border: 1px solid #3b3459; position: relative; overflow: hidden;
+}
+#sm-duel .d-pick .power i b { position: absolute; inset: 0 auto 0 0; background: ${THEME.ok}; }
 #sm-duel .d-steps { display: flex; flex-direction: column; gap: 4px; }
 #sm-duel .d-step { display: flex; gap: 8px; font-size: 11px; color: ${THEME.muted}; }
 #sm-duel .d-step .n {
@@ -149,6 +201,7 @@ const CSS = `
 /* ================================================================ MOUNT ===*/
 
 let root: HTMLElement | null = null
+let backdrop: HTMLElement | null = null
 let body: HTMLElement | null = null
 let engineRef: EngineLike | undefined
 let state: any = null
@@ -168,7 +221,11 @@ export function mountDuelUi(engine?: EngineLike, socket?: SocketLike) {
   injectStyle('sm-duel-css', CSS)
   engineRef = engine
 
-  root = el('div', { id: 'sm-duel', class: 'smui smui-win', role: 'dialog', 'aria-label': 'Duel' })
+  backdrop = el('div', { id: 'sm-duel-backdrop' })
+  document.body.appendChild(backdrop)
+  backdrop.addEventListener('click', () => closeDuel())
+
+  root = el('div', { id: 'sm-duel', class: 'smui smui-win', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Duel' })
   const bar = el('div', { class: 'smui-titlebar' })
   const close = el('button', { class: 'smui-btn smui-close is-danger', type: 'button', text: '✕' })
   bar.append(el('span', { class: 'title', text: 'DUEL' }), el('span', { class: 'spacer' }), close)
@@ -192,10 +249,12 @@ const isOpen = () => !!root?.classList.contains('open')
 function open() {
   if (!root || isOpen()) return
   root.classList.add('open')
+  backdrop?.classList.add('open')
   release = pushLayer(() => closeDuel())
 }
 export function closeDuel() {
   root?.classList.remove('open')
+  backdrop?.classList.remove('open')
   release?.()
   release = null
 }
@@ -228,7 +287,15 @@ async function loadBoxes() {
         name: b.contents?.name ?? b.contents?.ticker ?? `#${b.tokenId}`,
         level: b.contents?.level ?? 0,
         ticker: b.contents?.ticker ?? null,
+        sprite: b.contents?.sprite ?? null,
+        band: b.contents?.band ?? b.band ?? null,
+        ivTotal: Array.isArray(b.contents?.ivs)
+          ? b.contents.ivs.reduce((a: number, n: number) => a + n, 0)
+          : undefined,
+        shiny: !!b.contents?.shiny,
       }))
+      // Strongest first: in a duel that is the only ordering anyone wants.
+      .sort((x: MyBox, y: MyBox) => y.level - x.level)
   } catch {
     myBoxes = []
   }
@@ -294,26 +361,59 @@ function render() {
   }
 
   if (phase === 'picking' || (state?.phase === 'picking' && state?.id)) {
-    body.appendChild(el('div', { class: 'd-note', text: 'Pick your fighter. They cannot see it — the choice is hashed with a random salt and only opened when the duel settles.' }))
+    body.appendChild(el('div', { class: 'd-note' }, [
+      el('span', {
+        html: 'They cannot see your pick — it is hashed with a random salt and only opened ' +
+          'when the duel settles. <b>Rarity is raw power here:</b> the bands are base-stat ' +
+          'totals (common under 400, elite over 530), and level and IVs stack on top. There ' +
+          'is no luck bonus for a rare one — it simply hits harder.',
+      }),
+    ]))
     if (!myBoxes.length) {
       body.appendChild(el('div', { class: 'd-note', text: 'You have no opened Stockmonsters. A sealed box cannot fight — open one first.' }))
     } else {
       const grid = el('div', { class: 'd-picks' })
       for (const b of myBoxes) {
+        const art = el('div', { class: 'art' })
+        if (b.sprite) art.appendChild(el('img', { src: b.sprite, alt: b.ticker ?? b.name }))
+        else art.appendChild(el('span', { class: 'sub', text: `#${b.tokenId}` }))
+
+        const kids: Array<Node | string> = [art,
+          el('span', { class: 'nm', text: (b.ticker ?? b.name) + (b.shiny ? ' ✦' : '') }),
+          el('span', { class: 'sub', text: `#${b.tokenId} · LV ${b.level}` }),
+        ]
+        if (typeof b.ivTotal === 'number') {
+          // IV total out of 186. Shown as a bar because "134" means nothing to
+          // anyone who has not memorised the ceiling.
+          const bar = el('i', {}, [el('b', { style: `width:${Math.round((b.ivTotal / 186) * 100)}%` })])
+          kids.push(el('span', { class: 'power' }, [el('span', { text: 'IV' }), bar, el('span', { text: `${b.ivTotal}` })]))
+        }
         const btn = el('button', {
           class: `d-pick${chosen === b.tokenId ? ' is-chosen' : ''}`, type: 'button',
-        }, [
-          el('span', { class: 'nm', text: b.ticker ?? b.name }),
-          el('span', { class: 'sub', text: `#${b.tokenId} · L${b.level}` }),
-        ])
+          title: `${b.ticker ?? b.name} — level ${b.level}${b.band ? `, ${b.band}` : ''}`,
+        }, kids)
+        if (b.band) btn.appendChild(el('span', { class: `band ${b.band}`, text: b.band.toUpperCase() }))
         btn.addEventListener('click', () => {
           chosen = b.tokenId
+          sfx('confirm')
           engineRef?.processAction?.('duel:pick', { id: state.id ?? state.invite?.id, tokenId: b.tokenId })
           render()
         })
         grid.appendChild(btn)
       }
-      body.appendChild(grid)
+      body.append(el('h3', { text: 'PICK YOUR FIGHTER' }), grid)
+      if (state.seedCommit) {
+        // Shown BEFORE the pick on purpose: a commitment you only see
+        // afterwards proves nothing. Write it down if you like — the seed that
+        // opens it is published when the duel settles.
+        body.appendChild(el('div', { class: 'd-note' }, [
+          el('span', {
+            html: `<b>The fight's randomness is already fixed.</b> Its fingerprint is ` +
+              `<code>${state.seedCommit.slice(0, 18)}…</code> — the seed itself is revealed ` +
+              `when the duel settles, and it has to match.`,
+          }),
+        ]))
+      }
     }
   }
 
@@ -328,6 +428,7 @@ function render() {
 
   if (phase === 'result' && state.result) {
     const r = state.result
+    if (!state.sounded) { state.sounded = true; sfx(r.won ? 'win' : 'lose') }
     const log = el('div', { class: 'd-log' })
     log.appendChild(el('div', {
       class: r.won ? 'win' : 'lose',

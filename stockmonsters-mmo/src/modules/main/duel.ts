@@ -3,6 +3,7 @@ import { dmNearby } from './dm'
 import { resolveDuel, type DuelSide } from '../../battle/duel'
 import { createExactCreature } from '../../battle/factory'
 import speciesRaw from '../../data/studio/species.json'
+import dexRaw from '../../data/dex.json'
 
 /*
  * duel.ts — walk up to someone, bet on your Stockmonster, and find out.
@@ -52,6 +53,9 @@ const OFFER_COOLDOWN_MS = 20_000
 const species = speciesRaw as Record<string, { id: number }>
 const dbSymbolByDexId: Record<number, string> = {}
 for (const [sym, s] of Object.entries(species)) dbSymbolByDexId[s.id] = sym
+
+const dex = dexRaw as Array<{ dexId: number; ticker: string; name: string; sprite: string }>
+const dexByDexId = new Map(dex.map((e) => [e.dexId, e]))
 
 const NATURES = [
     'hardy', 'lonely', 'brave', 'adamant', 'naughty', 'bold', 'docile', 'relaxed', 'impish',
@@ -458,10 +462,45 @@ async function fight(duel: Duel): Promise<void> {
         })
     }
 
+    // The creatures as they go in, for the opening shot of the replay:
+    // resolveDuel works on copies, but the HP shown has to be the full bar
+    // both fighters started with.
+    const openingViews = sides.map((s, i) => viewOfDuellist(s, [duel.a, duel.b][i]))
+
     const result = resolveDuel(sides[0], sides[1], duel.seed)
     duel.winner = result.winner === 0 ? duel.a.address : duel.b.address
     const winnerFighter = result.winner === 0 ? duel.a : duel.b
     const loserFighter = result.winner === 0 ? duel.b : duel.a
+
+    /*
+     * THE FIGHT, ANIMATED, THROUGH THE SCENE THAT ALREADY EXISTS.
+     *
+     * battle-scene.ts is driven entirely by three socket events, so a duel
+     * needs no new client code — it needs the same three events. The only
+     * subtlety is that the scene calls side 0 "mine": player B's replay is the
+     * same fight with every side index flipped, or they would watch themselves
+     * from the wrong chair.
+     */
+    for (const [i, f] of [duel.a, duel.b].entries()) {
+        const p = playerFor(f)
+        if (!p) continue
+        const meFirst = i === 0
+        p.emit?.('battle:state', {
+            mine: meFirst ? openingViews[0] : openingViews[1],
+            wild: meFirst ? openingViews[1] : openingViews[0],
+            intro: true,
+        })
+        const events = meFirst ? result.events : result.events.map(mirror)
+        if (events.length) p.emit?.('battle:turn', { events })
+    }
+    // Let the scene play out before tearing it down. It paces itself at a few
+    // hundred ms per beat, so the wait is derived from the fight rather than
+    // guessed at — and capped, because a hundred-round slugfest should not
+    // hold the screen for five minutes.
+    const showFor = Math.min(45_000, 1_500 + result.events.length * 420)
+    setTimeout(() => {
+        for (const f of [duel.a, duel.b]) playerFor(f)?.emit?.('battle:end', {})
+    }, showFor)
 
     // The whole fight, to both sides, with the seed opened — anyone can now
     // replay it and check the server did what it said.
@@ -510,6 +549,33 @@ async function fight(duel: Duel): Promise<void> {
         }
         console.error('[duel] signing failed', err)
     }
+}
+
+/** The scene's view of one fighter: name, level, HP and the dex sprite. */
+function viewOfDuellist(side: DuelSide, f: Fighter) {
+    const c = side.creature
+    const entry = dexByDexId.get(species[c.dbSymbol]?.id ?? -1)
+    return {
+        name: entry?.ticker ?? entry?.name ?? f.name,
+        level: c.level,
+        hp: c.maxHp,
+        maxHp: c.maxHp,
+        sprite: entry?.sprite ?? '',
+        status: undefined,
+    }
+}
+
+/**
+ * The same event seen from the other chair.
+ *
+ * Every scene event carries `side`, where 0 is "the creature at the bottom of
+ * my screen". Sending player B the unflipped stream would show them cheering
+ * for their opponent.
+ */
+function mirror(e: unknown): unknown {
+    const ev = e as Record<string, unknown>
+    if (typeof ev?.side !== 'number') return e
+    return { ...ev, side: ev.side === 0 ? 1 : 0 }
 }
 
 /** `duel:cancel` {id} — walk away before anything is escrowed. */

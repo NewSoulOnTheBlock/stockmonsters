@@ -18,6 +18,7 @@
 // z-index 800 puts it above the map but under the dialog layer (1000).
 
 import type { TurnEvent } from './battle/turn'
+import { play as sfx } from './sfx'
 import {
     C, FX_CSS, appear, banner, floatNumber, lunge, puff, reducedMotion, shake,
     stageArrows, statusColor, tintPulse, whiteFlash, wipe,
@@ -306,6 +307,9 @@ export function mountBattleScene(socket: { on: (type: string, cb: (data: any) =>
             case 'damage': {
                 setHp(k, e.targetHp, animate)
                 if (!animate) break
+                // The sound carries the same information the shake does, so
+                // they are chosen from the same number rather than separately.
+                sfx(e.effectiveness > 1 || e.critical ? 'hit-super' : e.effectiveness < 1 ? 'hit-weak' : 'hit')
                 shake(shakewrap, e.critical ? 1.6 : e.effectiveness > 1 ? 1.3 : 1)
                 whiteFlash(flashwrap, e.critical || e.effectiveness > 1)
                 if (e.amount > 0) floatNumber(host, `-${e.amount}`, e.critical ? 'crit' : 'damage')
@@ -323,6 +327,7 @@ export function mountBattleScene(socket: { on: (type: string, cb: (data: any) =>
             case 'self-hit': {
                 setHp(k, e.hp, animate)
                 if (!animate) break
+                sfx('hit')
                 shake(shakewrap, 1.2)
                 whiteFlash(flashwrap)
                 tintPulse(flashwrap, statusColor('confusion'))
@@ -420,12 +425,14 @@ export function mountBattleScene(socket: { on: (type: string, cb: (data: any) =>
             }
             case 'ball': {
                 if (!animate) break
+                sfx(e.caught ? 'ball-click' : 'ball-shake')
                 shake(shakewrap, 0.8)
                 banner(host, e.caught ? 'GOTCHA!' : `SHOOK ${e.bounces}×`, e.caught ? 'super' : 'none')
                 break
             }
             case 'fainted': {
                 setHp(k, 0, animate)
+                if (animate) sfx('faint')
                 sl.classList.add('fainted')
                 // tier 1: a KO always follows a damage event, whose
                 // effectiveness plate is already sitting at tier 0

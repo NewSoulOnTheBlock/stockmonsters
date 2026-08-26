@@ -38,6 +38,24 @@ export const REWARDS = {
 
 export type RewardKind = keyof typeof REWARDS
 
+/**
+ * The most one wallet can earn in one epoch (one UTC day).
+ *
+ * WITHOUT THIS THE REWARDS ARE FARMABLE. Nothing rate-limits wild battles, so
+ * a scripted client can win one every few seconds and mint itself an income —
+ * the shared per-epoch budget on chain bounds the POOL, but it does not stop
+ * one bot taking most of it while real players get nothing.
+ *
+ * 1,000 is deliberately generous for someone playing: a hundred battle wins,
+ * or twenty new species, in a day. For a bot it is a ceiling reached in
+ * minutes, after which grinding pays exactly zero.
+ *
+ * This is a mitigation, not a fix. The real fix is making the rewarded actions
+ * cost something a bot cannot fake (time, ownership, other players) — which is
+ * what gyms and duels do, and why neither of them pays out of this pool.
+ */
+export const DAILY_CAP = 1_000
+
 const V_EARNED = 'EARNED'
 /**
  * Rewards earned before the wallet arrived.
@@ -123,7 +141,17 @@ export function credit(player: RpgPlayer, kind: RewardKind, times = 1): number {
     const epoch = String(currentEpoch())
     const ledger = readLedger(player)
     const before = BigInt(ledger[epoch] ?? '0')
-    ledger[epoch] = (before + baseUnits(whole)).toString()
+    const cap = baseUnits(DAILY_CAP)
+    if (before >= cap) {
+        // Say so once rather than silently paying nothing: a reward that
+        // stops arriving with no explanation reads as a broken game.
+        player.emit?.('rewards:capped', { epoch: Number(epoch), cap: DAILY_CAP })
+        return 0
+    }
+    const wanted = baseUnits(whole)
+    const room = cap - before
+    const granted = wanted > room ? room : wanted
+    ledger[epoch] = (before + granted).toString()
 
     // Keep the ledger bounded: a player who plays every day for a year should
     // not carry a year of history in their save. Anything older than a week is
@@ -132,8 +160,11 @@ export function credit(player: RpgPlayer, kind: RewardKind, times = 1): number {
     for (const key of Object.keys(ledger)) if (Number(key) < keep) delete ledger[key]
 
     player.setVariable?.(V_EARNED, ledger)
-    player.emit?.('rewards:earned', { kind, amount: whole, epoch: Number(epoch) })
-    return whole
+    // Report what was actually credited, not what was asked for — the caller
+    // puts this number in a message the player reads.
+    const paid = granted === wanted ? whole : Number(granted / 10n ** BigInt(decimals()))
+    player.emit?.('rewards:earned', { kind, amount: paid, epoch: Number(epoch), capped: granted < wanted })
+    return paid
 }
 
 /**

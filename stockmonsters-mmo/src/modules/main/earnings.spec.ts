@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { credit, flushPendingRewards, earnedThisEpoch, currentEpoch, REWARDS } from './earnings'
+import { credit, flushPendingRewards, earnedThisEpoch, currentEpoch, REWARDS, DAILY_CAP } from './earnings'
 
 /*
  * What a player is owed for playing.
@@ -135,6 +135,47 @@ describe('earning before the wallet is known', () => {
         const p = player(null)
         for (let i = 0; i < 200; i++) credit(as(p), 'newMap')
         expect((p.vars.get('_PENDING_REWARDS') as unknown[]).length).toBeLessThanOrEqual(64)
+    })
+})
+
+describe('the daily cap', () => {
+    it('stops a bot grinding battles for an income', () => {
+        const p = player()
+        // Nothing rate-limits wild battles, so this is the only thing standing
+        // between a script and the pool.
+        let paid = 0
+        for (let i = 0; i < 500; i++) paid += credit(as(p), 'battleWin')
+        expect(paid).toBe(DAILY_CAP)
+        expect(ledgerOf(p)[String(currentEpoch())]).toBe((BigInt(DAILY_CAP) * unit).toString())
+    })
+
+    it('pays the part that fits rather than refusing the whole reward', () => {
+        const p = player()
+        // Earn up to just under the cap, then claim something bigger than the
+        // gap: the player should get the gap, not nothing.
+        const wins = Math.floor((DAILY_CAP - 10) / REWARDS.battleWin)
+        for (let i = 0; i < wins; i++) credit(as(p), 'battleWin')
+        const before = BigInt(ledgerOf(p)[String(currentEpoch())])
+        const paid = credit(as(p), 'firstCatch')
+        expect(paid).toBeGreaterThan(0)
+        expect(paid).toBeLessThan(REWARDS.firstCatch)
+        expect(BigInt(ledgerOf(p)[String(currentEpoch())])).toBe(BigInt(DAILY_CAP) * unit)
+        expect(before).toBeLessThan(BigInt(DAILY_CAP) * unit)
+    })
+
+    it('tells the player when they have hit it', () => {
+        const p = player()
+        for (let i = 0; i < 200; i++) credit(as(p), 'battleWin')
+        expect(p.sent.some((m) => m.type === 'rewards:capped')).toBe(true)
+    })
+
+    it('resets with the epoch', () => {
+        let epoch = 1
+        ;(globalThis as any).__smTokens = { decimalsSync: () => 18, currentEpoch: () => epoch }
+        const p = player()
+        for (let i = 0; i < 500; i++) credit(as(p), 'battleWin')
+        epoch = 2
+        expect(credit(as(p), 'battleWin')).toBe(REWARDS.battleWin)
     })
 })
 
