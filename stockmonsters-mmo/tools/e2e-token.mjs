@@ -33,8 +33,8 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { randomBytes } from 'node:crypto'
 import puppeteer from 'puppeteer-core'
-import { createPublicClient, createWalletClient, http, parseAbi, formatEther } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+import { createPublicClient, createWalletClient, http, parseAbi, formatEther, parseEther } from 'viem'
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
 import { sepolia } from 'viem/chains'
 import pg from 'pg'
 
@@ -84,12 +84,27 @@ if (!existsSync(join(ROOT, 'dist/client/index.html'))) {
   process.exit(1)
 }
 
-const account = privateKeyToAccount(key.startsWith('0x') ? key : `0x${key}`)
+const deployer = privateKeyToAccount(key.startsWith('0x') ? key : `0x${key}`)
 const rpc = env.SM_RPC_URL
 const publicClient = createPublicClient({ chain: sepolia, transport: http(rpc) })
+const funder = createWalletClient({ account: deployer, chain: sepolia, transport: http(rpc) })
+
+/*
+ * A FRESH player every run, funded from the deployer.
+ *
+ * Reusing one wallet made this test lie. The rewards contract allows one claim
+ * per player per epoch — correctly — so the second run of the day found the
+ * claim already made, saw zero claimable, and reported the reward system as
+ * broken when it had in fact worked perfectly the first time. A test that goes
+ * red for doing the right thing is worse than no test.
+ */
+const account = privateKeyToAccount(generatePrivateKey())
 const walletClient = createWalletClient({ account, chain: sepolia, transport: http(rpc) })
 
-const ERC20 = parseAbi(['function balanceOf(address) view returns (uint256)'])
+const ERC20 = parseAbi([
+  'function balanceOf(address) view returns (uint256)',
+  'function transfer(address,uint256) returns (bool)',
+])
 const NFT = parseAbi(['function balanceOf(address) view returns (uint256)'])
 const balanceOf = (token, who) =>
   publicClient.readContract({ address: token, abi: ERC20, functionName: 'balanceOf', args: [who] })
@@ -191,6 +206,26 @@ let server
 let browser
 
 try {
+  step('funding a fresh player')
+  {
+    // Enough ETH for a claim and two box transactions, and enough SMON to buy
+    // the standard box in tokens later on. Both come from the deployer, so the
+    // only prerequisite for running this is a funded deploy key.
+    const gas = await funder.sendTransaction({ to: account.address, value: parseEther('0.02') })
+    await publicClient.waitForTransactionReceipt({ hash: gas })
+    const smon = await funder.writeContract({
+      address: env.SM_TOKEN_ADDRESS, abi: ERC20, functionName: 'transfer',
+      args: [account.address, 10_000n * 10n ** 18n],
+    })
+    await publicClient.waitForTransactionReceipt({ hash: smon })
+    const [eth, tokens] = await Promise.all([
+      publicClient.getBalance({ address: account.address }),
+      balanceOf(env.SM_TOKEN_ADDRESS, account.address),
+    ])
+    check('the player is funded', eth > 0n && tokens > 0n,
+      `${account.address} — ${formatEther(eth)} ETH, ${formatEther(tokens)} SMON`)
+  }
+
   step('boot')
   server = await startServer()
   const meta = await (await fetch(`${BASE}/token`)).json()
