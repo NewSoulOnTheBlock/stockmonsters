@@ -72,6 +72,14 @@ fi
 run 'npm run --silent db:migrate'
 
 if [ "$BUILD" = 1 ]; then
+  # CLEAR THE MAP DIRECTORY FIRST.
+  #
+  # The tiled plugin copies into dist/client/map and never removes what is
+  # already there. Switching which folder the maps come from therefore leaves
+  # the previous set behind, and the served maps end up referencing atlases that
+  # are no longer written — which renders as a black world with a 200 OK for
+  # every missing file. Cheap to rebuild, expensive to debug.
+  run 'rm -rf dist/client/map'
   run 'npm run --silent build:mmo'
   test -f "$APP/dist/client/index.html" || { echo 'the build produced no dist/client'; exit 1; }
   # Stamp what was built. A health check proves the server is UP, not that it is

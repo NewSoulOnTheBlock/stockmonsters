@@ -175,11 +175,39 @@ const MIME = {
   '.wasm': 'application/wasm', '.ogg': 'audio/ogg', '.mp3': 'audio/mpeg',
 }
 
+/*
+ * A MISSING ASSET MUST 404, NOT BECOME THE HOME PAGE.
+ *
+ * This used to answer every unknown path with index.html and a 200 — the
+ * single-page-app fallback, applied to everything. So when a build left the map
+ * directory holding one set of files while the served maps referenced another,
+ * `/map/TECH-Buildings.png` came back as `<!DOCTYPE html>` with a 200, the
+ * browser could not decode it as an image, and the world rendered as a black
+ * rectangle with nothing in the console to say why. A 404 would have named the
+ * problem in one glance.
+ *
+ * The fallback is still right for NAVIGATION — a player deep-linking to a route
+ * the client owns must get the app — so it is kept for requests that ask for
+ * HTML, and only those.
+ */
 function serveStatic(req, res) {
   const url = new URL(req.url, 'http://x')
-  let file = normalize(join(CLIENT_DIR, decodeURIComponent(url.pathname)))
+  const file = normalize(join(CLIENT_DIR, decodeURIComponent(url.pathname)))
   if (!file.startsWith(CLIENT_DIR)) { res.writeHead(403).end(); return }
-  if (!existsSync(file) || statSync(file).isDirectory()) file = join(CLIENT_DIR, 'index.html')
+
+  const missing = !existsSync(file) || statSync(file).isDirectory()
+  if (missing) {
+    const wantsHtml = (req.headers.accept ?? '').includes('text/html')
+    if (!wantsHtml) {
+      res.writeHead(404, { 'Content-Type': 'text/plain' }).end('not found\n')
+      return
+    }
+    const index = join(CLIENT_DIR, 'index.html')
+    res.writeHead(200, { 'Content-Type': 'text/html' })
+    createReadStream(index).pipe(res)
+    return
+  }
+
   res.writeHead(200, { 'Content-Type': MIME[extname(file)] ?? 'application/octet-stream' })
   createReadStream(file).pipe(res)
 }
