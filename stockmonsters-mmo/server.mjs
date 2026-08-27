@@ -153,9 +153,17 @@ if (boxes.enabled && tokens.chainInfo().chainId && boxes.chainId !== tokens.chai
 
 const { WebSocketServer } = createRequire(import.meta.url)('ws')
 
+/*
+ * The server parses the TMX itself (it streams map chunks rather than serving
+ * raw TMX), so it has to read the SAME maps the client's atlases came from.
+ * src/tiled/compact is tools/compact-atlases.mjs's output — per-map atlases
+ * holding only the tiles that map draws, which is what keeps an iPhone tab
+ * alive. The first path that has the file wins, so an absent compact/ falls
+ * back to the source art exactly as vite.config.ts does.
+ */
 const transport = createRpgServerTransport(serverModule.default ?? serverModule, {
   initializeMaps: true,
-  tiledBasePaths: [resolve('./src/tiled')],
+  tiledBasePaths: [resolve('./src/tiled/compact'), resolve('./src/tiled')],
   storage: createSqliteNodeRoomStorage({ databasePath: join(DATA_DIR, 'rooms.sqlite') }),
 })
 const wss = new WebSocketServer({ noServer: true })

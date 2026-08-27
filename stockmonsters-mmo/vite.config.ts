@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { defineConfig, loadEnv } from 'vite';
 import { rpgjs, tiledMapFolderPlugin } from '@rpgjs/vite';
 import startServer from './src/server';
@@ -37,6 +38,25 @@ for (const [key, value] of Object.entries(loadEnv('development', process.cwd(), 
 // throws, and the UI blames the player — "connection cancelled", "could not
 // reach the depot". Mount the same handlers here so dev and production behave
 // alike; anything added to server.mjs needs adding here too.
+/*
+ * WHICH MAP FOLDER THE CLIENT GETS.
+ *
+ * src/tiled is the source art. Its maps reference shared HGSS atlases that are
+ * small files and enormous textures — TECH-Buildings.png is 1.3 MB on disk and
+ * 96 MB once a GPU has it — and the spawn map alone pulls 228 MB. That is what
+ * kills an iPhone Safari tab a few seconds into play.
+ *
+ * tools/compact-atlases.mjs rebuilds each map against an atlas holding only the
+ * tiles that map actually draws (exterior: 228 MB -> 4.3 MB) and writes the
+ * result to src/tiled/compact. Prefer it when it is there; fall back to the
+ * originals so a checkout that has never run the tool still builds and plays,
+ * just heavily. server.mjs makes the same choice for the TMX it parses.
+ */
+const MAP_FOLDER = existsSync('./src/tiled/compact/exterior.tmx') ? './src/tiled/compact' : './src/tiled';
+if (MAP_FOLDER === './src/tiled') {
+  console.warn('[maps] src/tiled/compact is missing — building with the full-size atlases. Run: node tools/compact-atlases.mjs --write');
+}
+
 const apiDevServer = {
   name: 'stockmonsters-api',
   configureServer(server: any) {
@@ -90,7 +110,7 @@ export default defineConfig({
   plugins: [
     apiDevServer,
     tiledMapFolderPlugin({
-      sourceFolder: './src/tiled',      // Folder containing your TMX files
+      sourceFolder: MAP_FOLDER,         // Folder containing your TMX files
       publicPath: '/map',               // Public URL path for maps
       buildOutputPath: 'map'            // Match the runtime Tiled URL prefix
     }),
