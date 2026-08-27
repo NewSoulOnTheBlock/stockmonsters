@@ -88,6 +88,17 @@ interface Duel {
     seedCommit: string
     phase: Phase
     createdAt: number
+    /**
+     * The wager's expiry, in unix seconds, FIXED AT CREATION.
+     *
+     * The expiry is inside the signed Wager struct, so every party — both
+     * signers and the open() call — must use the identical number. It used to
+     * be computed twice, once from Date.now() at signing and once from
+     * createdAt at opening; the two differed by however long the players took
+     * to pick, the digests diverged, and every open reverted BAD_SIGNATURE_A.
+     * A signature over a timestamp is a signature over THAT timestamp.
+     */
+    expiry: number
     /** A is the challenger — the one who offered, and the one who opens. */
     a: Fighter
     b: Fighter
@@ -114,6 +125,7 @@ interface TokenBridge {
         seedCommit: string; pickA: string; pickB: string
     }>
     signMatchResult?: (p: Record<string, unknown>) => Promise<{ contract: string; chainId: number; deadline: number; signature: string }>
+    arenaAllowanceCovers?: (owner: string, amount: string) => Promise<boolean>
 }
 interface BoxBridge {
     creatureForToken?: (p: { walletId: string; tokenId: string }) => Promise<null | {
@@ -276,6 +288,7 @@ export async function handleDuelOffer(player: RpgPlayer, data: unknown): Promise
         seedCommit: tokens()!.commitSeed!(seed),
         phase: 'offered',
         createdAt: now,
+        expiry: Math.floor((now + DUEL_TTL_MS) / 1000),
         a: fighter(walletId, address, nameOf(player), String(player.id)),
         b: fighter(theirWallet, theirAddress, peer.name, peer.id),
         winner: null,
@@ -358,7 +371,7 @@ export async function handleDuelPick(player: RpgPlayer, data: unknown): Promise<
             seedCommit: duel.seedCommit,
             pickA: duel.a.commit,
             pickB: duel.b.commit,
-            expiry: Math.floor((Date.now() + DUEL_TTL_MS) / 1000),
+            expiry: duel.expiry,
         }
         for (const f of [duel.a, duel.b]) playerFor(f)?.emit?.('duel:sign', payload)
     }
@@ -378,25 +391,121 @@ export function handleDuelSigned(player: RpgPlayer, data: unknown): void {
     me.signature = sig
     if (duel.a.signature && duel.b.signature) {
         duel.phase = 'opening'
-        // The challenger opens the escrow. Somebody has to, and making it the
-        // one who started the fight means the other side is never asked to pay
-        // gas for a duel they were dragged into.
-        playerFor(duel.a)?.emit?.('duel:open', {
-            id: duel.id,
-            matchId: duel.matchId,
-            arena: tokens()?.arena ?? null,
-            token: null,
-            amount: duel.amount,
-            seedCommit: duel.seedCommit,
-            pickA: duel.a.commit,
-            pickB: duel.b.commit,
-            expiry: Math.floor((duel.createdAt + DUEL_TTL_MS) / 1000),
-            sigA: duel.a.signature,
-            sigB: duel.b.signature,
-        })
-        say(playerFor(duel.b), 'Both signed. Waiting for the escrow to be opened on chain.')
+        // Logged, never swallowed: a failure in here is a duel that silently
+        // sticks at "waiting for the escrow", which is the exact bug this
+        // rewrite exists to kill.
+        void openWhenBothCanPay(duel).catch((e) => console.error('[duel] open flow:', e))
     }
     push(duel)
+}
+
+/**
+ * The escrow pulls BOTH stakes in one transaction.
+ *
+ * `open()` does `_pull(playerA); _pull(playerB)` — two transferFroms — so it
+ * reverts unless BOTH players have approved the arena first. The old flow only
+ * ever had the challenger approve (inside their open step), so the open
+ * reverted on the opponent's allowance every single time, and both players sat
+ * at "waiting for the escrow" until the duel expired. Found by a real pair of
+ * players; the modal was honest, the plan behind it was wrong.
+ *
+ * So: check the CHAIN for the opponent's allowance. If it is already there
+ * (a rematch, say), tell the challenger to open at once. If not, tell the
+ * opponent to approve, and only hand the challenger the open step once the
+ * chain shows the allowance is real. A client saying "I approved" is a claim;
+ * the allowance read is the fact.
+ */
+async function openWhenBothCanPay(duel: Duel): Promise<void> {
+    await driveOpening(duel)
+    /*
+     * AND KEEP DRIVING IT. A single emit is a single point of failure: the
+     * engine hands out fresh player objects and an emit on a stale one is
+     * silently lost — the documented trap of this codebase, and precisely the
+     * "approve happened but nothing followed" that players reported. So while
+     * the duel sits in 'opening', the server re-checks the chain and re-sends
+     * whichever instruction is due, every few seconds, until the escrow is
+     * open or the duel dies. The clients guard against acting twice, and the
+     * chain refuses a second open anyway.
+     */
+    const tick = setInterval(() => {
+        const live = duels.get(duel.id)
+        if (!live || live.phase !== 'opening') { clearInterval(tick); return }
+        if (Date.now() - live.createdAt > DUEL_TTL_MS) { clearInterval(tick); return }
+        void driveOpening(live).catch((e) => console.error('[duel] drive:', e))
+    }, 8000)
+}
+
+async function driveOpening(duel: Duel): Promise<void> {
+    const t = tokens()
+    const covered = await t?.arenaAllowanceCovers?.(duel.b.address, duel.amount)
+    if (duel.phase !== 'opening') return // cancelled or expired while we read
+    if (covered) {
+        tellChallengerToOpen(duel)
+        say(playerFor(duel.b), 'Both signed. Waiting for the escrow to be opened on chain.')
+        return
+    }
+    playerFor(duel.b)?.emit?.('duel:approve', {
+        id: duel.id,
+        arena: t?.arena ?? null,
+        amount: duel.amount,
+    })
+    say(playerFor(duel.a),
+        `Both signed. Waiting for ${duel.b.name} to allow the arena to hold their stake.`)
+}
+
+function tellChallengerToOpen(duel: Duel): void {
+    // The challenger opens the escrow. Somebody has to, and making it the one
+    // who started the fight means the other side is never asked to pay the gas
+    // for a duel they were dragged into. Their own approve happens inside this
+    // step, on their side.
+    playerFor(duel.a)?.emit?.('duel:open', {
+        id: duel.id,
+        matchId: duel.matchId,
+        arena: tokens()?.arena ?? null,
+        token: null,
+        // The client encodes the open() call itself, and the contract takes
+        // both player addresses as arguments. These two fields were missing
+        // for as long as this emit has existed, so encodeOpen threw on
+        // word(undefined) every single time and no escrow was EVER opened
+        // through the UI — the flow only looked plausible because everything
+        // up to this point worked. Found by the first end-to-end drive.
+        playerA: duel.a.address,
+        playerB: duel.b.address,
+        amount: duel.amount,
+        seedCommit: duel.seedCommit,
+        pickA: duel.a.commit,
+        pickB: duel.b.commit,
+        expiry: duel.expiry,
+        sigA: duel.a.signature,
+        sigB: duel.b.signature,
+    })
+}
+
+/**
+ * `duel:approved` {id} — the opponent says their approval is on chain.
+ *
+ * Taken as a nudge to look, never as the truth: the allowance is read back off
+ * the chain, and only a read that shows the money can actually be pulled moves
+ * the duel forward. The client retries this poke, so an approval that is still
+ * in the mempool on the first look is caught by the second.
+ */
+export async function handleDuelApproved(player: RpgPlayer, data: unknown): Promise<void> {
+    const walletId = walletOf(player)
+    const id = String((data as { id?: unknown })?.id ?? '')
+    const duel = duels.get(id)
+    if (!walletId || !duel || !mine(duel, walletId) || duel.phase !== 'opening') return
+    // Whoever poked, refresh our idea of where their live player object is:
+    // the engine hands out fresh RpgPlayer objects, and emitting on a stale
+    // one is silently lost. The poke itself carries the current object.
+    const me = mine(duel, walletId)!
+    me.playerId = String(player.id)
+    connected.set(String(player.id), player)
+
+    const covered = await tokens()?.arenaAllowanceCovers?.(duel.b.address, duel.amount)
+    if (duel.phase !== 'opening') return
+    if (!covered) return // not on chain yet — their client will poke again
+    tellChallengerToOpen(duel)
+    say(playerFor(duel.b), 'Stake allowed. Waiting for the escrow to be opened on chain.')
 }
 
 /**

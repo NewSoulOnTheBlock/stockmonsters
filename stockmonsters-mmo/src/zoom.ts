@@ -34,6 +34,15 @@ export function applyAutoZoom(ctx: unknown) {
   let raf = 0;
   let settled = 0;
   const REVEAL_AFTER_FRAMES = 3;
+  // The watch loop runs every frame for the life of the page; writing the
+  // same opacity string each time still touches the CSSOM, so only write on
+  // an actual change.
+  let shown: boolean | null = null;
+  const setCover = (on: boolean) => {
+    if (shown === on) return;
+    shown = on;
+    cover.style.opacity = on ? "1" : "0";
+  };
   const centreOnPlayer = (): boolean => {
     const p = engine.sceneMap?.getCurrentPlayer?.();
     const read = (v: unknown) => (typeof v === "function" ? (v as () => number)() : (v as number));
@@ -47,14 +56,14 @@ export function applyAutoZoom(ctx: unknown) {
     const loading = !!engine.mapTransitionInProgress || !engine.sceneMap?.data?.();
     if (loading) {
       settled = 0;
-      cover.style.opacity = "1";
+      setCover(true);
     } else if (settled < REVEAL_AFTER_FRAMES) {
       // Only nudge the camera while the cover is up; doing it every frame
       // forever would fight the engine's own follow behaviour.
       settled = centreOnPlayer() ? settled + 1 : 0;
-      cover.style.opacity = settled >= REVEAL_AFTER_FRAMES ? "0" : "1";
+      setCover(settled < REVEAL_AFTER_FRAMES);
     } else {
-      cover.style.opacity = "0";
+      setCover(false);
     }
     raf = requestAnimationFrame(watch);
   };

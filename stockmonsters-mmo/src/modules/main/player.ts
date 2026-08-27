@@ -22,6 +22,7 @@ import {
     handleDuelRespond,
     handleDuelPick,
     handleDuelSigned,
+    handleDuelApproved,
     handleDuelOpened,
     handleDuelCancel,
 } from './duel'
@@ -548,6 +549,7 @@ export const player: RpgPlayerHooks = {
         if (action == 'duel:respond') { handleDuelRespond(player, data); return }
         if (action == 'duel:pick') { void handleDuelPick(player, data).catch(logProfileError); return }
         if (action == 'duel:signed') { handleDuelSigned(player, data); return }
+        if (action == 'duel:approved') { void handleDuelApproved(player, data).catch(logProfileError); return }
         if (action == 'duel:opened') { void handleDuelOpened(player, data).catch(logProfileError); return }
         if (action == 'duel:cancel') { handleDuelCancel(player, data); return }
         // Anything else the player did is a decent moment to persist whatever

@@ -49,6 +49,7 @@ const ERC20_ABI = parseAbi([
   'function decimals() view returns (uint8)',
   'function totalSupply() view returns (uint256)',
   'function balanceOf(address) view returns (uint256)',
+  'function allowance(address,address) view returns (uint256)',
 ])
 
 // The launch token's own extensions. Optional by design.
@@ -386,6 +387,29 @@ export function createTokenStore(opts = {}) {
     },
     get arena() {
       return arenaAddress
+    },
+    /**
+     * Has this player allowed the arena to take `amount` of their tokens?
+     *
+     * Asked of the CHAIN, never of the client. The arena's open() pulls both
+     * stakes in one transaction, so it reverts unless BOTH players have
+     * approved first — and a client claiming "I approved" is a claim. Returns
+     * false on any failure: the caller treats that as "not yet", asks again,
+     * and the duel times out honestly rather than opening on a guess.
+     */
+    async arenaAllowanceCovers(owner, amount) {
+      if (!configured || !arenaAddress || !isAddress(arenaAddress) || !isAddress(owner)) return false
+      try {
+        const current = await client.readContract({
+          address: tokenAddress,
+          abi: ERC20_ABI,
+          functionName: 'allowance',
+          args: [getAddress(owner), getAddress(arenaAddress)],
+        })
+        return current >= BigInt(amount)
+      } catch {
+        return false
+      }
     },
     /*
      * The two commitments the arena checks. They live HERE, not in the game

@@ -240,7 +240,12 @@ export function mountDuelUi(engine?: EngineLike, socket?: SocketLike) {
   socket?.on?.('duel:invite', (d) => { state = { phase: 'invited', invite: d }; open(); render() })
   socket?.on?.('duel:state', (d) => { state = { ...(state ?? {}), ...d }; if (isOpen()) render() })
   socket?.on?.('duel:sign', (d) => { pendingSign = d; state = { ...(state ?? {}), phase: 'signing' }; open(); render() })
-  socket?.on?.('duel:open', (d) => { void sendOpen(d) })
+  // Anything that needs the player's attention FORCES the modal open. A duel
+  // step arriving while the box shop or a DM window is up used to land in a
+  // closed modal, and the duel looked stalled while it was actually waiting
+  // for a click nobody could see.
+  socket?.on?.('duel:approve', (d) => { open(); void sendApprove(d) })
+  socket?.on?.('duel:open', (d) => { open(); void sendOpen(d) })
   socket?.on?.('duel:result', (d) => { state = { ...(state ?? {}), phase: 'result', result: d }; open(); render() })
   socket?.on?.('duel:settle', (d) => { void sendSettle(d) })
   socket?.on?.('duel:system', (d) => { note(d?.text ?? '', d?.tone) })
@@ -578,12 +583,64 @@ async function signWager() {
   }
 }
 
+/**
+ * The challenged player's one on-chain step: allow the arena to hold their
+ * stake. The escrow's open() pulls BOTH stakes in a single transaction, so
+ * without this the challenger's open reverts on our allowance every time —
+ * which is exactly how two real players ended up staring at "waiting for the
+ * escrow" until the duel expired.
+ *
+ * After the transaction is sent the server is poked, repeatedly: it reads the
+ * allowance off the chain itself and moves the duel on when the approval has
+ * actually landed, so a poke that arrives while the transaction is still in
+ * the mempool costs nothing.
+ */
+let approveInFlight = false
+async function sendApprove(d: any) {
+  const eth = ethereum()
+  const w = wallet()
+  const meta = getTokenMeta()
+  if (!eth || !w?.address || !meta.contracts?.token || !d?.arena) return
+  if (approveInFlight) return
+  approveInFlight = true
+  try {
+    await ensureChain(eth)
+    const current = BigInt(
+      (await eth.request({
+        method: 'eth_call',
+        params: [{ from: w.address, to: meta.contracts.token, data: encodeAllowance(w.address, d.arena) }, 'latest'],
+      })) || '0x0',
+    )
+    if (current < BigInt(d.amount)) {
+      note(`Step 2 of 4 — allow the arena to hold your ${formatUnits(d.amount, meta.decimals ?? 18, 0)} ${meta.symbol} stake.`)
+      await eth.request({
+        method: 'eth_sendTransaction',
+        params: [{ from: w.address, to: meta.contracts.token, data: encodeApprove(d.arena, d.amount) }],
+      })
+    }
+    note('Stake allowed. Waiting for the escrow to be opened on chain.')
+    const poke = () => engineRef?.processAction?.('duel:approved', { id: d.id })
+    poke()
+    for (const delay of [6000, 12000, 20000, 30000, 45000]) setTimeout(poke, delay)
+  } catch (err) {
+    note(`The stake was not allowed: ${String((err as Error).message).split('\n')[0]}`, 'warn')
+  } finally {
+    approveInFlight = false
+  }
+}
+
 /** Approve if needed, then open the escrow. Two prompts, both announced. */
+let openInFlight = false
 async function sendOpen(d: any) {
   const eth = ethereum()
   const w = wallet()
   const meta = getTokenMeta()
   if (!eth || !w?.address || !meta.contracts?.token) return
+  // The server re-tells on every poke so a lost message cannot strand the
+  // duel — which means this can be asked twice. The second open would only
+  // burn gas on MATCH_EXISTS.
+  if (openInFlight) return
+  openInFlight = true
   try {
     await ensureChain(eth)
     const needed = BigInt(d.amount)
@@ -611,6 +668,7 @@ async function sendOpen(d: any) {
     poke()
     for (const delay of [6000, 12000, 20000, 30000]) setTimeout(poke, delay)
   } catch (err) {
+    openInFlight = false
     note(`The escrow was not opened: ${String((err as Error).message).split('\n')[0]}`, 'warn')
   }
 }
