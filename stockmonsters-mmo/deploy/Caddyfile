@@ -24,11 +24,26 @@
 		}
 	}
 
-	# dist/client is ~35 MB and server.mjs serves it with no caching headers at
-	# all. Vite fingerprints everything under /assets, so those are immutable by
-	# construction and a returning player should never fetch them twice.
-	@immutable path /assets/* /spritesheets/* /dex/* /previews/* /map/*
+	# ONLY FINGERPRINTED PATHS MAY BE IMMUTABLE.
+	#
+	# Vite hashes everything under /assets, so those names change whenever the
+	# bytes do and caching them forever is free. /map/ is NOT hashed — the
+	# atlases and maps have stable names like exterior.png — so marking them
+	# immutable told every returning browser to keep the old art for a year and
+	# not even ask. On the day the atlases were repacked that would serve a stale
+	# tileset against fresh map data, which draws nothing — and a reload would
+	# not clear it, because that is what immutable means.
+	#
+	# Whether it is what broke a player's game that day was never established;
+	# it is wrong either way, and it is exactly the shape of that failure.
+	@immutable path /assets/*
 	header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+	# Stable names, changing contents: cache them, but always revalidate. A
+	# conditional request that comes back 304 costs one round trip and cannot
+	# serve the wrong art.
+	@revalidate path /map/* /spritesheets/* /dex/* /previews/* /titles/* /audio/*
+	header @revalidate Cache-Control "public, max-age=0, must-revalidate"
 
 	# index.html and the API must never be cached: the first carries the script
 	# tags that point at those fingerprinted files, and a stale copy pins a
