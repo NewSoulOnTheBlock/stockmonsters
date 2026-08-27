@@ -6,6 +6,7 @@ import { createBoxStore, handleBoxRoutes } from './lootbox.mjs';
 import { createProfileStore } from './profiles.mjs';
 import { createTokenStore, handleTokenRoutes } from './token.mjs';
 import { createMarketStore, handleMarketRoutes } from './market.mjs';
+import { handleDiagRoutes } from './diag.mjs';
 
 /*
  * `.env` INTO `process.env`, BEFORE ANY STORE IS BUILT.
@@ -71,6 +72,10 @@ const apiDevServer = {
       }
       if (url === '/market' || url.startsWith('/market/') || url.startsWith('/market?')) {
         handleMarketRoutes(req, res, marketplace).then(done).catch(next);
+        return;
+      }
+      if (url.startsWith('/client-error')) {
+        handleDiagRoutes(req, res).then(done).catch(next);
         return;
       }
       next();

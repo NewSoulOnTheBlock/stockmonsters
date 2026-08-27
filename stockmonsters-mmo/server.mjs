@@ -29,6 +29,7 @@ import { createProfileStore } from './profiles.mjs'
 import { createBoxStore, handleBoxRoutes } from './lootbox.mjs'
 import { createTokenStore, handleTokenRoutes } from './token.mjs'
 import { createMarketStore, handleMarketRoutes } from './market.mjs'
+import { handleDiagRoutes } from './diag.mjs'
 
 const PORT = Number(process.env.PORT ?? 3000)
 const CLIENT_DIR = resolve('./dist/client')
@@ -192,6 +193,7 @@ const server = http.createServer(async (req, res) => {
     if (await handleBoxRoutes(req, res, boxes)) return
     if (await handleTokenRoutes(req, res, tokens, profiles)) return
     if (await handleMarketRoutes(req, res, marketplace)) return
+    if (await handleDiagRoutes(req, res)) return
     const handled = await transport.handleNodeRequest(req, res, undefined, { mountedPath: '/parties' })
     if (handled) return
     serveStatic(req, res)

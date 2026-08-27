@@ -17,6 +17,7 @@ import { mountDuelUi, openDuelOffer } from "./duel-ui";
 import { mountSfx } from "./sfx";
 import { mountTouchControls, mountMobileLayout } from "./touch-controls";
 import { mountMapTransition } from "./map-transition";
+import { mountClientReport } from "./client-report";
 
 /*
  * Everything the player sees on top of the map: zoom, HUD, chat, battle scene,
@@ -31,6 +32,9 @@ import { mountMapTransition } from "./map-transition";
  */
 
 export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectionId?: string } | null) {
+  // FIRST, before anything that could itself throw: this is what turns a
+  // failure on a player's phone into a line in our journal.
+  mountClientReport();
   applyAutoZoom(ctx);
   // Sound first: it listens for the first interaction, which may be the click
   // that dismissed the title screen a moment ago.
