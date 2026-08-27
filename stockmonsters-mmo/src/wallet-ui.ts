@@ -42,6 +42,8 @@ export const CLAIM_SELECTOR = '0x6e6adbde'
 export const APPROVE_SELECTOR = '0x095ea7b3'
 /** `allowance(address,address)` */
 export const ALLOWANCE_SELECTOR = '0xdd62ed3e'
+/** `transfer(address,uint256)` — plain ERC-20, for gifting SMON to a player. */
+export const TRANSFER_SELECTOR = '0xa9059cbb'
 /** `mintCaughtERC20(bytes32,bytes32,address,uint256,uint64,bytes)` -> c4d409d0 */
 export const MINT_ERC20_SELECTOR = '0xc4d409d0'
 
@@ -90,6 +92,29 @@ export function encodeApprove(spender: string, amount: string): string {
 
 export function encodeAllowance(owner: string, spender: string): string {
   return ALLOWANCE_SELECTOR + word(owner) + word(spender)
+}
+
+/** `transfer(to, amount)` on the game token. */
+export function encodeTransfer(to: string, amount: string): string {
+  return TRANSFER_SELECTOR + word(to) + word(BigInt(amount))
+}
+
+/**
+ * A decimal string into a token's base units.
+ *
+ * `parseEth` in ui-kit hardcodes 18, which is right for ether and wrong for a
+ * token that describes its own decimals — and being wrong here is a factor of
+ * a million in somebody's gift. Returns null for anything that is not a
+ * positive number, so the caller never has to guess whether "" meant zero.
+ */
+export function parseUnits(text: string, decimals: number): string | null {
+  const t = text.trim()
+  if (!/^\d*(\.\d*)?$/.test(t) || t === '' || t === '.') return null
+  const d = Number.isFinite(decimals) && decimals >= 0 ? Math.floor(decimals) : 18
+  const [wholeRaw, fracRaw = ''] = t.split('.')
+  const frac = (fracRaw + '0'.repeat(d)).slice(0, d)
+  const total = BigInt(wholeRaw || '0') * 10n ** BigInt(d) + BigInt(frac || '0')
+  return total > 0n ? total.toString() : null
 }
 
 /** `mintCaughtERC20(attrCommit, uid, currency, fee, deadline, signature)` */

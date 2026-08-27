@@ -40,6 +40,7 @@ export default defineConfig({
       // dynamic and the fill fails with BAD_SIGNATURE, pointing at the wrong
       // file entirely
       'src/market-source-chain.spec.ts',
+      'src/gift.spec.ts',
     ],
     environment: 'node',
   },

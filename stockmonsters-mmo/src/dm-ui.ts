@@ -46,10 +46,37 @@ import {
   ensureUiKit, injectStyle, el, guardKeys, pushLayer, layerDepth,
   makeDraggable, watchGameDialog, parseEth, formatEth, shortAddr, Z, THEME,
 } from './ui-kit'
+import { getTokenMeta, formatUnits, parseUnits, encodeTransfer } from './wallet-ui'
 
 /* ================================================================ TYPES ===*/
 
 export interface DmPeer { id: string; name: string; hasWallet: boolean }
+
+type GiftCurrency = 'eth' | 'smon'
+
+/** Is there a game token to send at all? Unconfigured servers offer only ETH. */
+const tokenSendable = (): boolean => {
+  const m = getTokenMeta()
+  return !!(m.configured && m.contracts?.token)
+}
+
+/**
+ * Whatever was typed, in the base units of whichever currency is selected.
+ *
+ * ETH is always 18 decimals; the game token says how many it has, and assuming
+ * 18 for a 6-decimal token would be a factor of a million in somebody's gift.
+ */
+function giftAmountFor(text: string, currency: GiftCurrency): string | null {
+  if (currency === 'eth') return parseEth(text)
+  return parseUnits(text, getTokenMeta().decimals ?? 18)
+}
+
+/** A base-unit amount as something a person can read, with its unit. */
+function amountLabel(raw: string, currency: GiftCurrency): string {
+  if (currency === 'eth') return `${formatEth(raw)} ETH`
+  const m = getTokenMeta()
+  return `${formatUnits(raw, m.decimals ?? 18, 4)} ${m.symbol ?? 'TOKEN'}`
+}
 
 interface EngineLike { processAction?: (action: string, data: unknown) => void }
 interface SocketLike { on?: (type: string, cb: (data: any) => void) => void }
@@ -231,6 +258,8 @@ export function mountDmUi(engine?: EngineLike, socket?: SocketLike): DmUiApi {
   const remoteNoted = new Set<string>()
   /** 'token' | 'nft' while a gift sheet is waiting for the peer's address. */
   let giftKind: 'token' | 'nft' | null = null
+  /** Which currency the gift sheet is currently set to send. */
+  let giftCurrency: GiftCurrency = 'smon'
   let nftContract: string | null | undefined // undefined = not fetched yet
   let nearbyTimer: any = null
   let nearbyTries = 0
@@ -568,14 +597,22 @@ export function mountDmUi(engine?: EngineLike, socket?: SocketLike): DmUiApi {
     body.style.display = 'none'
 
     const err = el('div', { class: 'dm-err', text: '' })
+    const meta = getTokenMeta()
+    const symbol = meta.symbol ?? 'TOKEN'
+    // Default to the GAME's token. Somebody gifting another player in a game
+    // means the game's currency far more often than they mean ether, and ether
+    // is the one that is actually scarce on a testnet.
+    if (!tokenSendable()) giftCurrency = 'eth'
+    else giftCurrency = 'smon'
+
     const field = el('input', {
       class: 'smui-input', type: 'text', autocomplete: 'off', spellcheck: 'false',
-      placeholder: kind === 'token' ? '0.01' : '1234',
-      'aria-label': kind === 'token' ? 'Amount in ETH' : 'Token id',
+      placeholder: kind === 'token' ? '1000' : '1234',
+      'aria-label': kind === 'token' ? 'Amount' : 'Token id',
     })
     guardKeys(field)
     const label = el('label', {
-      text: kind === 'token' ? 'HOW MUCH (ETH)' : 'WHICH TOKEN ID',
+      text: kind === 'token' ? 'HOW MUCH' : 'WHICH TOKEN ID',
     })
 
     const cancel = el('button', { class: 'smui-btn is-ghost', type: 'button', text: 'CANCEL' })
@@ -583,8 +620,43 @@ export function mountDmUi(engine?: EngineLike, socket?: SocketLike): DmUiApi {
     const buttons = el('div', { class: 'row' }, [cancel, confirm])
 
     const warn = el('div', { class: 'dm-warn' })
+
+    /*
+     * The currency switch, drawn only when there is a real choice. A toggle
+     * with one option is a decoration that implies a setting.
+     */
+    const giftAmount = (text: string) => giftAmountFor(text, giftCurrency)
+    let setCurrency = (_c: GiftCurrency) => {}
+    const pickRow = el('div', { class: 'dm-pick' })
+    if (kind === 'token' && tokenSendable()) {
+      const mk = (c: GiftCurrency, text: string) => {
+        const b = el('button', { class: 'smui-btn', type: 'button', text })
+        b.addEventListener('click', () => setCurrency(c))
+        return b
+      }
+      const smonBtn = mk('smon', symbol)
+      const ethBtn = mk('eth', 'ETH')
+      pickRow.append(smonBtn, ethBtn)
+      setCurrency = (c) => {
+        giftCurrency = c
+        smonBtn.classList.toggle('is-primary', c === 'smon')
+        ethBtn.classList.toggle('is-primary', c === 'eth')
+        label.textContent = `HOW MUCH (${c === 'eth' ? 'ETH' : symbol})`
+        field.placeholder = c === 'eth' ? '0.01' : '1000'
+        // The amount means something different in each currency, so a value
+        // typed for one must not silently carry into the other.
+        field.value = ''
+        field.dispatchEvent(new Event('input', { bubbles: true }))
+      }
+      setCurrency(giftCurrency)
+    } else if (kind === 'token') {
+      label.textContent = 'HOW MUCH (ETH)'
+      field.placeholder = '0.01'
+    }
+
     sheet.append(
       ...giftHeader(kind, to),
+      ...(pickRow.childElementCount ? [pickRow] : []),
       el('div', {}, [label, field]),
       warn,
       err,
@@ -623,9 +695,9 @@ export function mountDmUi(engine?: EngineLike, socket?: SocketLike): DmUiApi {
       })
     } else {
       const render = () => {
-        const wei = parseEth(field.value)
-        warn.innerHTML = wei
-          ? `Sends <b>${formatEth(wei)} ETH</b> to ${to.name} at ` +
+        const amount = giftAmount(field.value)
+        warn.innerHTML = amount
+          ? `Sends <b>${amountLabel(amount, giftCurrency)}</b> to ${to.name} at ` +
             `<b>${shortAddr(to.address)}</b>. <b>This happens on chain and cannot ` +
             `be undone</b> — there is no refund and no take-backs.`
           : 'Enter an amount. Whatever you send goes on chain and <b>cannot be ' +
@@ -642,17 +714,20 @@ export function mountDmUi(engine?: EngineLike, socket?: SocketLike): DmUiApi {
       const value = field.value.trim()
 
       if (kind === 'token') {
-        const wei = parseEth(value)
-        if (!wei) { err.textContent = 'Enter an amount greater than zero.'; return }
+        const amount = giftAmount(value)
+        if (!amount) { err.textContent = 'Enter an amount greater than zero.'; return }
         if (!armed) {
           armed = true
-          confirm.textContent = `YES — SEND ${formatEth(wei)} ETH`
+          confirm.textContent = `YES — SEND ${amountLabel(amount, giftCurrency)}`
           confirm.classList.remove('is-primary')
           confirm.classList.add('is-danger')
           field.disabled = true
+          // Changing currency after arming would send a number the player
+          // reviewed in the other unit.
+          for (const b of pickRow.children) (b as HTMLButtonElement).disabled = true
           return
         }
-        await sendToken(to, wei, { confirm, err })
+        await sendToken(to, amount, giftCurrency, { confirm, err })
         return
       }
 
@@ -671,30 +746,41 @@ export function mountDmUi(engine?: EngineLike, socket?: SocketLike): DmUiApi {
     })
   }
 
+  /**
+   * Send ETH, or send the game token.
+   *
+   * The button has said SEND TOKEN since it was written and it only ever sent
+   * ether — in a game whose token is SMON, that is not a missing feature so
+   * much as a mislabelled one. ETH goes as `value` with no calldata; SMON goes
+   * as an ordinary ERC-20 `transfer` to the same address.
+   */
   async function sendToken(
     to: { name: string; address: string },
-    wei: string,
+    raw: string,
+    currency: GiftCurrency,
     ui: { confirm: HTMLButtonElement; err: HTMLElement },
   ) {
     const eth = ethereum()
     const from = myWallet()?.address
     if (!eth || !from) { ui.err.textContent = 'No wallet available.'; return }
+    const pretty = amountLabel(raw, currency)
     ui.confirm.disabled = true
     ui.confirm.textContent = 'WAITING FOR YOUR WALLET…'
     try {
       // Sending on the wrong chain is the one mistake here that cannot be
-      // undone — the ETH is really gone, to a chain neither of you meant.
+      // undone — it is really gone, to a chain neither of you meant.
       await ensureChain(eth)
-      const hash = await eth.request({
-        method: 'eth_sendTransaction',
-        params: [{ from, to: to.address, value: '0x' + BigInt(wei).toString(16) }],
-      })
+      const meta = getTokenMeta()
+      const tx = currency === 'eth'
+        ? { from, to: to.address, value: '0x' + BigInt(raw).toString(16) }
+        : { from, to: meta.contracts!.token, data: encodeTransfer(to.address, raw) }
+      const hash = await eth.request({ method: 'eth_sendTransaction', params: [tx] })
       closeSheet()
-      system(`Sent ${formatEth(wei)} ETH to ${to.name} — ${shortAddr(String(hash))}`, 'tx')
+      system(`Sent ${pretty} to ${to.name} — ${shortAddr(String(hash))}`, 'tx')
       system('Tell them yourself: the game never watches the chain for you.', 'sys')
     } catch (e) {
       ui.confirm.disabled = false
-      ui.confirm.textContent = `YES — SEND ${formatEth(wei)} ETH`
+      ui.confirm.textContent = `YES — SEND ${pretty}`
       ui.err.textContent = trimError(e)
     }
   }
