@@ -5,3 +5,7 @@ node_modules
 # Screenshots that end-to-end tests drop in the project root.
 first-login.png
 live.png
+intro.png
+
+# Ad-hoc map renders from tools/render-map-full.mjs.
+map-renders/

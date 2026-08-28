@@ -1,6 +1,7 @@
 import type { RpgPlayer } from '@rpgjs/server'
 import { filterChat } from './chat-filter'
 import { areFriends } from './friends'
+import { playerMapId, playerPos } from './geometry'
 
 /*
  * dm.ts — player-to-player direct messages and gifting.
@@ -104,38 +105,15 @@ type Emitter = { emit?: (type: string, value?: unknown) => void }
 
 /* ------------------------------------------------------------ reading ---- */
 
-/**
- * RPG-JS v5 exposes x/y as reactive SIGNALS (`player.x()`), but the fake
- * players in dm.spec.ts — and any older call site — use plain numbers. Read
- * both rather than making the tests carry engine machinery they do not need.
- */
+// posOf/mapIdOf live in geometry.ts now: reading a player wrong
+// (`Number(player.x)` is NaN, `String(player.map)` is "[object Object]")
+// fails silently, and one copy of that knowledge is enough.
+const posOf = playerPos
+const mapIdOf = playerMapId
+
+/** Unwrap a v5 reactive signal, or pass a plain value through. */
 const read = (v: unknown): unknown => {
     try { return typeof v === 'function' ? (v as () => unknown)() : v } catch { return undefined }
-}
-
-function posOf(player: unknown): { x: number; y: number } | null {
-    const p = player as any
-    const x = read(p?.x)
-    const y = read(p?.y)
-    if (typeof x === 'number' && typeof y === 'number') return { x, y }
-    // `position` is the deprecated v4 shape; still the best fallback.
-    const pos = p?.position
-    if (pos && typeof pos.x === 'number' && typeof pos.y === 'number') return { x: pos.x, y: pos.y }
-    return null
-}
-
-/**
- * Map ids arrive as "map-exterior" from the room and as "exterior" everywhere
- * else in this codebase (see player.ts onJoinMap). Normalise, or two players on
- * one map compare as being on two.
- */
-function mapIdOf(player: unknown): string | null {
-    const p = player as any
-    let raw: unknown = p?.getCurrentMap?.()?.id
-    if (raw == null) raw = typeof p?.map === 'string' ? p.map : p?.map?.id
-    if (raw == null) return null
-    const id = String(raw).replace(/^map-/, '')
-    return id || null
 }
 
 function nameOf(player: unknown): string | null {

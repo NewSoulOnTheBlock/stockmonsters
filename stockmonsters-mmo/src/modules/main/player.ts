@@ -38,6 +38,7 @@ import {
 import { Components } from '@rpgjs/server'
 import { awardXp, progressOf } from './trainer'
 import { questProgress, handleQuestList, handleQuestClaim } from './quests'
+import { trackTerrain, untrackTerrain } from './terrain'
 import {
     applyInventory,
     collectState,
@@ -320,6 +321,7 @@ function scheduleGoodbye(player: RpgPlayer) {
         removeChatMember(player)
         removeDmMember(player)
         removeDuelMember(player)
+        untrackTerrain(player)
         friendsDisconnected(player)
         // The last write of the session. The store batches, so without this
         // the final few seconds of a battle are lost on a clean exit — and
@@ -404,6 +406,10 @@ export const player: RpgPlayerHooks = {
         // object held here.
         friendsRefresh(player)
         addDuelMember(player)
+        // The ground has to be re-read against the object that holds the new
+        // map: a stale one reports the tile the player stood on before the
+        // door, and they would climb the whole of the next map at stairs pace.
+        trackTerrain(player)
 
         const id = String(map?.id ?? '').replace(/^map-/, '')
         const isNew = markVisited(player, id)
