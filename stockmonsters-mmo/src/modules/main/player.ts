@@ -474,6 +474,22 @@ export const player: RpgPlayerHooks = {
             void applyName(player, result.name).catch(logProfileError)
             return
         }
+        // A test-only teleport, OFF unless SM_DEV_TELEPORT=1 is in the
+        // server's environment — it is not in production's .env and must never
+        // be, because it is exactly the "client picks its own coordinate" hole
+        // that travelTo() refuses to open.
+        //
+        // It exists because verifying anything about a particular PLACE has
+        // been the recurring difficulty here: the spawn is walled off from most
+        // of the map, walking a headless player anywhere useful is unreliable,
+        // and every earlier attempt was really a test of the pathfinding rather
+        // than of the thing under test.
+        if (action == 'dev:goto' && process.env.SM_DEV_TELEPORT === '1') {
+            const d = data as { map?: unknown; x?: unknown; y?: unknown }
+            if (typeof d?.map !== 'string' || typeof d?.x !== 'number' || typeof d?.y !== 'number') return
+            player.changeMap(d.map, { x: d.x * 32, y: d.y * 32 })
+            return
+        }
         if (action == 'auth:wallet') {
             // The id is an HMAC only the server can produce (auth.mjs), so a
             // client presenting one has proven wallet ownership at some point.

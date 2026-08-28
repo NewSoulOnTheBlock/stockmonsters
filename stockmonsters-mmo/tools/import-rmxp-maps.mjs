@@ -360,36 +360,105 @@ function assignIds(maps, reserved) {
 // ---------------------------------------------------------------------------
 // stage 2d: TMX
 
-function buildTmx(map, tiles, tilesets, layerNames) {
+/**
+ * `layers` is the finished draw list, in order: `{ name, cells }`, with the
+ * event layer marked by a `cells` of null. Empty layers are dropped by the
+ * caller, so ids are assigned here from what is actually emitted.
+ */
+function buildTmx(map, layers, tilesets) {
   const { width: w, height: h } = map
   const parts = [
     `<?xml version="1.0" encoding="UTF-8"?>`,
     `<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down"` +
       ` compressionlevel="0" width="${w}" height="${h}" tilewidth="32" tileheight="32"` +
-      ` infinite="0" nextlayerid="${layerNames.length + 1}" nextobjectid="1">`,
+      ` infinite="0" nextlayerid="${layers.length + 2}" nextobjectid="1">`,
     ...tilesets.map((t) => ` <tileset firstgid="${t.firstgid}" source="${t.tsx}"/>`),
   ]
-  layerNames.forEach((name, z) => {
+  let grouped = false
+  layers.forEach((layer, i) => {
+    // RPG-JS mounts its character/camera layer only on maps that have an
+    // <objectgroup>. No objectgroup means no player sprite and no camera
+    // follow — derive the id from the layers actually emitted, never from a
+    // nextlayerid that could be stale.
+    //
+    // The <group> after it is what makes the layers inside DRAW ABOVE the
+    // player; see the long note in tools/import-maps.mjs. In short: the
+    // renderer splits every tile layer by per-tile `z` and stamps the pieces
+    // with z=0, which sorts them under the event layer's 0.5 — so a bare tile
+    // layer can never cover the player. A group is passed through unsplit,
+    // ties at 0.5, and the sort is stable.
+    if (!layer.cells) {
+      parts.push(` <objectgroup id="${i + 1}" name="${layer.name}"/>`)
+      if (i < layers.length - 1) {
+        parts.push(` <group id="${layers.length + 1}" name="above">`)
+        grouped = true
+      }
+      return
+    }
     const rows = []
     for (let y = 0; y < h; y++) {
       const row = new Array(w)
-      for (let x = 0; x < w; x++) row[x] = tiles[z][y * w + x]
+      for (let x = 0; x < w; x++) row[x] = layer.cells[y * w + x]
       rows.push(row.join(','))
     }
     parts.push(
-      ` <layer id="${z + 1}" name="${name}" width="${w}" height="${h}">`,
+      ` <layer id="${i + 1}" name="${layer.name}" width="${w}" height="${h}">`,
       `  <data encoding="csv">`,
       rows.join(',\n'),
       `  </data>`,
       ` </layer>`,
     )
   })
-  // RPG-JS mounts its character/camera layer only on maps that have an
-  // <objectgroup>. No objectgroup means no player sprite and no camera
-  // follow — derive the id from the layers actually emitted, never from a
-  // nextlayerid that could be stale.
-  parts.push(` <objectgroup id="${layerNames.length + 1}" name="events"/>`, `</map>`, '')
+  if (grouped) parts.push(` </group>`)
+  parts.push(`</map>`, '')
   return parts.join('\n')
+}
+
+/**
+ * Split the three RMXP layers into what is drawn behind the player and what is
+ * drawn over them, and put the event layer between the two halves.
+ *
+ * WHY IT HAS TO BE DONE HERE. In mmorpg mode the client never reads this file:
+ * the server streams it, and sanitizeLayerTemplate (@rpgjs/tiledmap) strips
+ * every layer's `properties` on the way out — as sanitizeTileset does for every
+ * tile's. @canvasengine/presets then orders layers by `properties.z ?? 0.5`, so
+ * with the properties gone every layer ties, the sort is stable, and DOCUMENT
+ * ORDER is the render order. Nothing else about a map can express "this covers
+ * the player".
+ *
+ * RMXP keeps that per TILE, in the tileset's `priorities` table: 0 means the
+ * character walks in front of the tile, anything higher means it covers them.
+ * Which of the three layers a tile sits on says very little — measured over all
+ * 152 maps, treating `upper` as the over-layer and the rest as under agrees
+ * with the real table on only 87% of the 710,510 placed tiles, and the 60,521
+ * it gets wrong are concentrated in `middle`: the tree canopies and roof edges
+ * a player should disappear behind.
+ *
+ * Empty halves are dropped rather than written as a field of zeros — every map
+ * is streamed to every client, and three redundant layers per map is a cost
+ * paid on each first load.
+ */
+function splitByPriority(tiles, data, priorities, w, h, names) {
+  const size = w * h
+  const below = []
+  const above = []
+  names.forEach((name, z) => {
+    const under = new Array(size).fill(0)
+    const over = new Array(size).fill(0)
+    let anyUnder = false
+    let anyOver = false
+    for (let i = 0; i < size; i++) {
+      const gid = tiles[z][i]
+      if (!gid) continue
+      // The priority is looked up with the RAW RMXP tile id, not the gid this
+      // importer remapped it to.
+      if ((priorities[data[i + z * size]] ?? 0) > 0) { over[i] = gid; anyOver = true }
+      else { under[i] = gid; anyUnder = true }
+    }
+    if (anyUnder) below.push({ name, cells: under })
+    if (anyOver) above.push({ name: `${name}_above`, cells: over })
+  })
+  return [...below, { name: 'events', cells: null }, ...above]
 }
 
 // ---------------------------------------------------------------------------
@@ -554,7 +623,7 @@ async function main() {
     totalDirectional += counters.directional
     const hitboxes = mergeRects(blocked, w, h)
 
-    const tmx = buildTmx(map, tiles, list, layerNames)
+    const tmx = buildTmx(map, splitByPriority(tiles, data, ts.priorities, w, h, layerNames), list)
     writeFileSync(join(OUT, `${info.slug}.tmx`), tmx)
     writeFileSync(join(OUT, `${info.slug}.hitboxes.json`), JSON.stringify(hitboxes))
     done.push({ ...info, hitboxes: hitboxes.length, blocked: blocked.reduce((a, b) => a + b, 0) })

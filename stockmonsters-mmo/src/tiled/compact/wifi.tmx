@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="35" height="32" tilewidth="32" tileheight="32" infinite="0" nextlayerid="213" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="35" height="32" tilewidth="32" tileheight="32" infinite="0" nextlayerid="214" nextobjectid="1">
  <tileset firstgid="1" source="wifi.tsx"/>
  <layer id="71" name="▬_Bld_input" width="35" height="32">
   <data encoding="csv">
@@ -362,6 +362,8 @@
 </data>
  </layer>
  <group id="4" name="Z=0"/>
+ <objectgroup id="212" name="events"/>
+ <group id="213" name="above">
  <layer id="45" name="Assets_A_2" width="35" height="32">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -654,5 +656,5 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="212" name="events"/>
+</group>
 </map>

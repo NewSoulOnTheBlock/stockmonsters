@@ -151,7 +151,12 @@ console.log('\nin the world, seconds after the wallet arrived:')
   const w = await page.evaluate(() => ({
     placeholder: document.getElementById('chat-input')?.placeholder,
     chatDisabled: document.getElementById('chat-input')?.disabled,
-    nameModal: !!document.getElementById('name-screen')?.classList.contains('open'),
+    // A first-time trader is asked their name by KELBY now, as the last beat
+    // of the opening — the bare modal is only the fallback for a client where
+    // the intro failed to mount, and for changing a name later. Either counts
+    // as being asked; neither would mean they are stuck as "Trader".
+    nameModal: !!document.getElementById('name-screen')?.classList.contains('open')
+      || !!document.getElementById('sm-intro')?.classList.contains('open'),
     chips: [...document.querySelectorAll('#sm-hud .hud-chips .smui-chip')]
       .map((n) => n.textContent.replace(/\s+/g, ' ').trim()),
   }))

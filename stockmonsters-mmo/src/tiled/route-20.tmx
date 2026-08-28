@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="102" height="44" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="1">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="102" height="44" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="1">
  <tileset firstgid="1" source="RMXP-KANTO50S_OUT.tsx"/>
  <tileset firstgid="2225" source="RMXP-auto-hgss-sea.tsx"/>
  <tileset firstgid="2273" source="RMXP-auto-noanimsea.tsx"/>

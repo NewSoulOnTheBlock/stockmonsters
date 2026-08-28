@@ -15,14 +15,17 @@
  */
 import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { spawn } from 'node:child_process'
 import puppeteer from 'puppeteer-core'
 
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 const PORT = Number(process.env.PORT_OVERRIDE ?? 4240)
 const BASE = `http://localhost:${PORT}`
-const ROOT = resolve(process.env.APP_ROOT)
+// The repo root, from this file's own location — APP_ROOT was never set
+// by anything, so `npm run test:e2e:intro` threw before it opened a browser.
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 let bad = 0
 const check = (l, ok, d = '') => { if (!ok) bad++; console.log(`  ${ok ? 'PASS' : 'FAIL'}  ${l}${d ? '  ' + d : ''}`) }
