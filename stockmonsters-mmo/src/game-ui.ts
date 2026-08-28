@@ -18,6 +18,7 @@ import { mountSfx } from "./sfx";
 import { mountTouchControls, mountMobileLayout } from "./touch-controls";
 import { mountMapTransition } from "./map-transition";
 import { mountClientReport } from "./client-report";
+import { mountQuestUi, openQuests } from "./quest-ui";
 
 /*
  * Everything the player sees on top of the map: zoom, HUD, chat, battle scene,
@@ -211,6 +212,7 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
   void mountWalletUi();
   // Duels: offered to whoever you are standing next to, escrowed on chain.
   mountDuelUi(engine, socket);
+  mountQuestUi(engine, socket);
 
   // LAST, deliberately. Every panel injects its own stylesheet when it mounts,
   // and equal-specificity rules are won by whichever came later in the
@@ -238,6 +240,7 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
   window.addEventListener("sm:hud-action", (e) => {
     const id = (e as CustomEvent).detail?.id;
     if (!id) return;
+    if (id === "quests" || id === "quest") { openQuests(); return; }
     if (id === "market") { openMarketplace(); return; }
     if (id === "map") { openMapBrowser(); return; }
     if (id === "boxes") { openBoxShop(); return; }

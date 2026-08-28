@@ -5,6 +5,7 @@ import { createExactCreature } from '../../battle/factory'
 import speciesRaw from '../../data/studio/species.json'
 import dexRaw from '../../data/dex.json'
 import { awardXp } from './trainer'
+import { questProgress } from './quests'
 
 /*
  * duel.ts — walk up to someone, bet on your Stockmonster, and find out.
@@ -585,7 +586,10 @@ async function fight(duel: Duel): Promise<void> {
     // A duel is worth the most of anything because another player had to agree
     // to lose it, which is the one thing a script cannot manufacture alone.
     const winnerPlayer = playerFor(winnerFighter)
-    if (winnerPlayer) awardXp(winnerPlayer, 'duelWin')
+    if (winnerPlayer) {
+        awardXp(winnerPlayer, 'duelWin')
+        questProgress(winnerPlayer, 'duelWin')
+    }
 
     /*
      * THE FIGHT, ANIMATED, THROUGH THE SCENE THAT ALREADY EXISTS.

@@ -102,8 +102,11 @@ export async function openHudPanel(player: RpgPlayer, id: string) {
     if (id === 'bag') { await showBag(player); return }
     if (id === 'dex') { await showDex(player); return }
     if (id === 'map') { await showTravel(player); return }
+    // Quests are a client panel now (src/quest-ui.ts intercepts the HUD id
+    // before it ever reaches this fallback), so arriving here means an old
+    // client. Tell them something true rather than "not built".
     if (id === 'quests' || id === 'quest') {
-      await player.showText('QUESTS\nNo contracts on the board yet — the questline arrives with the story port.')
+      await player.showText('QUESTS\nReload the game to see the daily board.')
       return
     }
     await player.showText('That panel is not built yet.')

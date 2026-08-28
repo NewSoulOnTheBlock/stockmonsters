@@ -65,6 +65,11 @@ const ARENA_ABI = parseAbi([
   'function maxWager() view returns (uint256)',
 ])
 
+const NFT_ABI = parseAbi([
+  'function ownerOf(uint256) view returns (address)',
+  'function opened(uint256) view returns (bool)',
+])
+
 const REWARDS_ABI = parseAbi([
   'function epochBudget(uint256) view returns (uint256)',
   'function epochClaimed(uint256) view returns (uint256)',
@@ -397,6 +402,28 @@ export function createTokenStore(opts = {}) {
      * false on any failure: the caller treats that as "not yet", asks again,
      * and the duel times out honestly rather than opening on a guess.
      */
+    /**
+     * Who owns this Stockmonster, straight off the chain — and whether it has
+     * been opened. Quests are gated on holding an OPENED one: a sealed box is
+     * a lottery ticket, not a creature, and gating on it would make the gate
+     * purchasable without ever engaging with the game.
+     *
+     * Null on any failure. The caller treats null as "cannot verify", which
+     * closes the gate rather than opening it.
+     */
+    async nftOwnership(tokenId) {
+      if (!configured || !nftAddress || !isAddress(nftAddress)) return null
+      try {
+        const id = BigInt(tokenId)
+        const [owner, opened] = await Promise.all([
+          client.readContract({ address: getAddress(nftAddress), abi: NFT_ABI, functionName: 'ownerOf', args: [id] }),
+          client.readContract({ address: getAddress(nftAddress), abi: NFT_ABI, functionName: 'opened', args: [id] }),
+        ])
+        return { owner: getAddress(owner), opened: !!opened }
+      } catch {
+        return null
+      }
+    },
     async arenaAllowanceCovers(owner, amount) {
       if (!configured || !arenaAddress || !isAddress(arenaAddress) || !isAddress(owner)) return false
       try {

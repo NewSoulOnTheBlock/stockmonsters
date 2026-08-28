@@ -34,6 +34,13 @@ export const REWARDS = {
     boxOpen: 25,
     /** Standing on a map nobody has walked before. Exploration is content. */
     newMap: 2,
+    /**
+     * One unit, multiplied by the quest's own reward via `times`. Quests are
+     * priced on their board (quests.ts), not here — but they PAY here, so
+     * every quest token still lives under the daily cap and the per-epoch
+     * on-chain budget like all the rest.
+     */
+    quest: 1,
 } as const
 
 export type RewardKind = keyof typeof REWARDS

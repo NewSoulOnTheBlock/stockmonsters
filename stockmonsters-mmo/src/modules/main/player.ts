@@ -37,6 +37,7 @@ import {
 } from './dm'
 import { Components } from '@rpgjs/server'
 import { awardXp, progressOf } from './trainer'
+import { questProgress, handleQuestList, handleQuestClaim } from './quests'
 import {
     applyInventory,
     collectState,
@@ -410,6 +411,7 @@ export const player: RpgPlayerHooks = {
             // Exploration is content: somewhere nobody has stood pays a little.
             credit(player, 'newMap')
             awardXp(player, 'newMap')
+            questProgress(player, 'newMap')
             const walletId = player.getVariable('WALLET_ID') as string | undefined
             if (walletId) {
                 profiles().saveProfile(walletId, collectState(player))
@@ -548,6 +550,8 @@ export const player: RpgPlayerHooks = {
         if (action == 'duel:offer') { void handleDuelOffer(player, data).catch(logProfileError); return }
         if (action == 'duel:respond') { handleDuelRespond(player, data); return }
         if (action == 'duel:pick') { void handleDuelPick(player, data).catch(logProfileError); return }
+        if (action == 'quests:list') { void handleQuestList(player).catch(logProfileError); return }
+        if (action == 'quests:claim') { void handleQuestClaim(player, data).catch(logProfileError); return }
         if (action == 'duel:signed') { handleDuelSigned(player, data); return }
         if (action == 'duel:approved') { void handleDuelApproved(player, data).catch(logProfileError); return }
         if (action == 'duel:opened') { void handleDuelOpened(player, data).catch(logProfileError); return }

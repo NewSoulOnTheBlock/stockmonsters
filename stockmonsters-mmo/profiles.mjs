@@ -669,6 +669,50 @@ export function createProfileStore(opts = {}) {
     pool = null
   }
 
+  /* ------------------------------------------------------------ quests ---*/
+
+  /**
+   * Claim a token's quest slot for this epoch, atomically.
+   *
+   * The whole anti-abuse story is this one insert: the primary key is
+   * (epoch, token_id), so the first wallet in wins and everyone after
+   * conflicts — including the same token arriving from a different wallet
+   * after a transfer. No check-then-write, nothing to race.
+   *
+   * Returns 'locked' when this wallet holds the slot (fresh or already its
+   * own), 'taken' when another wallet used the token this epoch, and 'down'
+   * when the database cannot answer — which the caller must treat as "not
+   * eligible right now", never as a free pass.
+   */
+  async function lockQuestToken(epoch, tokenId, walletId) {
+    if (!isWalletId(walletId)) return 'down'
+    const res = await run(
+      `INSERT INTO quest_locks (epoch, token_id, wallet_id)
+        VALUES ($1, $2::numeric, $3)
+        ON CONFLICT (epoch, token_id) DO NOTHING
+        RETURNING wallet_id`,
+      [epoch, String(tokenId), walletId],
+    )
+    if (!res) return 'down'
+    if (res.rowCount) return 'locked'
+    const who = await run(
+      'SELECT wallet_id FROM quest_locks WHERE epoch = $1 AND token_id = $2::numeric',
+      [epoch, String(tokenId)],
+    )
+    if (!who) return 'down'
+    return who.rows[0]?.wallet_id === walletId ? 'locked' : 'taken'
+  }
+
+  /** The token this wallet already qualified with this epoch, if any. */
+  async function questTokenOf(epoch, walletId) {
+    if (!isWalletId(walletId)) return null
+    const res = await run(
+      'SELECT token_id FROM quest_locks WHERE epoch = $1 AND wallet_id = $2 LIMIT 1',
+      [epoch, walletId],
+    )
+    return res?.rows[0]?.token_id ?? null
+  }
+
   return {
     /** A DATABASE_URL was configured at all. */
     get enabled() {
@@ -693,6 +737,8 @@ export function createProfileStore(opts = {}) {
     removeFriend,
     flush,
     flushAll,
+    lockQuestToken,
+    questTokenOf,
     release,
     close,
   }

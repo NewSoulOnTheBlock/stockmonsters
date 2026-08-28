@@ -29,6 +29,7 @@ export default defineConfig({
       // a reward is earned before the client has said which wallet they are
       'src/modules/main/earnings.spec.ts',
       'src/modules/main/trainer.spec.ts',
+      'src/modules/main/quests.spec.ts',
       // a duel decided from a committed seed: the same seed must always give
       // the same fight, or the commit-reveal proves nothing
       'src/battle/duel.spec.ts',
