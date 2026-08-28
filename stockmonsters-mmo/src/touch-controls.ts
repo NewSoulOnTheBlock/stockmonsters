@@ -413,6 +413,47 @@ function stopWeave() {
   weave = null
 }
 
+/*
+ * AUTO-REPEAT, BECAUSE A HELD CONTROL DIES IN THE ENGINE.
+ *
+ * Measured, not theorised: a control held through applyControl stops producing
+ * movement after about 1.4 seconds of walking and never recovers — somewhere
+ * inside the engine the held-key state is wiped while the player moves, and
+ * the same wipe recurs every few seconds when the character element's control
+ * registration is redone. A real keyboard never notices, because the OS fires
+ * auto-repeat keydowns and each one re-arms the state. A thumb has no
+ * auto-repeat, so a touch player's walk simply stopped mid-stride.
+ *
+ * So the stick provides what the OS provides: while a direction is held, the
+ * press is re-applied a few times a second. A duplicate press is harmless —
+ * key state is a set, not a counter — and each one restores whatever the
+ * engine just forgot. This is a workaround for an engine bug and it belongs
+ * exactly here, in the layer that synthesises what a keyboard would have done.
+ */
+const REPEAT_MS = 250
+let repeat: ReturnType<typeof setInterval> | null = null
+let repeating: readonly string[] = []
+
+function stopRepeat() {
+  if (repeat === null) return
+  clearInterval(repeat)
+  repeat = null
+  repeating = []
+}
+
+function startRepeat(names: readonly string[]) {
+  stopRepeat()
+  if (!names.length) return
+  repeating = names
+  repeat = setInterval(() => {
+    // The weave owns diagonals — its own re-holds serve as the repeat there.
+    if (weave !== null || typing()) return
+    for (const b of DIRECTIONS) {
+      if (repeating.includes(b.control!) && held.has(b.key)) fire('keydown', b)
+    }
+  }, REPEAT_MS)
+}
+
 /**
  * Turn a sector into held keys.
  *
@@ -425,12 +466,19 @@ function stopWeave() {
  */
 function applySector(names: readonly string[]) {
   stopWeave()
+  stopRepeat()
   lights(names)
-  if (names.length < 2) { hold(names); return }
+  if (names.length < 2) {
+    hold(names)
+    startRepeat(names)
+    return
+  }
   let turn = 0
   hold([names[0]])
   weave = setInterval(() => {
     turn ^= 1
+    // Release-then-press every turn: the weave doubles as the auto-repeat for
+    // diagonals, so the engine's forgetting never outlives one slice.
     hold([names[turn]])
   }, WEAVE)
 }
