@@ -278,6 +278,16 @@ export function mountChatUi(engine: Engine, socket: Socket) {
    * The retry stops on the first acceptance, and on a rejection — a refused
    * name must not be re-sent every second.
    */
+  /**
+   * How long to let the server answer with a stored name before asking.
+   *
+   * It has to cover a cold profile load on a slow connection. Too short and a
+   * returning player is asked to rename themselves; too long and a genuinely
+   * new player stares at nothing. The hydrate is one indexed row, so this is
+   * generous.
+   */
+  const NAME_GRACE_MS = 6000
+
   let claimTimer: ReturnType<typeof setInterval> | null = null
   function stopClaiming() {
     if (!claimTimer) return
@@ -347,7 +357,25 @@ export function mountChatUi(engine: Engine, socket: Socket) {
         }, 16_000)
       })
     } else {
-      whenInWorld(openNameModal)
+      /*
+       * NO NAME IN THIS BROWSER DOES NOT MEAN NO NAME.
+       *
+       * The name belongs to the WALLET and lives in Postgres; localStorage is
+       * only a cache of it. On a second computer that cache is empty, and
+       * asking immediately meant a player who named themselves months ago got
+       * the "choose your name" modal again on every new device — and, worse,
+       * could not use the name they already own, because it is taken by them.
+       *
+       * The server sends the stored name as `name:accepted` while it hydrates
+       * the profile. So wait for it. Only if nothing arrives — a genuinely new
+       * wallet, or a server with no database — is there a question to ask.
+       */
+      whenInWorld(() => {
+        setTimeout(() => {
+          if (confirmedName || modal.classList.contains('open')) return
+          openNameModal()
+        }, NAME_GRACE_MS)
+      })
     }
   }
 

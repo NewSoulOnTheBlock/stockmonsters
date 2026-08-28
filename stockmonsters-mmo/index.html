@@ -70,6 +70,11 @@
         height: auto;
         max-height: 100vh;
       }
+      #title-stage picture {
+        position: absolute;
+        inset: 0;
+        display: block;
+      }
       #title-stage img {
         position: absolute;
         inset: 0;
@@ -239,7 +244,14 @@
     <div id="rpg"></div>
     <div id="title-screen">
       <div id="title-stage">
-        <img src="/titles/wide-bg.png" alt="Stockmonsters">
+        <!-- WebP first, PNG for anything that cannot read it. The PNG was 523KB
+             of a 1.58MB critical path — a third of what a player waits for
+             before the game is playable — at 1672px wide for a hero that is
+             never drawn above 1280. -->
+        <picture>
+          <source srcset="/titles/wide-bg.webp" type="image/webp">
+          <img src="/titles/wide-bg.png" alt="Stockmonsters">
+        </picture>
         <div id="title-actions">
           <button id="btn-primary" class="title-btn primary">CONNECT WALLET</button>
           <button id="btn-character" class="title-btn secondary" hidden>CHANGE YOUR CHARACTER</button>
