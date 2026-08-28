@@ -1020,13 +1020,94 @@ taxed. Set the buyback router. Move the three keys (deployer, box signer, claim
 signer) off the game server's disk; they are three keys precisely so they can
 live in three places. Pick a real ops wallet — it is the deployer today.
 
-### WHERE THIS STANDS — session 6 (2026-08-26)
+### WHERE THIS STANDS — session 7 (2026-08-28)
 
 **IT IS DEPLOYED.** https://test.lordfishnu.com — Ubuntu 24.04 at
 66.179.31.212, one Node process behind Caddy, Postgres and Redis in Docker.
 The old WebRTC streaming stack that lived on that box was removed (its
 uncommitted local changes and its .env are backed up in
 /root/backup-streaming/, and Caddy's certificate volume was deliberately kept).
+
+#### What session 7 changed, and what it cost to find
+
+**The duel never once opened its escrow through the UI.** Three bugs stacked:
+the opponent was never asked to approve (open() pulls BOTH stakes, so it
+reverted on their allowance every time); `duel:open` never carried
+playerA/playerB, so the client's encoder threw on `word(undefined)`; and the
+wager's expiry was computed twice, from `Date.now()` at signing and
+`createdAt` at opening, so the digests diverged and the contract answered
+BAD_SIGNATURE_A. All three only surfaced by driving the whole thing through
+two real browsers — `npm run test:e2e:duel-ui`, which now proves the pot moves
+on chain. The server re-drives the opening every 8s while it waits, because an
+emit to a stale player object is silently lost.
+
+**The white screen on iOS was memory.** The spawn map pulled in seven shared
+tileset atlases totalling 228 MB of decoded texture (TECH-Buildings.png alone
+is 4096x6144 = 96 MB from a 1.3 MB file), and two of them exceeded the 4096
+limit many iOS devices enforce. `tools/compact-atlases.mjs` packs, per map, an
+atlas of only the tiles that map draws: 228 MB -> 4.3 MB for the spawn, 265 ->
+5.3 for the worst map. **`src/tiled/compact/` MUST stay committed** — sync.sh
+ships `git archive HEAD`, so untracked output means production silently serves
+the 228 MB version.
+
+**Touch walking died after ~1.4s** because the engine wipes its held-key state
+while the player moves and re-registers the controls every ~7s. A keyboard
+never notices (the OS auto-repeats); a thumb has none. The stick now
+re-applies the press four times a second.
+
+**Still open, upstream:** the character element rebuild behind that ~7s
+re-registration costs a 170-250ms frame while walking — the visible stutter.
+Not reachable from application code. Also `s.tilesets is not iterable`, thrown
+once per map transition from inside @rpgjs/tiledmap.
+
+**Measured, not a bug:** the game loop is time-stepped, so a 144Hz monitor
+does NOT run it faster (60Hz vs 144Hz walk speed: x1.01). A machine that runs
+it slowly is what makes someone else's look fast.
+
+#### Two mistakes of mine worth not repeating
+
+Both were *fixes* that broke something else, and both were found by checking
+what the server actually returns rather than trusting a green browser test:
+
+1. Marking `/map/*` `immutable` in the Caddyfile. Those names are not
+   fingerprinted, so a repack would serve stale art forever and a reload would
+   not clear it. Only `/assets/*` may be immutable.
+2. Gating the SPA fallback on `Accept: text/html`. True of browsers, false of
+   everything else — `curl /` returned 404 on the front page. Whether a
+   request is for an asset is a property of the URL (does it end in an
+   extension), not of who is asking.
+
+And the build does not clean `dist/client/map`, so switching map sources
+leaves both sets behind and the served maps reference atlases that are no
+longer written — a black world with a 200 for every missing file. `sync.sh`
+now clears it first.
+
+#### New since session 6
+
+- **Kelby's introduction** (`src/intro.ts`), the original PSDK opening script
+  adapted, with the name asked as its last beat. Replaced a modal that
+  appeared out of nowhere and said nothing about the game.
+- **Daily quests** (`src/modules/main/quests.ts`), gated on owning an OPENED
+  Stockmonster, verified on chain — and one NFT unlocks the board for one
+  wallet per epoch, so a token passed between wallets cannot farm with fresh
+  accounts. Payouts go through `credit()`, so they live under the same daily
+  cap and per-epoch on-chain budget.
+- **Trainer XP** (`src/modules/main/trainer.ts`) — the HUD's LV 12 was invented.
+- **SMON gifting** — SEND TOKEN only ever sent ether.
+- **A second computer no longer asks for a name the wallet already owns.** The
+  name lives in Postgres; localStorage is a cache. The client now waits for
+  the server before deciding somebody is new.
+
+#### The next piece of work, named precisely
+
+Map behaviour. PSDK encodes stairs, escalators and doorway draw-order in
+`systemtags`/`terrain_tag` layers and `Z=0..4`; our importer drops them. That
+is why stairs have no slowdown, the escalator misbehaves, and the player
+appears to walk over the first doorway instead of behind it. The warp
+TRIGGERS are already on the correct tiles (edge events on row 0 / h-1,
+doorways on their own tile, 1-tile hitboxes) — if transitions still fire
+early, measure the player's collision box before changing anything, because it
+affects all 171 maps.
 
 Deploy tooling is `stockmonsters-mmo/deploy/` — bootstrap.sh, sync.sh, a
 Caddyfile and a systemd unit. To ship a new commit:
