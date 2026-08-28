@@ -197,8 +197,21 @@ function serveStatic(req, res) {
 
   const missing = !existsSync(file) || statSync(file).isDirectory()
   if (missing) {
-    const wantsHtml = (req.headers.accept ?? '').includes('text/html')
-    if (!wantsHtml) {
+    /*
+     * AN EXTENSION DECIDES THIS, NOT A HEADER.
+     *
+     * A path ending in .png/.js/.tsx names a FILE, and a missing one must 404
+     * so a broken build is loud instead of handing back HTML that a browser
+     * then fails to decode as an image. Anything else — `/`, a deep link into
+     * a client route — is navigation and gets the app.
+     *
+     * The first version of this asked the Accept header instead, which is
+     * true of browsers and false of everything else: curl, uptime checks and
+     * link previews all got a 404 on the front page. Whether a request is for
+     * an asset is a property of the URL, not of who is asking.
+     */
+    const looksLikeAFile = /\.[a-z0-9]{2,5}$/i.test(url.pathname)
+    if (looksLikeAFile) {
       res.writeHead(404, { 'Content-Type': 'text/plain' }).end('not found\n')
       return
     }
