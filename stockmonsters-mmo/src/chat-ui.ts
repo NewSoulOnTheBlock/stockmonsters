@@ -10,6 +10,8 @@
  * does (the engine listens on window, so we stop propagation while typing).
  */
 
+import { mountIntro, playIntro, introNameAccepted, introNameRejected } from './intro'
+
 const css = `
 #chat-panel {
   position: fixed; left: 12px; bottom: 12px; z-index: 850;
@@ -91,6 +93,8 @@ export function mountChatUi(engine: Engine, socket: Socket) {
   const style = document.createElement('style')
   style.textContent = css
   document.head.appendChild(style)
+
+  mountIntro(engine)
 
   const panel = document.createElement('div')
   panel.id = 'chat-panel'
@@ -231,6 +235,7 @@ export function mountChatUi(engine: Engine, socket: Socket) {
   })
 
   socket.on('name:accepted', (d: { name: string }) => {
+    introNameAccepted(d.name)
     // The server confirms on every reconnect and after every retry, so greet
     // only when this is actually news — otherwise chat opens with the same
     // welcome line two or three times.
@@ -246,6 +251,8 @@ export function mountChatUi(engine: Engine, socket: Socket) {
   })
   socket.on('name:rejected', (d: { reason: string }) => {
     stopClaiming() // a refused name must not be re-sent every second
+    // Kelby answers it himself when he is the one who asked.
+    introNameRejected(d.reason)
     nameErr.textContent = d.reason
     if (!confirmedName) {
       // Rejected before anything was confirmed means this player still has no
@@ -373,7 +380,11 @@ export function mountChatUi(engine: Engine, socket: Socket) {
       whenInWorld(() => {
         setTimeout(() => {
           if (confirmedName || modal.classList.contains('open')) return
-          openNameModal()
+          // A brand-new trader meets Kelby, who explains the game and asks
+          // their name at the end of it — the original opening, restored.
+          // The bare modal stays as the fallback for a client where the intro
+          // failed to mount, and for changing a name later.
+          playIntro()
         }, NAME_GRACE_MS)
       })
     }
