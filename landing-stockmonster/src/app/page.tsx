@@ -3,11 +3,12 @@ import { BattleScene } from "@/components/BattleScene";
 import { Ledger } from "@/components/Ledger";
 import { MemeWingTeaser } from "@/components/MemeWing";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
+import { GameplayLoop, PlayToEarn } from "@/components/Gameplay";
 import { StarterSelect } from "@/components/StarterSelect";
 import { TickerTape } from "@/components/TickerTape";
 import { TypeChart } from "@/components/TypeChart";
 import { PixelHorizon, PlayButton, SectionHead, Window } from "@/components/bits";
-import { CREATURES, MEMES, PLAY_URL, TYPES } from "@/lib/data";
+import { CREATURES, ECONOMY, MEMES, PLAY_URL, TYPES } from "@/lib/data";
 
 const FACTS: Array<[string, string, string]> = [
   [String(CREATURES.length), "stockmonsters", "one per listed ticker"],
@@ -28,10 +29,26 @@ const FAQ: Array<[string, React.ReactNode]> = [
   [
     "Do I need to install anything?",
     <>
-      No. The game streams straight into the browser over WebRTC — you get a video feed
-      of a real running RPG and your inputs go back the other way. It works on a phone
-      with on-screen controls. There is one live server behind it, so seats are limited;
-      if it will not connect, wait a minute and try again.
+      No. It runs in the browser and on a phone, with on-screen controls. It is a real
+      multiplayer world rather than a stream of one — everybody has their own character,
+      and you will walk past other people playing.
+    </>,
+  ],
+  [
+    "Do I need a wallet?",
+    <>
+      Yes, to play. Connecting one is how the game knows who you are: your name, your
+      party and where you were standing all live server-side against your wallet, so you
+      can close the tab and come back, or sign in from another machine, and pick up where
+      you left off. Signing in is a signature, never a transaction.
+    </>,
+  ],
+  [
+    "Is any of this real money yet?",
+    <>
+      Not yet. Everything is live on {ECONOMY.network}, which is a test network — the
+      tokens and NFTs are real contracts doing real transactions, with no real value.
+      The same contracts are what move to mainnet.
     </>,
   ],
   [
@@ -42,6 +59,16 @@ const FAQ: Array<[string, React.ReactNode]> = [
       engine&apos;s creature definitions — they are the numbers the battles actually use.
       The percentages on the ticker tape are decoration: a fixed hash of each contract
       address, never a market quote.
+    </>,
+  ],
+  [
+    "Where does the reward money come from?",
+    <>
+      A pool that already exists. {ECONOMY.symbol} has a fixed supply and no mint
+      function, so nothing the game pays out is newly created — it is refilled by the{" "}
+      {ECONOMY.taxPercent}% tax on exchange trades ({ECONOMY.taxToPlayersPercent}% of it
+      goes to players) and by the treasury buying back with half of all revenue. Duels
+      and gyms pay out of stakes and entry fees, so they need no pool at all.
     </>,
   ],
   [
@@ -94,8 +121,8 @@ export default function Home() {
               <p className="mt-5 max-w-xl text-[14px] leading-relaxed text-dim sm:text-[15px]">
                 {CREATURES.length} US tickers redrawn as collectible monsters, each with an
                 elemental typing, a real stat line and a dex entry. Apple is a lion. NVIDIA
-                is a dragon. Tesla runs on the tide. It is a whole RPG, and it is already
-                playable.
+                is a dragon. Tesla runs on the tide. Catch them in a shared world, mint the
+                ones you keep, and fight other traders for theirs.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -110,8 +137,8 @@ export default function Home() {
               </div>
 
               <p className="mt-4 max-w-md text-[11px] leading-relaxed text-dimmer">
-                Streams a real RPG over WebRTC — nothing to install, works on a phone.
-                It runs on a single live server, so seats are limited.
+                Runs in the browser and on a phone — nothing to install. Connect a wallet
+                and your trainer follows you to any device. Live on {ECONOMY.network}.
               </p>
             </div>
 
@@ -166,12 +193,56 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ============================ GAMEPLAY ============================ */}
+        <section className="border-y border-line bg-pit/60">
+          <div className="mx-auto max-w-[1400px] px-4 py-14 sm:px-6 sm:py-20">
+            <SectionHead
+              id="gameplay"
+              num="02"
+              eyebrow="The loop"
+              title="How it plays"
+              lede={
+                <>
+                  One world, everybody in it. The RPG half is the one you already know —
+                  walk, find something, wear it down, catch it. What is new is that the
+                  creature you catch is yours on chain, and so is the one you take off
+                  somebody else.
+                </>
+              }
+            />
+            <div className="mt-9">
+              <GameplayLoop />
+            </div>
+          </div>
+        </section>
+
+        {/* ========================== PLAY TO EARN ========================== */}
+        <section className="mx-auto max-w-[1400px] px-4 py-14 sm:px-6 sm:py-20">
+          <SectionHead
+            id="earn"
+            num="03"
+            eyebrow="Play to earn"
+            title="Paid out of a pool, not printed"
+            lede={
+              <>
+                Four ways to make {ECONOMY.symbol}, and one rule they all obey: none of
+                them creates a single new token. That is the whole design, and it is why
+                the board can be priced in dollars rather than in a number that quietly
+                means less every week.
+              </>
+            }
+          />
+          <div className="mt-9">
+            <PlayToEarn />
+          </div>
+        </section>
+
         {/* =========================== TYPE CHART =========================== */}
         <section className="border-y border-line bg-pit/60">
           <div className="mx-auto max-w-[1400px] px-4 py-14 sm:px-6 sm:py-20">
             <SectionHead
               id="types"
-              num="02"
+              num="04"
               eyebrow="Combat"
               title={
                 <>
@@ -198,7 +269,7 @@ export default function Home() {
         <section className="mx-auto max-w-[1400px] px-4 py-14 sm:px-6 sm:py-20">
           <SectionHead
             id="ledger"
-            num="03"
+            num="05"
             eyebrow="The full board"
             title="The ledger"
             lede={
@@ -216,7 +287,7 @@ export default function Home() {
 
         {/* =========================== MEME WING =========================== */}
         <section className="mx-auto max-w-[1400px] px-4 pb-14 sm:px-6 sm:pb-20">
-          <SectionHead num="04" eyebrow="Side wing" title="The meme coin wing" />
+          <SectionHead num="06" eyebrow="Side wing" title="The meme coin wing" />
           <div className="mt-8">
             <MemeWingTeaser />
           </div>
@@ -225,7 +296,7 @@ export default function Home() {
         {/* ============================== FAQ ============================== */}
         <section className="border-t border-line bg-pit/60">
           <div className="mx-auto max-w-[1400px] px-4 py-14 sm:px-6 sm:py-20">
-            <SectionHead id="faq" num="05" eyebrow="Briefing" title="How it works" />
+            <SectionHead id="faq" num="07" eyebrow="Briefing" title="How it works" />
             <div className="mt-9 grid gap-4 lg:grid-cols-2">
               {FAQ.map(([q, a]) => (
                 <Window key={q} arrow={false}>
@@ -255,7 +326,7 @@ export default function Home() {
             </div>
             <p className="mx-auto mt-5 max-w-sm text-[11px] leading-relaxed text-dimmer">
               Opens {PLAY_URL.replace(/^https?:\/\//, "").replace(/\/$/, "")} in a new tab.
-              One live server, limited seats — if it is full, try again shortly.
+              Bring a wallet — it is how the world remembers you.
             </p>
           </div>
         </section>

@@ -118,4 +118,41 @@ export function shortAddress(a: string) {
   return `${a.slice(0, 6)}…${a.slice(-4)}`;
 }
 
-export const PLAY_URL = "https://game.stockmonsters.com/";
+/**
+ * Where the Play button goes. This pointed at game.stockmonsters.com, which
+ * has never resolved — the game is live on the box that already had a
+ * certificate. Change it here and every button follows.
+ */
+export const PLAY_URL = "https://test.lordfishnu.com/";
+
+export const TWITTER_URL = "https://x.com/stonksters";
+
+/**
+ * The economy, in one place, so the copy on the site cannot drift from the
+ * contracts. Every number here is the deployed one — see
+ * stockmonsters-mmo/deployments/sepolia.json and docs/token-economy.md.
+ *
+ * The rule the whole thing rests on: THE GAME NEVER MINTS. Supply is fixed and
+ * there is no mint function, so every reward is a claim on a pool that already
+ * exists. If a feature seems to need new supply, it is an economy bug.
+ */
+export const ECONOMY = {
+  /** Testnet today; the contracts move to mainnet unchanged. */
+  network: "Sepolia",
+  symbol: "SMON",
+  supply: "1,000,000,000",
+  /** Trading tax, buy and sell. Wallet-to-wallet is free. */
+  taxPercent: 2,
+  /** Share of that tax that goes to the reward pool players are paid from. */
+  taxToPlayersPercent: 75,
+  /** Marketplace protocol fee, hard-capped at 5% in the contract. */
+  marketFeePercent: 2.5,
+  /** Creator royalty on a secondary sale (ERC-2981). */
+  royaltyPercent: 5,
+  /** What a seller keeps of the sale price. */
+  sellerKeepsPercent: 92.5,
+  /** Daily quests on the board. */
+  questCount: 5,
+  /** What the daily board is worth, in dollars, at target pricing. */
+  questBoardUsd: "$7",
+} as const;
