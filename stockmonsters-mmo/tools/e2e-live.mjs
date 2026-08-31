@@ -110,17 +110,35 @@ check('and it is wss, not ws', sockets.every((s) => s.url.startsWith('wss://')))
 
 // Walk, which is a round trip through the proxy.
 if (before) {
-  await page.evaluate(async () => {
-    const c = window.__controls?.()
-    if (!c?.applyControl) return
-    await c.applyControl('left', true)
-    await new Promise((r) => setTimeout(r, 1200))
-    await c.applyControl('left', false)
-  })
-  await sleep(1200)
-  const after = await read()
-  const moved = after ? Math.hypot(after.x - before.x, after.y - before.y) : 0
-  check('the character walks — input round-trips through the proxy', moved > 8, `moved ${Math.round(moved)}px`)
+  /*
+   * TRY EVERY DIRECTION, and stop at the first that moves.
+   *
+   * This walked left and only left. That was fine when everybody spawned on
+   * the dock; now a returning player resumes wherever they last stood, and
+   * this account's saved tile happens to have a wall on its left — so the
+   * check failed while the game was working perfectly. What it is really
+   * asking is whether input round-trips through the proxy at all, and any
+   * direction answers that.
+   */
+  let moved = 0
+  let used = ''
+  for (const dir of ['left', 'right', 'up', 'down']) {
+    const from = await read()
+    await page.evaluate(async (d) => {
+      const c = window.__controls?.()
+      if (!c?.applyControl) return
+      await c.applyControl(d, true)
+      await new Promise((r) => setTimeout(r, 1000))
+      await c.applyControl(d, false)
+    }, dir)
+    await sleep(1000)
+    const to = await read()
+    const d = from && to ? Math.hypot(to.x - from.x, to.y - from.y) : 0
+    if (d > moved) { moved = d; used = dir }
+    if (moved > 8) break
+  }
+  check('the character walks — input round-trips through the proxy', moved > 8,
+    `moved ${Math.round(moved)}px ${used ? `(${used})` : '— every direction blocked'}`)
 }
 
 await page.screenshot({ path: process.env.SHOT ?? 'live.png' })
