@@ -34,7 +34,10 @@
     "test:e2e:npc": "node --env-file-if-exists=.env tools/e2e-npc.mjs",
     "ipfs:pack": "node tools/ipfs.mjs pack",
     "ipfs:upload": "node --env-file-if-exists=.env tools/ipfs.mjs upload",
-    "test:e2e:door": "node --env-file-if-exists=.env tools/e2e-door.mjs"
+    "test:e2e:door": "node --env-file-if-exists=.env tools/e2e-door.mjs",
+    "test:e2e:chat-bubble": "node --env-file-if-exists=.env tools/e2e-chat-bubble.mjs",
+    "test:e2e:door-marker": "node --env-file-if-exists=.env tools/e2e-door-marker.mjs",
+    "test:e2e:ferry": "node --env-file-if-exists=.env tools/e2e-ferry.mjs"
   },
   "keywords": [],
   "author": "",

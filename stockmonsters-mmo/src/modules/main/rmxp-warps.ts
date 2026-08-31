@@ -102,7 +102,8 @@ function edgeWarpEvents(mapId: string) {
                     mode: 'shared',
                     hitbox: { width: TILE, height: TILE },
                     onPlayerTouch(this: RpgEvent, player: RpgPlayer) {
-                        player.changeMap(target, { x: to.x * TILE, y: to.y * TILE })
+                        // Centre, not corner — see the note in `travel`.
+                        player.changeMap(target, { x: to.x * TILE + TILE / 2, y: to.y * TILE + TILE / 2 })
                     },
                 } as unknown as EventData,
             })
@@ -176,8 +177,25 @@ function travel(player: RpgPlayer, w: Warp) {
     // The recorded arrival can sit inside a wall (hand-authored, or an RMXP
     // arrival that only worked because the original scripted the walk).
     const cell = snapFree(w.to, w.tx, w.ty)
-    const px = { x: cell.x * TILE, y: cell.y * TILE }
-    arrival.set(String(player.id), { x: px.x + TILE / 2, y: px.y + TILE / 2, away: false })
+    /*
+     * THE CENTRE OF THE TILE, NOT ITS CORNER.
+     *
+     * This used to hand `changeMap` the tile's top-left, while recording the
+     * immunity anchor half a tile away at its centre — so the two disagreed
+     * about where the player was, and the player was not where either thought.
+     *
+     * Movement is free rather than tile-locked, so a body placed on a corner
+     * straddles the boundary into whatever is on the other side of it. In the
+     * open that is invisible. In a one-tile corridor it is a wedge: the ferry
+     * lands at olivine-city (24,42), whose only open neighbour is the tile
+     * above, and a player pushed half a tile into the wall beside it cannot
+     * move in any direction at all. That is what "stuck at the pier" was.
+     *
+     * `warps.ts` has always centred its arrivals. The two warp systems now
+     * agree.
+     */
+    const px = { x: cell.x * TILE + TILE / 2, y: cell.y * TILE + TILE / 2 }
+    arrival.set(String(player.id), { x: px.x, y: px.y, away: false })
     const facing = w.dir ? FACING[w.dir] : undefined
     if (facing) (player as any).changeDirection?.(facing)
     return player.changeMap(w.to, px)
