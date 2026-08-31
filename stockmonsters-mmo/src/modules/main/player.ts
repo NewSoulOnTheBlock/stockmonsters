@@ -55,7 +55,7 @@ import {
     VARS,
     type StoredProfile,
 } from './profile'
-import { playerMapId, playerPos } from './geometry'
+import { playerMapId, playerPos, snapFree, TILE } from './geometry'
 
 /*
  * `process` DOES NOT EXIST IN THE BROWSER.
@@ -253,18 +253,46 @@ const HOME = { map: 'exterior', x: 784, y: 2000 }
  * Called once per session, from the profile load — never from onConnected,
  * which fires again on every transfer and would yank a walking player back.
  */
+/**
+ * A SAVED POSITION IS NOT NECESSARILY A STANDABLE ONE.
+ *
+ * It was written by an earlier version of this server, against an earlier
+ * version of the maps, and it is restored on every single login — so anywhere
+ * a player could once end up wedged, they are wedged FOREVER, and no fix to
+ * the code that put them there helps them.
+ *
+ * That is not hypothetical. The ferry used to land players on a tile's corner
+ * rather than its centre; in the one-tile pocket at olivine-city (24,42) that
+ * put half a body in the wall and the player could not move at all. Centring
+ * new arrivals fixed the arriving. It did nothing for the player already
+ * holding a corner in their save file, who logged back in to the same wall.
+ *
+ * So restore through the same snap every warp uses: find a tile that is
+ * actually open, and stand in the MIDDLE of it.
+ */
+function standable(at: { map: string; x: number; y: number }) {
+    const tx = Math.floor(at.x / TILE)
+    const ty = Math.floor(at.y / TILE)
+    const cell = snapFree(at.map, tx, ty)
+    return { x: cell.x * TILE + TILE / 2, y: cell.y * TILE + TILE / 2 }
+}
+
 function enterWorld(player: RpgPlayer, at: { map: string; x: number; y: number } | null) {
     if (!at) return
     if (!KNOWN_MAPS.has(at.map)) {
         console.log(`[profile] stored map ${at.map} is unknown — leaving them on the dock`)
         return
     }
+    const to = standable(at)
+    if (to.x !== at.x || to.y !== at.y) {
+        console.log(`[profile] moved a stored position on ${at.map} from ${at.x},${at.y} to ${to.x},${to.y}`)
+    }
     const here = playerMapId(player)
     // Same map: a teleport, which costs nothing. A different one is a real
     // transition, and it is the only one a returning player should ever see.
     if (here === at.map) void (player as unknown as { teleport(p: { x: number; y: number }): Promise<unknown> })
-        .teleport({ x: at.x, y: at.y })?.catch?.(logProfileError)
-    else player.changeMap(at.map, { x: at.x, y: at.y })
+        .teleport(to)?.catch?.(logProfileError)
+    else player.changeMap(at.map, to)
 }
 
 /**
