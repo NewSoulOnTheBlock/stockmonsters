@@ -57,6 +57,20 @@ import {
 } from './profile'
 import { playerMapId, playerPos } from './geometry'
 
+/*
+ * `process` DOES NOT EXIST IN THE BROWSER.
+ *
+ * Everything under src/modules/main is bundled into the CLIENT as well as the
+ * server, and a bare `process.env.X` read throws ReferenceError there. The
+ * production build survives it because vite substitutes `process.env`, but the
+ * dev server (`npm run dev`, standalone) does not — an unguarded read in
+ * onConnected killed the whole client with "process is not defined". Read the
+ * flag through this instead. (Same pattern as pricing.ts.)
+ */
+const envFlag = (key: string): string | undefined =>
+    typeof process !== 'undefined' ? process.env?.[key] : undefined
+
+
 const DEFAULT_GRAPHIC = 'hero'
 
 // The engine's default text component renders large and anti-aliased, which
@@ -294,7 +308,7 @@ async function hydrate(player: RpgPlayer, walletId: string, address: string | nu
         return
     }
 
-    if (process.env.SM_IDENTITY_DEBUG === '1') {
+    if (envFlag('SM_IDENTITY_DEBUG') === '1') {
         console.error('[identity] hydrate loaded', walletId.slice(0, 12),
             'party=', Array.isArray(profile.party) ? profile.party.length : 'none',
             'box=', Array.isArray(profile.box) ? profile.box.length : 'none',
@@ -516,7 +530,7 @@ export const player: RpgPlayerHooks = {
         identities.delete(fresh)
         live.delete(fresh)
         spawned.delete(fresh)
-        if (process.env.SM_IDENTITY_DEBUG === '1') console.log('[identity] onConnected', fresh, '— starting clean')
+        if (envFlag('SM_IDENTITY_DEBUG') === '1') console.log('[identity] onConnected', fresh, '— starting clean')
         // Restore the chosen look on EVERY connect — map transfers reconnect
         // the socket, and the graphic must survive them.
         const saved = sanitizeCharacter(player.getVariable('CHARACTER'))
@@ -620,7 +634,7 @@ export const player: RpgPlayerHooks = {
         trackTerrain(player)
 
         const id = String(map?.id ?? '').replace(/^map-/, '')
-        if (process.env.SM_IDENTITY_DEBUG === '1') {
+        if (envFlag('SM_IDENTITY_DEBUG') === '1') {
             console.error('[identity] onJoinMap', String(player.id), id,
                 'wallet=', player.getVariable('WALLET_ID') ?? 'NONE',
                 'name=', player.getVariable('NAME') ?? 'NONE',
@@ -754,7 +768,7 @@ export const player: RpgPlayerHooks = {
         // of the map, walking a headless player anywhere useful is unreliable,
         // and every earlier attempt was really a test of the pathfinding rather
         // than of the thing under test.
-        if (action == 'dev:goto' && process.env.SM_DEV_TELEPORT === '1') {
+        if (action == 'dev:goto' && envFlag('SM_DEV_TELEPORT') === '1') {
             const d = data as { map?: unknown; x?: unknown; y?: unknown }
             if (typeof d?.map !== 'string' || typeof d?.x !== 'number' || typeof d?.y !== 'number') return
             player.changeMap(d.map, { x: d.x * 32, y: d.y * 32 })
@@ -767,7 +781,7 @@ export const player: RpgPlayerHooks = {
             // connection id is deliberately throwaway.
             const id = (data as { id?: unknown })?.id
             const address = (data as { address?: unknown })?.address
-            if (process.env.SM_IDENTITY_DEBUG === '1') {
+            if (envFlag('SM_IDENTITY_DEBUG') === '1') {
                 console.error('[identity] auth:wallet', String(player.id), 'id=', String(id).slice(0, 12), 'addr=', String(address).slice(0, 10))
             }
             if (typeof id !== 'string' || !/^w:[0-9a-f]{32}$/.test(id)) return

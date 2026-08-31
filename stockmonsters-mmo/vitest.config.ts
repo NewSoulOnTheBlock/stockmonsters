@@ -49,6 +49,13 @@ export default defineConfig({
       // file entirely
       'src/market-source-chain.spec.ts',
       'src/gift.spec.ts',
+      // what a speech bubble says and how long it stays — pure, so it runs
+      // here; that it lands over the right head is proved in a real browser
+      // (tools/e2e-chat-bubble.mjs)
+      'src/chat-bubbles.spec.ts',
+      // which warps get a sign on the door: cross-map only, openings
+      // merged, staircases left alone
+      'src/door-markers.spec.ts',
     ],
     environment: 'node',
   },

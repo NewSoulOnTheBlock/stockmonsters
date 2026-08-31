@@ -114,6 +114,26 @@ describe('chat delivery', () => {
         expect(heard[0]).toMatchObject({ from: 'Alice', text: 'hello world' })
     })
 
+    it('tells every listener WHICH player said it', () => {
+        // The speech bubble over a character (src/chat-bubbles.ts) is keyed by
+        // the sender's player id: it is what the client's scene stores sprites
+        // under, and unlike the name it cannot change mid-session. Without it
+        // a listener knows what was said and by which name, but has no head to
+        // put the bubble over.
+        const a = talker({ wallet: 'w:' + '7'.repeat(32), name: 'Alice', id: 'conn-alice' })
+        const b = talker({ wallet: 'w:' + '8'.repeat(32), name: 'Bob', id: 'conn-bob' })
+        addChatMember(a.player)
+        addChatMember(b.player)
+
+        say(a.player, 'over here')
+
+        const heard = b.got.filter((m) => !m.system) as Array<Msg & { id?: string }>
+        expect(heard[0].id).toBe('conn-alice')
+        // ...and the sender sees their own, so their bubble appears too.
+        const own = a.got.filter((m) => !m.system) as Array<Msg & { id?: string }>
+        expect(own[0].id).toBe('conn-alice')
+    })
+
     it('stops reaching someone who disconnected', () => {
         const a = talker({ wallet: 'w:' + '3'.repeat(32), name: 'Alice' })
         const b = talker({ wallet: 'w:' + '4'.repeat(32), name: 'Bob' })

@@ -50,19 +50,35 @@ cdp.on('Network.webSocketFrameReceived', ({ response }) => {
 })
 cdp.on('Network.webSocketClosed', () => { const s = sockets[sockets.length - 1]; if (s) s.closed = true })
 
-await page.evaluateOnNewDocument((addr) => {
+/*
+ * ASK THE SERVER WHICH CHAIN IT IS ON, rather than telling it.
+ *
+ * The mock wallet used to answer `eth_chainId` with a hardcoded Sepolia. When
+ * the game moved to Robinhood Chain the client's chain guard correctly refused
+ * to sign a wallet in on the wrong network — and this test reported it as
+ * "wallet login is broken", which is the opposite of what had happened. A
+ * fixture that hardcodes what it is testing cannot survive the thing it tests
+ * changing.
+ */
+const chainId = await fetch(`${BASE}/token`).then((r) => r.json()).then((t) => t.chainId)
+  .catch(() => null)
+if (!chainId) { console.log('  could not read the chain from /token'); process.exit(1) }
+console.log(`  the server says it is on chain ${chainId}`)
+
+await page.evaluateOnNewDocument((addr, hexChain) => {
   window.__addr = addr
+  window.__chain = hexChain
   window.ethereum = {
     isMetaMask: true, on() {}, removeListener() {},
     async request({ method, params }) {
-      if (method === 'eth_chainId') return '0xaa36a7'
+      if (method === 'eth_chainId') return window.__chain
       if (method === 'eth_requestAccounts' || method === 'eth_accounts') return [window.__addr]
       if (method === 'personal_sign') return await window.__sign(params[0])
       if (method === 'wallet_switchEthereumChain') return null
       throw new Error('unexpected ' + method)
     },
   }
-}, account.address)
+}, account.address, '0x' + chainId.toString(16))
 await page.goto(BASE, { waitUntil: 'domcontentloaded' })
 await page.exposeFunction('__sign', async (msg) =>
   account.signMessage({ message: msg.startsWith('0x') ? Buffer.from(msg.slice(2), 'hex').toString('utf8') : msg }))

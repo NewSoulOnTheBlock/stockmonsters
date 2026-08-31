@@ -119,7 +119,18 @@ export function handleChat(player: RpgPlayer, data: unknown) {
         return
     }
 
-    const payload = { from: name, text: result.text }
+    /*
+     * WHO SAID IT, not just what their name is.
+     *
+     * The client draws the same message twice: once in the chat log, and once
+     * as a speech bubble over the speaker's sprite (src/chat-bubbles.ts). The
+     * bubble needs the sender's PLAYER id, because that is the key the client's
+     * scene stores its sprites under — the name would mean a lookup by a
+     * string players choose, and a rename mid-session would silently lose the
+     * bubble. Everything else about the payload is unchanged, so chat-ui.ts
+     * carries on ignoring the extra field.
+     */
+    const payload = { from: name, text: result.text, id: String(player.id) }
     const audience = connected.size ? [...connected.values()] : [player]
     for (const peer of audience) peer.emit?.('chat:message', payload)
 }

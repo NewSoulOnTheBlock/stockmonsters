@@ -34,6 +34,17 @@ import { openMarketplace } from './marketplace'
 import { CHARACTER_PRESETS, CHARACTER_LAYERS } from './data/character-catalog'
 import { TOKEN_SYMBOL } from './modules/main/pricing'
 
+/**
+ * The token's chart.
+ *
+ * A pons launch graduates into a Uniswap v4 pool whose liquidity is locked
+ * permanently — there is no function to withdraw it — so this pool cannot move
+ * and the link cannot go stale. Taken from Dexscreener's own API for our token
+ * rather than guessed: it is the `url` field of the pair it reports.
+ */
+const CHART_URL =
+  'https://dexscreener.com/robinhood/0x465cd3750726be76a3d6ee26592c7a6e4b5cc685ddde84dec7b0f2167110fad6'
+
 /* ---------------------------------------------------------------- types ---*/
 
 export interface HudChip {
@@ -50,6 +61,12 @@ export interface HudBanner {
   image?: string
   caption: string
   href?: string
+  /**
+   * Our own announcement rather than sold advertising space. It gets a solid
+   * frame instead of the dashed "nobody has bought this yet" one, and may
+   * carry a link out.
+   */
+  live?: { line: string; sub?: string; chartHref?: string }
 }
 
 export interface HudModel {
@@ -215,7 +232,15 @@ export function demoHudModel(): HudModel {
       { id: 'streak', icon: 'bolt', label: 'STREAK', value: '5d', tone: 'ok' }, // PLACEHOLDER
     ],
     banners: [
-      { id: 'b1', caption: 'BANNER SLOT' },
+      {
+        id: 'live',
+        caption: `${TOKEN_SYMBOL} IS LIVE`,
+        // Two lines, not one. `STONKSTERS IS LIVE` on a single line overflows
+        // the 168px slot once the chart button has taken 38 of it, and the
+        // first render clipped it to "STONKSTERS IS" — which reads as a
+        // sentence someone forgot to finish.
+        live: { line: TOKEN_SYMBOL, sub: 'IS LIVE NOW', chartHref: CHART_URL },
+      },
       { id: 'b2', caption: 'BANNER SLOT' },
       { id: 'b3', caption: 'BANNER SLOT' },
     ],
@@ -403,6 +428,47 @@ const CSS = `
   overflow: hidden;
 }
 #sm-hud .hud-banner img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
+
+/* The one slot that is ours. A SOLID frame, because the dashed one is the
+   visual grammar for "advertising space nobody has bought"; an announcement
+   wearing it reads as a placeholder. */
+#sm-hud .hud-banner.is-live {
+  border-style: solid;
+  border-color: var(--sm-border);
+  background: rgba(38,33,58,.94);
+  flex-direction: row; gap: 8px; padding: 0 9px;
+  justify-content: space-between;
+  letter-spacing: normal;
+}
+#sm-hud .hud-banner.is-live .live-txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+#sm-hud .hud-banner.is-live .live-line {
+  display: flex; align-items: center; gap: 6px;
+  font-family: "Fredoka", "Trebuchet MS", sans-serif;
+  font-size: 11px; font-weight: 600; letter-spacing: .08em;
+  color: var(--sm-border); text-shadow: 2px 2px 0 var(--sm-shadow);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#sm-hud .hud-banner.is-live .live-sub {
+  font-size: 8px; letter-spacing: .16em; color: rgba(185,178,214,.8); white-space: nowrap;
+}
+#sm-hud .hud-banner.is-live .live-dot {
+  width: 7px; height: 7px; flex: 0 0 auto;
+  background: #6ee7a8; box-shadow: 0 0 0 2px rgba(110,231,168,.22);
+  animation: sm-live-pulse 1.6s steps(2, jump-none) infinite;
+}
+@keyframes sm-live-pulse { 0%,60% { opacity: 1 } 61%,100% { opacity: .35 } }
+#sm-hud .hud-banner .live-chart {
+  flex: 0 0 auto; width: 38px; height: 38px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(17,14,32,.92);
+}
+#sm-hud .hud-banner .live-chart img {
+  width: 20px; height: 20px; object-fit: contain; image-rendering: auto;
+}
+/* The stick figure would sit on the tail of a stopped animation otherwise. */
+@media (prefers-reduced-motion: reduce) {
+  #sm-hud .hud-banner.is-live .live-dot { animation: none; }
+}
 
 /* --- settings popover ---------------------------------------------------- */
 #sm-hud .hud-settings {
@@ -660,8 +726,33 @@ export function mountHud(engine?: EngineLike, socket?: SocketLike): HudApi {
 
     banners.textContent = ''
     for (const b of model.banners) {
-      const slot = el('div', { class: 'hud-banner' })
-      if (b.image) slot.appendChild(el('img', { src: b.image, alt: b.caption }))
+      const slot = el('div', { class: `hud-banner${b.live ? ' is-live' : ''}` })
+      if (b.live) {
+        const txt = el('div', { class: 'live-txt' })
+        txt.append(
+          el('div', {
+            class: 'live-line',
+            html: '<span class="live-dot"></span>' + escapeHtml(b.live.line),
+          }),
+          ...(b.live.sub ? [el('div', { class: 'live-sub', text: b.live.sub })] : []),
+        )
+        slot.appendChild(txt)
+        if (b.live.chartHref) {
+          // An anchor, not a button with a click handler: middle-click and
+          // "open in new tab" are things people do with a chart link, and a
+          // button silently swallows both.
+          const chart = el('a', {
+            class: 'smui-btn live-chart',
+            href: b.live.chartHref,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            title: `${b.live.line} — open the chart on Dexscreener`,
+            'aria-label': 'Open the chart on Dexscreener',
+            html: '<img src="/dex-screener-seeklogo.svg" alt="">',
+          })
+          slot.appendChild(chart)
+        }
+      } else if (b.image) slot.appendChild(el('img', { src: b.image, alt: b.caption }))
       else slot.textContent = b.caption
       banners.appendChild(slot)
     }

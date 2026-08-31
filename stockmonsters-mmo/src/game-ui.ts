@@ -3,12 +3,14 @@ import { inject } from "@signe/di";
 import { applyAutoZoom } from "./zoom";
 import { mountBattleScene } from "./battle-scene";
 import { mountChatUi } from "./chat-ui";
+import { mountChatBubbles } from "./chat-bubbles";
 import { mountHud, getHud } from "./hud";
 import { mountCharacterDesigner } from "./character-designer";
 import { mountMarketplace, openMarketplace } from "./marketplace";
 import { closeCharacterDesigner, isCharacterDesignerOpen } from "./character-designer";
 import { mountMapBrowser, openMapBrowser } from "./map-browser";
 import { mountExitHints } from "./exit-hints";
+import { mountDoorMarkers } from "./door-markers";
 import { mountDmUi } from "./dm-ui";
 import { mountBoxShop, openBoxShop } from "./box-shop";
 import { mountFriendsUi, getFriendsUi } from "./friends-ui";
@@ -250,10 +252,16 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
 
   mountBattleScene(socket);
   mountChatUi(engine, socket);
+  // The same `chat:message` the panel logs, drawn over the speaker's head.
+  mountChatBubbles(engine, socket);
   mountHud(engine, socket);
   mountMarketplace(engine, socket);
   mountMapBrowser(engine, socket);
   mountExitHints(engine);
+  // A sign on every door that actually opens. Most buildings in this world
+  // are scenery; without this a player cannot tell which is which and walks
+  // into walls. World-space, so it stays on the doorway as the camera moves.
+  mountDoorMarkers(engine);
   mountBoxShop(engine, socket);
   mountDmUi(engine, socket);
   // The friends panel owns the left edge. It mounts collapsed, but its tab is

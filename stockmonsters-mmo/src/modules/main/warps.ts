@@ -2,6 +2,20 @@ import { RpgPlayer } from '@rpgjs/server'
 import warps from '../../tiled/warps.json'
 import { MAPS, type Rect } from '../../tiled/manifest'
 
+/*
+ * `process` DOES NOT EXIST IN THE BROWSER.
+ *
+ * Everything under src/modules/main is bundled into the CLIENT as well as the
+ * server, and a bare `process.env.X` read throws ReferenceError there. The
+ * production build survives it because vite substitutes `process.env`, but the
+ * dev server (`npm run dev`, standalone) does not — an unguarded read in
+ * onConnected killed the whole client with "process is not defined". Read the
+ * flag through this instead. (Same pattern as pricing.ts.)
+ */
+const envFlag = (key: string): string | undefined =>
+  typeof process !== 'undefined' ? process.env?.[key] : undefined
+
+
 type Warp = { from: string; x: number; y: number; to: string; toX: number; toY: number; trigger: string }
 
 const TILE = 32
@@ -154,7 +168,7 @@ function approachEvents(mapId: string, doors: Warp[]) {
           // all. `through` is what makes it a trigger rather than an obstacle.
           onInit(this: { through: boolean }) { this.through = true },
           onPlayerTouch: (player: RpgPlayer) => {
-            if (process.env.SM_WARP_DEBUG === '1') console.log('[warp] approach', mapId, ax, ay, 'want', dir, 'facing', facing(player))
+            if (envFlag('SM_WARP_DEBUG') === '1') console.log('[warp] approach', mapId, ax, ay, 'want', dir, 'facing', facing(player))
             if (facing(player) !== dir) return
             return go(player, w.to, w.toX, w.toY)
           },

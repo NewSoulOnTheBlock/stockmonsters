@@ -6,6 +6,10 @@ node_modules
 first-login.png
 live.png
 intro.png
+chat-bubble.png
+chat-bubble-long.png
+door-marker.png
+door-marker-inside.png
 
 # Ad-hoc map renders from tools/render-map-full.mjs.
 map-renders/

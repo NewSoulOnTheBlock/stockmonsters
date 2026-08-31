@@ -32,6 +32,20 @@ import type { RpgPlayer } from '@rpgjs/server'
 import { TERRAIN } from '../../tiled/terrain'
 import { playerMapId, playerPos } from './geometry'
 
+/*
+ * `process` DOES NOT EXIST IN THE BROWSER.
+ *
+ * Everything under src/modules/main is bundled into the CLIENT as well as the
+ * server, and a bare `process.env.X` read throws ReferenceError there. The
+ * production build survives it because vite substitutes `process.env`, but the
+ * dev server (`npm run dev`, standalone) does not — an unguarded read in
+ * onConnected killed the whole client with "process is not defined". Read the
+ * flag through this instead. (Same pattern as pricing.ts.)
+ */
+const envFlag = (key: string): string | undefined =>
+  typeof process !== 'undefined' ? process.env?.[key] : undefined
+
+
 const TILE = 32
 
 /**
@@ -101,7 +115,7 @@ export function applyTerrain(player: RpgPlayer): void {
   // Only ever move between the two speeds this module owns. If something else
   // starts changing a player's speed, that has to be reconciled here rather
   // than silently overwritten.
-  if (process.env.SM_TERRAIN_DEBUG === '1') console.log('[terrain]', id, playerMapId(player), JSON.stringify(playerPos(player)), 'tag', tagUnder(player), '->', onStairs ? 2 : 4)
+  if (envFlag('SM_TERRAIN_DEBUG') === '1') console.log('[terrain]', id, playerMapId(player), JSON.stringify(playerPos(player)), 'tag', tagUnder(player), '->', onStairs ? 2 : 4)
   if (onStairs) { player.speed = STAIRS_SPEED; slowed.add(id) }
   else { player.speed = NORMAL_SPEED; slowed.delete(id) }
 }
