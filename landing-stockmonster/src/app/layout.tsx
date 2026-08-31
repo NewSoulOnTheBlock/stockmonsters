@@ -32,7 +32,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://stockmonsters.example"),
+  metadataBase: new URL("https://stockmonsters.xyz"),
   title: {
     default: "Stockmonsters — 194 tickers. One pixel ledger.",
     template: "%s · Stockmonsters",

@@ -116,10 +116,10 @@ npx vercel        # preview
 npx vercel --prod # production
 ```
 
-Before going live, set the real domain in `src/app/layout.tsx`:
+The live domain is set in `src/app/layout.tsx`:
 
 ```ts
-metadataBase: new URL("https://your-domain.example"),
+metadataBase: new URL("https://stockmonsters.xyz"),
 ```
 
 That value only affects absolute URLs in the OpenGraph/Twitter tags; everything
@@ -130,6 +130,7 @@ else is relative.
 ## Play CTA
 
 Every call to action points at `PLAY_URL` in `src/lib/data.ts`
-(`https://test.lordfishnu.com/`). It is a single live server streaming the game
-over WebRTC, so all CTA copy says seats are limited and never promises unlimited
-concurrent play. Change the constant in one place to repoint it.
+(`https://game.stockmonsters.xyz/`). It is a real MMO — every player gets their
+own character in one shared world — so the CTA copy no longer talks about
+limited seats or a streamed session. Change the constant in one place to
+repoint it.

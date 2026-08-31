@@ -119,16 +119,17 @@ const EARN: Array<{ title: string; lede: React.ReactNode; note: string }> = [
     note: `Seller keeps ${ECONOMY.sellerKeepsPercent}% — ${ECONOMY.marketFeePercent}% protocol, ${ECONOMY.royaltyPercent}% royalty`,
   },
   {
-    title: "Trading tax, paid back out",
+    title: "Trading tax, bought back",
     lede: (
       <>
-        Buying or selling {ECONOMY.symbol} on an exchange carries a{" "}
-        {ECONOMY.taxPercent}% tax; moving it between wallets is free.{" "}
-        {ECONOMY.taxToPlayersPercent}% of what that collects goes into the pool
-        players are paid from.
+        Buying or selling {ECONOMY.symbol} carries a {ECONOMY.taxPercent}% tax;
+        moving it between wallets is free. What it collects reaches the treasury,
+        which spends {ECONOMY.taxToPlayersPercent}% of everything it receives
+        buying {ECONOMY.symbol} on the open market — and every token it buys goes
+        to the reward pool.
       </>
     ),
-    note: "The players' share cannot be set below half",
+    note: `The players' share cannot be set below ${ECONOMY.minPlayerSharePercent}%`,
   },
 ];
 
@@ -159,8 +160,8 @@ export function PlayToEarn() {
         <p className="mt-4 text-[13px] leading-relaxed text-dim">
           {ECONOMY.symbol} has a fixed supply of {ECONOMY.supply} and no mint
           function — not a policy, an absence. Every reward is therefore a claim on
-          a pool that already exists, filled by trading tax and by the treasury
-          buying back with half of all revenue.
+          a pool that already exists, refilled by the treasury spending half of all
+          revenue buying the token back off the market and into that pool.
         </p>
         <p className="mt-3 text-[13px] leading-relaxed text-dim">
           That is the difference between a game economy and a countdown. There is

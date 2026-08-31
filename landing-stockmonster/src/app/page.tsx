@@ -14,7 +14,8 @@ import { CREATURES, ECONOMY, MEMES, PLAY_URL, TYPES } from "@/lib/data";
 const FACTS: Array<[string, string, string]> = [
   [String(CREATURES.length), "stockmonsters", "one per listed ticker"],
   [String(TYPES.length), "elements", "with a full effectiveness chart"],
-  [String(MEMES.length), "meme coins", "in the side wing"]
+  [String(MEMES.length), "meme coins", "in the side wing"],
+  ["1B", ECONOMY.symbol, `fixed supply, live on ${ECONOMY.network}`],
 ];
 
 const FAQ: Array<[string, React.ReactNode]> = [
@@ -47,9 +48,10 @@ const FAQ: Array<[string, React.ReactNode]> = [
   [
     "Is any of this real money yet?",
     <>
-      Not yet. Everything is live on {ECONOMY.network}, which is a test network — the
-      tokens and NFTs are real contracts doing real transactions, with no real value.
-      The same contracts are what move to mainnet.
+      Yes. {ECONOMY.symbol} launched on {ECONOMY.network} and is trading, and the
+      game&apos;s own contracts — treasury, reward pool, NFT, marketplace, gyms, arena
+      — are deployed on the same chain. The address is in the pill at the top of this
+      page and on the explorer; check it there rather than taking our word for it.
     </>,
   ],
   [
@@ -66,10 +68,12 @@ const FAQ: Array<[string, React.ReactNode]> = [
     "Where does the reward money come from?",
     <>
       A pool that already exists. {ECONOMY.symbol} has a fixed supply and no mint
-      function, so nothing the game pays out is newly created — it is refilled by the{" "}
-      {ECONOMY.taxPercent}% tax on exchange trades ({ECONOMY.taxToPlayersPercent}% of it
-      goes to players) and by the treasury buying back with half of all revenue. Duels
-      and gyms pay out of stakes and entry fees, so they need no pool at all.
+      function, so nothing the game pays out is newly created. The pool is refilled
+      instead: revenue — the {ECONOMY.taxPercent}% trading tax, claim fees, box sales,
+      marketplace fees — lands in the treasury, which splits everything it receives in
+      half. One half is spent buying {ECONOMY.symbol} on the open market and every
+      token bought goes to the reward pool; the other half funds operations. Duels and
+      gyms pay out of stakes and entry fees, so they need no pool at all.
     </>,
   ],
   [

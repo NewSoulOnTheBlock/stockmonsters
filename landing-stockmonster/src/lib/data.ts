@@ -129,8 +129,13 @@ export const TWITTER_URL = "https://x.com/stonksters";
 
 /**
  * The economy, in one place, so the copy on the site cannot drift from the
- * contracts. Every number here is the deployed one — see
- * stockmonsters-mmo/deployments/sepolia.json and docs/token-economy.md.
+ * contracts. See stockmonsters-mmo/deployments/*.json and docs/token-economy.md.
+ *
+ * NOTHING HERE MAY DESCRIBE A TOKEN THAT IS NOT DEPLOYED AS IF IT WERE. One
+ * token was launched on Robinhood Chain and then abandoned; a live, tradeable
+ * contract nobody supports is worse to publish than no contract at all,
+ * because somebody copies it off this page and buys it. `address` stays empty
+ * until the relaunch, and the site says NOT DEPLOYED while it is.
  *
  * The rule the whole thing rests on: THE GAME NEVER MINTS. Supply is fixed and
  * there is no mint function, so every reward is a claim on a pool that already
@@ -140,9 +145,14 @@ export const ECONOMY = {
   /** Live. The token and the game's contracts are both on Robinhood Chain. */
   network: "Robinhood Chain",
   /**
-   * The token's ticker, read off the deployed contract rather than the plan:
-   * it launched as STONKSTERS, with no leading `$` and a trailing S. Anything
-   * that renders a `$` in front of it is adding a currency prefix of its own.
+   * THE ONLY PLACE THE TICKER IS WRITTEN. Every rendered mention of it on the
+   * site reads this value — hero pill, play-to-earn cards, FAQ — so the
+   * relaunch is a one-word edit here, and nothing needs finding.
+   *
+   * No leading `$`: the abandoned launch went out as STONKSTERS, bare, and the
+   * planning documents that say `$STONKSTER` were wrong about both the prefix
+   * and the trailing S. Whatever the relaunch deploys, put the exact
+   * `symbol()` string here and nothing else.
    */
   symbol: "STONKSTERS",
   /** The token's full name, as the launchpad deploys it. */
@@ -150,15 +160,20 @@ export const ECONOMY = {
   /**
    * THE ONE LINE THAT FLIPS THE SITE TO "LAUNCHED".
    *
-   * Empty string until the pons launchpad deploys the token on Robinhood
-   * Chain. While it is empty the hero's CA field reads NOT DEPLOYED and is
-   * inert; paste the 0x… string in here and the same field starts showing
-   * the address with a copy button. Nothing else needs to change.
+   * Empty until the relaunched token is deployed on Robinhood Chain. While it
+   * is empty the hero's CA field reads NOT DEPLOYED and is inert; paste the
+   * 0x… string in here and the same field starts showing the address with a
+   * copy button. Nothing else needs to change.
+   *
+   * It is deliberately empty right now. The first launch produced a real
+   * token that is being abandoned, and its address must not appear here — the
+   * copy button exists to be pasted into a wallet, so a stale value in this
+   * field spends somebody's money.
    *
    * Typed `as string` on purpose — without it the literal `""` would narrow
    * and TypeScript would treat the deployed branch as dead code.
    */
-  address: "0xf30e4f2E1E715A77ceCade62F236c6d39dA0CE7a" as string,
+  address: "" as string,
   /** Where it launches. The chain id is 4663. */
   chain: "Robinhood Chain",
   chainId: 4663,
@@ -166,14 +181,19 @@ export const ECONOMY = {
   /** Trading tax, buy and sell. Wallet-to-wallet is free. */
   taxPercent: 2,
   /**
-   * Share of revenue that goes back to players. The treasury splits every
-   * pound it receives in half: one half buys the token on the open market and
-   * every token bought goes to the reward pool, the other funds operations.
-   * The split has a floor in the contract — players can never be cut below a
-   * quarter — and was 75 under the old self-issued token, which taxed
-   * transfers directly into the pool. It does not do that any more.
+   * Share of revenue that goes back to players — the treasury's live
+   * `playerShareBps`, 5000. The treasury splits every pound it receives in
+   * half: one half buys the token on the open market and every token bought
+   * goes to the reward pool, the other funds operations.
+   *
+   * The split has a floor in the contract (`MIN_PLAYER_SHARE_BPS`, 2500), so
+   * players can never be cut below a quarter. It was 75 under the old
+   * self-issued token, which taxed transfers straight into the pool. That
+   * mechanism no longer exists — do not describe it anywhere on the site.
    */
   taxToPlayersPercent: 50,
+  /** The contract's hard floor under the players' share. */
+  minPlayerSharePercent: 25,
   /** Marketplace protocol fee, hard-capped at 5% in the contract. */
   marketFeePercent: 2.5,
   /** Creator royalty on a secondary sale (ERC-2981). */
