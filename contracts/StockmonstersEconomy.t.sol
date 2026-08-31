@@ -100,7 +100,7 @@ contract EconomyTest {
         address predictedRewards = address(0x1111);
         address predictedTreasury = address(0x2222);
         token = Deployers.token(
-            "Stockmonsters", "SMON", SUPPLY, predictedRewards, predictedTreasury, "ipfs://logo.png", "The game token"
+            "Stock Monsters", "$STONKSTER", SUPPLY, predictedRewards, predictedTreasury, "ipfs://logo.png", "The game token"
         , address(this));
         rewards = Deployers.rewards(address(token), vm.addr(CLAIM_SIGNER_PK), address(this));
         treasury = Deployers.treasury(address(token), address(rewards), ops, address(this));
@@ -334,11 +334,24 @@ contract EconomyTest {
         require(treasury.buybackReserve() == 2 ether, "anyone may press it");
     }
 
+    /// The swap `buyback` should make: buy the token and deliver it to the
+    /// rewards pool. Built here rather than inside the treasury because a
+    /// Uniswap v4 swap is a command stream, not a named function.
+    function _swapTo(address to, uint256 minOut) internal view returns (bytes memory) {
+        address[] memory path = new address[](2);
+        path[0] = address(0x4242);
+        path[1] = address(token);
+        return abi.encodeCall(
+            MockRouter.swapExactETHForTokensSupportingFeeOnTransferTokens,
+            (minOut, path, to, block.timestamp + 60)
+        );
+    }
+
     function test_buybackWithoutARouterRefuses() public {
         vm.deal(address(treasury), 10 ether);
         treasury.route();
         vm.expectRevert(bytes("NO_ROUTER"));
-        treasury.buyback(1 ether, 0, block.timestamp + 60);
+        treasury.buyback(1 ether, 1, _swapTo(address(rewards), 0));
     }
 
     function test_buybackSendsEveryBoughtTokenToThePlayers() public {
@@ -351,12 +364,43 @@ contract EconomyTest {
         treasury.route(); // 5 ether into the reserve
 
         uint256 rewardsBefore = token.balanceOf(address(rewards));
-        uint256 bought = treasury.buyback(5 ether, 4_000 ether, block.timestamp + 60);
+        uint256 bought = treasury.buyback(5 ether, 4_000 ether, _swapTo(address(rewards), 4_000 ether));
 
         require(bought == 5_000 ether, "bought at the mock rate");
         require(token.balanceOf(address(rewards)) - rewardsBefore == 5_000 ether, "all of it to the pool");
         require(treasury.buybackReserve() == 0, "reserve spent");
         require(token.balanceOf(address(treasury)) == 0, "treasury keeps none of it");
+    }
+
+    /// The guarantee that makes passing calldata safe. A route that buys the
+    /// token and keeps it — or sends it anywhere that is not the rewards pool
+    /// — has to fail, or `buyback` would be a way for the owner to spend the
+    /// players' half on themselves.
+    function test_aBuybackThatDoesNotReachThePlayersReverts() public {
+        MockRouter router = new MockRouter(address(0x4242), address(token), 1_000);
+        token.transfer(address(router), 100_000 ether);
+        token.setTaxExempt(address(router), true);
+        treasury.setRouter(address(router));
+
+        vm.deal(address(treasury), 10 ether);
+        treasury.route();
+
+        // Same swap, same price, delivered to the owner instead.
+        vm.expectRevert(bytes("SLIPPAGE"));
+        treasury.buyback(5 ether, 4_000 ether, _swapTo(address(this), 4_000 ether));
+    }
+
+    /// `minOut` is the whole enforcement, so zero cannot be allowed: at zero
+    /// the check above passes no matter where the tokens went.
+    function test_aBuybackWithNoFloorIsRefused() public {
+        MockRouter router = new MockRouter(address(0x4242), address(token), 1_000);
+        token.transfer(address(router), 100_000 ether);
+        treasury.setRouter(address(router));
+        vm.deal(address(treasury), 10 ether);
+        treasury.route();
+
+        vm.expectRevert(bytes("ZERO_MIN_OUT"));
+        treasury.buyback(5 ether, 0, _swapTo(address(rewards), 0));
     }
 
     function test_buybackCannotSpendTheOpsHalf() public {
@@ -366,7 +410,7 @@ contract EconomyTest {
         vm.deal(address(treasury), 10 ether);
         treasury.route();
         vm.expectRevert(bytes("BAD_AMOUNT"));
-        treasury.buyback(6 ether, 0, block.timestamp + 60);
+        treasury.buyback(6 ether, 1, _swapTo(address(rewards), 0));
     }
 
     function test_playerShareHasAFloor() public {

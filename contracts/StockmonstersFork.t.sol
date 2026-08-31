@@ -103,7 +103,7 @@ contract ForkTest {
             return;
         }
         token = Deployers.token(
-            "Stockmonsters", "SMON", SUPPLY, address(0x1111), address(0x2222), "", "the game token"
+            "Stock Monsters", "$STONKSTER", SUPPLY, address(0x1111), address(0x2222), "", "the game token"
         , address(this));
         rewards = Deployers.rewards(address(token), address(0x5169), address(this));
         treasury = Deployers.treasury(address(token), address(rewards), ops, address(this));
@@ -233,6 +233,20 @@ contract ForkTest {
         ROUTER.swapExactTokensForETH(held, 0, path, alice, block.timestamp + 600);
     }
 
+    /// The swap the treasury should make. Built here because `buyback` takes
+    /// the route as calldata now: a Uniswap v4 swap is a command stream rather
+    /// than a named function, so the treasury asserts the outcome instead of
+    /// knowing the router's ABI.
+    function _buyRoute(address to, uint256 minOut) internal view returns (bytes memory) {
+        address[] memory path = new address[](2);
+        path[0] = WETH;
+        path[1] = address(token);
+        return abi.encodeCall(
+            IUniV2Router.swapExactETHForTokensSupportingFeeOnTransferTokens,
+            (minOut, path, to, block.timestamp + 600)
+        );
+    }
+
     function test_theTreasuryBuysBackOnTheRealMarketForThePlayers() public {
         // Revenue arrives as ETH — an NFT claim fee, a marketplace rake.
         vm.deal(address(treasury), 10 ether);
@@ -242,7 +256,7 @@ contract ForkTest {
 
         treasury.setRouter(address(ROUTER));
         uint256 rewardsBefore = token.balanceOf(address(rewards));
-        uint256 bought = treasury.buyback(5 ether, 1, block.timestamp + 600);
+        uint256 bought = treasury.buyback(5 ether, 1, _buyRoute(address(rewards), 1));
 
         require(bought > 0, "tokens were bought");
         require(token.balanceOf(address(rewards)) - rewardsBefore == bought, "every one went to the players");
@@ -256,7 +270,7 @@ contract ForkTest {
         treasury.setRouter(address(ROUTER));
         // The floor is the only protection against a sandwich. It has to bite.
         vm.expectRevert();
-        treasury.buyback(5 ether, SUPPLY, block.timestamp + 600);
+        treasury.buyback(5 ether, SUPPLY, _buyRoute(address(rewards), SUPPLY));
     }
 
     /// Within `tolerance` parts per 10,000 — the pool's own 0.3% fee and

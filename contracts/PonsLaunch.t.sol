@@ -2,6 +2,9 @@
 pragma solidity ^0.8.24;
 
 import "./TestHelpers.sol";
+import {Deployers} from "./Deployers.sol";
+import {StockmonstersTreasury} from "./StockmonstersTreasury.sol";
+import {StockmonstersRewards} from "./StockmonstersRewards.sol";
 
 /// What a pons launch actually costs and what it is worth when it graduates.
 ///
@@ -95,6 +98,11 @@ interface IPonsFactory {
     function getLaunchConfig(uint256 id) external view returns (LaunchConfig memory);
     function getLaunchedToken(address token) external view returns (LaunchedToken memory);
     function canLaunch(address who) external view returns (bool);
+    function transferCreatorFeeRecipient(address token, address newRecipient) external;
+}
+
+interface IPonsEscrow {
+    function balanceOf(address recipient) external view returns (uint256);
 }
 
 interface IPonsCurve {
@@ -102,6 +110,7 @@ interface IPonsCurve {
         external
         payable
         returns (uint256 tokensOut);
+    function sell(uint256 tokensIn, uint256 minQuoteOut, address recipient) external returns (uint256 quoteOut);
     function getReserves() external view returns (uint256 quoteReserve, uint256 tokenReserve);
     function sellableTokens() external view returns (uint256);
     function readyToGraduate() external view returns (bool);
@@ -114,6 +123,7 @@ interface IPonsCurve {
 interface IERC20Min {
     function totalSupply() external view returns (uint256);
     function balanceOf(address) external view returns (uint256);
+    function approve(address spender, uint256 value) external returns (bool);
     function name() external view returns (string memory);
     function symbol() external view returns (string memory);
 }
@@ -302,6 +312,117 @@ contract PonsLaunchTest {
         // Without this the assertion above passes for the wrong reason: after
         // the window everybody reads zero.
         require(forStranger > 0, "while a stranger buying at the open is taxed");
+    }
+
+    /// THE INCOME PIPE, end to end, against the real escrow.
+    ///
+    /// Our own token used to fund the rewards pool by taking 2% of every trade
+    /// and crediting the pool inside the transfer. The pons token has no tax
+    /// and no owner, so the money now takes a longer road: a trade credits the
+    /// creator's share on the curve, a sweep moves it to the escrow, and the
+    /// treasury withdraws it as ETH.
+    ///
+    /// Two things about that road could not be settled by reading anything.
+    ///
+    /// The first is whether the escrow can pay a CONTRACT at all. If it sends
+    /// ETH with `.transfer` rather than `.call`, the recipient gets 2,300 gas,
+    /// and this treasury's `receive()` emits an event — which costs more than
+    /// that. The whole income pipe would then revert, on mainnet, with the
+    /// money already earned. Nothing short of running it says which it is.
+    ///
+    /// The second is who is allowed to sweep. The docs say the sweep operator
+    /// "or the creator", and it was not obvious whether that means the wallet
+    /// that launched or the wallet fees are pointed at — which matters,
+    /// because we hand the fees to a contract.
+    function test_theTreasuryCanActuallyCollectWhatTheLaunchEarns() public {
+        _launch();
+
+        // Trade both ways, so a fee is charged on the way in and on the way
+        // out. This is the launch's own curve, before graduation — the phase
+        // the token actually starts life in.
+        vm.prank(buyer);
+        uint256 got = IPonsCurve(curve).buy{value: 2 ether}(2 ether, 0, buyer);
+        require(got > 0, "the buy filled");
+
+        vm.prank(buyer);
+        IERC20Min(token).approve(curve, got);
+        vm.prank(buyer);
+        IPonsCurve(curve).sell(got / 2, 0, buyer);
+
+        // The game's own contracts, deployed against the launched token
+        // exactly as they will be in production.
+        StockmonstersRewards rewards = Deployers.rewards(token, address(0x5169), address(this));
+        StockmonstersTreasury treasury =
+            Deployers.treasury(token, address(rewards), address(0x0B5), address(this));
+        treasury.setPonsSources(FEE_ESCROW, MEME_HOOK);
+
+        // The move that breaks the circular dependency: the launch names a
+        // wallet as its fee recipient, and the recipient is handed over to the
+        // treasury afterwards. The treasury needs the token's address to be
+        // deployed at all, so it cannot have existed when the launch was made.
+        vm.prank(creator);
+        FACTORY.transferCreatorFeeRecipient(token, address(treasury));
+
+        treasury.sweepPonsCurveFees(curve, 0);
+
+        uint256 owed = IPonsEscrow(FEE_ESCROW).balanceOf(address(treasury));
+        console.log("owed to the treasury at the escrow (wei)", owed);
+        require(owed > 0, "the sweep credited the treasury at the escrow");
+
+        uint256 opsBefore = address(0x0B5).balance;
+        uint256 claimed = treasury.claimPonsFees();
+
+        console.log("claimed (wei)                           ", claimed);
+        console.log("into the buyback reserve (wei)          ", treasury.buybackReserve());
+        console.log("to ops (wei)                            ", address(0x0B5).balance - opsBefore);
+
+        require(claimed == owed, "every wei owed arrived");
+        require(IPonsEscrow(FEE_ESCROW).balanceOf(address(treasury)) == 0, "and the escrow is settled");
+        // `claimPonsFees` routes in the same transaction, so the money is
+        // already split rather than sitting undirected.
+        require(treasury.buybackReserve() == claimed / 2, "half is reserved for the players");
+        require(address(0x0B5).balance - opsBefore == claimed - claimed / 2, "the other half funds ops");
+    }
+
+    /// EXACTLY what share of a trade reaches us.
+    ///
+    /// The end-to-end test above proves the money arrives; this one prices it.
+    /// A single buy of a round number, and no sell, so the base fee is exactly
+    /// 1% of a known amount and the creator's cut of it is arithmetic rather
+    /// than an estimate. This is the number the whole game economy is funded
+    /// by, so it is worth knowing to the wei rather than to the percent.
+    function test_whatShareOfATradeTheGameActuallyEarns() public {
+        _launch();
+
+        StockmonstersRewards rewards = Deployers.rewards(token, address(0x5169), address(this));
+        StockmonstersTreasury treasury =
+            Deployers.treasury(token, address(rewards), address(0x0B5), address(this));
+        treasury.setPonsSources(FEE_ESCROW, MEME_HOOK);
+        vm.prank(creator);
+        FACTORY.transferCreatorFeeRecipient(token, address(treasury));
+
+        // Below the 4.2 ETH graduation threshold on purpose. A larger buy
+        // graduates the launch mid-test, the curve closes, and the fee moves
+        // to the hook — so a curve sweep then reverts and the measurement
+        // would be of the wrong phase.
+        uint256 volume = 1 ether;
+        vm.prank(buyer);
+        IPonsCurve(curve).buy{value: volume}(volume, 0, buyer);
+
+        treasury.sweepPonsCurveFees(curve, 0);
+        uint256 owed = IPonsEscrow(FEE_ESCROW).balanceOf(address(treasury));
+
+        uint256 baseFee = (volume * config.curveFeeBps) / 10_000;
+
+        console.log("volume traded (wei)        ", volume);
+        console.log("base fee at 1% (wei)       ", baseFee);
+        console.log("of which reaches us (wei)  ", owed);
+        console.log("our share of the fee (bps) ", (owed * 10_000) / baseFee);
+        console.log("our share of VOLUME (bps)  ", (owed * 10_000) / volume);
+        console.log("");
+        console.log("per $1,000 of volume, in cents", (owed * ETH_USD * 100_000) / volume);
+
+        require(owed > 0 && owed < baseFee, "we take a share of the fee, not all of it");
     }
 
     /* ------------------------------------------------------------------ */

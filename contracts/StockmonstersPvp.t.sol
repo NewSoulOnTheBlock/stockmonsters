@@ -34,7 +34,7 @@ contract PvpBase {
         alice = vm.addr(ALICE_PK);
         bob = vm.addr(BOB_PK);
         token = Deployers.token(
-            "Stockmonsters", "SMON", 1_000_000 ether, address(0x1111), treasury, "", ""
+            "Stock Monsters", "$STONKSTER", 1_000_000 ether, address(0x1111), treasury, "", ""
         , address(this));
         vm.warp(1_000_000);
         token.transfer(alice, 100_000 ether);

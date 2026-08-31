@@ -44,7 +44,7 @@ contract UpgradePathTest {
 
     function setUp() public {
         token = Deployers.token(
-            "Stockmonsters", "SMON", SUPPLY, rewardsPool, ops, "", "The currency.", holder
+            "Stock Monsters", "$STONKSTER", SUPPLY, rewardsPool, ops, "", "The currency.", holder
         );
         treasury = Deployers.treasury(address(token), rewardsPool, ops, holder);
     }
