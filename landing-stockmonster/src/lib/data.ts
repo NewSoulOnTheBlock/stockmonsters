@@ -123,7 +123,7 @@ export function shortAddress(a: string) {
  * has never resolved — the game is live on the box that already had a
  * certificate. Change it here and every button follows.
  */
-export const PLAY_URL = "https://test.lordfishnu.com/";
+export const PLAY_URL = "https://game.stockmonsters.xyz/";
 
 export const TWITTER_URL = "https://x.com/stonksters";
 
