@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import {Deployers} from "./Deployers.sol";
 
 import "./TestHelpers.sol";
-import "./StockmonstersToken.sol";
+import "./LaunchTokenDouble.sol";
 import "./StockmonstersGyms.sol";
 import "./StockmonstersArena.sol";
 
@@ -24,7 +24,7 @@ contract PvpBase {
     uint256 constant BOB_PK = 0xB0B;
     uint64 constant FAR_FUTURE = 4_000_000_000;
 
-    StockmonstersToken token;
+    LaunchTokenDouble token;
     address treasury = address(0x7EA);
     address alice;
     address bob;
@@ -33,9 +33,7 @@ contract PvpBase {
     function _setUpToken() internal {
         alice = vm.addr(ALICE_PK);
         bob = vm.addr(BOB_PK);
-        token = Deployers.token(
-            "Stock Monsters", "$STONKSTER", 1_000_000 ether, address(0x1111), treasury, "", ""
-        , address(this));
+        token = Deployers.token("Stock Monsters", "$STONKSTER", 1_000_000 ether, address(this));
         vm.warp(1_000_000);
         token.transfer(alice, 100_000 ether);
         token.transfer(bob, 100_000 ether);
@@ -59,7 +57,6 @@ contract GymsTest is PvpBase {
     function setUp() public {
         _setUpToken();
         gyms = Deployers.gyms(address(token), treasury, vm.addr(SIGNER_PK), MIN_STAKE, MAX_STAKE, address(this));
-        token.setTaxExempt(address(gyms), true);
         vm.prank(alice);
         token.approve(address(gyms), type(uint256).max);
         vm.prank(bob);
@@ -323,7 +320,6 @@ contract ArenaTest is PvpBase {
     function setUp() public {
         _setUpToken();
         arena = Deployers.arena(address(token), treasury, vm.addr(SIGNER_PK), MAX_WAGER, DAILY_CAP, address(this));
-        token.setTaxExempt(address(arena), true);
         vm.prank(alice);
         token.approve(address(arena), type(uint256).max);
         vm.prank(bob);

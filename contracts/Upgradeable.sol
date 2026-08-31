@@ -23,7 +23,7 @@ pragma solidity ^0.8.24;
 /// for game logic that has to keep changing. It is a much worse trade for a
 /// token people are asked to buy, which is why the token's upgrade path should
 /// end at a timelock before there is any real money in it — see the note on
-/// StockmonstersToken.
+/// StockmonstersTreasury.
 ///
 /// ## The three ways to brick a UUPS proxy, and what prevents each here
 ///

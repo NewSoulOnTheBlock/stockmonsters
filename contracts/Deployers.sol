@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import {StockmonstersProxy} from "./Upgradeable.sol";
 import {StockmonstersTreasury} from "./StockmonstersTreasury.sol";
 import {StockmonstersRewards} from "./StockmonstersRewards.sol";
-import {StockmonstersToken} from "./StockmonstersToken.sol";
+import {LaunchTokenDouble} from "./LaunchTokenDouble.sol";
 import {StockmonstersNFT} from "./StockmonstersNFT.sol";
 import {StockmonstersMarket} from "./StockmonstersMarket.sol";
 import {StockmonstersGyms} from "./StockmonstersGyms.sol";
@@ -51,28 +51,16 @@ library Deployers {
         );
     }
 
-    function token(
-        string memory name,
-        string memory symbol,
-        uint256 supply,
-        address rewardsPool,
-        address treasury_,
-        string memory logo,
-        string memory description,
-        address holder
-    ) internal returns (StockmonstersToken) {
-        StockmonstersToken impl = new StockmonstersToken();
-        return StockmonstersToken(
-            address(
-                new StockmonstersProxy(
-                    address(impl),
-                    abi.encodeCall(
-                        StockmonstersToken.initialize,
-                        (name, symbol, supply, rewardsPool, treasury_, logo, description, holder)
-                    )
-                )
-            )
-        );
+    /// A stand-in for the token pons launches for us. NOT a deployment: the
+    /// real token is created by the pons factory and this exists so the game's
+    /// contracts have something to be tested against. See LaunchTokenDouble.
+    ///
+    /// No proxy, because the real one is not upgradeable either.
+    function token(string memory name, string memory symbol, uint256 supply, address holder)
+        internal
+        returns (LaunchTokenDouble)
+    {
+        return new LaunchTokenDouble(name, symbol, supply, holder);
     }
 
     function nft(address gameSigner, string memory imageBaseURI, string memory sealedImageURI, address owner)

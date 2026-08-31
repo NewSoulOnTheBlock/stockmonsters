@@ -4,30 +4,35 @@ pragma solidity ^0.8.24;
 import {Deployers} from "./Deployers.sol";
 
 import "./TestHelpers.sol";
-import "./StockmonstersToken.sol";
+import "./LaunchTokenDouble.sol";
 import "./StockmonstersRewards.sol";
 import "./StockmonstersTreasury.sol";
 import "./StockmonstersNFT.sol";
 import "./StockmonstersMarket.sol";
 
-/// The economy: the token's tax, the pool players are paid from, the treasury
-/// that splits revenue, and the two places the token is actually spent.
+/// The economy: the pool players are paid from, the treasury that splits
+/// revenue, and the two places the token is actually spent.
 ///
 /// The cases worth writing are the ones where a naive implementation quietly
-/// takes someone's money: a tax that fires on an in-game transfer, a rewards
-/// signer that can drain more than one epoch, a market order whose currency can
-/// be swapped by the buyer, a mint priced in a token nobody vetted.
+/// takes someone's money: a rewards signer that can drain more than one epoch,
+/// a market order whose currency can be swapped by the buyer, a mint priced in
+/// a token nobody vetted.
+///
+/// The token's own tests went with the token. It used to tax trades, mark AMM
+/// pairs and exempt the game's contracts from all of it; pons launches a plain
+/// ERC-20 with none of that, so what was being asserted no longer exists. What
+/// replaced those tests is PonsLaunch.t.sol, which measures the real thing.
 
 /// Minimal Uniswap-V2-shaped router. Sells `rate` tokens per wei, so the
 /// buyback test asserts on an exact number instead of a fixture's mood.
 contract MockRouter {
     address public immutable weth;
-    StockmonstersToken public immutable token;
+    LaunchTokenDouble public immutable token;
     uint256 public rate;
 
     constructor(address _weth, address _token, uint256 _rate) {
         weth = _weth;
-        token = StockmonstersToken(_token);
+        token = LaunchTokenDouble(_token);
         rate = _rate;
     }
 
@@ -57,7 +62,7 @@ contract EconomyTest {
     uint64 constant FAR_FUTURE = 4_000_000_000;
     uint256 constant SUPPLY = 1_000_000_000 ether;
 
-    StockmonstersToken token;
+    LaunchTokenDouble token;
     StockmonstersRewards rewards;
     StockmonstersTreasury treasury;
     StockmonstersNFT nft;
@@ -93,18 +98,12 @@ contract EconomyTest {
     function setUp() public {
         seller = vm.addr(SELLER_PK);
 
-        // The deployment order the script uses: rewards and treasury need the
-        // token's address, the token needs theirs, so one of them is wired
-        // after the fact. The token is deployed first with placeholders and
-        // pointed at the real pair immediately.
-        address predictedRewards = address(0x1111);
-        address predictedTreasury = address(0x2222);
-        token = Deployers.token(
-            "Stock Monsters", "$STONKSTER", SUPPLY, predictedRewards, predictedTreasury, "ipfs://logo.png", "The game token"
-        , address(this));
+        // The token is launched by pons and hands us nothing to configure: no
+        // tax destinations, no pair to mark, no exemptions. It is deployed
+        // first here only because everything else needs its address.
+        token = Deployers.token("Stock Monsters", "$STONKSTER", SUPPLY, address(this));
         rewards = Deployers.rewards(address(token), vm.addr(CLAIM_SIGNER_PK), address(this));
         treasury = Deployers.treasury(address(token), address(rewards), ops, address(this));
-        token.setTaxDestinations(address(rewards), address(treasury));
 
         nft = Deployers.nft(vm.addr(GAME_SIGNER_PK), "ipfs://images/", "ipfs://sealed.png", address(this));
         nft.setTreasury(address(treasury));
@@ -113,10 +112,6 @@ contract EconomyTest {
 
         market = Deployers.market(address(nft), address(treasury), 250, address(this));
         market.setAcceptedCurrency(address(token), true);
-
-        // Contracts never pay tax: they are not traders.
-        token.setTaxExempt(address(nft), true);
-        token.setTaxExempt(address(market), true);
 
         vm.warp(1_000_000);
         vm.deal(alice, 100 ether);
@@ -135,80 +130,6 @@ contract EconomyTest {
         // Everything not handed out in setUp is still with the deployer: there
         // is no mint function, so this is all there will ever be.
         require(token.balanceOf(deployer) == SUPPLY - 1_020_000 ether, "deployer holds the rest");
-    }
-
-    function test_walletToWalletIsNeverTaxed() public {
-        token.setPair(pair, true);
-        vm.prank(alice);
-        token.transfer(bob, 100 ether);
-        require(token.balanceOf(bob) == 10_100 ether, "recipient got the whole amount");
-    }
-
-    function test_buyingFromAPairIsTaxedAndSplit75_25() public {
-        token.setPair(pair, true);
-        token.transfer(pair, 1_000 ether); // seed the "pool"
-
-        uint256 rewardsBefore = token.balanceOf(address(rewards));
-        uint256 treasuryBefore = token.balanceOf(address(treasury));
-
-        vm.prank(pair);
-        token.transfer(alice, 100 ether); // a buy
-
-        uint256 tax = 2 ether; // 2%
-        require(token.balanceOf(alice) == 10_000 ether + 98 ether, "buyer receives net");
-        require(token.balanceOf(address(rewards)) - rewardsBefore == (tax * 75) / 100, "players get 75%");
-        require(token.balanceOf(address(treasury)) - treasuryBefore == (tax * 25) / 100, "treasury gets 25%");
-    }
-
-    function test_sellingToAPairIsTaxed() public {
-        token.setPair(pair, true);
-        uint256 rewardsBefore = token.balanceOf(address(rewards));
-        vm.prank(alice);
-        token.transfer(pair, 100 ether); // a sell
-        require(token.balanceOf(pair) == 98 ether, "pair receives net");
-        require(token.balanceOf(address(rewards)) - rewardsBefore == 1.5 ether, "75% of 2%");
-    }
-
-    function test_exemptAddressesTradeUntaxed() public {
-        token.setPair(pair, true);
-        token.setTaxExempt(alice, true);
-        vm.prank(alice);
-        token.transfer(pair, 100 ether);
-        require(token.balanceOf(pair) == 100 ether, "no tax for an exempt seller");
-    }
-
-    function test_amountAfterTaxMatchesWhatArrives() public {
-        token.setPair(pair, true);
-        uint256 quoted = token.amountAfterTax(alice, pair, 500 ether);
-        vm.prank(alice);
-        token.transfer(pair, 500 ether);
-        require(token.balanceOf(pair) == quoted, "the quote is the truth");
-    }
-
-    function test_taxCannotBeRaisedPastTheCap() public {
-        vm.expectRevert(bytes("TAX_TOO_HIGH"));
-        token.setTax(501, 200);
-    }
-
-    function test_playersShareCannotBeCutBelowHalf() public {
-        vm.expectRevert(bytes("SHARE_OUT_OF_RANGE"));
-        token.setRewardsShare(4999);
-        token.setRewardsShare(9000); // raising it is fine
-        require(token.rewardsShareBps() == 9000, "raised");
-    }
-
-    function test_renouncingOwnershipEndsAdmin() public {
-        token.renounceOwnership();
-        vm.expectRevert(bytes("NOT_OWNER"));
-        token.setTax(0, 0);
-    }
-
-    function test_burnReducesSupply() public {
-        uint256 before = token.totalSupply();
-        vm.prank(alice);
-        token.burn(1_000 ether);
-        require(token.totalSupply() == before - 1_000 ether, "supply fell");
-        require(token.balanceOf(alice) == 9_000 ether, "balance fell");
     }
 
     function test_infiniteAllowanceIsNotDecremented() public {
@@ -357,7 +278,6 @@ contract EconomyTest {
     function test_buybackSendsEveryBoughtTokenToThePlayers() public {
         MockRouter router = new MockRouter(address(0x4242), address(token), 1_000);
         token.transfer(address(router), 100_000 ether);
-        token.setTaxExempt(address(router), true);
         treasury.setRouter(address(router));
 
         vm.deal(address(treasury), 10 ether);
@@ -379,7 +299,6 @@ contract EconomyTest {
     function test_aBuybackThatDoesNotReachThePlayersReverts() public {
         MockRouter router = new MockRouter(address(0x4242), address(token), 1_000);
         token.transfer(address(router), 100_000 ether);
-        token.setTaxExempt(address(router), true);
         treasury.setRouter(address(router));
 
         vm.deal(address(treasury), 10 ether);
@@ -455,9 +374,7 @@ contract EconomyTest {
     }
 
     function test_mintingInAnUnvettedTokenIsRefused() public {
-        StockmonstersToken fake = Deployers.token(
-            "Fake", "FAKE", 1_000 ether, address(rewards), address(treasury), "", ""
-        , address(this));
+        LaunchTokenDouble fake = Deployers.token("Fake", "FAKE", 1_000 ether, address(this));
         bytes32 c = _commit(2, 10, 0, false, 1_756_000_000, SALT);
         bytes32 uid = bytes32(uint256(2));
         bytes memory sig = _signErc20Voucher(alice, c, uid, address(fake), 1 ether);
@@ -564,9 +481,7 @@ contract EconomyTest {
         uint256 id = _mintToSeller();
         vm.prank(seller);
         nft.setApprovalForAll(address(market), true);
-        StockmonstersToken fake = Deployers.token(
-            "Fake", "FAKE", 1_000 ether, address(rewards), address(treasury), "", ""
-        , address(this));
+        LaunchTokenDouble fake = Deployers.token("Fake", "FAKE", 1_000 ether, address(this));
         StockmonstersMarket.Order memory o = _order(id, 1 ether, address(fake));
         bytes memory sig = _sign(o);
         vm.expectRevert(bytes("CURRENCY_NOT_ACCEPTED"));
