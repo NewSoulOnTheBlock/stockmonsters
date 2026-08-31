@@ -114,8 +114,26 @@ export function mountMapTransition(engine?: EngineLike): void {
     }, 300))
   }
 
+  /**
+   * Where the player was when the transfer began.
+   *
+   * This is the whole fix for "it throws me somewhere else the moment I move".
+   * After a transfer the client is still holding the coordinates from the map
+   * it just left, and those coordinates are perfectly STABLE — nothing moves
+   * them until the server's spawn lands or the player presses a key. Waiting
+   * for the position to stop changing therefore lifted the curtain instantly,
+   * on a character standing in the wrong place, and the jump happened in full
+   * view. Measured through the exterior door: the client reported (992,1030),
+   * the position it held outside, while the server had put the player at
+   * (912,1520) inside the hub.
+   *
+   * So the curtain waits for the position to become something ELSE first.
+   */
+  let leftFrom: string | null = null
+
   function show() {
     clearTimers()
+    leftFrom = positionOf(engine)
     root.classList.remove('leaving')
     root.classList.add('on')
     // THE DEADLINE. Nothing below is allowed to keep the curtain up past it.
@@ -136,6 +154,8 @@ export function mountMapTransition(engine?: EngineLike): void {
     const tick = () => {
       if (Date.now() - started > MAX_MS) { hide(); return }
       const now = positionOf(engine)
+      // Still the old map's coordinates: the spawn has not landed yet.
+      if (now !== null && now === leftFrom) { timers.push(setTimeout(tick, SETTLE_MS)); return }
       if (now && now === last) stable++
       else stable = 0
       last = now

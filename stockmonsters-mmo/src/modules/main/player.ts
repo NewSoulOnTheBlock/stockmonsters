@@ -603,6 +603,7 @@ export const player: RpgPlayerHooks = {
                 'wallet=', player.getVariable('WALLET_ID') ?? 'NONE',
                 'name=', player.getVariable('NAME') ?? 'NONE',
                 'spawned=', player.getVariable('SPAWNED') ?? 'NONE',
+                'at=', JSON.stringify(playerPos(player)),
                 'state=', player.getVariable(V_STATE) ?? 'NONE')
         }
         const isNew = markVisited(player, id)
@@ -623,6 +624,51 @@ export const player: RpgPlayerHooks = {
         // Where they are NOW, so quitting right after a transfer comes back
         // here rather than to the map they just left.
         rememberPosition(player)
+
+        /*
+         * RE-ASSERT THE POSITION THE CLIENT IS SUPPOSED TO BE AT.
+         *
+         * The arrival is sent while the client is still tearing down the old
+         * room, so it lands on nobody: measured through the exterior door, the
+         * server had the player at (912,1520) inside the hub while the client
+         * was still drawing them at (992,1030), the spot they had left
+         * OUTSIDE. Nothing corrects it until the first keypress, at which
+         * point the character snaps across the map — read, correctly, as being
+         * thrown somewhere random, and occasionally into a corner they then
+         * could not walk out of.
+         *
+         * A teleport to where they already are is a no-op for the game and a
+         * fresh broadcast for the client, once the room is certainly listening.
+         */
+        /*
+         * TELL THE CLIENT WHERE IT ACTUALLY IS.
+         *
+         * The engine's own position sync does not reach a client that has just
+         * changed room: measured through the exterior door, the server had the
+         * player at (912,1520) inside the hub while the client — both
+         * getCurrentPlayer() and its players map — still read (992,1030), the
+         * spot they had left OUTSIDE. Nothing corrects it until the first
+         * keypress, at which point the character snaps across the map. That is
+         * the "it throws me somewhere else the moment I move", and it is also
+         * how a player ended up wedged in a corner they had never walked to.
+         *
+         * Teleporting them server-side does not help — a teleport to the same
+         * tile changes no synced value, and a one-pixel nudge was measured to
+         * change nothing on the client either. So the position is sent as a
+         * plain event, on the same channel as name:accepted, and the client
+         * writes it into its own signals. See game-ui.ts.
+         */
+        const at = playerPos(player)
+        if (at) {
+            const tell = () => { try { player.emit('map:arrival', { map: id, x: at.x, y: at.y }) } catch { /* gone */ } }
+            tell()
+            // Again once the room is certainly listening: an emit to a player
+            // mid-transfer is dropped in silence.
+            for (const delay of [250, 800]) {
+                const t = setTimeout(tell, delay)
+                ;(t as unknown as { unref?: () => void }).unref?.()
+            }
+        }
     },
     onInput(player: RpgPlayer, { action, data }) {
         // Escape opens our menu (the built-in main menu comes later with

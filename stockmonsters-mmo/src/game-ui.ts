@@ -172,6 +172,35 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
   // announceWallet above for why the claim is repeated until it does.
   socket.on("auth:ok", () => { authOk = true; });
 
+  /*
+   * WHERE THE SERVER SAYS WE ARE, AFTER A MAP CHANGE.
+   *
+   * The engine's position sync does not reach a client that has just changed
+   * room. Measured through one door: the server had the player inside the
+   * building at (912,1520) while this client still read (992,1030), the spot
+   * it had left outside — and it stayed that way until the first keypress,
+   * which snapped the character across the map. Players read that as being
+   * thrown somewhere random, and it is how one of them ended up wedged in a
+   * corner they had never walked to.
+   *
+   * The position signals are writable from here, so the arrival is simply
+   * applied. Anything under a tile away is left alone: that is ordinary
+   * lag, and stamping it would fight the client's own smooth movement.
+   */
+  socket.on("map:arrival", (at: { x?: unknown; y?: unknown }) => {
+    if (typeof at?.x !== "number" || typeof at?.y !== "number") return;
+    try {
+      const scene = typeof (engine as any)?.sceneMap === "function"
+        ? (engine as any).sceneMap() : (engine as any)?.sceneMap;
+      const p = scene?.getCurrentPlayer?.();
+      if (!p?.x?.set || !p?.y?.set) return;
+      const read = (v: any) => (typeof v === "function" ? v() : v);
+      if (Math.abs(read(p.x) - at.x) < 32 && Math.abs(read(p.y) - at.y) < 32) return;
+      p.x.set(at.x);
+      p.y.set(at.y);
+    } catch { /* the scene is not up yet; a later repeat will land */ }
+  });
+
   socket.on("character:accepted", (payload: { layers?: unknown }) => {
     confirmed = true;
     // The server is authoritative, and on a clean device it knows a returning
