@@ -6,7 +6,7 @@
  * Three jobs:
  *
  * 1. **REPLACE THE INVENTED NUMBERS.** The HUD shipped with `ETH 0.482` and
- *    `SMON 12,400` hardcoded in `demoHudModel()` and marked PLACEHOLDER. This
+ *    `$STONKSTER 12,400` hardcoded in `demoHudModel()` and marked PLACEHOLDER. This
  *    reads the real balances and pushes them in. If no token is configured the
  *    chips are REMOVED rather than left showing fiction — a fake balance is
  *    worse than no balance.
@@ -42,7 +42,7 @@ export const CLAIM_SELECTOR = '0x6e6adbde'
 export const APPROVE_SELECTOR = '0x095ea7b3'
 /** `allowance(address,address)` */
 export const ALLOWANCE_SELECTOR = '0xdd62ed3e'
-/** `transfer(address,uint256)` — plain ERC-20, for gifting SMON to a player. */
+/** `transfer(address,uint256)` — plain ERC-20, for gifting $STONKSTER to a player. */
 export const TRANSFER_SELECTOR = '0xa9059cbb'
 /** `mintCaughtERC20(bytes32,bytes32,address,uint256,uint64,bytes)` -> c4d409d0 */
 export const MINT_ERC20_SELECTOR = '0xc4d409d0'
@@ -250,7 +250,7 @@ export async function mountWalletUi(): Promise<void> {
   window.addEventListener('sm:wallet-refresh', () => { void refresh() })
   // A first-time player connects their wallet AFTER this mounted — the title
   // screen sits on top of an already-running game. Without this the HUD kept
-  // the placeholder chips (the invented `SMON 12,400`) for the whole session,
+  // the placeholder chips (the invented `$STONKSTER 12,400`) for the whole session,
   // which is the worst possible thing for a number to do.
   window.addEventListener('sm:wallet', () => { void refresh() })
 }

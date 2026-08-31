@@ -6,7 +6,7 @@ import { encodeTransfer, TRANSFER_SELECTOR, parseUnits } from './wallet-ui'
  * Gifting the game token to another player.
  *
  * The SEND TOKEN button sent ether for its whole life — in a game whose token
- * is SMON, a mislabelled feature rather than a missing one. This is the ERC-20
+ * is $STONKSTER, a mislabelled feature rather than a missing one. This is the ERC-20
  * path behind it.
  *
  * Calldata is hand-encoded so viem stays out of the browser bundle, which means

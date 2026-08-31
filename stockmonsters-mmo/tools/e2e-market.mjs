@@ -18,7 +18,7 @@
  *   3. delisting is honestly reported as NOT an on-chain cancellation
  *   4. a SECOND wallet fills the order on chain and `ownerOf` really changes
  *   5. the indexer closes the filled order without being asked
- *   6. the same round trip works priced in SMON, through an ERC-20 approval
+ *   6. the same round trip works priced in $STONKSTER, through an ERC-20 approval
  *
  * The buy calldata is not written by this file. It is imported from the
  * BROWSER's own encoder (src/market-source-chain.ts, bundled here with vite),
@@ -468,45 +468,45 @@ if (fillHash) {
     !(finalBook.listings ?? []).some((l) => l.id === ORDER_ID), `${finalBook.total} left`)
 }
 
-/* ------------------------------------------------ the same trip in SMON ---*/
+/* ------------------------------------------ the same trip in $STONKSTER ---*/
 if (!process.env.SKIP_SMON && env.SM_TOKEN_ADDRESS && owned.length >= 3) {
-  const SMON = env.SM_TOKEN_ADDRESS
+  const TOKEN = env.SM_TOKEN_ADDRESS
   const accepted = await pub.readContract({
-    address: MARKET, abi: MARKET_ABI, functionName: 'acceptedCurrency', args: [SMON],
+    address: MARKET, abi: MARKET_ABI, functionName: 'acceptedCurrency', args: [TOKEN],
   })
-  check('SMON is a whitelisted currency on the market contract', accepted === true)
+  check('$STONKSTER is a whitelisted currency on the market contract', accepted === true)
   if (accepted) {
     const tokenC = owned[2]
-    const TOKEN_PRICE = 1_000_000_000_000_000_000_000n // 1,000 SMON
+    const TOKEN_PRICE = 1_000_000_000_000_000_000_000n // 1,000 $STONKSTER
     const balance = await pub.readContract({
-      address: SMON, abi: ERC20_ABI, functionName: 'balanceOf', args: [buyer.address],
+      address: TOKEN, abi: ERC20_ABI, functionName: 'balanceOf', args: [buyer.address],
     })
     if (balance < TOKEN_PRICE) {
       const hash = await sellerWallet.writeContract({
-        address: SMON, abi: ERC20_ABI, functionName: 'transfer', args: [buyer.address, TOKEN_PRICE * 2n],
+        address: TOKEN, abi: ERC20_ABI, functionName: 'transfer', args: [buyer.address, TOKEN_PRICE * 2n],
       })
       await pub.waitForTransactionReceipt({ hash })
-      console.log(`  sent the buyer SMON  ${tx(hash)}`)
+      console.log(`  sent the buyer $STONKSTER  ${tx(hash)}`)
     }
 
-    const orderC = await orderFor(tokenC, TOKEN_PRICE, SMON)
+    const orderC = await orderFor(tokenC, TOKEN_PRICE, TOKEN)
     const sigC = (await signOrder({ pk: SELLER_PK, market: MARKET, chainId: 11155111, order: orderC })).signature
     const c = await postList(orderC, sigC)
-    check('a SMON-priced order is indexed', c.status === 200 && !!c.body.orderHash, c.body.message ?? '')
+    check('a $STONKSTER-priced order is indexed', c.status === 200 && !!c.body.orderHash, c.body.message ?? '')
 
     if (c.body.orderHash) {
       // Check the allowance BEFORE asking for one. A blind approve on every
       // purchase is how players are trained to click through the prompt that
       // empties a wallet.
       const allowance = await pub.readContract({
-        address: SMON, abi: ERC20_ABI, functionName: 'allowance', args: [buyer.address, MARKET],
+        address: TOKEN, abi: ERC20_ABI, functionName: 'allowance', args: [buyer.address, MARKET],
       })
       if (allowance < TOKEN_PRICE) {
         const hash = await buyerWallet.writeContract({
-          address: SMON, abi: ERC20_ABI, functionName: 'approve', args: [MARKET, TOKEN_PRICE],
+          address: TOKEN, abi: ERC20_ABI, functionName: 'approve', args: [MARKET, TOKEN_PRICE],
         })
         await pub.waitForTransactionReceipt({ hash })
-        check('the buyer approved exactly the purchase price in SMON', true, tx(hash))
+        check('the buyer approved exactly the purchase price in $STONKSTER', true, tx(hash))
       } else {
         check('the buyer already had enough allowance — no second prompt', true)
       }
@@ -520,13 +520,13 @@ if (!process.env.SKIP_SMON && env.SM_TOKEN_ADDRESS && owned.length >= 3) {
           to: MARKET, data: encodeFillOrder(one.order, one.signature),
         })
       } catch (err) {
-        check('the SMON fill was accepted', false, String(err.shortMessage ?? err.message).slice(0, 200))
+        check('the $STONKSTER fill was accepted', false, String(err.shortMessage ?? err.message).slice(0, 200))
       }
       if (hash) {
         const receipt = await pub.waitForTransactionReceipt({ hash })
-        check('the SMON fill landed on Sepolia', receipt.status === 'success', tx(hash))
+        check('the $STONKSTER fill landed on Sepolia', receipt.status === 'success', tx(hash))
         const owner = await pub.readContract({ address: NFT, abi: NFT_ABI, functionName: 'ownerOf', args: [tokenC] })
-        check('the token paid for in SMON changed hands too',
+        check('the token paid for in $STONKSTER changed hands too',
           owner.toLowerCase() === buyer.address.toLowerCase(), `#${tokenC} -> ${owner}`)
       }
     }

@@ -3,7 +3,7 @@
 **Status: built and live on Sepolia.** Not verified on Etherscan — deliberate.
 
 ```
-token     0x9FF2cC8CdfC70d36e473Ae6cECCa0728D73c0580   SMON, 1,000,000,000 fixed
+token     0x9FF2cC8CdfC70d36e473Ae6cECCa0728D73c0580   $STONKSTER, 1,000,000,000 fixed
 rewards   0xB16624Ebb621Fff77cFdfBFcC138ce94FAbA74Cf   what players are paid from
 treasury  0x3313aa2f787cD4d8Ca158f7fB00beb9c67E1a577   where revenue lands
 nft       0xB0B5219CD63E505269E7327F048E0976eDeD799B   the creatures
@@ -161,7 +161,7 @@ Fund more days with `node tools/fund-epochs.mjs` (owner-signed, on purpose).
 ## Paying with the token
 
 **Loot boxes** — the shop offers a currency switch; every tier has a token
-price (2,500 / 7,500 / 20,000 SMON). The client *asks*, the server *decides*:
+price (2,500 / 7,500 / 20,000 $STONKSTER). The client *asks*, the server *decides*:
 the price comes from our tier table and the currency address is ours, never the
 request's.
 
@@ -241,15 +241,15 @@ letting one duel would reveal what it holds to anyone reading the replay.
 | | |
 |---|---|
 | rake | 3% of the pot, to the treasury |
-| max wager | 1,000,000 SMON |
-| daily payout cap | 20,000,000 SMON |
+| max wager | 1,000,000 $STONKSTER |
+| daily payout cap | 20,000,000 $STONKSTER |
 | result window | 30 minutes, then **either player takes their own stake back** |
 
 The refund is the important one: a server that crashes mid-duel cannot hold
 anybody's money, and neither player has to wait for the other to act.
 
 Proven on Sepolia by `npm run test:e2e:duel` — two fresh wallets, a real
-1,000,000 SMON wager, escrow opened, result signed, winner paid 1,940,000 and
+1,000,000 $STONKSTER wager, escrow opened, result signed, winner paid 1,940,000 and
 60,000 of rake in the treasury.
 
 ## Gyms

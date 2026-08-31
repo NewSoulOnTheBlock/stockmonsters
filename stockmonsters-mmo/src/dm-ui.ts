@@ -750,8 +750,8 @@ export function mountDmUi(engine?: EngineLike, socket?: SocketLike): DmUiApi {
    * Send ETH, or send the game token.
    *
    * The button has said SEND TOKEN since it was written and it only ever sent
-   * ether — in a game whose token is SMON, that is not a missing feature so
-   * much as a mislabelled one. ETH goes as `value` with no calldata; SMON goes
+   * ether — in a game whose token is $STONKSTER, that is not a missing feature so
+   * much as a mislabelled one. ETH goes as `value` with no calldata; the token goes
    * as an ordinary ERC-20 `transfer` to the same address.
    */
   async function sendToken(

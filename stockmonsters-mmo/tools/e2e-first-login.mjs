@@ -12,7 +12,7 @@
  *     were — no profile, no friends, no rewards, no name;
  *   · chat-ui left the input disabled saying "Connect a wallet to chat" while a
  *     wallet was plainly connected, and never asked for a name;
- *   · wallet-ui kept the invented placeholder chips (`SMON 12,400`).
+ *   · wallet-ui kept the invented placeholder chips (`$STONKSTER 12,400`).
  *
  * A RETURNING player hit none of it, because their wallet was in localStorage
  * before the page loaded. That is why it survived so long, and why this test
@@ -165,9 +165,13 @@ console.log('\nin the world, seconds after the wallet arrived:')
   check('it no longer claims there is no wallet',
     !/connect a wallet/i.test(w.placeholder ?? ''), w.placeholder)
   check('they are asked to choose a name', w.nameModal)
-  const smon = w.chips.find((c) => c.startsWith('SMON'))
+  // The symbol is read off the chain, so the test asks for the one it
+  // expects rather than assuming — `SM_TOKEN_SYMBOL` points a run at a token
+  // deployed under an older symbol.
+  const symbol = process.env.SM_TOKEN_SYMBOL ?? '$STONKSTER'
+  const smon = w.chips.find((c) => c.startsWith(symbol))
   check('the HUD shows a real balance, not the invented placeholder',
-    !!smon && !smon.includes('12,400'), smon ?? 'no SMON chip')
+    !!smon && !smon.includes('12,400'), smon ?? `no ${symbol} chip`)
 }
 
 await page.screenshot({ path: process.env.SHOT ?? 'first-login.png' })

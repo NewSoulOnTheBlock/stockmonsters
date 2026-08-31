@@ -139,7 +139,28 @@ export const TWITTER_URL = "https://x.com/stonksters";
 export const ECONOMY = {
   /** Testnet today; the contracts move to mainnet unchanged. */
   network: "Sepolia",
-  symbol: "SMON",
+  /**
+   * The token's ticker. The leading `$` is part of the symbol the token
+   * launches under, not a currency prefix — nothing should add another.
+   */
+  symbol: "$STONKSTER",
+  /** The token's full name, as the launchpad deploys it. */
+  name: "Stock Monsters",
+  /**
+   * THE ONE LINE THAT FLIPS THE SITE TO "LAUNCHED".
+   *
+   * Empty string until the pons launchpad deploys the token on Robinhood
+   * Chain. While it is empty the hero's CA field reads NOT DEPLOYED and is
+   * inert; paste the 0x… string in here and the same field starts showing
+   * the address with a copy button. Nothing else needs to change.
+   *
+   * Typed `as string` on purpose — without it the literal `""` would narrow
+   * and TypeScript would treat the deployed branch as dead code.
+   */
+  address: "0xD8608dF8630c1F9f1681f46DAE094E576F386e7e" as string,
+  /** Where it launches. The chain id is 4663. */
+  chain: "Robinhood Chain",
+  chainId: 4663,
   supply: "1,000,000,000",
   /** Trading tax, buy and sell. Wallet-to-wallet is free. */
   taxPercent: 2,

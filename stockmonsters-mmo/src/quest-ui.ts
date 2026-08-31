@@ -14,6 +14,7 @@ import {
   ensureUiKit, injectStyle, el, pushLayer, makeDraggable, watchGameDialog, Z, THEME,
 } from './ui-kit'
 import { play as sfx } from './sfx'
+import { TOKEN_SYMBOL } from './modules/main/pricing'
 
 interface EngineLike { processAction?: (action: string, data: unknown) => void }
 interface SocketLike { on?: (type: string, cb: (data: any) => void) => void }
@@ -119,8 +120,8 @@ function render() {
           ? 'CLAIMED'
           : typeof q.usd === 'number'
             ? `+$${q.usd.toFixed(2).replace(/\.00$/, '')}`
-            : `+${q.reward} SMON`,
-        title: `${q.reward.toLocaleString()} SMON at today's price`,
+            : `+${q.reward} ${TOKEN_SYMBOL}`,
+        title: `${q.reward.toLocaleString()} ${TOKEN_SYMBOL} at today's price`,
       }),
       el('div', { class: 'q-bar' }, [el('i', { style: `width:${Math.round((q.have / q.goal) * 100)}%` })]),
       el('span', { class: 'q-count', text: `${q.have} / ${q.goal}` }),

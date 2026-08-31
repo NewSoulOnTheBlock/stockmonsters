@@ -122,7 +122,7 @@ try {
   }
   check('both duellists are funded',
     (await balanceOf(a.address)) === WAGER && (await balanceOf(b.address)) === WAGER,
-    `${formatEther(WAGER)} SMON each`)
+    `${formatEther(WAGER)} $STONKSTER each`)
 
   step('the blind picks')
   // Each side chooses a creature and a random salt. Neither commitment reveals
@@ -177,7 +177,7 @@ try {
     address: ARENA, abi: ARENA_ABI, functionName: 'matches', args: [matchId],
   })
   check('the arena holds both stakes', (await balanceOf(ARENA)) >= WAGER * 2n,
-    `${formatEther(await balanceOf(ARENA))} SMON escrowed`)
+    `${formatEther(await balanceOf(ARENA))} $STONKSTER escrowed`)
   check('and it remembers exactly what was agreed',
     onChain[1].toLowerCase() === a.address.toLowerCase() &&
     onChain[3] === WAGER &&
@@ -223,10 +223,10 @@ try {
   const rakeTaken = (pot * BigInt(rake)) / 10_000n
   const payout = pot - rakeTaken
   check('the winner took the pot minus the rake', (await balanceOf(a.address)) === payout,
-    `${formatEther(payout)} SMON`)
+    `${formatEther(payout)} $STONKSTER`)
   check('the loser has nothing left of it', (await balanceOf(b.address)) === 0n)
   check('the rake reached the treasury', (await balanceOf(TREASURY)) - treasuryBefore === rakeTaken,
-    `${formatEther(rakeTaken)} SMON`)
+    `${formatEther(rakeTaken)} $STONKSTER`)
   check('the arena kept nothing', (await balanceOf(ARENA)) === 0n)
 
   const after = await publicClient.readContract({

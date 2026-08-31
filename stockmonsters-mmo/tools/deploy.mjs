@@ -81,8 +81,13 @@ if (!target) {
 
 const PARAMS = {
   token: {
-    name: 'Stockmonsters',
-    symbol: 'SMON',
+    // The identity the token launches under. Mainnet supply comes from the
+    // pons launchpad on Robinhood Chain, which deploys a plain fixed-supply
+    // ERC-20 under this name; these params are what a testnet stack of our
+    // own is deployed with, kept in step so the two do not read differently.
+    // The leading `$` is part of the symbol the user chose.
+    name: 'Stock Monsters',
+    symbol: '$STONKSTER',
     // One billion, fixed forever — there is no mint function.
     supply: parseEther('1000000000'),
     logo: '',
@@ -370,16 +375,16 @@ await send('token: tax → rewards pool + treasury', token, 'setTaxDestinations'
 await send('token: game contracts are tax-exempt (nft)', token, 'setTaxExempt', [nft.address, true])
 await send('token: game contracts are tax-exempt (market)', token, 'setTaxExempt', [market.address, true])
 await send('nft: fees → treasury', nft, 'setTreasury', [treasury.address])
-await send('nft: accepts SMON', nft, 'setAcceptedCurrency', [token.address, true])
+await send('nft: accepts $STONKSTER', nft, 'setAcceptedCurrency', [token.address, true])
 await send('nft: royalty → treasury', nft, 'setDefaultRoyalty', [treasury.address, PARAMS.royaltyBps])
 await send('nft: claim fee', nft, 'setClaimFee', [parseEther(PARAMS.claimFeeEth)])
-await send('market: accepts SMON', market, 'setAcceptedCurrency', [token.address, true])
+await send('market: accepts $STONKSTER', market, 'setAcceptedCurrency', [token.address, true])
 await send('token: gyms are tax-exempt', token, 'setTaxExempt', [gyms.address, true])
 await send('token: the arena is tax-exempt', token, 'setTaxExempt', [arena.address, true])
 
 step('funding the rewards pool')
 await send(
-  `token: ${formatEther(PARAMS.rewardsSeed)} SMON → rewards pool`,
+  `token: ${formatEther(PARAMS.rewardsSeed)} $STONKSTER → rewards pool`,
   token,
   'transfer',
   [rewards.address, PARAMS.rewardsSeed],

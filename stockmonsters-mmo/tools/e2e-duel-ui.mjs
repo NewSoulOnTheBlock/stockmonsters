@@ -31,7 +31,7 @@ const ROOT = resolve(HERE, '..')
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 const PORT = Number(process.env.PORT_OVERRIDE ?? 4210)
 const BASE = `http://localhost:${PORT}`
-const STAKE = '500' // whole SMON per side — small, this runs often
+const STAKE = '500' // whole $STONKSTER per side — small, this runs often
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 let bad = 0
 const check = (l, ok, d = '') => { if (!ok) bad++; console.log(`  ${ok ? 'PASS' : 'FAIL'}  ${l}${d ? '  ' + d : ''}`) }
@@ -86,7 +86,7 @@ async function makeDuellist(label) {
   const account = privateKeyToAccount(generatePrivateKey())
   const walletClient = createWalletClient({ account, chain: sepolia, transport: http(env.SM_RPC_URL) })
 
-  // Money first: gas for approve/open/settle and a mint, SMON for the stake.
+  // Money first: gas for approve/open/settle and a mint, tokens for the stake.
   const g = await funder.sendTransaction({ to: account.address, value: 30_000_000_000_000_000n })
   await pub.waitForTransactionReceipt({ hash: g })
   const t = await funder.writeContract({
@@ -289,7 +289,7 @@ const afterA = await smon(A.account.address)
 const afterB = await smon(B.account.address)
 const dA = afterA - beforeA
 const dB = afterB - beforeB
-console.log(`  A: ${formatEther(dA)} SMON   B: ${formatEther(dB)} SMON`)
+console.log(`  A: ${formatEther(dA)} $STONKSTER   B: ${formatEther(dB)} $STONKSTER`)
 const stake = 500n * 10n ** 18n
 const rake = (stake * 2n * 300n) / 10_000n
 const pot = stake * 2n - rake

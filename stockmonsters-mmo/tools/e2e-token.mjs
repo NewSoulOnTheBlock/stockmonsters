@@ -198,6 +198,18 @@ async function signIn() {
 
 /** The fixture amount the claim step pays out. Small, and well inside the
  *  epoch budget the deploy funded. */
+/**
+ * The symbol the token is expected to report.
+ *
+ * The chain is the source of truth at runtime — the server reads `symbol()`
+ * off the contract — so this is only what the assertions compare against.
+ * Point the run at a token deployed under an older symbol by setting
+ * `SM_TOKEN_SYMBOL`; the leading `$` is part of the symbol, so anything that
+ * builds a regex from it has to escape it.
+ */
+const SYMBOL = process.env.SM_TOKEN_SYMBOL ?? '$STONKSTER'
+const SYMBOL_RE = SYMBOL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
 const SEEDED_REWARD = 7n * 10n ** 18n
 let seededEpoch = 1
 
@@ -208,8 +220,8 @@ let browser
 try {
   step('funding a fresh player')
   {
-    // Enough ETH for a claim and two box transactions, and enough SMON to buy
-    // the standard box in tokens later on. Both come from the deployer, so the
+    // Enough ETH for a claim and two box transactions, and enough of the token
+    // to buy the standard box later on. Both come from the deployer, so the
     // only prerequisite for running this is a funded deploy key.
     const gas = await funder.sendTransaction({ to: account.address, value: parseEther('0.02') })
     await publicClient.waitForTransactionReceipt({ hash: gas })
@@ -223,13 +235,13 @@ try {
       balanceOf(env.SM_TOKEN_ADDRESS, account.address),
     ])
     check('the player is funded', eth > 0n && tokens > 0n,
-      `${account.address} — ${formatEther(eth)} ETH, ${formatEther(tokens)} SMON`)
+      `${account.address} — ${formatEther(eth)} ETH, ${formatEther(tokens)} ${SYMBOL}`)
   }
 
   step('boot')
   server = await startServer()
   const meta = await (await fetch(`${BASE}/token`)).json()
-  check('the server read the token off the chain', meta.configured && meta.symbol === 'SMON',
+  check('the server read the token off the chain', meta.configured && meta.symbol === SYMBOL,
     `${meta.name} (${meta.symbol}), ${meta.decimals} decimals`)
   check('and it knows every contract', !!meta.contracts?.rewards && !!meta.contracts?.nft)
 
@@ -271,14 +283,14 @@ try {
       [wallet.connectionId, String(epoch), SEEDED_REWARD.toString()],
     )
     await db.end()
-    console.log(`  seeded ${formatEther(SEEDED_REWARD)} SMON of earnings in epoch ${epoch} (fixture)`)
+    console.log(`  seeded ${formatEther(SEEDED_REWARD)} ${SYMBOL} of earnings in epoch ${epoch} (fixture)`)
   }
   const smonBefore = await balanceOf(meta.address, account.address)
   const nftBefore = await publicClient.readContract({
     address: meta.contracts.nft, abi: NFT, functionName: 'balanceOf', args: [account.address],
   })
   const treasuryBefore = await balanceOf(meta.address, meta.contracts.treasury)
-  console.log(`  player holds ${formatEther(smonBefore)} SMON, ${nftBefore} NFTs`)
+  console.log(`  player holds ${formatEther(smonBefore)} ${SYMBOL}, ${nftBefore} NFTs`)
 
   browser = await puppeteer.launch({
     executablePath: CHROME, headless: true, userDataDir: profileDir,
@@ -304,10 +316,11 @@ try {
   const chips = await until('the balance chips', async () => {
     const found = await page.evaluate(() =>
       [...document.querySelectorAll('#sm-hud .hud-chips .smui-chip')].map((c) => c.textContent ?? ''))
-    return found.some((c) => c.includes('SMON')) ? found : null
+    return found.some((c) => c.includes(SYMBOL)) ? found : null
   }, { timeout: 40_000 })
-  const smonChip = chips.find((c) => c.includes('SMON')) ?? ''
-  check('the SMON chip carries the real balance', /SMON[\d,]/.test(smonChip.replace(/\s/g, '')), smonChip)
+  const smonChip = chips.find((c) => c.includes(SYMBOL)) ?? ''
+  check(`the ${SYMBOL} chip carries the real balance`,
+    new RegExp(`${SYMBOL_RE}[\\d,]`).test(smonChip.replace(/\s/g, '')), smonChip)
   check('the invented 12,400 placeholder is gone', !smonChip.includes('12,400'), smonChip)
   const ethChip = chips.find((c) => c.startsWith('ETH')) ?? ''
   check('the ETH chip is real too', !ethChip.includes('0.482'), ethChip)
@@ -321,7 +334,7 @@ try {
     ).json()
     return Number(r.earned) > 0 ? r : null
   }, { timeout: 40_000 }).catch(() => null)
-  check('the reward ledger has something in it', !!earned, earned ? `${earned.earned} SMON this epoch` : 'nothing')
+  check('the reward ledger has something in it', !!earned, earned ? `${earned.earned} ${SYMBOL} this epoch` : 'nothing')
   if (earned) {
     check('and it is claimable', Number(earned.claimable) > 0, `${earned.claimable} claimable`)
     check('the epoch is the one the deploy funded', earned.epoch === seededEpoch, `epoch ${earned.epoch}`)
@@ -355,12 +368,12 @@ try {
       return now > smonBefore ? now : null
     }, { timeout: 120_000, interval: 3000 }).catch(() => null)
     check('the player was actually paid, on chain', !!after,
-      after ? `+${formatEther(after - smonBefore)} SMON` : 'balance never moved')
+      after ? `+${formatEther(after - smonBefore)} ${SYMBOL}` : 'balance never moved')
   }
 
   step('the box shop prices boxes in the token')
   const quote = await (await fetch(`${BASE}/box/quote`)).json()
-  check('the quote advertises the token', quote.token?.symbol === 'SMON', JSON.stringify(quote.token ?? null))
+  check('the quote advertises the token', quote.token?.symbol === SYMBOL, JSON.stringify(quote.token ?? null))
   check('and every tier has a token price', quote.tiers.every((t) => t.priceTokens > 0),
     quote.tiers.map((t) => `${t.id}:${t.priceTokens}`).join(' '))
 
@@ -368,7 +381,7 @@ try {
   await sleep(2500)
   const shopText = await page.evaluate(() => document.getElementById('sm-boxshop')?.textContent ?? '')
   check('the shop offers a choice of currency', /PAY WITH/.test(shopText))
-  check('the standard box shows its SMON price', /2,500/.test(shopText), shopText.slice(0, 0) || '')
+  check(`the standard box shows its ${SYMBOL} price`, /2,500/.test(shopText), shopText.slice(0, 0) || '')
 
   step('buying a box with tokens')
   const bought = await page.evaluate(() => {
@@ -390,7 +403,7 @@ try {
 
     const treasuryAfter = await balanceOf(meta.address, meta.contracts.treasury)
     check('the fee landed in the treasury, which funds the buyback',
-      treasuryAfter > treasuryBefore, `+${formatEther(treasuryAfter - treasuryBefore)} SMON`)
+      treasuryAfter > treasuryBefore, `+${formatEther(treasuryAfter - treasuryBefore)} ${SYMBOL}`)
   }
 } catch (err) {
   failures++

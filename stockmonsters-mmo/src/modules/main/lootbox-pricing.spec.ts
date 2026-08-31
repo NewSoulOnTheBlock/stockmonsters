@@ -58,7 +58,7 @@ describe('what a box costs', () => {
     })
 
     it('is a raise on what tokens used to buy', () => {
-        // The old fixed prices were 2,500 / 7,500 / 20,000 SMON against ether
+        // The old fixed prices were 2,500 / 7,500 / 20,000 tokens against ether
         // prices worth about twenty-four times that.
         set('SM_TOKEN_USD', '0.0005')
         set('SM_ETH_USD', '3000')

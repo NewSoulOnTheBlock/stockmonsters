@@ -32,6 +32,7 @@ import {
 } from './ui-kit'
 import { openMarketplace } from './marketplace'
 import { CHARACTER_PRESETS, CHARACTER_LAYERS } from './data/character-catalog'
+import { TOKEN_SYMBOL } from './modules/main/pricing'
 
 /* ---------------------------------------------------------------- types ---*/
 
@@ -209,7 +210,7 @@ export function demoHudModel(): HudModel {
     avatarLayers: ['spritesheets/hero.png'],
     chips: [
       { id: 'eth', icon: 'gem', label: 'ETH', value: '0.482' },      // PLACEHOLDER
-      { id: 'smon', icon: 'coin', label: 'SMON', value: '12,400' },  // PLACEHOLDER
+      { id: 'smon', icon: 'coin', label: TOKEN_SYMBOL, value: '12,400' }, // PLACEHOLDER
       { id: 'boxes', icon: 'box', label: 'BOXES', value: '3' },      // PLACEHOLDER
       { id: 'streak', icon: 'bolt', label: 'STREAK', value: '5d', tone: 'ok' }, // PLACEHOLDER
     ],

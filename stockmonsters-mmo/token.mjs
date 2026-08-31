@@ -2,7 +2,7 @@
  * token.mjs — the game's side of the currency.
  *
  *   GET  /token                      what the token IS (read off the chain)
- *   GET  /token/balance?address=…    a player's SMON and ETH
+ *   GET  /token/balance?address=…    a player's $STONKSTER and ETH
  *   GET  /rewards/mine?…             what this player has earned and can claim
  *   POST /rewards/claim              a signed claim they submit themselves
  *
@@ -10,7 +10,7 @@
  *
  * `SM_TOKEN_ADDRESS` is the only thing that has to be set. Name, symbol,
  * decimals and logo are READ FROM THE TOKEN, which describes itself on chain —
- * so nothing in this codebase hardcodes "SMON", and swapping in a different
+ * so nothing in this codebase hardcodes "$STONKSTER", and swapping in a different
  * launch token later is one variable, not a search-and-replace.
  *
  * The four standard ERC-20 calls are required; `logo`, `description`,
@@ -236,7 +236,7 @@ export function createTokenStore(opts = {}) {
     return meta
   }
 
-  /** SMON and ETH for one address, formatted with the token's own decimals. */
+  /** $STONKSTER and ETH for one address, formatted with the token's own decimals. */
   async function balances(address) {
     if (!configured) return { configured: false }
     if (!isAddress(address)) throw new TokenError(400, 'bad-address', 'Bad address.')
@@ -625,7 +625,7 @@ async function earningsOf(profiles, walletId) {
 
 /**
  *   GET  /token                          the currency, read off the chain
- *   GET  /token/balance?address=…        one wallet's SMON and ETH
+ *   GET  /token/balance?address=…        one wallet's $STONKSTER and ETH
  *   GET  /rewards/mine?address=&connectionId=
  *   POST /rewards/claim { address, connectionId }
  *

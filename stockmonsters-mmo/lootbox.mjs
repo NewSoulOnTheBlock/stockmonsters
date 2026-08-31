@@ -97,24 +97,28 @@ export const BANDS = [
  * A box has ONE price, in dollars, and the two currencies are quoted from it.
  *
  * It used to have two independent prices and they disagreed by a factor of
- * twenty-four: 0.01 ETH, which is about $30, or 2,500 SMON, which is about
+ * twenty-four: 0.01 ETH, which is about $30, or 2,500 $STONKSTER, which is about
  * $1.25. Nobody would ever have paid in ether. The ether price is the anchor —
  * it is the one that was set deliberately — so the token price is derived from
  * it. The token price is written as a MARKET CAP divided by the fixed billion
  * supply — $200k fully diluted at launch — because that is the number anyone
- * can have an opinion about. The old fixed 2,500 SMON silently assumed a token
+ * can have an opinion about. The old fixed 2,500 $STONKSTER silently assumed a token
  * at about $0.012, i.e. a $12M valuation, which is why it looked so cheap.
  *
- * Both rates are configuration, because there is no market on a test network:
- * `SM_ETH_USD` and `SM_TOKEN_USD`. The second is the same variable the quest
- * board is priced from, so a box and a day's quests are always quoted against
- * the same dollar.
+ * BOTH RATES ARE READ, NOT WRITTEN. The token price comes off the live pons
+ * pool (or its bonding curve before graduation) and ETH/USD off a public price
+ * API, both through price-oracle.mjs, which server.mjs hangs on
+ * `globalThis.__smPrices`. `SM_TOKEN_USD` and `SM_ETH_USD` survive as the
+ * FALLBACK for when the chain cannot be reached — see the long note in
+ * src/modules/main/pricing.ts for where falling back stops being honest and
+ * refusing to quote takes over.
  *
  * THE MIRROR. src/modules/main/pricing.ts does the same arithmetic for quests
  * and is a TypeScript module bundled into the game server, which this plain
- * .mjs cannot import. The clamp below is deliberately identical to the one
- * there, and lootbox-pricing.spec.ts asserts the two agree — a divergence
- * would mean a quest and a box valued the same dollar differently.
+ * .mjs cannot import. Both reach the price through the SAME `__smPrices`
+ * bridge and clamp it identically, and lootbox-pricing.spec.ts asserts they
+ * agree — a divergence would mean a quest and a box valued the same dollar
+ * differently.
  */
 const SUPPLY = 1_000_000_000
 const DEFAULT_MARKET_CAP_USD = 200_000
@@ -129,12 +133,48 @@ const positiveEnv = (key, fallback) => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
 }
 
-export const tokenUsd = () => positiveEnv('SM_TOKEN_USD', DEFAULT_USD_PER_TOKEN)
-export const ethUsd = () => positiveEnv('SM_ETH_USD', DEFAULT_USD_PER_ETH)
+/** The live price oracle, if server.mjs built one. Same object pricing.ts sees. */
+const prices = () => globalThis.__smPrices ?? null
 
-/** Whole tokens one dollar buys, clamped exactly as pricing.ts clamps it. */
+/**
+ * The token price and where it came from, in the same four flavours
+ * pricing.ts uses: 'pool' | 'curve' | 'env' | 'assumed' | 'unknown'.
+ * Kept byte-for-byte equivalent to `priceQuote()` there on purpose.
+ */
+export function priceQuote() {
+  const b = prices()
+  if (b) {
+    let usd = null, source = null
+    try { usd = b.tokenUsd?.() ?? null; source = b.tokenPriceSource?.() ?? null } catch { usd = null; source = null }
+    if (source && Number.isFinite(usd) && usd > 0) return { usd, source }
+    if (b.enabled) return { usd: DEFAULT_USD_PER_TOKEN, source: 'unknown' }
+  }
+  const env = positiveEnv('SM_TOKEN_USD', null)
+  if (env !== null) return { usd: env, source: 'env' }
+  return { usd: DEFAULT_USD_PER_TOKEN, source: 'assumed' }
+}
+
+export const tokenUsd = () => priceQuote().usd
+export const priceSource = () => priceQuote().source
+
+/** ETH in dollars: live if the oracle has it, else SM_ETH_USD, else the guess. */
+export function ethUsd() {
+  const live = prices()?.ethUsd?.()
+  if (Number.isFinite(live) && live > 0) return live
+  return positiveEnv('SM_ETH_USD', DEFAULT_USD_PER_ETH)
+}
+
+/**
+ * Whole tokens one dollar buys, clamped exactly as pricing.ts clamps it — and
+ * NOT clamped for a live market price, for exactly the reason given there: the
+ * band's anchor is the launch assumption the real market has already
+ * contradicted. Zero means refused, not free.
+ */
 export function tokensPerUsd() {
-  const per = 1 / tokenUsd()
+  const { usd, source } = priceQuote()
+  if (source === 'unknown') return 0
+  const per = 1 / usd
+  if (source === 'pool' || source === 'curve') return per
   if (per < MIN_TOKENS_PER_USD) return MIN_TOKENS_PER_USD
   if (per > MAX_TOKENS_PER_USD) return MAX_TOKENS_PER_USD
   return per
@@ -152,7 +192,11 @@ export function tierUsd(tier) {
 export function tierTokens(tier) {
   const usd = tierUsd(tier)
   if (!Number.isFinite(usd) || usd <= 0) return 0
-  return Math.max(1, Math.round(usd * tokensPerUsd()))
+  const per = tokensPerUsd()
+  // Zero is a REFUSAL to quote (no price could be established), not a free
+  // box. The shop must show the box as unpurchasable in tokens, not as 1 SMON.
+  if (!(per > 0)) return 0
+  return Math.max(1, Math.round(usd * per))
 }
 
 /**

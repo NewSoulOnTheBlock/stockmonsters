@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BattleScene } from "@/components/BattleScene";
+import { ContractAddress } from "@/components/ContractAddress";
 import { Ledger } from "@/components/Ledger";
 import { MemeWingTeaser } from "@/components/MemeWing";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
@@ -125,7 +126,9 @@ export default function Home() {
                 ones you keep, and fight other traders for theirs.
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-4">
+              <ContractAddress className="mt-8" />
+
+              <div className="mt-5 flex flex-wrap items-center gap-4">
                 <PlayButton big label="Play now" />
                 <Link
                   href="#ledger"

@@ -32,7 +32,7 @@ import { signOrder } from '../tools/voucher-lib.mjs'
 const ZERO = '0x0000000000000000000000000000000000000000'
 const CHAIN_ID = 11155111
 const MARKET = '0x095bdB719e6c626b69C0ab0b5f9C6B657bedbe2E'
-const SMON = '0x9FF2cC8CdfC70d36e473Ae6cECCa0728D73c0580'
+const GAME_TOKEN = '0x9FF2cC8CdfC70d36e473Ae6cECCa0728D73c0580'
 
 const SELLER_PK = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 const STRANGER_PK = '0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba'
@@ -230,7 +230,7 @@ describe('checkOrderFillable', () => {
   })
 
   test('refuses a currency the contract does not accept', async () => {
-    await refuses('currency-not-accepted', run({}, { acceptedCurrency: async () => false }, { currency: SMON }))
+    await refuses('currency-not-accepted', run({}, { acceptedCurrency: async () => false }, { currency: GAME_TOKEN }))
   })
 
   test('but never asks about ETH — address(0) is always accepted', async () => {

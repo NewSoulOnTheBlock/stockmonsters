@@ -6,7 +6,7 @@
  *
  * ┌ DUEL ───────────────────────────────────────────────┐
  * │ ⚠ real tokens, escrowed on chain, winner takes them │
- * │ bet [ 1000000 ] SMON            [ CHALLENGE ]       │
+ * │ bet [ 1000000 ] $STONKSTER      [ CHALLENGE ]       │
  * ├─────────────────────────────────────────────────────┤
  * │ pick your fighter — they cannot see it              │
  * │ [ #12 CHARIZARD L52 ] [ #40 GENGAR L47 ] ...        │

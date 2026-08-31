@@ -260,7 +260,7 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
   // always visible: a friend request that only shows up in a panel you happen
   // to have open is a request that never arrives.
   mountFriendsUi(engine, socket);
-  // Reads /token and replaces the HUD's invented ETH/SMON numbers with the
+  // Reads /token and replaces the HUD's invented ETH/$STONKSTER numbers with the
   // real ones — or removes those chips when this server has no currency.
   void mountWalletUi();
   // Duels: offered to whoever you are standing next to, escrowed on chain.
