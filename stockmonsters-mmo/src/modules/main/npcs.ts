@@ -14,6 +14,9 @@ import { CHARACTER_PRESETS } from '../../data/character-catalog'
  */
 
 type Npc = { map: string; x: number; y: number; name: string | null; lines: string[] }
+
+/** Players currently mid-conversation, by transport id. See onAction below. */
+const talking = new Set<string>()
 const TILE = 32
 const npcs = npcsRaw as Npc[]
 
@@ -41,9 +44,36 @@ function npcEvent(npc: Npc) {
       onInit(this: RpgEvent) {
         this.setGraphic(graphic)
       },
+      /*
+       * ONE CONVERSATION AT A TIME, AND IT ALWAYS ENDS.
+       *
+       * This awaited a showText per line with nothing stopping a second press
+       * starting the whole loop again. Players tap the action key — that is
+       * how you talk to somebody — and every tap began another conversation
+       * with the same NPC, each awaiting its own dialog. They queue, so the
+       * box keeps reopening with lines the player has already read and there
+       * is no way to reach the end of it. Reported as chatting getting stuck.
+       *
+       * The guard is keyed by player id, like every other roster here: the
+       * engine hands each room a fresh RpgPlayer, so anything keyed by the
+       * object forgets on the first door.
+       *
+       * try/finally, not a plain reset: if a line rejects — the player left,
+       * the map changed under them — the flag has to come off anyway, or that
+       * player can never talk to anyone again for the rest of the session.
+       */
       async onAction(this: RpgEvent, player: RpgPlayer) {
-        for (const line of npc.lines) {
-          await player.showText(npc.name ? `${npc.name}: ${line}` : line)
+        const id = String(player.id)
+        if (talking.has(id)) return
+        talking.add(id)
+        try {
+          for (const line of npc.lines) {
+            await player.showText(npc.name ? `${npc.name}: ${line}` : line)
+          }
+        } catch (err) {
+          console.error('[npc] conversation ended early', err)
+        } finally {
+          talking.delete(id)
         }
       },
     },

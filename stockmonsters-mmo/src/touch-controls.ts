@@ -281,9 +281,20 @@ export function releaseAllTouchKeys(): void {
   }
 }
 
-// The engine's control names, read off the live instance rather than guessed:
-// down, up, left, right, space, shift, escape.
-const ACTION: Binding = { key: ' ', code: 'Space', label: 'A', cls: 'a', control: 'space' }
+/*
+ * THE CONTROL NAME IS NOT THE KEY NAME, and this button had the key name.
+ *
+ * The live instance carries both: `boundKeys` is keyed by the KEY — down, up,
+ * left, right, space, shift, escape — and `_controlsOptions` by the CONTROL —
+ * down, up, left, right, action, dash, back, escape. `applyControl` wants the
+ * second. Sending 'space' does nothing at all.
+ *
+ * So the A button never reached the engine, and since the engine also ignores
+ * synthetic keyboard events (the other half of what this file sends), talking
+ * to anybody on a phone has never worked. Found by trying to reproduce a stuck
+ * NPC conversation and discovering the server's onAction was never called.
+ */
+const ACTION: Binding = { key: ' ', code: 'Space', label: 'A', cls: 'a', control: 'action' }
 const MENU: Binding = { key: 'Escape', code: 'Escape', label: 'B', cls: 'b', control: 'escape' }
 
 /* ============================================================= JOYSTICK ===*/

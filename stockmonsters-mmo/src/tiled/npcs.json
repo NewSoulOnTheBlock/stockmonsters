@@ -330,7 +330,7 @@
   "lines": [
    "Who's daddy's little good boy?",
    "Erm, it's not what it looks like..!",
-   "Rockruff, use Growl!",
+   "Datahound, use Growl!",
    "Good!"
   ]
  },
@@ -338,11 +338,11 @@
   "map": "hub",
   "x": 32,
   "y": 33,
-  "name": "Rockruff",
+  "name": "Datahound",
   "lines": [
-   "Would you like to pet the Rockruff?",
+   "Would you like to pet the Datahound?",
    "Ruff! Ruff!",
-   "Rockruff seems disappointed..."
+   "Datahound seems disappointed..."
   ]
  },
  {
@@ -409,12 +409,12 @@
   "y": 25,
   "name": "Rotom (wash)",
   "lines": [
-   "It’s a washing machine.",
+   "It\u2019s a washing machine.",
    "Do you want to let Rotom out of its Ball?",
    "Oh? [POKE] appears as if it wants to go into the motor.",
    "Allow it to enter the motor?",
    "[POKE] entered the motor.",
-   "[POKE] reluctantly gave up on entering the washing machine’s motor..."
+   "[POKE] reluctantly gave up on entering the washing machine\u2019s motor..."
   ]
  },
  {
@@ -423,12 +423,12 @@
   "y": 25,
   "name": "Rotom (heat)",
   "lines": [
-   "It’s a microwave oven.",
+   "It\u2019s a microwave oven.",
    "Do you want to let Rotom out of its Ball?",
    "Oh? [POKE] appears as if it wants to go into the motor.",
    "Allow it to enter the motor?",
    "[POKE] entered the motor.",
-   "[POKE] reluctantly gave up on entering the rotary fan’s motor..."
+   "[POKE] reluctantly gave up on entering the rotary fan\u2019s motor..."
   ]
  },
  {
@@ -437,12 +437,12 @@
   "y": 25,
   "name": "Rotom (frost)",
   "lines": [
-   "It’s a refrigerator.",
+   "It\u2019s a refrigerator.",
    "Do you want to let Rotom out of its Ball?",
    "Oh? [POKE] appears as if it wants to go into the motor.",
    "Allow it to enter the motor?",
    "[POKE] entered the motor.",
-   "[POKE] reluctantly gave up on entering the rotary fan’s motor..."
+   "[POKE] reluctantly gave up on entering the rotary fan\u2019s motor..."
   ]
  },
  {
@@ -451,10 +451,10 @@
   "y": 25,
   "name": "Hidden Power",
   "lines": [
-   "I’ll tell you what type your Stockmonster’s Hidden Power will be.",
+   "I\u2019ll tell you what type your Stockmonster\u2019s Hidden Power will be.",
    "My own hidden power lets me do that.",
-   "If this Stockmonster were to learn [MOVE], the move’s type would be [POWER].",
-   "If you want to know, ask me, and I’ll activate my hidden power for you."
+   "If this Stockmonster were to learn [MOVE], the move\u2019s type would be [POWER].",
+   "If you want to know, ask me, and I\u2019ll activate my hidden power for you."
   ]
  },
  {
@@ -521,7 +521,7 @@
   "map": "marsh",
   "x": 24,
   "y": 23,
-  "name": "Parasol Lady",
+  "name": "Umbrella Trader",
   "lines": [
    "I like to step on this muddy puddle with my boots.",
    "It's not like the mud over there, in which you sink in an instant!"
@@ -573,7 +573,7 @@
   "lines": [
    "I can teach a little trick to following Stockmonster.",
    "But only one Stockmonster would have to follow you...",
-   "You can ask the Pokéfan seated on the right to change the number of following Stockmonster and come back!",
+   "You can ask the fan seated on the right to change the number of following Stockmonster and come back!",
    "Check that.",
    "[POKE], do a backstep!",
    "Now, jump!"
