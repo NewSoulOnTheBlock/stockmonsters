@@ -160,11 +160,25 @@ export function credit(player: RpgPlayer, kind: RewardKind, times = 1): number {
     const epoch = String(currentEpoch())
     const ledger = readLedger(player)
     const before = BigInt(ledger[epoch] ?? '0')
-    const cap = baseUnits(dailyCap())
+    /*
+     * NO PRICE, NO PAYOUT — and say which of the two it is.
+     *
+     * `dailyCap()` is DAILY_CAP_USD converted at today's price, so it is zero
+     * exactly when pricing.ts refuses to quote: an oracle is configured, the
+     * market cannot be read, and nobody wrote a fallback. Letting that fall
+     * through to the branch below would tell the player they had hit their
+     * daily cap, which is a lie about a broken price feed.
+     */
+    const capTokens = dailyCap()
+    if (capTokens <= 0) {
+        player.emit?.('rewards:no-price', { epoch: Number(epoch) })
+        return 0
+    }
+    const cap = baseUnits(capTokens)
     if (before >= cap) {
         // Say so once rather than silently paying nothing: a reward that
         // stops arriving with no explanation reads as a broken game.
-        player.emit?.('rewards:capped', { epoch: Number(epoch), cap: dailyCap() })
+        player.emit?.('rewards:capped', { epoch: Number(epoch), cap: capTokens })
         return 0
     }
     const wanted = baseUnits(whole)

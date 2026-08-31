@@ -32,6 +32,10 @@ export default defineConfig({
       'src/modules/main/quests.spec.ts',
       'src/modules/main/terrain.spec.ts',
       'src/modules/main/pricing.spec.ts',
+      // the live price: the sqrtPriceX96 arithmetic checked against numbers
+      // read off real pons pools, the pool-id hash against real pool ids, and
+      // every way the market can go unreadable
+      'src/modules/main/price-oracle.spec.ts',
       'src/modules/main/lootbox-pricing.spec.ts',
       // a duel decided from a committed seed: the same seed must always give
       // the same fight, or the commit-reveal proves nothing

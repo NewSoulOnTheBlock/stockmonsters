@@ -194,7 +194,7 @@ export function tierTokens(tier) {
   if (!Number.isFinite(usd) || usd <= 0) return 0
   const per = tokensPerUsd()
   // Zero is a REFUSAL to quote (no price could be established), not a free
-  // box. The shop must show the box as unpurchasable in tokens, not as 1 SMON.
+  // box. The shop must show it as unpurchasable in tokens, not as 1 $STONKSTER.
   if (!(per > 0)) return 0
   return Math.max(1, Math.round(usd * per))
 }

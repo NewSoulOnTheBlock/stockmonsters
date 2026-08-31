@@ -274,9 +274,25 @@ export async function handleQuestClaim(player: RpgPlayer, data: unknown): Promis
     if (s.claimed.includes(id)) { player.emit?.('quests:state', view(player, gate)); return }
     if ((s.n[quest.counts] ?? 0) < quest.goal) { player.emit?.('quests:state', view(player, gate)); return }
 
+    /*
+     * REFUSE BEFORE MUTATING. `questReward` returns 0 when no price can be
+     * established at all (pricing.ts, "Fall back, or refuse?"). Marking the
+     * quest claimed first and then paying nothing would burn the player's
+     * only claim on it for the day over a temporary RPC outage — the exact
+     * shape of the newMap bug, where the reward was lost and the map was
+     * marked visited forever. So the claim survives; it just cannot be
+     * cashed until the game knows what a dollar is worth.
+     */
+    const reward = questReward(quest)
+    if (reward <= 0) {
+        player.emit?.('quests:no-price', { id, title: quest.title })
+        player.emit?.('quests:state', view(player, gate))
+        return
+    }
+
     s.claimed.push(id)
     writeState(player, s)
-    const paid = credit(player, 'quest', questReward(quest))
+    const paid = credit(player, 'quest', reward)
     player.emit?.('quests:claimed', { id, title: quest.title, paid, usd: usdForTokens(paid) })
     player.emit?.('quests:state', view(player, gate))
 }

@@ -200,8 +200,15 @@ if (ours) {
     console.log(`\nthe game's own token ${ours}`)
     const oracle = createPriceOracle()
     const snap = await oracle.refresh()
-    console.log(`  enabled ${snap.enabled}  source ${snap.tokenPriceSource}  ${usd(snap.tokenUsd)} per token`)
-    if (snap.lastError) console.log(`  lastError: ${snap.lastError}`)
+    if (!snap.enabled) {
+        // Not a failure: SM_TOKEN_ADDRESS is still the Sepolia deployment, and
+        // the pons factory would answer about it confidently and emptily.
+        console.log(`  not on the pons chain (SM_CHAIN_ID=${process.env.SM_CHAIN_ID}), so it is priced from SM_TOKEN_USD.`)
+        console.log('  Set SM_PRICE_TOKEN_ADDRESS to price it here before the rest of the game moves chains.')
+    } else {
+        console.log(`  source ${snap.tokenPriceSource}  ${usd(snap.tokenUsd)} per token`)
+        if (snap.lastError) console.log(`  lastError: ${snap.lastError}`)
+    }
 } else {
     console.log('\nSM_TOKEN_ADDRESS is unset — nothing of ours to price yet, which is the expected state before launch')
 }

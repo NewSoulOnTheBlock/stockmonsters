@@ -28,6 +28,7 @@ import { handleAuth } from './auth.mjs'
 import { createProfileStore } from './profiles.mjs'
 import { createBoxStore, handleBoxRoutes } from './lootbox.mjs'
 import { createTokenStore, handleTokenRoutes } from './token.mjs'
+import { getPriceOracle, PRICE_TTL_MS } from './price-oracle.mjs'
 import { createMarketStore, handleMarketRoutes } from './market.mjs'
 import { handleDiagRoutes } from './diag.mjs'
 
@@ -108,6 +109,42 @@ if (tokens.enabled) {
     .metadata()
     .then((m) => console.log(`[token] ${m.name} (${m.symbol}), ${m.decimals} decimals`))
     .catch((err) => console.warn(`[token] could not read the token (${err.message}) — currency hidden`))
+}
+
+/*
+ * WHAT A DOLLAR IS WORTH — read off the market, not out of a file.
+ *
+ * Quests, the daily cap and every box price are denominated in DOLLARS and
+ * divided by this at the last moment. It used to be SM_TOKEN_USD, an assumed
+ * $200k market cap; the pons bonding curve opens the real price without asking
+ * us, and paying against the assumption underpays every player by whatever
+ * factor the two differ by, silently. So price-oracle.mjs reads the live
+ * Uniswap v4 pool (or the bonding curve, before graduation) on Robinhood Chain
+ * and an ETH/USD rate from a public API, caches both for PRICE_TTL_MS, and
+ * this hangs it where the browser-bundled game code can ask for it —
+ * src/modules/main/pricing.ts and lootbox.mjs both go through __smPrices and
+ * neither one touches an RPC.
+ *
+ * The refresh is a background timer because those consumers are synchronous.
+ * The first one is awaited-but-not-blocking: the server comes up either way,
+ * and until it lands the fallback is whatever SM_TOKEN_USD says.
+ */
+const prices = getPriceOracle()
+globalThis.__smPrices = prices
+if (prices.enabled) {
+  prices.start()
+  prices
+    .refresh()
+    .then((s) => console.log(
+      s.tokenPriceSource === 'pool' || s.tokenPriceSource === 'curve'
+        ? `[price] ${prices.token} = $${s.tokenUsd.toPrecision(4)} from the ${s.tokenPriceSource} (ETH $${s.ethUsd?.toFixed(2)} via ${s.ethUsdSource}), refreshing every ${PRICE_TTL_MS / 1000}s`
+        : `[price] NO LIVE PRICE (${s.lastError}) — quoting from ${s.tokenPriceSource === 'env' ? 'SM_TOKEN_USD' : 'nothing, so payouts are refused'}`,
+    ))
+    .catch((err) => console.warn(`[price] first read failed (${err.message}) — falling back to SM_TOKEN_USD`))
+} else {
+  console.log(
+    `[price] no pons token to price (SM_PRICE_TOKEN_ADDRESS unset and SM_TOKEN_ADDRESS is not on chain ${prices.chainId}) — quests and boxes quote from SM_TOKEN_USD`,
+  )
 }
 
 /*

@@ -1,7 +1,7 @@
 /*
- * pricing.ts — what a dollar is worth in SMON, right now.
+ * pricing.ts — what a dollar is worth in $STONKSTER, right now.
  *
- *   tokenUsd()          the price of one SMON in dollars
+ *   tokenUsd()          the price of one $STONKSTER in dollars
  *   priceSource()       where that price came from, and whether to trust it
  *   tokensForUsd(usd)   whole tokens worth that many dollars, or 0 to refuse
  *
@@ -80,6 +80,17 @@
  * It is no longer what the game pays from; it is what the game pays from when
  * there is nothing else, and what the clamp band is measured against.
  */
+/**
+ * What the currency is called on screen.
+ *
+ * It lives here, next to the price, because the HUD and the quest board both
+ * print an amount and a symbol together and nothing else should be inventing
+ * either half. The server reads the REAL symbol off the token (token.mjs — it
+ * describes itself on chain); this is the label the client shows before that
+ * answer arrives, and in a build with no token configured at all.
+ */
+export const TOKEN_SYMBOL = '$STONKSTER'
+
 export const SUPPLY = 1_000_000_000
 export const DEFAULT_MARKET_CAP_USD = 200_000
 const DEFAULT_USD_PER_TOKEN = DEFAULT_MARKET_CAP_USD / SUPPLY
@@ -175,7 +186,7 @@ export function priceQuote(): { usd: number; source: PriceSource } {
 /** Where today's price came from. Exported so the UI and the tools can say so. */
 export const priceSource = (): PriceSource => priceQuote().source
 
-/** One SMON, in dollars. Always finite and positive — this is for LABELS. */
+/** One $STONKSTER, in dollars. Always finite and positive — this is for LABELS. */
 export function tokenUsd(): number {
     return priceQuote().usd
 }

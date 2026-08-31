@@ -2,6 +2,7 @@
  * token.mjs — the game's side of the currency.
  *
  *   GET  /token                      what the token IS (read off the chain)
+ *   GET  /token/price                what one costs, and which source said so
  *   GET  /token/balance?address=…    a player's $STONKSTER and ETH
  *   GET  /rewards/mine?…             what this player has earned and can claim
  *   POST /rewards/claim              a signed claim they submit themselves
@@ -647,6 +648,21 @@ export async function handleTokenRoutes(req, res, store, profiles) {
 
     if (path === '/token' && req.method === 'GET') {
       json(res, 200, await store.metadata())
+      return true
+    }
+
+    /*
+     * What the game currently thinks a token is worth, and — the part that
+     * matters — WHERE THAT CAME FROM. A price is the one input that can be
+     * wrong by a factor of a hundred without anything erroring, so it must be
+     * possible to look at it without reading a log. `source` is 'pool' or
+     * 'curve' when it is live, 'env' when the RPC could not be reached and
+     * SM_TOKEN_USD is standing in, and null when the game is refusing to quote.
+     * Read-only, unauthenticated, and about the market rather than any player.
+     */
+    if (path === '/token/price' && req.method === 'GET') {
+      const prices = globalThis.__smPrices ?? null
+      json(res, 200, prices ? prices.snapshot() : { enabled: false })
       return true
     }
 

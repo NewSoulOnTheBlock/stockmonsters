@@ -160,10 +160,11 @@ Fund more days with `node tools/fund-epochs.mjs` (owner-signed, on purpose).
 
 ## Paying with the token
 
-**Loot boxes** — the shop offers a currency switch; every tier has a token
-price (2,500 / 7,500 / 20,000 $STONKSTER). The client *asks*, the server *decides*:
-the price comes from our tier table and the currency address is ours, never the
-request's.
+**Loot boxes** — the shop offers a currency switch. Every tier has ONE price,
+in dollars, anchored to its ether price, and the token quote is that dollar
+converted at the live rate — see *What a dollar is worth* below. The client
+*asks*, the server *decides*: the price comes from our tier table and the
+currency address is ours, never the request's.
 
 **The marketplace** — `Order` carries a `currency` field **inside the signed
 struct**. As a bare parameter, a buyer could hand over a worthless token of
@@ -180,6 +181,98 @@ Two traps handled rather than discovered later:
   the recipient's balance delta and reverts on a shortfall rather than quietly
   short-paying the seller. (Our token does not tax these transfers at all — see
   above — but the market accepts more than one currency.)
+
+---
+
+## What a dollar is worth
+
+Every price in the game is denominated in **dollars** — a quest is worth $1-2,
+the daily board about $7, a wallet may earn $20 a day, a standard box is 0.01
+ETH — and converted to tokens at the last moment. So one number decides what
+every reward is actually worth, and getting it wrong is the quietest bug in the
+codebase: nothing throws, everybody is just paid a fraction of what the board
+promised.
+
+**It used to be an environment variable.** `SM_TOKEN_USD=0.0002`, written from
+an assumed $200,000 fully-diluted valuation over a billion supply, and
+`SM_ETH_USD=3000`, a guess. Both were wrong by the time they mattered.
+
+**It is now read off the market.** The token launches on the **pons** launchpad
+on **Robinhood Chain (4663)**, which mints the whole supply to a bonding curve
+and lets the curve open the price. Nobody sets it, so nobody can write it down.
+
+`price-oracle.mjs` is the single source of truth:
+
+```
+SM_TOKEN_ADDRESS  ->  pons factory.getLaunchedToken(token)
+                          |
+       graduated ---------+--------- not graduated
+           |                              |
+   a Uniswap v4 pool               its bonding curve
+   PoolKey = (currencies sorted    curve.getReserves()
+     ascending, poolFee, tick-       -> (quote, tokens)
+     Spacing, the pons Meme hook)     and their ratio is
+   poolId = keccak256(abi.encode(     the spot price
+     poolKey))
+   StateView.getSlot0(poolId)
+     -> sqrtPriceX96
+```
+
+Either way the answer is a price in **ether**, multiplied by an ETH/USD rate
+fetched from a keyless public API (Coinbase, then Kraken). Both are cached for
+`PRICE_TTL_MS` (45s) and refreshed on a background timer, because the consumers
+— `src/modules/main/pricing.ts` for quests and the daily cap, `lootbox.mjs` for
+boxes — are synchronous and cannot await. They reach it through
+`globalThis.__smPrices`, the same bridge the profile, box and token stores use,
+because `src/modules/**` is bundled into the browser and must not import an RPC
+client.
+
+`GET /token/price` shows what the server currently believes and, more
+importantly, **where it got it**.
+
+### Falling back, and refusing
+
+| what is true | what happens |
+|---|---|
+| the pool or curve answered recently | that price. Not clamped. |
+| the RPC is down, `SM_TOKEN_USD` is set | that value, with a loud log line. A person wrote it and can be argued with. |
+| no oracle configured at all (pre-launch, dev, tests) | the built-in $200k launch assumption, clamped. Pays normally. |
+| an oracle IS configured and has nothing | **refuse.** `tokensForUsd` returns 0, quests do not consume their claim, boxes cannot be bought with tokens. |
+
+The last row is the point. Once a real market exists, the $200k assumption is
+not a fallback — it is a guess about a price that exists and disagrees, and
+paying from it is exactly the failure this was built to remove. A visibly
+broken reward is recoverable; months of quietly underpaying everyone is not.
+
+### What bounds a live price
+
+The old clamp — 20x either side of the launch assumption — still guards a
+**mistyped configuration**. It must not touch a market price: its anchor is the
+very assumption the real launch contradicts, so clamping against it is how you
+pay a fifth of what you promised with every test green. A live price is bounded
+by three things that are actually about the market instead:
+
+- the oracle **refuses a reading** whose implied market cap is not the right
+  order of magnitude ($100 … $100bn) — that is a units bug, not a cheap token;
+- it **will not act on a 25x jump** until a second read, 45 seconds later,
+  still agrees. A pons pool graduates with about one ether of liquidity, so a
+  few hundred dollars moves it tenfold and a crashed price *inflates* what a
+  quest pays;
+- **`DAILY_CAP_USD` is denominated in dollars.** A wallet earns at most $20 a
+  day whatever the price does, so the cap shrinks in tokens exactly as fast as
+  a crash inflates a payout. That is the real bound.
+
+### Proving it before our token exists
+
+```bash
+node tools/e2e-pons-price.mjs
+```
+
+Indexes `TokenLaunched` off the pons factory, finds real graduated launches,
+prices them, and **cross-checks each against the v4 Quoter** — which simulates
+a swap rather than reading storage. Spot must sit between what a buy pays and
+what a sell receives, because the difference is the fee. It also prices a token
+still on its bonding curve, and drives both fallback paths.
 
 ---
 

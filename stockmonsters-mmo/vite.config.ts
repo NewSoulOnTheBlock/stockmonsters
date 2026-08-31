@@ -7,6 +7,7 @@ import { createBoxStore, handleBoxRoutes } from './lootbox.mjs';
 import { createProfileStore } from './profiles.mjs';
 import { createTokenStore, handleTokenRoutes } from './token.mjs';
 import { createMarketStore, handleMarketRoutes } from './market.mjs';
+import { getPriceOracle } from './price-oracle.mjs';
 import { handleDiagRoutes } from './diag.mjs';
 
 /*
@@ -75,6 +76,22 @@ const apiDevServer = {
     const marketplace = createMarketStore();
     (globalThis as any).__smMarket = marketplace;
     if (marketplace.enabled) marketplace.startIndexer();
+    /*
+     * What a dollar is worth, read off the live pons pool. Here as well as in
+     * server.mjs for the reason at the top of this block: a price that only
+     * exists in production means dev quotes every quest and every box from the
+     * SM_TOKEN_USD fallback, which is exactly the number this was built to
+     * stop trusting — and the difference would only ever show up on the
+     * deployed box.
+     */
+    const prices = getPriceOracle();
+    (globalThis as any).__smPrices = prices;
+    if (prices.enabled) {
+      prices.start();
+      prices.refresh()
+        .then((snap: any) => console.log(`[price] ${prices.token} = $${snap.tokenUsd?.toPrecision(4)} from the ${snap.tokenPriceSource}`))
+        .catch((err: Error) => console.warn(`[price] first read failed (${err.message}) — falling back to SM_TOKEN_USD`));
+    }
     server.middlewares.use((req: any, res: any, next: any) => {
       const url: string = req.url ?? '';
       const done = (handled: boolean) => { if (!handled) next(); };

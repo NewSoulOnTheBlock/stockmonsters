@@ -82,3 +82,66 @@ describe('what a box costs', () => {
         for (const id of TIER_IDS as string[]) expect(tierTokens(id)).toBeGreaterThan(0)
     })
 })
+
+/*
+ * The mirror has to hold for the LIVE price too, and that is a sharper test
+ * than the env one: both files now reach the price through the same
+ * `globalThis.__smPrices` bridge and both have their own copy of the rule
+ * about when the clamp applies. A divergence there would mean a box priced
+ * against a market and a quest priced against a launch assumption.
+ */
+// @ts-expect-error — plain JS on purpose; see the note at the top.
+import { priceQuote as boxPriceQuote, priceSource as boxPriceSource, ethUsd as boxEthUsd } from '../../../lootbox.mjs'
+import { priceSource, tokensPerUsd as questTokensPerUsd } from './pricing'
+
+const bridge = (b: unknown) => {
+    if (b === null) delete (globalThis as Record<string, unknown>).__smPrices
+    else (globalThis as Record<string, unknown>).__smPrices = b
+}
+afterEach(() => bridge(null))
+
+describe('one live market, two implementations', () => {
+    it('reads the same price and calls it the same thing', () => {
+        for (const source of ['pool', 'curve'] as const) {
+            bridge({ enabled: true, tokenUsd: () => 3e-6, tokenPriceSource: () => source })
+            expect(boxPriceSource()).toBe(priceSource())
+            expect(boxPriceSource()).toBe(source)
+            expect(boxTokensPerUsd()).toBe(questTokensPerUsd())
+            // and neither one clamps it back to the launch assumption
+            expect(boxTokensPerUsd()).toBeCloseTo(1 / 3e-6, 6)
+        }
+    })
+
+    it('refuses together when there is no price', () => {
+        bridge({ enabled: true, tokenUsd: () => null, tokenPriceSource: () => null })
+        expect(boxPriceSource()).toBe('unknown')
+        expect(priceSource()).toBe('unknown')
+        expect(boxTokensPerUsd()).toBe(questTokensPerUsd())
+        expect(boxTokensPerUsd()).toBe(0)
+        // A refused box is UNAVAILABLE, not free and not one token.
+        for (const id of TIER_IDS as string[]) expect(tierTokens(id)).toBe(0)
+    })
+
+    it('clamps together when the oracle is quoting the environment', () => {
+        bridge({ enabled: true, tokenUsd: () => 1e-9, tokenPriceSource: () => 'env' })
+        expect(boxTokensPerUsd()).toBe(questTokensPerUsd())
+    })
+
+    it('takes the live ETH price for the box anchor, and SM_ETH_USD without one', () => {
+        bridge({ enabled: true, tokenUsd: () => 3e-6, tokenPriceSource: () => 'pool', ethUsd: () => 2500 })
+        expect(boxEthUsd()).toBe(2500)
+        // 0.01 ETH at $2,500 rather than the old hardcoded $3,000.
+        expect(tierUsd('standard')).toBeCloseTo(25, 6)
+        bridge({ enabled: true, tokenUsd: () => 3e-6, tokenPriceSource: () => 'pool', ethUsd: () => null })
+        set('SM_ETH_USD', '3000')
+        expect(boxEthUsd()).toBe(3000)
+    })
+
+    it('agrees on the dollar price of a box, live', () => {
+        bridge({ enabled: true, tokenUsd: () => 3e-6, tokenPriceSource: () => 'pool', ethUsd: () => 2500 })
+        for (const id of TIER_IDS as string[]) {
+            expect(tierTokens(id)).toBe(tokensForUsd(tierUsd(id)))
+        }
+        expect(boxPriceQuote().usd).toBe(3e-6)
+    })
+})
