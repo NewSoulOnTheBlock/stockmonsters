@@ -157,7 +157,7 @@ export const ECONOMY = {
    * Typed `as string` on purpose — without it the literal `""` would narrow
    * and TypeScript would treat the deployed branch as dead code.
    */
-  address: "0xD8608dF8630c1F9f1681f46DAE094E576F386e7e" as string,
+  address: "" as string,
   /** Where it launches. The chain id is 4663. */
   chain: "Robinhood Chain",
   chainId: 4663,

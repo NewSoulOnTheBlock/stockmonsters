@@ -36,7 +36,8 @@ export function ContractAddress({ className = "" }: { className?: string }) {
         className="shrink-0 bg-slab px-2.5 py-2.5 font-display text-[9px] uppercase leading-[1.7] text-gold sm:px-3"
         title={`${ECONOMY.symbol} contract address`}
       >
-        CA
+        <span aria-hidden>CA</span>
+        <span className="sr-only">Contract address</span>
       </span>
 
       {address ? (
@@ -54,7 +55,7 @@ export function ContractAddress({ className = "" }: { className?: string }) {
             type="button"
             onClick={copy}
             aria-label={`Copy the ${ECONOMY.symbol} contract address`}
-            className="shrink-0 bg-slab px-3 py-2.5 font-display text-[9px] uppercase leading-[1.7] text-bone transition-colors hover:bg-gold hover:text-void"
+            className="shrink-0 cursor-pointer bg-slab px-3 py-2.5 font-display text-[9px] uppercase leading-[1.7] text-bone transition-colors hover:bg-gold hover:text-void"
           >
             {state === "ok" ? "Copied" : state === "fail" ? "Failed" : "Copy"}
           </button>
