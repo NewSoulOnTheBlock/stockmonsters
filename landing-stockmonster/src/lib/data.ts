@@ -118,4 +118,4 @@ export function shortAddress(a: string) {
   return `${a.slice(0, 6)}…${a.slice(-4)}`;
 }
 
-export const PLAY_URL = "https://test.lordfishnu.com/";
+export const PLAY_URL = "https://game.stockmonsters.com/";
