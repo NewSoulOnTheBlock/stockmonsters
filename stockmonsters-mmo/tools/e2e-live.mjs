@@ -97,11 +97,11 @@ const read = () => page.evaluate(() => {
   const p = s?.getCurrentPlayer?.()
   if (!p) return null
   const r = (v) => (typeof v === 'function' ? v() : v)
-  return { x: Math.round(r(p.x)), y: Math.round(r(p.y)) }
+  return { map: String(r(s?.id) ?? '').replace(/^map-/, ''), x: Math.round(r(p.x)), y: Math.round(r(p.y)) }
 })
 const before = await read()
 check('the room websocket connected and put a player in the world',
-  !!before, before ? `${before.x},${before.y}` : 'no player — the socket did not come up')
+  !!before, before ? `${before.map} ${before.x},${before.y}` : 'no player — the socket did not come up')
 
 console.log('  sockets:', JSON.stringify(sockets.map((s) => ({ u: s.url.slice(0, 60), frames: s.frames, closed: s.closed }))))
 check('at least one websocket is open and carrying traffic',

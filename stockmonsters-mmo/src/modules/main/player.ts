@@ -495,6 +495,28 @@ function scheduleGoodbye(player: RpgPlayer) {
 
 export const player: RpgPlayerHooks = {
     onConnected(player: RpgPlayer) {
+        /*
+         * A NEW CONNECTION INHERITS NOTHING. THIS IS NOT A TIDY-UP.
+         *
+         * The identity map is keyed by the transport player id so that it can
+         * survive a map change — and that key is recycled. On the live server
+         * a brand-new wallet was handed ANOTHER PLAYER'S session: their
+         * position, their party, and their profile row, which the new session
+         * then wrote to. Caught by a test that signs in with a fresh key every
+         * run and kept landing on somebody else's last tile, and confirmed in
+         * Postgres — no new row appeared, the other player's row was updated.
+         *
+         * `onConnected` fires ONCE per session and NOT on a map transfer
+         * (measured: a transfer produces onJoinMap alone), so forgetting here
+         * costs the map-change case nothing and closes the hole completely.
+         * The client re-sends auth:wallet until the server acknowledges it, so
+         * a real session gets its identity straight back.
+         */
+        const fresh = String(player.id)
+        identities.delete(fresh)
+        live.delete(fresh)
+        spawned.delete(fresh)
+        if (process.env.SM_IDENTITY_DEBUG === '1') console.log('[identity] onConnected', fresh, '— starting clean')
         // Restore the chosen look on EVERY connect — map transfers reconnect
         // the socket, and the graphic must survive them.
         const saved = sanitizeCharacter(player.getVariable('CHARACTER'))
