@@ -261,6 +261,24 @@ function submit() {
     // listens for both. Nothing closes on hope alone.
 }
 
+/**
+ * Is Kelby the one asking for the name right now?
+ *
+ * chat-ui owns a bare "choose your name" modal and opens it whenever the
+ * server refuses a name and nothing has been confirmed yet. That is right
+ * when the modal asked the question — and wrong when Kelby did, because he
+ * answers the refusal himself and asks again inside the conversation. Without
+ * this the player got both at once: Kelby explaining what went wrong, and the
+ * modal opening on top of him asking the same thing.
+ *
+ * Deliberately `isOpen()` and not "is asking": while the conversation is up at
+ * all, it owns the screen. A modal over a character mid-sentence is never what
+ * we want.
+ */
+export function introIsAsking(): boolean {
+    return isOpen()
+}
+
 /** Kelby reacts to a refused name, in his own voice, and asks again. */
 export function introNameRejected(reason: string): void {
     if (!isOpen()) return

@@ -539,8 +539,20 @@ const onChainToken = Object.fromEntries(await Promise.all(
 ))
 log(`  token reports  ${onChainToken.name} (${onChainToken.symbol})`)
 
+/*
+ * The block the game's contracts appeared in.
+ *
+ * The event indexers scan FROM a block, and the value they were given used to
+ * survive a chain change: a Sepolia block number pointed at Robinhood Chain
+ * starts the scan 39 million blocks in the past and finds nothing, silently.
+ * Recording it here, and writing it into the .env below, means the indexer's
+ * starting point moves with the deployment rather than being remembered.
+ */
+const deployBlock = await publicClient.getBlockNumber()
+
 const deployment = {
   chainId: target.chain.id,
+  deployBlock: deployBlock.toString(),
   chain: CHAIN_NAME,
   deployedAt: new Date().toISOString(),
   deployer: deployer.address,
@@ -602,6 +614,15 @@ const envUpdates = {
   SM_GYMS_ADDRESS: gyms.address,
   SM_ARENA_ADDRESS: arena.address,
   BOX_CHAIN_ID: String(target.chain.id),
+  // The indexers' own RPC and starting block. Both were left behind on a
+  // chain change before: the box indexer kept a Sepolia endpoint and a
+  // Sepolia block height while every address around it had moved.
+  BOX_RPC_URL: target.rpc,
+  BOX_FROM_BLOCK: deployBlock.toString(),
+  MARKET_FROM_BLOCK: deployBlock.toString(),
+  // What the price oracle prices. Without it the game falls back to a
+  // written-down guess at the token's value.
+  SM_PRICE_TOKEN_ADDRESS: tokenAddress,
 }
 upsertEnv(mmoEnvPath, envUpdates)
 

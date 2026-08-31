@@ -10,7 +10,7 @@
  * does (the engine listens on window, so we stop propagation while typing).
  */
 
-import { mountIntro, playIntro, introNameAccepted, introNameRejected } from './intro'
+import { mountIntro, playIntro, introNameAccepted, introNameRejected, introIsAsking } from './intro'
 
 const css = `
 #chat-panel {
@@ -259,7 +259,13 @@ export function mountChatUi(engine: Engine, socket: Socket) {
       // name — ask again. But never over the title screen: the modal covers the
       // whole viewport at a higher z-index, so opening it there hides PLAY GAME
       // and the player cannot even get into the world to answer.
-      whenInWorld(openNameModal)
+      //
+      // And never over KELBY. When the intro asked the question, it has
+      // already handled the refusal a line above — `introNameRejected` puts
+      // the reason in his box and re-enables the field. Opening the modal too
+      // gave the player both at once: Kelby explaining what went wrong, and a
+      // bare "choose your name" panel on top of him asking the same thing.
+      if (!introIsAsking()) whenInWorld(openNameModal)
       return
     }
     // A refused CHANGE must still be visible: the modal may already be closed,
