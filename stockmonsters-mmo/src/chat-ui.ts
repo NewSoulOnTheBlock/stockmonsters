@@ -30,6 +30,17 @@ const css = `
 #chat-log:empty { display: none; }
 #chat-log .who { color: #7ecf6b; font-weight: 700; }
 #chat-log .sys { color: #f6c177; font-style: italic; }
+/* What was said before you arrived. Dimmed rather than restyled: it has to
+   read as the same conversation, one step further away — and the separators
+   are what actually say where the past stops, because dimming alone is
+   ambiguous on a panel that is already low-contrast. */
+#chat-log .hist { opacity: .55; }
+#chat-log .hist .who { color: #6ba75c; }
+#chat-log .sep {
+  color: #8b83ad; text-align: center;
+  font-size: 10px; letter-spacing: .18em;
+  margin: 3px 0; user-select: none;
+}
 #chat-row { display: flex; }
 #chat-input {
   flex: 1; min-width: 0;
@@ -276,6 +287,68 @@ export function mountChatUi(engine: Engine, socket: Socket) {
     if (d.system) append(escape(d.text), 'sys')
     else append(`<span class="who">${escape(d.from ?? '?')}</span>: ${escape(d.text)}`)
   })
+
+  /*
+   * WHAT WAS SAID BEFORE YOU ARRIVED.
+   *
+   * A SEPARATE EVENT FROM `chat:message`, and that is the whole reason no
+   * speech bubble is drawn for any of it: chat-bubbles.ts listens to
+   * `chat:message` only, so history cannot reach it. Nothing here opts out —
+   * it was never in.
+   *
+   * Rendered ONCE per page load. The server already sends it once per session,
+   * but the ask below can race a message that was already on its way, and a
+   * doubled backlog is the obvious way to get this wrong.
+   *
+   * It is PREPENDED, not appended: these lines are older than anything already
+   * in the panel (the "Welcome, X." line usually beats them here), and a
+   * transcript that is not in order is not a transcript. It also deliberately
+   * does not go through `append()` — history must not count towards the
+   * phone's unread badge. It is not news; it is the room you just walked into.
+   */
+  let historyShown = false
+  socket.on('chat:history', (d: { messages?: Array<{ from?: unknown; text?: unknown }> }) => {
+    if (historyShown) return
+    historyShown = true
+    const messages = Array.isArray(d?.messages) ? d.messages : []
+    const lines = messages.filter((m) => typeof m?.text === 'string' && m.text)
+    if (!lines.length) return
+    const sep = (label: string) => {
+      const el = document.createElement('div')
+      el.className = 'sep'
+      el.textContent = label
+      return el
+    }
+    const block = document.createDocumentFragment()
+    block.appendChild(sep('\u2014\u2014 earlier \u2014\u2014'))
+    for (const m of lines) {
+      const line = document.createElement('div')
+      line.className = 'hist'
+      line.innerHTML =
+        `<span class="who">${escape(String(m.from ?? '?'))}</span>: ${escape(String(m.text))}`
+      block.appendChild(line)
+    }
+    block.appendChild(sep('\u2014\u2014 now \u2014\u2014'))
+    log.insertBefore(block, log.firstChild)
+    // The newest line is still the one that matters; the backlog is above it.
+    log.scrollTop = log.scrollHeight
+  })
+
+  /*
+   * ...and ask for it if it never came.
+   *
+   * The server volunteers the backlog when the player joins their first map,
+   * which can be before this socket handler exists — an emit with no listener
+   * is silently lost. So if nothing has arrived by then, ask. Twice, well
+   * apart: `processAction` is dropped without an error while the player has no
+   * map, which at boot is exactly the window this is trying to cover.
+   */
+  for (const delay of [9000, 22_000]) {
+    setTimeout(() => {
+      if (historyShown) return
+      engine.processAction?.('chat:history', {})
+    }, delay)
+  }
 
   /*
    * CLAIMING A STORED NAME IS NOT FIRE-AND-FORGET.

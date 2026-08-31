@@ -2,7 +2,7 @@ import { RpgPlayer, type RpgPlayerHooks } from '@rpgjs/server'
 import { openMenu, openHudPanel, quitToTitle, travelTo, markVisited, visitedMaps, KNOWN_MAPS } from './menus'
 import { CHARACTER_IDS } from '../../data/character-catalog'
 import { validateName } from './names'
-import { handleChat, addChatMember, removeChatMember } from './chat'
+import { handleChat, addChatMember, removeChatMember, sendChatHistory, forgetChatHistory } from './chat'
 import {
     friendsConnected,
     friendsRefresh,
@@ -558,6 +558,9 @@ export const player: RpgPlayerHooks = {
         identities.delete(fresh)
         live.delete(fresh)
         spawned.delete(fresh)
+        // ...and "this session has already been handed the chat backlog",
+        // which is keyed by the same recycled id.
+        forgetChatHistory(fresh)
         if (envFlag('SM_IDENTITY_DEBUG') === '1') console.log('[identity] onConnected', fresh, '— starting clean')
         // Restore the chosen look on EVERY connect — map transfers reconnect
         // the socket, and the graphic must survive them.
@@ -648,6 +651,18 @@ export const player: RpgPlayerHooks = {
         // a fresh RpgPlayer, and `emit` on a stale one silently does nothing
         // (it needs a current map), so a broadcast would reach nobody.
         addChatMember(player)
+        /*
+         * WHAT WAS SAID BEFORE THEY GOT HERE.
+         *
+         * Here rather than in onConnected because an emit needs a current map
+         * — at onConnected the player has none yet and the message would land
+         * on nobody. And `onlyOnce` because THIS HOOK FIRES ON EVERY MAP
+         * CHANGE: without it, walking through a door would replay the whole
+         * backlog into the panel again. The guard is keyed by the transport
+         * player id, which survives a transfer; onConnected clears it, so a
+         * genuinely new session still gets its history.
+         */
+        sendChatHistory(player, { onlyOnce: true })
         // Same object, same reason — and the DM roster additionally reads this
         // object's position, so a stale one would place the player on the map
         // they just left.
@@ -880,6 +895,18 @@ export const player: RpgPlayerHooks = {
         }
         if (action == 'chat:send') {
             handleChat(player, data)
+            return
+        }
+        /*
+         * The client's backstop ask for the backlog. The server volunteers it
+         * on the first onJoinMap, but that emit can be sent while the client
+         * is still mounting its socket handlers, in which case it reaches
+         * nobody at all — so chat-ui.ts asks if nothing arrived. Answering is
+         * free (an in-memory ring, not a query) and capped per session inside
+         * sendChatHistory; the panel renders history at most once regardless.
+         */
+        if (action == 'chat:history') {
+            sendChatHistory(player)
             return
         }
         // Direct messages. The action key is handled CLIENT-side (dm-ui.ts)

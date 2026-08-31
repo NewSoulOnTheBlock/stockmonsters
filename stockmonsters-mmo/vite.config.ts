@@ -5,6 +5,7 @@ import startServer from './src/server';
 import { handleAuth } from './auth.mjs';
 import { createBoxStore, handleBoxRoutes } from './lootbox.mjs';
 import { createProfileStore } from './profiles.mjs';
+import { createChatLog } from './chat-log.mjs';
 import { createTokenStore, handleTokenRoutes } from './token.mjs';
 import { createMarketStore, handleMarketRoutes } from './market.mjs';
 import { getPriceOracle } from './price-oracle.mjs';
@@ -69,6 +70,11 @@ const apiDevServer = {
     // player's earnings from.
     const profiles = (globalThis as any).__smProfiles ?? createProfileStore();
     (globalThis as any).__smProfiles = profiles;
+    // Global chat history, for the same reason: `npm run dev` boots no game
+    // process of its own, so without this the dev world is the only place
+    // where chat still evaporates the moment it is said.
+    const chatLog = (globalThis as any).__smChatLog ?? createChatLog();
+    (globalThis as any).__smChatLog = chatLog;
     (globalThis as any).__smTokens = tokens;
     // The order book. Its indexer runs here too: a fill that lands while the
     // dev server is the one being used still has to close the listing, or

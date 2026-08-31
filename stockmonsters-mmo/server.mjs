@@ -26,6 +26,7 @@ import { createRpgServerTransport, createSqliteNodeRoomStorage } from '@rpgjs/se
 import serverModule from './dist/server/server.js'
 import { handleAuth } from './auth.mjs'
 import { createProfileStore } from './profiles.mjs'
+import { createChatLog, KEEP_HOURS, KEEP_ROWS } from './chat-log.mjs'
 import { createBoxStore, handleBoxRoutes } from './lootbox.mjs'
 import { createTokenStore, handleTokenRoutes } from './token.mjs'
 import { getPriceOracle, PRICE_TTL_MS } from './price-oracle.mjs'
@@ -75,6 +76,22 @@ console.log(
   profiles.enabled
     ? '[profiles] Postgres profile store active'
     : '[profiles] no DATABASE_URL — player state is session-only',
+)
+
+/*
+ * The global chat transcript, so a player who joins at nine can read what was
+ * said at eight. Its own store rather than a corner of `profiles`: the shapes
+ * have nothing in common (one row per player vs one row per sentence), and
+ * the failure modes differ — a lost profile write costs somebody their party,
+ * a lost chat row costs nobody anything, so this one is deliberately the most
+ * disposable store in the process.
+ */
+const chatLog = createChatLog()
+globalThis.__smChatLog = chatLog
+console.log(
+  chatLog.enabled
+    ? `[chatlog] keeping global chat for ${KEEP_HOURS}h (abuse guard: newest ${KEEP_ROWS} rows)`
+    : '[chatlog] no DATABASE_URL — chat is live-only, nothing is kept',
 )
 
 /*

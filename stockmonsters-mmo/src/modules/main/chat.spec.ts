@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-import { handleChat, addChatMember, removeChatMember, resetChatLimits } from './chat'
+import {
+    handleChat, addChatMember, removeChatMember, resetChatLimits,
+    sendChatHistory, forgetChatHistory, HISTORY_MAX,
+} from './chat'
 
 /*
  * Chat limits. The interesting cases are the ones a naive implementation gets
@@ -165,5 +168,180 @@ describe('chat delivery', () => {
         say(a.player, 'a real message')          // must still be allowed
 
         expect(a.got.filter((m) => !m.system).map((m) => m.text)).toEqual(['a real message'])
+    })
+})
+
+/*
+ * HISTORY — what a player who joins later is told.
+ *
+ * The two things that are easy to get wrong, and that a browser test would
+ * find only by accident:
+ *   1. the backlog going out on `chat:message`, which is the channel
+ *      chat-bubbles.ts draws speech bubbles from — twenty old lines would be
+ *      twenty bubbles over people who are standing silently;
+ *   2. the backlog being re-sent on a MAP CHANGE. A player joins a room every
+ *      time they walk through a door, so "send it when they join" is a trap.
+ */
+type Wire = { type: string; value: any }
+
+function listener(id = 'conn-' + Math.random().toString(16).slice(2)) {
+    const wire: Wire[] = []
+    const player: any = {
+        id,
+        emit: (type: string, value: any) => wire.push({ type, value }),
+        getVariable: (k: string) => (k === 'NAME' ? 'Watcher' : undefined),
+    }
+    const history = () => wire.filter((w) => w.type === 'chat:history').map((w) => w.value.messages)
+    return { player, wire, history }
+}
+
+describe('chat history', () => {
+    it('gives a player who joins later what was already said', () => {
+        const a = talker({ wallet: 'w:' + 'a1'.repeat(16), name: 'Alice' })
+        addChatMember(a.player)
+        say(a.player, 'anyone around?')
+        say(a.player, 'i am at the dock')
+
+        // Bob was not connected for either line.
+        const bob = listener()
+        addChatMember(bob.player)
+        sendChatHistory(bob.player, { onlyOnce: true })
+
+        const [backlog] = bob.history()
+        expect(backlog.map((m: any) => m.text)).toEqual(['anyone around?', 'i am at the dock'])
+        expect(backlog.every((m: any) => m.from === 'Alice')).toBe(true)
+    })
+
+    it('never sends history on the channel speech bubbles listen to', () => {
+        const a = talker({ wallet: 'w:' + 'a2'.repeat(16), name: 'Alice' })
+        addChatMember(a.player)
+        say(a.player, 'old news')
+
+        const bob = listener()
+        sendChatHistory(bob.player, { onlyOnce: true })
+
+        // chat-bubbles.ts subscribes to `chat:message` and nothing else.
+        expect(bob.wire.some((w) => w.type === 'chat:message')).toBe(false)
+        expect(bob.wire.map((w) => w.type)).toEqual(['chat:history'])
+        // ...and there is no player id to hang a bubble on even if it did.
+        expect(bob.history()[0][0].id).toBeUndefined()
+    })
+
+    it('does not replay the backlog when the player changes map', () => {
+        const a = talker({ wallet: 'w:' + 'a3'.repeat(16), name: 'Alice' })
+        addChatMember(a.player)
+        say(a.player, 'said once')
+
+        const bob = listener('conn-bob')
+        addChatMember(bob.player)
+        sendChatHistory(bob.player, { onlyOnce: true })
+        // A door: onJoinMap fires again, with a FRESH player object carrying
+        // the same transport id.
+        const sameSessionNewRoom = listener('conn-bob')
+        addChatMember(sameSessionNewRoom.player)
+        sendChatHistory(sameSessionNewRoom.player, { onlyOnce: true })
+
+        expect(bob.history()).toHaveLength(1)
+        expect(sameSessionNewRoom.history()).toHaveLength(0)
+    })
+
+    it('gives a genuinely new session its history even on a recycled id', () => {
+        const a = talker({ wallet: 'w:' + 'a4'.repeat(16), name: 'Alice' })
+        addChatMember(a.player)
+        say(a.player, 'still here')
+
+        const first = listener('conn-recycled')
+        sendChatHistory(first.player, { onlyOnce: true })
+        removeChatMember(first.player)          // they really left
+
+        const second = listener('conn-recycled') // the id comes back around
+        forgetChatHistory('conn-recycled')       // what onConnected does
+        sendChatHistory(second.player, { onlyOnce: true })
+
+        expect(second.history()).toHaveLength(1)
+    })
+
+    it('answers an asking client, but not forever', () => {
+        const a = talker({ wallet: 'w:' + 'a5'.repeat(16), name: 'Alice' })
+        addChatMember(a.player)
+        say(a.player, 'hello')
+
+        const bob = listener()
+        for (let i = 0; i < 10; i++) sendChatHistory(bob.player)
+        expect(bob.history().length).toBeLessThanOrEqual(3)
+        expect(bob.history().length).toBeGreaterThan(0)
+    })
+
+    it('answers with nothing rather than silence when nobody has spoken', () => {
+        const bob = listener()
+        sendChatHistory(bob.player, { onlyOnce: true })
+        expect(bob.history()).toEqual([[]])
+    })
+
+    it('keeps a readable tail, not the whole day', () => {
+        // Five wallets so the rate limit is not what is being measured here.
+        for (let w = 0; w < 5; w++) {
+            const a = talker({ wallet: `w:${String(w).repeat(32)}`.slice(0, 34), name: 'Alice' })
+            addChatMember(a.player)
+            for (let i = 0; i < 5; i++) {
+                say(a.player, `line ${w}-${i}`)
+                vi.advanceTimersByTime(4000)
+            }
+        }
+        const bob = listener()
+        sendChatHistory(bob.player, { onlyOnce: true })
+        const [backlog] = bob.history()
+        expect(backlog.length).toBeLessThanOrEqual(HISTORY_MAX)
+        // ...and it is the NEWEST lines that survive the cut.
+        expect(backlog[backlog.length - 1].text).toBe('line 4-4')
+    })
+
+    it('drops a line that is older than the window', () => {
+        const a = talker({ wallet: 'w:' + 'a6'.repeat(16), name: 'Alice' })
+        addChatMember(a.player)
+        say(a.player, 'yesterday')
+        vi.advanceTimersByTime(25 * 3600_000)
+        say(a.player, 'today')
+
+        const bob = listener()
+        sendChatHistory(bob.player, { onlyOnce: true })
+        expect(bob.history()[0].map((m: any) => m.text)).toEqual(['today'])
+    })
+
+    it('writes global chat to the store, and nothing a player was refused', () => {
+        const written: any[] = []
+        ;(globalThis as any).__smChatLog = {
+            append: (m: any) => written.push(m),
+            recent: async () => [],
+        }
+        try {
+            const wallet = 'w:' + 'a7'.repeat(16)
+            const a = talker({ wallet, name: 'Alice' })
+            addChatMember(a.player)
+            say(a.player, 'a real message')
+            say(a.player, 'visit example.com')   // refused by the filter
+            say(a.player, 'a real message')      // refused as a repeat
+
+            expect(written).toEqual([{ walletId: wallet, name: 'Alice', text: 'a real message' }])
+        } finally {
+            delete (globalThis as any).__smChatLog
+        }
+    })
+
+    it('still works when the store is gone entirely', () => {
+        // No __smChatLog at all: this is a server with no DATABASE_URL, or one
+        // whose Postgres has died. Live chat is unaffected, and the backlog is
+        // whatever this process has heard.
+        expect((globalThis as any).__smChatLog).toBeUndefined()
+        const a = talker({ wallet: 'w:' + 'a8'.repeat(16), name: 'Alice' })
+        const b = talker({ wallet: 'w:' + 'a9'.repeat(16), name: 'Bob' })
+        addChatMember(a.player)
+        addChatMember(b.player)
+        say(a.player, 'can you hear me')
+        expect(b.got.filter((m) => !m.system).map((m) => m.text)).toEqual(['can you hear me'])
+
+        const late = listener()
+        sendChatHistory(late.player, { onlyOnce: true })
+        expect(late.history()[0].map((m: any) => m.text)).toEqual(['can you hear me'])
     })
 })

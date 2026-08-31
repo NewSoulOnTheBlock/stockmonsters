@@ -18,6 +18,7 @@ import { mountWalletUi, openWallet } from "./wallet-ui";
 import { mountDuelUi, openDuelOffer } from "./duel-ui";
 import { mountSfx } from "./sfx";
 import { mountTouchControls, mountMobileLayout } from "./touch-controls";
+import { mountWasd } from "./wasd";
 import { mountMapTransition } from "./map-transition";
 import { mountClientReport } from "./client-report";
 import { mountQuestUi, openQuests } from "./quest-ui";
@@ -71,6 +72,9 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
     // exist at boot — look it up per press rather than capturing it once.
     return controlsNow()
   });
+  // WASD alongside the arrows. Not inside mountTouchControls: that one returns
+  // immediately on a device without a touchscreen, which is every keyboard.
+  mountWasd(() => controlsNow());
 
   const engine: any = inject(ctx as any, RpgClientEngine);
   // Debug handle: the only way to inspect live player/graphic state from a

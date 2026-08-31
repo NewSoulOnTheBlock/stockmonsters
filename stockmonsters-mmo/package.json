@@ -17,6 +17,7 @@
     "test:profiles": "node --env-file-if-exists=.env --test test/profiles.test.mjs",
     "test:friends": "node --env-file-if-exists=.env --test test/friends.test.mjs",
     "test:market": "node --env-file-if-exists=.env --test test/market.test.mjs",
+    "test:chat-log": "node --env-file-if-exists=.env --test test/chat-log.test.mjs",
     "test:e2e:persistence": "node --env-file-if-exists=.env tools/e2e-persistence.mjs",
     "test:e2e:friends": "node --env-file-if-exists=.env tools/e2e-friends.mjs",
     "test:e2e:token": "node --env-file-if-exists=.env tools/e2e-token.mjs",
@@ -36,8 +37,10 @@
     "ipfs:upload": "node --env-file-if-exists=.env tools/ipfs.mjs upload",
     "test:e2e:door": "node --env-file-if-exists=.env tools/e2e-door.mjs",
     "test:e2e:chat-bubble": "node --env-file-if-exists=.env tools/e2e-chat-bubble.mjs",
+    "test:e2e:chat-history": "node --env-file-if-exists=.env tools/e2e-chat-history.mjs",
     "test:e2e:door-marker": "node --env-file-if-exists=.env tools/e2e-door-marker.mjs",
-    "test:e2e:ferry": "node --env-file-if-exists=.env tools/e2e-ferry.mjs"
+    "test:e2e:ferry": "node --env-file-if-exists=.env tools/e2e-ferry.mjs",
+    "test:e2e:wasd": "node --env-file-if-exists=.env tools/e2e-wasd.mjs"
   },
   "keywords": [],
   "author": "",
