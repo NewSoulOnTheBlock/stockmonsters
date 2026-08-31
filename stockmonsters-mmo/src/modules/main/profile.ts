@@ -30,6 +30,8 @@ export interface StoredProfile {
     earned: Record<string, string> | null
     /** The TRAINER's lifetime XP. Level and bar are derived from it. */
     trainerXp: number | null
+    /** Where they were standing when they last left a map. */
+    position: { map: string; x: number; y: number } | null
     version: number
 }
 
@@ -90,6 +92,13 @@ const isLedger = (v: unknown): v is Record<string, string> =>
         ([k, amount]) => /^\d+$/.test(k) && typeof amount === 'string' && /^\d+$/.test(amount),
     )
 
+const isPosition = (v: unknown): v is { map: string; x: number; y: number } => {
+    const p = v as { map?: unknown; x?: unknown; y?: unknown } | null
+    return !!p && typeof p === 'object' &&
+        typeof p.map === 'string' && p.map.length > 0 &&
+        Number.isFinite(p.x) && Number.isFinite(p.y)
+}
+
 const isBag = (v: unknown): v is { balls: number; potions: number } =>
     !!v &&
     typeof v === 'object' &&
@@ -120,9 +129,25 @@ export const VARS = {
     visited: 'VISITED',
     earned: 'EARNED',
     trainerXp: 'TRAINER_XP',
+    position: 'POSITION',
     walletId: 'WALLET_ID',
     walletAddress: 'WALLET_ADDRESS',
 } as const
+
+/**
+ * A plain, engine-free copy of a JSON-shaped value.
+ *
+ * THIS IS NOT PARANOIA. `getVariable` hands back the engine's REACTIVE
+ * wrapper, and the wrapper carries a sync callback. Passing one of those to
+ * `setVariable` again — which is exactly what restoring a player's state into
+ * a fresh room object does — makes the engine try to structuredClone a
+ * function on its next broadcast, and the DataCloneError takes the whole Node
+ * process down. It also explains the {"$path": …, "$valuesChanges": {}} that
+ * turned up inside a saved bag in production.
+ */
+const plainCopy = <T>(v: T): T => {
+    try { return JSON.parse(JSON.stringify(v)) as T } catch { return v }
+}
 
 /**
  * Reads the persistable slice of a player's variables.
@@ -132,19 +157,29 @@ export const VARS = {
 export function collectState(player: PlayerLike): ProfilePatch {
     const patch: ProfilePatch = {}
     const character = player.getVariable(VARS.character)
-    if (isStringArray(character)) patch.character = character
+    if (isStringArray(character)) patch.character = plainCopy(character)
     const party = player.getVariable(VARS.party)
-    if (isList(party)) patch.party = party
+    if (isList(party)) patch.party = plainCopy(party)
     const box = player.getVariable(VARS.box)
-    if (isList(box)) patch.box = box
+    if (isList(box)) patch.box = plainCopy(box)
     const bag = player.getVariable(VARS.bag)
-    if (isBag(bag)) patch.bag = bag
+    if (isBag(bag)) patch.bag = plainCopy(bag)
     const visited = player.getVariable(VARS.visited)
-    if (isStringArray(visited)) patch.visited = visited
+    if (isStringArray(visited)) patch.visited = plainCopy(visited)
     const earned = player.getVariable(VARS.earned)
-    if (isLedger(earned)) patch.earned = earned
+    if (isLedger(earned)) patch.earned = plainCopy(earned)
     const trainerXp = player.getVariable(VARS.trainerXp)
     if (typeof trainerXp === 'number' && Number.isFinite(trainerXp)) patch.trainerXp = trainerXp
+    const position = player.getVariable(VARS.position)
+    // Scrubbed to a plain object: what getVariable hands back is the engine's
+    // reactive wrapper, and one of those reached Postgres as
+    // {"$path": "...", "$valuesChanges": {}} alongside the real fields.
+    if (isPosition(position)) patch.position = { map: String(position.map), x: Number(position.x), y: Number(position.y) }
+    const name = player.getVariable(VARS.name)
+    // Carried so a fresh room object can be given the name back. The store
+    // never WRITES a name from a patch — only claimName may, because only
+    // claimName can lose the race — but it keeps the cache honest.
+    if (typeof name === 'string' && name) patch.name = name
     const address = player.getVariable(VARS.walletAddress)
     if (typeof address === 'string') patch.address = address
     return patch
@@ -160,38 +195,90 @@ export function collectState(player: PlayerLike): ProfilePatch {
  *
  * @returns which fields were restored, for logging.
  */
-export function applyInventory(player: PlayerLike, profile: StoredProfile): string[] {
+export function applyInventory(player: PlayerLike, profile: Partial<StoredProfile>): string[] {
     const restored: string[] = []
     if (isList(profile.party) && profile.party.length) {
-        player.setVariable(VARS.party, profile.party)
+        player.setVariable(VARS.party, plainCopy(profile.party))
         restored.push(`party:${profile.party.length}`)
     }
     if (isList(profile.box) && profile.box.length) {
-        player.setVariable(VARS.box, profile.box)
+        player.setVariable(VARS.box, plainCopy(profile.box))
         restored.push(`box:${profile.box.length}`)
     }
     if (isBag(profile.bag)) {
-        player.setVariable(VARS.bag, profile.bag)
+        player.setVariable(VARS.bag, plainCopy(profile.bag))
         restored.push('bag')
     }
     if (isStringArray(profile.visited) && profile.visited.length) {
-        player.setVariable(VARS.visited, profile.visited)
+        player.setVariable(VARS.visited, plainCopy(profile.visited))
         restored.push(`visited:${profile.visited.length}`)
     }
     if (isLedger(profile.earned) && Object.keys(profile.earned).length) {
-        player.setVariable(VARS.earned, profile.earned)
+        player.setVariable(VARS.earned, plainCopy(profile.earned))
         restored.push('earned')
     }
     if (typeof profile.trainerXp === 'number' && Number.isFinite(profile.trainerXp)) {
         player.setVariable(VARS.trainerXp, Math.max(0, Math.floor(profile.trainerXp)))
         restored.push(`xp:${Math.floor(profile.trainerXp)}`)
     }
+    if (isPosition(profile.position)) {
+        player.setVariable(VARS.position, { ...profile.position })
+        restored.push('position')
+    }
     return restored
 }
 
 /** Validated character array from a profile, or null. */
-export const profileCharacter = (profile: StoredProfile): string[] | null =>
+export const profileCharacter = (profile: Partial<StoredProfile>): string[] | null =>
     isStringArray(profile.character) ? profile.character : null
+
+/** Validated position from a profile, or null. */
+export const profilePosition = (profile: Partial<StoredProfile>) =>
+    isPosition(profile.position) ? profile.position : null
+
+/* --------------------------------------------- state between two rooms ----*/
+/*
+ * WHY THIS EXISTS, AND IT IS THE BIGGEST TRAP IN THE ENGINE.
+ *
+ * RpgPlayer VARIABLES DO NOT SURVIVE A MAP CHANGE. The engine builds a fresh
+ * RpgPlayer for every room, and everything `setVariable` put on the old one is
+ * gone — proven by logging WALLET_ID, NAME and even SPAWNED across one door:
+ * all three read as absent on the far side, on a player whose id had not
+ * changed.
+ *
+ * Everything this game keeps about a player was a variable, so walking through
+ * a door silently reset the session: the wallet identity (so a duel answered
+ * "they have no wallet connected"), the name, the party, the box, the bag, the
+ * visited list, the reward ledger and the trainer's XP. It also stopped every
+ * save, because the background sweeper is keyed to the object registered at
+ * login and that object stops changing the moment the player leaves its room.
+ *
+ * So the authoritative copy lives HERE, keyed by wallet, and each new room
+ * object is handed it back. `carry` is called before the player leaves a map,
+ * `carried` gives it back after they arrive.
+ */
+const carried = new Map<string, Partial<StoredProfile>>()
+
+/** Remember this player's state and hand the same patch to the store. */
+export function carryState(walletId: string, player: PlayerLike): Partial<StoredProfile> {
+    const patch = collectState(player)
+    const merged = { ...(carried.get(walletId) ?? {}), ...patch }
+    carried.set(walletId, merged)
+    profiles().saveProfile(walletId, patch)
+    return merged
+}
+
+/** What we are holding for this wallet, or null. */
+export const carriedState = (walletId: string): Partial<StoredProfile> | null =>
+    carried.get(walletId) ?? null
+
+/** Seed the carried copy from a freshly loaded profile. */
+export function seedCarried(walletId: string, profile: Partial<StoredProfile>): void {
+    carried.set(walletId, plainCopy({ ...(carried.get(walletId) ?? {}), ...profile }))
+}
+
+/** Forget a wallet — only when the player has really gone. */
+export const dropCarried = (walletId: string): void => void carried.delete(walletId)
 
 /* ------------------------------------------------------ background sync ---*/
 /*
@@ -245,6 +332,7 @@ export function syncPlayer(walletId: string, player: PlayerLike): void {
 /** Test seam: forget everything this module is holding. */
 export function __resetTracking(): void {
     connected.clear()
+    carried.clear()
     if (sweeper) clearInterval(sweeper)
     sweeper = null
 }

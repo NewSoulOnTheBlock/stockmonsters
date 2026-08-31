@@ -102,12 +102,32 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
    * `auth:wallet` at all. The server then had no idea who they were: no
    * profile, no name, no friends, no rewards, and "Trader" on their head.
    */
+  let authOk = false;
+  let authTimer: ReturnType<typeof setInterval> | null = null;
   const announceWallet = (w?: { address?: string; connectionId?: string } | null) => {
     if (!w?.connectionId) return;
     const claim = () =>
       engine?.processAction?.("auth:wallet", { id: w.connectionId, address: w.address });
     claim();
-    setTimeout(claim, 900); // once more after the room is certainly joined
+    /*
+     * KEEP SAYING IT UNTIL THE SERVER SAYS IT HEARD.
+     *
+     * `processAction` is dropped SILENTLY while the player has no map, which at
+     * boot is most of the first second, and again for the length of every map
+     * transfer. Two shots and a shrug was not enough: a claim that fell in one
+     * of those gaps left the server with no idea who the player was for the
+     * rest of the session — no profile, no name, no saves, and a duel that
+     * answered "they have no wallet connected".
+     *
+     * The server answers `auth:ok` every time it registers the claim, so this
+     * stops on the first acknowledgement and re-arms if the socket ever comes
+     * back without one.
+     */
+    if (authTimer) clearInterval(authTimer);
+    authTimer = setInterval(() => {
+      if (authOk) { if (authTimer) clearInterval(authTimer); authTimer = null; return; }
+      claim();
+    }, 700);
   };
   announceWallet(wallet);
   window.addEventListener("sm:wallet", (e) => announceWallet((e as CustomEvent).detail));
@@ -147,6 +167,10 @@ export function mountGameUi(ctx: unknown, wallet?: { address?: string; connectio
     socket = inject(ctx as any, WebSocketToken as any);
   } catch {}
   if (!socket?.on) socket = { on: () => {}, emit: () => {} };
+
+  // The server answers this every time it registers the wallet claim; see
+  // announceWallet above for why the claim is repeated until it does.
+  socket.on("auth:ok", () => { authOk = true; });
 
   socket.on("character:accepted", (payload: { layers?: unknown }) => {
     confirmed = true;

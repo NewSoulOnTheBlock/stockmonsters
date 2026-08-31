@@ -1,5 +1,5 @@
 import { RpgPlayer, type RpgPlayerHooks } from '@rpgjs/server'
-import { openMenu, openHudPanel, quitToTitle, travelTo, markVisited, visitedMaps } from './menus'
+import { openMenu, openHudPanel, quitToTitle, travelTo, markVisited, visitedMaps, KNOWN_MAPS } from './menus'
 import { CHARACTER_IDS } from '../../data/character-catalog'
 import { validateName } from './names'
 import { handleChat, addChatMember, removeChatMember } from './chat'
@@ -41,14 +41,21 @@ import { questProgress, handleQuestList, handleQuestClaim } from './quests'
 import { trackTerrain, untrackTerrain } from './terrain'
 import {
     applyInventory,
+    carriedState,
+    carryState,
     collectState,
+    dropCarried,
     profileCharacter,
+    profilePosition,
     profiles,
+    seedCarried,
     syncPlayer,
     trackPlayer,
     untrackPlayer,
+    VARS,
     type StoredProfile,
 } from './profile'
+import { playerMapId, playerPos } from './geometry'
 
 const DEFAULT_GRAPHIC = 'hero'
 
@@ -121,9 +128,37 @@ const BOOT_WINDOW_MS = 8000
 
 const MAX_STALE = 8
 
+const isWalletId = (v: unknown): v is string => typeof v === 'string' && /^w:[0-9a-f]{32}$/.test(v)
+
+/*
+ * WHO THIS PLAYER IS, KEPT WHERE A MAP CHANGE CANNOT REACH IT.
+ *
+ * RpgPlayer variables DO NOT SURVIVE A MAP CHANGE — the engine builds a fresh
+ * player for each room and everything setVariable put on the old one is gone.
+ * Logged across a single door: WALLET_ID, NAME and even SPAWNED all read as
+ * absent on the far side, on a player whose id had not changed.
+ *
+ * So the wallet lives in this module, keyed by the transport player id, which
+ * IS stable across a transfer. Without it the server forgot who you were the
+ * first time you walked through a door: duels answered "they have no wallet
+ * connected", quests and rewards had nobody to credit, and nothing was saved.
+ */
+const identities = new Map<string, { walletId: string; address: string | null }>()
+/*
+ * Who has already been put into the world. This used to be the SPAWNED
+ * variable, which — like every other variable — does not survive a map change,
+ * so the guard it was meant to provide never actually held.
+ */
+const spawned = new Set<string>()
+/** The CURRENT player object for each session, for the save loop below. */
+const live = new Map<string, RpgPlayer>()
+
 const walletOf = (player: RpgPlayer) => {
     const id = player.getVariable('WALLET_ID')
-    return typeof id === 'string' && /^w:[0-9a-f]{32}$/.test(id) ? id : null
+    if (isWalletId(id)) return id
+    // The variable is gone but the session is not: this is a fresh room object.
+    const known = identities.get(String(player.id))
+    return known ? known.walletId : null
 }
 
 const key = (ids: string[]) => JSON.stringify(ids)
@@ -189,6 +224,36 @@ function useName(player: RpgPlayer, input: string) {
 }
 
 /**
+ * The dock at the ship's gangway — where the PSDK game starts you.
+ *
+ * System.rxdata says start = Map002 (the intro cutscene) and the intro's
+ * transfer drops you at exterior tile (24,60), the ship deck, which the
+ * passages layer marks blocked because you leave it by a scripted walk.
+ * (24,62) is the first open cell below it: the dock where you step ashore.
+ */
+const HOME = { map: 'exterior', x: 784, y: 2000 }
+
+/**
+ * Put the player into the world, where they left off if we know where that was.
+ *
+ * Called once per session, from the profile load — never from onConnected,
+ * which fires again on every transfer and would yank a walking player back.
+ */
+function enterWorld(player: RpgPlayer, at: { map: string; x: number; y: number } | null) {
+    if (!at) return
+    if (!KNOWN_MAPS.has(at.map)) {
+        console.log(`[profile] stored map ${at.map} is unknown — leaving them on the dock`)
+        return
+    }
+    const here = playerMapId(player)
+    // Same map: a teleport, which costs nothing. A different one is a real
+    // transition, and it is the only one a returning player should ever see.
+    if (here === at.map) void (player as unknown as { teleport(p: { x: number; y: number }): Promise<unknown> })
+        .teleport({ x: at.x, y: at.y })?.catch?.(logProfileError)
+    else player.changeMap(at.map, { x: at.x, y: at.y })
+}
+
+/**
  * The wallet has been proven; pull the profile and make the server the source
  * of truth. Runs once per session — the client sends `auth:wallet` twice on
  * purpose (once immediately, once after the room is certainly joined).
@@ -221,9 +286,20 @@ async function hydrate(player: RpgPlayer, walletId: string, address: string | nu
         if (pendingCharacter) useCharacter(player, pendingCharacter)
         if (pendingName) void applyName(player, pendingName).catch(logProfileError)
         trackPlayer(walletId, player)
+        // A first-ever login starts where onConnected put them: the dock. The
+        // row is written now rather than waiting for something to change,
+        // or a brand-new player who quits early has no state row at all.
+        rememberPosition(player)
+        profiles().saveProfile(walletId, collectState(player))
         return
     }
 
+    if (process.env.SM_IDENTITY_DEBUG === '1') {
+        console.error('[identity] hydrate loaded', walletId.slice(0, 12),
+            'party=', Array.isArray(profile.party) ? profile.party.length : 'none',
+            'box=', Array.isArray(profile.box) ? profile.box.length : 'none',
+            'pos=', JSON.stringify(profile.position))
+    }
     const restored = applyInventory(player, profile)
 
     const stored = profileCharacter(profile)
@@ -248,6 +324,10 @@ async function hydrate(player: RpgPlayer, walletId: string, address: string | nu
     }
 
     trackPlayer(walletId, player)
+    // The copy every later room object is rebuilt from.
+    seedCarried(walletId, profile)
+    // Where they were standing when they last played.
+    enterWorld(player, profilePosition(profile))
     // First write of the session: persists whatever the player already had
     // that the profile did not (e.g. a starter chosen before logging in).
     profiles().saveProfile(walletId, collectState(player))
@@ -302,6 +382,75 @@ async function applyName(player: RpgPlayer, name: string) {
  * transfer takes well under a second; a player who is really gone never
  * arrives anywhere.
  */
+/**
+ * Give a fresh room object back everything the map change took off it.
+ *
+ * Returns the wallet id when this session has one. Safe to call on every join:
+ * it does nothing once the object already carries the identity.
+ */
+function reattach(player: RpgPlayer): string | null {
+    const known = identities.get(String(player.id))
+    if (!known) return null
+    live.set(String(player.id), player)
+    if (isWalletId(player.getVariable('WALLET_ID'))) return known.walletId
+
+    player.setVariable('WALLET_ID', known.walletId)
+    if (known.address) player.setVariable('WALLET_ADDRESS', known.address)
+
+    const state = carriedState(known.walletId)
+    if (state) {
+        const restored = applyInventory(player, state)
+        const character = profileCharacter(state)
+        if (character) {
+            useCharacter(player, character)
+            player.setVariable(V_SERVER_CHARACTER, character)
+        }
+        // Re-announcing the name is not cosmetic: the client opens the "choose
+        // your name" modal when nothing is ever confirmed, so a player who
+        // walked through a door was asked to name themselves again.
+        if (typeof state.name === 'string' && state.name) {
+            player.setVariable(V_SERVER_NAME, state.name)
+            useName(player, state.name)
+        }
+        if (restored.length) console.log(`[profile] ${known.walletId} carried ${restored.join(' ')} into a new room`)
+    }
+    // The background sweeper saves whatever object is registered here, so it
+    // has to be the CURRENT one or every save writes the state of the room the
+    // player has already left.
+    trackPlayer(known.walletId, player)
+    return known.walletId
+}
+
+/** Write down where the player is standing, for the next time they log in. */
+function rememberPosition(player: RpgPlayer): void {
+    const map = playerMapId(player)
+    const at = playerPos(player)
+    if (!map || !at) return
+    player.setVariable(VARS.position, { map, x: Math.round(at.x), y: Math.round(at.y) })
+}
+
+/*
+ * One loop keeps the carried copy current. The profile store's own sweeper
+ * writes to Postgres; this is what makes sure the thing it writes is the LIVE
+ * room object and includes a position.
+ */
+const CARRY_MS = 4000
+let carryTimer: ReturnType<typeof setInterval> | null = null
+function startCarrying() {
+    if (carryTimer) return
+    carryTimer = setInterval(() => {
+        for (const [id, player] of live) {
+            const known = identities.get(id)
+            if (!known) { live.delete(id); continue }
+            try {
+                rememberPosition(player)
+                carryState(known.walletId, player)
+            } catch { live.delete(id) }
+        }
+    }, CARRY_MS)
+    ;(carryTimer as unknown as { unref?: () => void }).unref?.()
+}
+
 const GOODBYE_MS = 5000
 const goodbyes = new Map<string, ReturnType<typeof setTimeout>>()
 
@@ -328,7 +477,16 @@ function scheduleGoodbye(player: RpgPlayer) {
         // untrackPlayer is also what stops the background sweeper holding a
         // player who left forever.
         const walletId = walletOf(player)
-        if (walletId) void untrackPlayer(walletId).catch(logProfileError)
+        // Last chance to record where they were standing.
+        try { rememberPosition(player) } catch { /* the object may be gone */ }
+        if (walletId) {
+            try { carryState(walletId, player) } catch { /* ditto */ }
+            void untrackPlayer(walletId).catch(logProfileError)
+            dropCarried(walletId)
+        }
+        identities.delete(key)
+        live.delete(key)
+        spawned.delete(key)
     }, GOODBYE_MS)
     // Never hold the process open just to say goodbye.
     ;(timer as unknown as { unref?: () => void }).unref?.()
@@ -355,20 +513,39 @@ export const player: RpgPlayerHooks = {
         player.name = (player.getVariable('NAME') as string | undefined) ?? 'Trader'
         applyNameTag(player)
 
-        // Every map transfer reconnects the socket and fires onConnected
-        // again — spawning unconditionally here yanks the player back to the
-        // hub mid-transfer and ping-pongs them between maps forever.
-        if (player.getVariable('SPAWNED')) return
-        player.setVariable('SPAWNED', true)
-        // The PSDK game starts you on the Exterior map: System.rxdata says
-        // start = Map002 (intro cutscene) and the intro's transfer drops you
-        // at exterior tile (24,60) — the ship deck, which the passages layer
-        // marks blocked because you leave it via a scripted walk. (24,62) is
-        // the first open cell below it: the dock where you step ashore.
-        player.changeMap('exterior', {
-            x: 784,
-            y: 2000
-        })
+        reattach(player)
+
+        /*
+         * WHY THE PLAYER IS PUT ON THE DOCK BEFORE WE KNOW WHO THEY ARE.
+         *
+         * The obvious thing — refuse the world until a wallet is proven — is a
+         * deadlock. `processAction` is dropped SILENTLY while the player has no
+         * map, so `auth:wallet` is exactly one of the actions that cannot
+         * arrive; measured, a gated session sat there for thirty seconds and
+         * the server never heard from it.
+         *
+         * So everyone lands on the dock and hydrate() moves them to wherever
+         * they left off. When the stored spot is on this same map that is a
+         * teleport with no loading screen at all; otherwise it is one
+         * transition. A session that never proves a wallet is escorted back to
+         * the title screen by the timer below.
+         *
+         * The guard is module-level because SPAWNED, like every other player
+         * variable, does not survive a map change — so as a variable it never
+         * guarded anything.
+         */
+        const key = String(player.id)
+        if (spawned.has(key)) return
+        spawned.add(key)
+        player.changeMap(HOME.map, { x: HOME.x, y: HOME.y })
+
+        // The world is meant for players with a wallet, and the title screen
+        // already refuses to show PLAY GAME without one. It is NOT enforced by
+        // kicking here: a session opens more than one connection (the lobby
+        // and the map each get their own player object with its own id), only
+        // one of them ever carries the claim, and a timer on the other one
+        // bounced a perfectly good player back to the title. Every action that
+        // costs or pays anything checks the wallet itself.
     },
     /**
      * Dead in beta.33 — see the note above. Kept wired so the behaviour is
@@ -383,6 +560,12 @@ export const player: RpgPlayerHooks = {
      * schedules rather than acts.
      */
     onLeaveMap(player: RpgPlayer) {
+        // This object is about to be replaced by the destination room's, and
+        // everything setVariable put on it goes with it. Bank it first.
+        const walletId = walletOf(player)
+        if (walletId) {
+            try { carryState(walletId, player) } catch (err) { logProfileError(err) }
+        }
         scheduleGoodbye(player)
     },
     /**
@@ -394,6 +577,9 @@ export const player: RpgPlayerHooks = {
         // They arrived somewhere, so they did not leave: this is the other
         // half of the goodbye above.
         cancelGoodbye(player)
+        // FIRST, before anything below reads the wallet: this object is brand
+        // new and carries none of the session. See reattach().
+        reattach(player)
         // Refresh the chat roster with THIS object: the engine hands each room
         // a fresh RpgPlayer, and `emit` on a stale one silently does nothing
         // (it needs a current map), so a broadcast would reach nobody.
@@ -412,6 +598,13 @@ export const player: RpgPlayerHooks = {
         trackTerrain(player)
 
         const id = String(map?.id ?? '').replace(/^map-/, '')
+        if (process.env.SM_IDENTITY_DEBUG === '1') {
+            console.error('[identity] onJoinMap', String(player.id), id,
+                'wallet=', player.getVariable('WALLET_ID') ?? 'NONE',
+                'name=', player.getVariable('NAME') ?? 'NONE',
+                'spawned=', player.getVariable('SPAWNED') ?? 'NONE',
+                'state=', player.getVariable(V_STATE) ?? 'NONE')
+        }
         const isNew = markVisited(player, id)
         if (isNew) {
             // Exploration is content: somewhere nobody has stood pays a little.
@@ -427,6 +620,9 @@ export const player: RpgPlayerHooks = {
         // that connected mid-session (or reloaded) has no way to rebuild it,
         // and it would show every place as undiscovered.
         player.emit('travel:unlocked', { map: id, isNew, visited: [...visitedMaps(player)] })
+        // Where they are NOW, so quitting right after a transfer comes back
+        // here rather than to the map they just left.
+        rememberPosition(player)
     },
     onInput(player: RpgPlayer, { action, data }) {
         // Escape opens our menu (the built-in main menu comes later with
@@ -503,6 +699,9 @@ export const player: RpgPlayerHooks = {
             // connection id is deliberately throwaway.
             const id = (data as { id?: unknown })?.id
             const address = (data as { address?: unknown })?.address
+            if (process.env.SM_IDENTITY_DEBUG === '1') {
+                console.error('[identity] auth:wallet', String(player.id), 'id=', String(id).slice(0, 12), 'addr=', String(address).slice(0, 10))
+            }
             if (typeof id !== 'string' || !/^w:[0-9a-f]{32}$/.test(id)) return
             player.setVariable('WALLET_ID', id)
             let addr: string | null = null
@@ -510,6 +709,30 @@ export const player: RpgPlayerHooks = {
                 addr = address.toLowerCase()
                 player.setVariable('WALLET_ADDRESS', addr)
             }
+            /*
+             * One wallet, one live session. When the same wallet signs in
+             * again — a reload, a second tab, another machine — the older
+             * session must stop writing, or its stale object keeps saving the
+             * state it had when it was current and undoes the newer one's
+             * work. (Found by e2e-persistence: the party a player had was
+             * written back as empty by the session they had just replaced.)
+             */
+            for (const [otherId, known] of identities) {
+                if (otherId === String(player.id) || known.walletId !== id) continue
+                identities.delete(otherId)
+                live.delete(otherId)
+                spawned.delete(otherId)
+            }
+            // Outlives every room this player will ever join.
+            identities.set(String(player.id), { walletId: id, address: addr })
+            live.set(String(player.id), player)
+            startCarrying()
+            // Say so, every time. The client keeps re-sending this claim until
+            // it hears back — an action sent before the room is joined is
+            // dropped in silence, and a session whose claim was dropped looked
+            // to the server like a player with no wallet at all: no profile,
+            // no name, and a duel that answered "they have nothing to bet".
+            player.emit('auth:ok', { id })
             // hydrate() is fire-and-forget, so an unhandled rejection in it
             // would take the whole Node process down with it. It must not be
             // possible for a database hiccup to end the server.

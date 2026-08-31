@@ -29,6 +29,7 @@
     "test:e2e:duel-ui": "node --env-file-if-exists=.env tools/e2e-duel-ui.mjs",
     "test:e2e:second-device": "node --env-file-if-exists=.env tools/e2e-second-device.mjs",
     "test:e2e:intro": "node --env-file-if-exists=.env tools/e2e-intro.mjs",
+    "test:e2e:return": "node --env-file-if-exists=.env tools/e2e-return.mjs",
     "ipfs:pack": "node tools/ipfs.mjs pack",
     "ipfs:upload": "node --env-file-if-exists=.env tools/ipfs.mjs upload"
   },

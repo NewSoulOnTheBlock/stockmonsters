@@ -53,7 +53,10 @@ const isWalletId = (v) => typeof v === 'string' && /^w:[0-9a-f]{32}$/.test(v)
 // 'trainerXp' is a single integer: the trainer's lifetime XP. The level and
 // the bar are derived from it (src/modules/main/trainer.ts), so there is one
 // number to store and nothing that can disagree with itself.
-const STATE_KEYS = ['character', 'party', 'box', 'bag', 'visited', 'earned', 'trainerXp']
+// `position` is where the player was standing when they last left a map. It
+// is what makes closing the tab and coming back put you where you were rather
+// than on the dock.
+const STATE_KEYS = ['character', 'party', 'box', 'bag', 'visited', 'earned', 'trainerXp', 'position']
 
 /** A name is one per wallet, changeable once a day. */
 const NAME_COOLDOWN_HOURS = 24

@@ -8,7 +8,7 @@ import { MAPS as PSDK_MAPS } from '../../tiled/manifest'
 import { RMXP_MAPS } from '../../tiled/rmxp-manifest'
 
 const HOME_MAP = 'exterior'
-const KNOWN_MAPS = new Set<string>([
+export const KNOWN_MAPS = new Set<string>([
   ...PSDK_MAPS.map((m) => m.id),
   ...RMXP_MAPS.map((m) => m.id),
 ])
