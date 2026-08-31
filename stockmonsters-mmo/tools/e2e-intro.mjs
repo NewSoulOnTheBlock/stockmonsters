@@ -69,16 +69,41 @@ check('the story intro plays for a new trader', intro.open)
 check('and it is Kelby speaking', intro.who === 'KELBY', intro.who)
 check('the bare name modal does NOT appear instead', intro.modal === false)
 
-// Click through to the question.
-for (let i = 0; i < 30; i++) {
-  await page.evaluate(() => document.querySelector('#sm-intro .box')?.click())
+// Click through to the question. Generous, because two of the beats hand over
+// to something else — the choice buttons and the character designer — and
+// each of those takes a moment to appear and to close again.
+for (let i = 0; i < 80; i++) {
+  // The conversation is not one long monologue any more: it asks how you play
+  // and hands you to the character designer, exactly as the original did. So
+  // clicking the box is not always what advances it.
+  await page.evaluate(() => {
+    const root = document.getElementById('sm-intro')
+    if (root?.classList.contains('choosing')) {
+      root.querySelector('.choices button')?.click()
+      return
+    }
+    // The designer takes the screen; confirm a preset and Kelby resumes.
+    const designer = document.getElementById('sm-character-designer')
+    if (designer?.classList.contains('scd-open')) {
+      designer.querySelector('[data-grid="preset"] > *')
+        ?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      designer.querySelector('[data-act="confirm"]')
+        ?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      return
+    }
+    document.querySelector('#sm-intro .box')?.click()
+  })
   await sleep(320)
   const asking = await page.evaluate(() => !!document.querySelector('#sm-intro.asking'))
   if (asking) break
+  await sleep(400) // choices and the designer need a beat to appear
 }
 const asking = await page.evaluate(() => ({
   asking: !!document.querySelector('#sm-intro.asking'),
   field: !!document.querySelector('#sm-intro input'),
+  classes: document.getElementById('sm-intro')?.className ?? '(gone)',
+  line: (document.querySelector('#sm-intro .line')?.textContent ?? '').slice(0, 60),
+  designerOpen: !!document.querySelector('#sm-character-designer.scd-open'),
 }))
 check('the conversation ends by asking for a name', asking.asking && asking.field, JSON.stringify(asking))
 
@@ -88,8 +113,15 @@ const done = await page.evaluate(async (n) => {
   i.value = n
   i.dispatchEvent(new Event('input', { bubbles: true }))
   document.querySelector('#sm-intro .go').click()
-  await new Promise((r) => setTimeout(r, 4000))
+  await new Promise((r) => setTimeout(r, 3000))
+  // Kelby reads the name back before he lets go of it, exactly as the
+  // original does — "did I write that down properly?" — so there is one more
+  // button between typing it and being registered.
+  const readBack = document.querySelector('#sm-intro .line')?.textContent ?? ''
+  document.querySelector('#sm-intro.choosing .choices button')?.click()
+  await new Promise((r) => setTimeout(r, 2500))
   return {
+    readBack,
     line: document.querySelector('#sm-intro .line')?.textContent ?? '',
     stored: localStorage.getItem('sm-name'),
     hud: document.querySelector('#sm-hud .hud-name')?.textContent?.trim(),
@@ -97,7 +129,8 @@ const done = await page.evaluate(async (n) => {
 }, NAME)
 console.log('  after registering:', JSON.stringify(done))
 check('the name is accepted and stored', done.stored === NAME, done.stored)
-check('Kelby signs off by name', done.line.includes(NAME), done.line.slice(0, 80))
+check('Kelby reads the name back to check it', done.readBack.includes(NAME), done.readBack.slice(0, 70))
+check('and signs off by name once confirmed', done.line.includes(NAME), done.line.slice(0, 80))
 check('and it reaches the HUD', done.hud === NAME, done.hud)
 
 await sleep(3500)
