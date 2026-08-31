@@ -11,7 +11,8 @@ import puppeteer from 'puppeteer-core'
 
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 const BASE = process.env.BASE ?? 'http://localhost:4173'
-const ADDR = '0xf30e4f2E1E715A77ceCade62F236c6d39dA0CE7a'
+const ADDR = '0x01B4eCB3255D5eB29b4427CA149e860b5fd7472B'
+const DEAD = '0xf30e4f2E1E715A77ceCade62F236c6d39dA0CE7a'
 const OUT = process.env.OUT ?? '.'
 let bad = 0
 const check = (l, ok, d = '') => { if (!ok) bad++; console.log(`  ${ok ? 'PASS' : 'FAIL'}  ${l}${d ? '  →  ' + d : ''}`) }
@@ -56,7 +57,7 @@ for (const [name, width, height, mobile] of [['DESKTOP', 1280, 900, false], ['PH
   console.log(`  pill shows: "${pill.visible}"   button: "${pill.btnText}"`)
   check('pill title carries the full address', pill.title === ADDR, pill.title)
   check('copy button present', pill.hasBtn)
-  if (mobile) check('phone shows the elided form', pill.visible === '0xf30e…CE7a', pill.visible)
+  if (mobile) check('phone shows the elided form', pill.visible === '0x01B4…472B', pill.visible)
   else check('desktop shows the full address', pill.visible === ADDR, pill.visible)
   const pan = await page.evaluate(() => {
     window.scrollTo(9999, 0); const x = window.scrollX; window.scrollTo(0, 0)
@@ -94,12 +95,13 @@ for (const [name, width, height, mobile] of [['DESKTOP', 1280, 900, false], ['PH
     }
   })
   console.log('  links:', JSON.stringify(links))
-  check('Blockscout token link present + visible', links.explorerHref === `https://robinhoodchain.blockscout.com/token/${ADDR}` && links.explorerVisible)
+  check('Blockscout token link present + visible', links.explorerHref === `https://robinhoodchain.blockscout.com/address/${ADDR}` && links.explorerVisible)
   check('play links all point at game.stockmonsters.xyz', links.playCount >= 3 && links.playHrefs.length === 1 && links.otherPlay.length === 0)
 
   // --- copy that the launch made false ---------------------------------
   const body = await page.evaluate(() => document.body.innerText)
-  for (const s of ['$STONKSTER', 'Sepolia', 'NOT DEPLOYED', 'test network', 'Not yet', 'lordfishnu'])
+  check('the ABANDONED token address is nowhere in the DOM', !(await page.content()).includes(DEAD))
+  for (const s of ['$STONKSTER', 'Sepolia', 'NOT DEPLOYED', 'Soon', 'test network', 'Not yet', 'lordfishnu'])
     check(`no "${s}" in the rendered text`, !body.includes(s))
   // 75% only ever appears as decoration on the tape (a drift like ▲1.75%), so
   // look for it where an economy claim would live, not page-wide.

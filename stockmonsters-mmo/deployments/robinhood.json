@@ -1,7 +1,7 @@
 {
   "chainId": 4663,
   "chain": "robinhood",
-  "deployedAt": "2026-08-31T21:49:41.083Z",
+  "deployedAt": "2026-08-31T22:03:25.158Z",
   "deployer": "0xd05FDA8be1F557010763B6E5c6236Af3F50845Ef",
   "gameSigner": "0x5dADa8e3cCA173a927A83b71d0Ba6d3c2C4616AD",
   "claimSigner": "0x71592eEbEd7b76b186230b35229C33d7ddAaE2a3",
@@ -20,13 +20,13 @@
   },
   "opsWallet": "0x2dEcd2B26303E2053973b8992472Ae3FF8786A3d",
   "contracts": {
-    "token": "0xf30e4f2E1E715A77ceCade62F236c6d39dA0CE7a",
-    "rewards": "0x4840391b1b6404b524528731BfDaAbA57C98F004",
-    "treasury": "0xc59fD025Ae22E2d31034e97aE7330c6763054C24",
-    "nft": "0xddB6264a5730039c10F5A56381EBeAA12B74d550",
-    "market": "0xe904A8541899822e0bB33b486849b6FcD4fE5d6e",
-    "gyms": "0x91f8F3097037044092075B1df8c16574a4df9BbD",
-    "arena": "0xed43C1a430E231D75B5085b13ED20213DCEEC3E0"
+    "token": "0x01B4eCB3255D5eB29b4427CA149e860b5fd7472B",
+    "rewards": "0x3362B7c5F95666A57F30cd775C2a364b6591a4EC",
+    "treasury": "0xF51427fB25F1125e8416A59b22A9CB52806b1AD9",
+    "nft": "0x9ACEf20691C8e13189a28B571645Aeb46b3Cc023",
+    "market": "0xfE2F84dD8ce5E3D301183365071deF429A14CEff",
+    "gyms": "0x2cd67116Eb9ef5Cf2b51C138dFaAEbd075586c27",
+    "arena": "0xdd894f0e68f365D9c5286B4f60d344DE7036B540"
   },
   "params": {
     "token": {

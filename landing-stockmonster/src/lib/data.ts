@@ -131,11 +131,16 @@ export const TWITTER_URL = "https://x.com/stonksters";
  * The economy, in one place, so the copy on the site cannot drift from the
  * contracts. See stockmonsters-mmo/deployments/*.json and docs/token-economy.md.
  *
- * NOTHING HERE MAY DESCRIBE A TOKEN THAT IS NOT DEPLOYED AS IF IT WERE. One
- * token was launched on Robinhood Chain and then abandoned; a live, tradeable
- * contract nobody supports is worse to publish than no contract at all,
- * because somebody copies it off this page and buys it. `address` stays empty
- * until the relaunch, and the site says NOT DEPLOYED while it is.
+ * NOTHING HERE MAY DESCRIBE A TOKEN THAT IS NOT DEPLOYED AS IF IT WERE, and
+ * no address may survive its token. A first launch on Robinhood Chain was
+ * abandoned, and a live tradeable contract nobody supports is worse to publish
+ * than no contract at all, because somebody copies it off this page and buys
+ * it. The relaunched token below was read back off the chain — `symbol()`,
+ * `name()`, `decimals()`, `totalSupply()` — not copied from a deploy script.
+ *
+ * The GAME's contracts (treasury, rewards, NFT, marketplace, gyms, arena) are
+ * deliberately absent: that set is being redeployed and none of it is publish-
+ * able yet. Only the token address is live and correct.
  *
  * The rule the whole thing rests on: THE GAME NEVER MINTS. Supply is fixed and
  * there is no mint function, so every reward is a claim on a pool that already
@@ -158,22 +163,21 @@ export const ECONOMY = {
   /** The token's full name, as the launchpad deploys it. */
   name: "Stock Monsters",
   /**
-   * THE ONE LINE THAT FLIPS THE SITE TO "LAUNCHED".
+   * THE ONE LINE THAT FLIPS THE SITE BETWEEN "LAUNCHED" AND NOT.
    *
-   * Empty until the relaunched token is deployed on Robinhood Chain. While it
-   * is empty the hero's CA field reads NOT DEPLOYED and is inert; paste the
-   * 0x… string in here and the same field starts showing the address with a
-   * copy button. Nothing else needs to change.
+   * Empty → the hero's CA field reads NOT DEPLOYED and is inert. A 0x… string
+   * → the same field shows the address with a copy button. Nothing else needs
+   * to change either way, which is the point: it costs nothing to blank this
+   * the moment an address stops being the right one.
    *
-   * It is deliberately empty right now. The first launch produced a real
-   * token that is being abandoned, and its address must not appear here — the
-   * copy button exists to be pasted into a wallet, so a stale value in this
-   * field spends somebody's money.
+   * The copy button exists to be pasted into a wallet, so a wrong value here
+   * spends somebody's money. This is the RELAUNCHED token, verified against
+   * chain 4663; the abandoned first launch, 0xf30e…CE7a, must never reappear.
    *
-   * Typed `as string` on purpose — without it the literal `""` would narrow
-   * and TypeScript would treat the deployed branch as dead code.
+   * Typed `as string` on purpose — without it the literal would narrow and
+   * TypeScript would treat the NOT DEPLOYED branch as dead code.
    */
-  address: "" as string,
+  address: "0x01B4eCB3255D5eB29b4427CA149e860b5fd7472B" as string,
   /** Where it launches. The chain id is 4663. */
   chain: "Robinhood Chain",
   chainId: 4663,
@@ -209,3 +213,12 @@ export const ECONOMY = {
   /** The launch valuation every in-game dollar figure is priced from. */
   launchMarketCap: "$200k",
 } as const;
+
+/**
+ * The chain's block explorer, and the token's page on it — the one link that
+ * lets a reader check the pill instead of trusting it. Derived from
+ * `ECONOMY.address`, so it can never point at a different token than the pill
+ * does, and it is only ever rendered when that address is non-empty.
+ */
+export const EXPLORER_URL = "https://robinhoodchain.blockscout.com";
+export const TOKEN_EXPLORER_URL = `${EXPLORER_URL}/address/${ECONOMY.address}`;

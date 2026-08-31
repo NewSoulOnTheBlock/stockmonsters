@@ -14,8 +14,7 @@ import { CREATURES, ECONOMY, MEMES, PLAY_URL, TYPES } from "@/lib/data";
 const FACTS: Array<[string, string, string]> = [
   [String(CREATURES.length), "stockmonsters", "one per listed ticker"],
   [String(TYPES.length), "elements", "with a full effectiveness chart"],
-  [String(MEMES.length), "meme coins", "in the side wing"],
-  ["1B", ECONOMY.symbol, `fixed supply, live on ${ECONOMY.network}`],
+  [String(MEMES.length), "meme coins", "in the side wing"]
 ];
 
 const FAQ: Array<[string, React.ReactNode]> = [
@@ -48,10 +47,11 @@ const FAQ: Array<[string, React.ReactNode]> = [
   [
     "Is any of this real money yet?",
     <>
-      Yes. {ECONOMY.symbol} launched on {ECONOMY.network} and is trading, and the
-      game&apos;s own contracts — treasury, reward pool, NFT, marketplace, gyms, arena
-      — are deployed on the same chain. The address is in the pill at the top of this
-      page and on the explorer; check it there rather than taking our word for it.
+      Yes. {ECONOMY.symbol} is deployed on {ECONOMY.network} and trading on its
+      bonding curve, and the world it pays out in is live and playable now. There is
+      exactly one contract address and it is in the pill at the top of this page, with
+      a link to it on the explorer — check it there rather than taking anyone&apos;s
+      word for it, including ours.
     </>,
   ],
   [
