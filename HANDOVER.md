@@ -1020,7 +1020,107 @@ taxed. Set the buyback router. Move the three keys (deployer, box signer, claim
 signer) off the game server's disk; they are three keys precisely so they can
 live in three places. Pick a real ops wallet — it is the deployer today.
 
-### WHERE THIS STANDS — session 7 (2026-08-28)
+### WHERE THIS STANDS — session 8 (2026-08-31)
+
+**IT IS LIVE** at https://test.lordfishnu.com, and the economy underneath it is
+a NEW set of seven addresses: every contract is a UUPS implementation behind an
+ERC-1967 proxy now (`deployments/sepolia.json`; the old immutable set is kept
+there under `previousDeployment`). Nothing carried over — old SMON balances,
+minted creatures and open orders belong to contracts the game no longer talks
+to.
+
+#### The one bug that explained four complaints
+
+**RpgPlayer VARIABLES DO NOT SURVIVE A MAP CHANGE.** The engine builds a fresh
+player for every room and everything `setVariable` put on the old one is gone —
+proven by logging WALLET_ID, NAME and even SPAWNED across a single door, all
+three absent on the far side, on a player whose transport id had not changed.
+
+Everything this game knew about a player was a variable, so walking through one
+door reset the session: the wallet (a duel answered "they have no wallet
+connected" for somebody plainly logged in), the name (the client asks again
+when nothing is ever confirmed), the party, box, bag, visited list, ledger and
+XP — and every save, because the sweeper writes whichever object was registered
+at login and that object stops changing the moment its room is left. Production
+had taken 242 profile loads and written ONE row.
+
+So identity lives in a module map keyed by the transport player id (which IS
+stable across a transfer), the state each room object is rebuilt from lives
+beside it, and `onConnected` — which fires once per session and NOT on a
+transfer — clears both, so a recycled id cannot inherit a session.
+
+#### Traps this session added to the list
+
+- **Restoring state into a fresh object CRASHED THE SERVER.** `getVariable`
+  returns the engine's reactive wrapper, the wrapper holds a sync callback, and
+  handing one back to `setVariable` makes the engine `structuredClone` a
+  function on its next broadcast. Everything crossing that boundary is a plain
+  copy now — which is also why a saved bag in production read `{"$path": …}`.
+- **The engine's position sync does not reach a client that has just changed
+  room.** Measured: server had the player at (912,1520) inside the hub, client
+  still read (992,1030) outside it, and nothing corrected it until the first
+  keypress — the "it throws me somewhere else when I move" report. A
+  server-side teleport to the same tile changes no synced value and a
+  one-pixel nudge changed nothing either; the fix is a plain `map:arrival`
+  event the client writes into its own signals.
+- **AN EVENT IS SOLID BY DEFAULT.** Trigger events placed on the pavement in
+  front of every door turned into a wall. `through = true` makes an event a
+  trigger.
+- **THE CONTROL NAME IS NOT THE KEY NAME.** `boundKeys` is keyed by the key
+  (space, shift, escape), `_controlsOptions` by the control (action, dash,
+  back). `applyControl` wants the second. The phone's A button sent 'space',
+  which does nothing — so talking to anybody on a phone had never worked. An
+  earlier note in this file said there was no `action` control; it was wrong.
+- **ui-kit's `el()` sets every attribute with `setAttribute`**, so an `onclick`
+  FUNCTION is stringified and the button silently does nothing.
+- **A deploy can succeed completely and still record nothing.** Two of the
+  deploy script's params are BigInts and `JSON.stringify` throws on those:
+  seven contracts live, wired and funded, and not one address written down.
+  They were recovered by walking the deployer's nonces.
+
+#### What changed, in one list
+
+- All seven contracts behind proxies, live on Sepolia, 254 species registered,
+  and `test:e2e:sepolia` driving voucher → mint → reveal → open against them.
+  The upgrade path is armed and owner-gated on all seven (verified on chain).
+- Where you were standing is part of the profile: close the tab, come back,
+  and you are where you left off. `test:e2e:return` is the regression test.
+- Quests are priced in DOLLARS ($1–2 each, $7 board) and boxes are anchored to
+  their ether price, both derived from `SM_TOKEN_USD` — written as a market cap
+  over the fixed billion supply ($200k → $0.0002). A box had two prices that
+  disagreed by 24x; it has one now.
+- Doorways accept an approach from the tile in front while you face them.
+- Draw order: the player is drawn behind roofs, canopies and doorway arches.
+- Kelby's opening is a conversation again — it asks how you play, hands you to
+  the character designer, and reads your name back before it sticks.
+- One NPC conversation at a time. The same key advances a dialog AND talks to
+  the NPC, so every press restarted the conversation and it could never end.
+- The landing page describes THIS game (gameplay + play-to-earn + @stonksters).
+
+#### Still open, and the honest state of each
+
+- **The stutter.** Frames freeze for up to 1.6s (3.2s worst) in a single block
+  while a map loads, and ~200ms periodically while walking. That is what is
+  left of the "black screen": the curtain's own bugs are fixed and it now
+  bounds at 2s, but no timer can run during a 3s freeze. Going further means
+  making the load cheaper — the atlases are already compacted, so what is left
+  is parse and texture upload.
+- **The token is upgradeable**, so "fixed supply, no mint function" is now a
+  promise by the owner key rather than a property of the code. Timelock it (or
+  renounce) before mainnet. `freezeSpecies()` is still deliberately uncalled.
+- **The NFT has 1,199 bytes of EIP-170 headroom left**, down from ~2.7 KB.
+- The art is still Nintendo's; three signing keys are still on the box.
+
+#### A mistake of mine worth not repeating
+
+I read a failing live test as state leaking between wallets — a fresh sign-in
+landing on another player's tile, their row written at my timestamp — and said
+so before checking. `e2e-live` signs with the DEPLOYER key out of
+contracts/.env, not a fresh one: it logs in as the same wallet the game is
+played with and correctly resumed that wallet's saved position. Before calling
+something a data leak, check what identity the test is actually using.
+
+### WHERE THIS STOOD — session 7 (2026-08-28)
 
 **IT IS DEPLOYED.** https://test.lordfishnu.com — Ubuntu 24.04 at
 66.179.31.212, one Node process behind Caddy, Postgres and Redis in Docker.
