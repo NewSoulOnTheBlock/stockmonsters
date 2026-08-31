@@ -32,6 +32,7 @@
  */
 import type { RpgPlayer } from '@rpgjs/server'
 import { credit, currentEpoch } from './earnings'
+import { tokensForUsd, usdForTokens } from './pricing'
 
 /* ------------------------------------------------------------ the board ---*/
 
@@ -41,8 +42,15 @@ export interface QuestDef {
     /** The event counted, matching the questProgress() call sites. */
     counts: QuestEvent
     goal: number
-    /** Whole tokens, paid through credit()'s ledger under the daily cap. */
-    reward: number
+    /**
+     * What the quest is WORTH, in dollars. Not a token amount.
+     *
+     * A fixed token reward is a promise about a number rather than about
+     * value — it quietly becomes generous or worthless as the price moves,
+     * without anybody deciding it should. The board is priced in dollars and
+     * the tokens are derived at claim time; see pricing.ts.
+     */
+    usd: number
 }
 
 export type QuestEvent = 'battleWin' | 'catch' | 'newMap' | 'duelWin' | 'boxOpen' | 'chat'
@@ -50,16 +58,22 @@ export type QuestEvent = 'battleWin' | 'catch' | 'newMap' | 'duelWin' | 'boxOpen
 /**
  * The daily board. Deliberately finishable in one sitting: a board that
  * cannot be cleared reads as a treadmill, and the point of quests is to give
- * a session a shape — log in, clear the board, done. Totals 375 tokens, well
- * under the 1,000 daily cap, so battles and catches on the side still pay.
+ * a session a shape — log in, clear the board, done.
+ *
+ * A dollar for the short ones, two for the ones that take a while or need
+ * another player. Seven dollars for the full board, which is the number to
+ * argue about — the token amounts follow from it and the price.
  */
 export const DAILY_QUESTS: readonly QuestDef[] = [
-    { id: 'warmup', title: 'Win 3 wild battles', counts: 'battleWin', goal: 3, reward: 50 },
-    { id: 'hunter', title: 'Catch 2 Stockmonsters', counts: 'catch', goal: 2, reward: 75 },
-    { id: 'walker', title: 'Discover a map you have never visited', counts: 'newMap', goal: 1, reward: 50 },
-    { id: 'grinder', title: 'Win 10 wild battles', counts: 'battleWin', goal: 10, reward: 100 },
-    { id: 'gambler', title: 'Win a duel against another player', counts: 'duelWin', goal: 1, reward: 100 },
+    { id: 'warmup', title: 'Win 3 wild battles', counts: 'battleWin', goal: 3, usd: 1 },
+    { id: 'hunter', title: 'Catch 2 Stockmonsters', counts: 'catch', goal: 2, usd: 1.5 },
+    { id: 'walker', title: 'Discover a map you have never visited', counts: 'newMap', goal: 1, usd: 1 },
+    { id: 'grinder', title: 'Win 10 wild battles', counts: 'battleWin', goal: 10, usd: 1.5 },
+    { id: 'gambler', title: 'Win a duel against another player', counts: 'duelWin', goal: 1, usd: 2 },
 ]
+
+/** What a quest pays right now, in whole tokens. */
+export const questReward = (q: QuestDef): number => tokensForUsd(q.usd)
 
 const V_QUESTS = 'QUESTS'
 /** Confirmed eligibility for an epoch, so the chain is not re-read per event. */
@@ -208,7 +222,7 @@ export function questProgress(player: RpgPlayer, event: QuestEvent, times = 1): 
         && !s.claimed.includes(q.id)
         && (s.n[event] ?? 0) >= q.goal
         && (s.n[event] ?? 0) - times < q.goal)
-    for (const q of done) player.emit?.('quests:done', { id: q.id, title: q.title, reward: q.reward })
+    for (const q of done) player.emit?.('quests:done', { id: q.id, title: q.title, reward: questReward(q) })
 }
 
 /* --------------------------------------------------------------- actions ---*/
@@ -224,7 +238,8 @@ function view(player: RpgPlayer, gate: { ok: boolean; reason?: string; tokenId?:
             id: q.id,
             title: q.title,
             goal: q.goal,
-            reward: q.reward,
+            reward: questReward(q),
+            usd: q.usd,
             have: Math.min(s.n[q.counts] ?? 0, q.goal),
             claimed: s.claimed.includes(q.id),
             claimable: !s.claimed.includes(q.id) && (s.n[q.counts] ?? 0) >= q.goal,
@@ -261,8 +276,8 @@ export async function handleQuestClaim(player: RpgPlayer, data: unknown): Promis
 
     s.claimed.push(id)
     writeState(player, s)
-    const paid = credit(player, 'quest', quest.reward)
-    player.emit?.('quests:claimed', { id, title: quest.title, paid })
+    const paid = credit(player, 'quest', questReward(quest))
+    player.emit?.('quests:claimed', { id, title: quest.title, paid, usd: usdForTokens(paid) })
     player.emit?.('quests:state', view(player, gate))
 }
 

@@ -1,4 +1,5 @@
 import type { RpgPlayer } from '@rpgjs/server'
+import { tokensForUsd } from './pricing'
 
 /*
  * earnings.ts — what a player is owed for playing, in game tokens.
@@ -61,7 +62,18 @@ export type RewardKind = keyof typeof REWARDS
  * cost something a bot cannot fake (time, ownership, other players) — which is
  * what gyms and duels do, and why neither of them pays out of this pool.
  */
-export const DAILY_CAP = 1_000
+export const DAILY_CAP_USD = 20
+
+/**
+ * The cap in TOKENS, at today's price.
+ *
+ * It has to move with the price for the same reason the quest board does: a
+ * fixed 1,000 tokens was ~2.7x the old fixed board, and the moment the board
+ * was priced in dollars that ratio became whatever the price said. At the
+ * default price this is 40,000 tokens against a $7 board — the same shape as
+ * before, expressed in the unit that stays meaningful.
+ */
+export const dailyCap = (): number => tokensForUsd(DAILY_CAP_USD)
 
 const V_EARNED = 'EARNED'
 /**
@@ -148,11 +160,11 @@ export function credit(player: RpgPlayer, kind: RewardKind, times = 1): number {
     const epoch = String(currentEpoch())
     const ledger = readLedger(player)
     const before = BigInt(ledger[epoch] ?? '0')
-    const cap = baseUnits(DAILY_CAP)
+    const cap = baseUnits(dailyCap())
     if (before >= cap) {
         // Say so once rather than silently paying nothing: a reward that
         // stops arriving with no explanation reads as a broken game.
-        player.emit?.('rewards:capped', { epoch: Number(epoch), cap: DAILY_CAP })
+        player.emit?.('rewards:capped', { epoch: Number(epoch), cap: dailyCap() })
         return 0
     }
     const wanted = baseUnits(whole)

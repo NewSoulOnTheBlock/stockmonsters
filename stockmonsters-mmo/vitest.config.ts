@@ -31,6 +31,7 @@ export default defineConfig({
       'src/modules/main/trainer.spec.ts',
       'src/modules/main/quests.spec.ts',
       'src/modules/main/terrain.spec.ts',
+      'src/modules/main/pricing.spec.ts',
       // a duel decided from a committed seed: the same seed must always give
       // the same fight, or the commit-reveal proves nothing
       'src/battle/duel.spec.ts',

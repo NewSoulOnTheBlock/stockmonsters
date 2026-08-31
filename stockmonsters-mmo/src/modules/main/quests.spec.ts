@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { DAILY_QUESTS, questProgress, handleQuestList, handleQuestClaim } from './quests'
-import { DAILY_CAP, REWARDS } from './earnings'
+import { DAILY_QUESTS, questReward, questProgress, handleQuestList, handleQuestClaim } from './quests'
+import { dailyCap, REWARDS } from './earnings'
 
 /*
  * The quest board, and above all its GATE.
@@ -194,9 +194,10 @@ describe('progress and claiming', () => {
         questProgress(as(p), 'newMap', 1)
         await handleQuestClaim(as(p), { id: 'walker' })
         const claimed = p.sent.find((m) => m.type === 'quests:claimed')
-        expect(claimed?.value).toMatchObject({ id: 'walker', paid: 50 })
+        expect(claimed?.value).toMatchObject({ id: 'walker', paid: questReward(DAILY_QUESTS.find((q) => q.id === 'walker')!) })
         const ledger = p.vars.get('EARNED') as Record<string, string>
-        expect(ledger['42']).toBe((50n * 10n ** 18n).toString())
+        const walker = questReward(DAILY_QUESTS.find((q) => q.id === 'walker')!)
+        expect(ledger['42']).toBe((BigInt(walker) * 10n ** 18n).toString())
     })
 
     it('cannot claim twice', async () => {
@@ -219,19 +220,19 @@ describe('progress and claiming', () => {
         // Grind the ledger to the cap the ordinary way first.
         for (let i = 0; i < 200; i++) questProgress(as(p), 'battleWin')
         const { credit } = await import('./earnings')
-        while (credit(as(p) as any, 'battleWin') > 0) { /* fill to the cap */ }
+        for (let i = 0; i < 100_000; i++) if (credit(as(p) as any, 'battleWin') === 0) break
         questProgress(as(p), 'newMap', 1)
         await handleQuestClaim(as(p), { id: 'walker' })
         const claimed = p.sent.find((m) => m.type === 'quests:claimed')
         // Claimed, but paid zero: the cap is the cap, quests do not raise it.
         expect(claimed?.value.paid).toBe(0)
         const ledger = p.vars.get('EARNED') as Record<string, string>
-        expect(ledger['42']).toBe((BigInt(DAILY_CAP) * 10n ** 18n).toString())
+        expect(ledger['42']).toBe((BigInt(dailyCap()) * 10n ** 18n).toString())
     })
 
     it('the whole board fits under the daily cap with room to play', () => {
-        const total = DAILY_QUESTS.reduce((a, q) => a + q.reward, 0)
-        expect(total).toBeLessThan(DAILY_CAP / 2)
+        const total = DAILY_QUESTS.reduce((a, q) => a + questReward(q), 0)
+        expect(total).toBeLessThan(dailyCap() / 2)
         expect(REWARDS.quest).toBe(1) // rewards are priced on the board, paid via times
     })
 })

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { credit, flushPendingRewards, earnedThisEpoch, currentEpoch, REWARDS, DAILY_CAP } from './earnings'
+import { credit, flushPendingRewards, earnedThisEpoch, currentEpoch, REWARDS, dailyCap } from './earnings'
 
 /*
  * What a player is owed for playing.
@@ -143,29 +143,36 @@ describe('the daily cap', () => {
         const p = player()
         // Nothing rate-limits wild battles, so this is the only thing standing
         // between a script and the pool.
+        // Grind until it stops paying rather than a fixed number of wins: the
+        // cap is denominated in dollars now, so how many battles reach it
+        // depends on the price.
         let paid = 0
-        for (let i = 0; i < 500; i++) paid += credit(as(p), 'battleWin')
-        expect(paid).toBe(DAILY_CAP)
-        expect(ledgerOf(p)[String(currentEpoch())]).toBe((BigInt(DAILY_CAP) * unit).toString())
+        for (let i = 0; i < 100_000; i++) {
+            const got = credit(as(p), 'battleWin')
+            if (got === 0) break
+            paid += got
+        }
+        expect(paid).toBe(dailyCap())
+        expect(ledgerOf(p)[String(currentEpoch())]).toBe((BigInt(dailyCap()) * unit).toString())
     })
 
     it('pays the part that fits rather than refusing the whole reward', () => {
         const p = player()
         // Earn up to just under the cap, then claim something bigger than the
         // gap: the player should get the gap, not nothing.
-        const wins = Math.floor((DAILY_CAP - 10) / REWARDS.battleWin)
+        const wins = Math.floor((dailyCap() - 10) / REWARDS.battleWin)
         for (let i = 0; i < wins; i++) credit(as(p), 'battleWin')
         const before = BigInt(ledgerOf(p)[String(currentEpoch())])
         const paid = credit(as(p), 'firstCatch')
         expect(paid).toBeGreaterThan(0)
         expect(paid).toBeLessThan(REWARDS.firstCatch)
-        expect(BigInt(ledgerOf(p)[String(currentEpoch())])).toBe(BigInt(DAILY_CAP) * unit)
-        expect(before).toBeLessThan(BigInt(DAILY_CAP) * unit)
+        expect(BigInt(ledgerOf(p)[String(currentEpoch())])).toBe(BigInt(dailyCap()) * unit)
+        expect(before).toBeLessThan(BigInt(dailyCap()) * unit)
     })
 
     it('tells the player when they have hit it', () => {
         const p = player()
-        for (let i = 0; i < 200; i++) credit(as(p), 'battleWin')
+        for (let i = 0; i < 100_000; i++) if (credit(as(p), 'battleWin') === 0) break
         expect(p.sent.some((m) => m.type === 'rewards:capped')).toBe(true)
     })
 

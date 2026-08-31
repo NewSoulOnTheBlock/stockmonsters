@@ -19,7 +19,7 @@ interface EngineLike { processAction?: (action: string, data: unknown) => void }
 interface SocketLike { on?: (type: string, cb: (data: any) => void) => void }
 
 interface QuestRow {
-  id: string; title: string; goal: number; reward: number
+  id: string; title: string; goal: number; reward: number; usd?: number
   have: number; claimed: boolean; claimable: boolean
 }
 interface QuestView {
@@ -110,7 +110,18 @@ function render() {
     })
     row.append(
       el('span', { class: 'q-title', text: q.title }),
-      el('span', { class: 'q-reward', text: q.claimed ? 'CLAIMED' : `+${q.reward} SMON` }),
+      // The dollar figure is what the quest is actually WORTH — the token
+      // amount is derived from it and moves with the price, so showing only
+      // the tokens would be showing the half that means less over time.
+      el('span', {
+        class: 'q-reward',
+        text: q.claimed
+          ? 'CLAIMED'
+          : typeof q.usd === 'number'
+            ? `+$${q.usd.toFixed(2).replace(/\.00$/, '')}`
+            : `+${q.reward} SMON`,
+        title: `${q.reward.toLocaleString()} SMON at today's price`,
+      }),
       el('div', { class: 'q-bar' }, [el('i', { style: `width:${Math.round((q.have / q.goal) * 100)}%` })]),
       el('span', { class: 'q-count', text: `${q.have} / ${q.goal}` }),
     )
