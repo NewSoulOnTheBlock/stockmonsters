@@ -139,8 +139,9 @@ export const TWITTER_URL = "https://x.com/stonksters";
  * `name()`, `decimals()`, `totalSupply()` — not copied from a deploy script.
  *
  * The GAME's contracts (treasury, rewards, NFT, marketplace, gyms, arena) are
- * deliberately absent: that set is being redeployed and none of it is publish-
- * able yet. Only the token address is live and correct.
+ * deliberately absent. They live in stockmonsters-mmo/deployments/robinhood.json
+ * and are not published here — the token address is the only one a reader has
+ * any use for, and every extra address is another thing that can go stale.
  *
  * The rule the whole thing rests on: THE GAME NEVER MINTS. Supply is fixed and
  * there is no mint function, so every reward is a claim on a pool that already

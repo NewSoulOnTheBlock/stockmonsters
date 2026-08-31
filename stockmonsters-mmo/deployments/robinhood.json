@@ -34,7 +34,8 @@
       "symbol": "$STONKSTER",
       "supply": "1000000000000000000000000000",
       "logo": "",
-      "description": "The currency of Stockmonsters: 254 tickers you can catch, trade and battle."
+      "description": "The currency of Stockmonsters: 254 tickers you can catch, trade and battle.",
+      "requestedNotDeployed": true
     },
     "rewardsSeed": "100000000000000000000000000",
     "marketFeeBps": 250,
@@ -52,5 +53,11 @@
       "imageBaseURI": "ipfs://bafybeickaanjlxwbmcxaccjylsedi7omexniy56euyuio2agmffw5w3zrm/",
       "sealedImageURI": "ipfs://bafybeickaanjlxwbmcxaccjylsedi7omexniy56euyuio2agmffw5w3zrm/sealed.png"
     }
+  },
+  "token": {
+    "name": "Stock Monsters",
+    "symbol": "STONKSTERS",
+    "decimals": "18",
+    "totalSupply": "1000000000000000000000000000"
   }
 }

@@ -516,6 +516,29 @@ if (poolBalance === 0n) {
 
 /* -------------------------------------------------------------- record ---*/
 
+/*
+ * What the token ACTUALLY says it is, read off the chain.
+ *
+ * PARAMS.token is what we would have asked a launchpad for, and the two are
+ * not the same thing: this launch was requested as "$STONKSTER" and deployed
+ * as "STONKSTERS". Recording the request would leave a file that looks
+ * authoritative and disagrees with the contract, and anything reading a
+ * ticker out of it would be wrong.
+ */
+const tokenErc20 = [
+  { name: 'name', type: 'function', stateMutability: 'view', inputs: [], outputs: [{ type: 'string' }] },
+  { name: 'symbol', type: 'function', stateMutability: 'view', inputs: [], outputs: [{ type: 'string' }] },
+  { name: 'decimals', type: 'function', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint8' }] },
+  { name: 'totalSupply', type: 'function', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] },
+]
+const onChainToken = Object.fromEntries(await Promise.all(
+  ['name', 'symbol', 'decimals', 'totalSupply'].map(async (fn) => [
+    fn,
+    String(await publicClient.readContract({ address: tokenAddress, abi: tokenErc20, functionName: fn })),
+  ]),
+))
+log(`  token reports  ${onChainToken.name} (${onChainToken.symbol})`)
+
 const deployment = {
   chainId: target.chain.id,
   chain: CHAIN_NAME,
@@ -538,9 +561,13 @@ const deployment = {
     gyms: gyms.address,
     arena: arena.address,
   },
+  /// Read from the deployed contract, not from what we asked for.
+  token: onChainToken,
   params: {
     ...PARAMS,
-    token: { ...PARAMS.token, supply: PARAMS.token.supply.toString() },
+    /// The launch REQUEST, kept only as a record of what was asked. The
+    /// authoritative name and symbol are in `token` above.
+    token: { ...PARAMS.token, supply: PARAMS.token.supply.toString(), requestedNotDeployed: true },
     rewardsSeed: PARAMS.rewardsSeed.toString(),
   },
 }
