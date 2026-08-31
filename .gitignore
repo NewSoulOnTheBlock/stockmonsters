@@ -12,6 +12,17 @@ contracts/cache/
 # NEVER commit a key. contracts/.env holds the deployer private key; the game's
 # own .env holds the two server signing keys. Both are real money on mainnet.
 .env
+# Every .env VARIANT too, not just the bare name. `deploy.mjs --chain
+# robinhood-fork` writes .env.fork, and a rehearsal generates real signer
+# private keys into it exactly like a real deploy does. A rule that only
+# covered `.env` left three keys sitting untracked, one `git add -A` from
+# being published.
+.env.*
+!.env.example
+# A rehearsal's addresses are predictions, not a deployment. Keeping them
+# here would put a file that looks exactly like a deployment record next to
+# the real ones.
+stockmonsters-mmo/deployments/*-fork.json
 contracts/.env
 stockmonsters-mmo/.env
 new-assets/

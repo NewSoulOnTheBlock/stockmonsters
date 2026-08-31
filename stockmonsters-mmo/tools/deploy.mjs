@@ -3,22 +3,29 @@
  * block the game needs.
  *
  *   cd contracts && forge build
- *   cd ../stockmonsters-mmo && node tools/deploy.mjs --chain sepolia
+ *   cd ../stockmonsters-mmo && node tools/deploy.mjs --chain robinhood --token 0x…
+ *
+ * IT DOES NOT DEPLOY THE TOKEN. pons launches it, and what pons deploys is a
+ * plain fixed-supply ERC-20 with no owner, no mint and no tax. So the token's
+ * address is an INPUT here (--token, or SM_TOKEN_ADDRESS in the game's .env),
+ * and the script refuses to run without one. Launch first, deploy second.
  *
  * WHAT IT DEPLOYS, IN THIS ORDER (the order matters — each needs the last):
  *
- *   1. StockmonstersToken     the currency. Tax destinations are set to the
- *                             deployer for one block, then repointed, because
- *                             the pool and the treasury need the token's own
- *                             address to exist first.
- *   2. StockmonstersRewards   the pool players are paid out of
- *   3. StockmonstersTreasury  where revenue lands and is split
- *   4. StockmonstersNFT       the creatures
- *   5. StockmonstersMarket    peer-to-peer trading
+ *   1. StockmonstersRewards   the pool players are paid out of
+ *   2. StockmonstersTreasury  where revenue lands and is split
+ *   3. StockmonstersNFT       the creatures
+ *   4. StockmonstersMarket    peer-to-peer trading
+ *   5. StockmonstersGyms      staked defences
+ *   6. StockmonstersArena     duels
  *
- * ...then it wires them: the token's tax goes to the pool and the treasury,
- * the NFT and the market accept the token and send their fees to the treasury,
- * and every game contract is tax-exempt (they are not traders).
+ * ...then it wires them: the NFT and the market accept the token and send
+ * their fees to the treasury, and the treasury is pointed at the pons escrow
+ * it collects from and the router it buys the token back through.
+ *
+ * There is no tax wiring left. The old token taxed trades and every game
+ * contract had to be exempted from it, or a stake moving into an escrow would
+ * arrive short. A pons token moves exactly what was sent.
  *
  * SECRETS
  * The deployer key is read from contracts/.env (PRIVATE_KEY) and never
@@ -68,8 +75,73 @@ const CHAINS = {
     // SEPOLIA_RPC_URL when this one is rate-limiting.
     rpc: process.env.SEPOLIA_RPC_URL ?? 'https://ethereum-sepolia-rpc.publicnode.com',
   },
+  /*
+   * Robinhood Chain — where the token is launched and therefore where the
+   * game's economy has to live. An arbitrum-based L2; native currency is ETH.
+   * A duel escrow cannot hold a token on another chain, so this is not a
+   * preference.
+   */
+  robinhood: {
+    chain: {
+      id: 4663,
+      name: 'Robinhood Chain',
+      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+      rpcUrls: { default: { http: ['https://rpc.mainnet.chain.robinhood.com'] } },
+      blockExplorers: { default: { name: 'Blockscout', url: 'https://robinhoodchain.blockscout.com' } },
+    },
+    rpc: null, // filled from ROBINHOOD_RPC_URL below; the public one is rate limited
+    explorer: 'https://robinhoodchain.blockscout.com',
+    key: 'ROBINHOOD_PRIVATE_KEY',
+  },
+  /*
+   * A REHEARSAL of the Robinhood deploy, against a local fork of it.
+   *
+   *   anvil --fork-url "$ROBINHOOD_RPC_URL" --port 8545
+   *   node tools/deploy.mjs --chain robinhood-fork --token 0x…
+   *
+   * Same key, same chain id, same real pons and Uniswap contracts, and the
+   * same nonce sequence — so the addresses it prints are the addresses the
+   * real deploy will produce, and the gas it reports is what the real one
+   * will cost. It writes to .env.fork rather than the game's own .env, which
+   * is the point: a rehearsal that overwrote the live server's addresses
+   * would take the game down to prove a deploy works.
+   */
+  'robinhood-fork': {
+    chain: {
+      id: 4663,
+      name: 'Robinhood Chain (fork)',
+      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+      rpcUrls: { default: { http: ['http://127.0.0.1:8545'] } },
+    },
+    rpc: process.env.RPC_URL ?? 'http://127.0.0.1:8545',
+    explorer: 'https://robinhoodchain.blockscout.com',
+    key: 'ROBINHOOD_PRIVATE_KEY',
+    rehearsal: true,
+  },
   anvil: { chain: foundry, rpc: process.env.RPC_URL ?? 'http://127.0.0.1:8545' },
 }
+/*
+ * The pons and Uniswap v4 contracts on Robinhood Chain, all read back from
+ * the live chain rather than copied from a page.
+ *
+ * FEE_ESCROW is where our creator fees accrue and the treasury withdraws
+ * from. MEME_HOOK is the shared v4 hook every graduated pons pool uses, and
+ * where fees sit until they are swept across. UNIVERSAL_ROUTER is what the
+ * treasury's buyback swaps through — a v4 swap is a command stream, so the
+ * treasury stores the router and asserts the outcome rather than knowing its
+ * ABI.
+ */
+const PONS = {
+  factory: '0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e',
+  feeEscrow: '0xd3AFEB2a57f70eF218Aa82451c51B2fb0416Ac9e',
+  memeHook: '0xE5e702641Ea86F4ae6cC3cDaeD2B886f976Be044',
+}
+const UNISWAP = {
+  poolManager: '0x8366a39CC670B4001A1121B8F6A443A643e40951',
+  universalRouter: '0x8876789976dEcBfCbBbe364623C63652db8C0904',
+  stateView: '0xF3334192D15450CdD385c8B70e03f9A6bD9E673b',
+}
+
 const target = CHAINS[CHAIN_NAME]
 if (!target) {
   console.error(`unknown chain "${CHAIN_NAME}" — try: ${Object.keys(CHAINS).join(', ')}`)
@@ -169,17 +241,26 @@ function artifact(name, file = name) {
 /* --------------------------------------------------------------- keys ----*/
 
 const contractsEnv = readEnvFile(join(CONTRACTS, '.env'))
-const rawKey = contractsEnv.PRIVATE_KEY ?? process.env.PRIVATE_KEY
+
+// Each chain may name its own deployer key, so a mainnet key is never the
+// default and a testnet key can never reach mainnet by omission.
+const KEY_NAME = target.key ?? 'PRIVATE_KEY'
+const rawKey = contractsEnv[KEY_NAME] ?? process.env[KEY_NAME]
 if (!rawKey || !/^(0x)?[0-9a-fA-F]{64}$/.test(rawKey)) {
-  console.error('contracts/.env needs PRIVATE_KEY=0x… (64 hex chars) — the deployer key')
+  console.error(`contracts/.env needs ${KEY_NAME}=0x… (64 hex chars) — the deployer key for ${CHAIN_NAME}`)
   process.exit(1)
+}
+if (target.rpc === null) {
+  target.rpc = contractsEnv.ROBINHOOD_RPC_URL ?? process.env.ROBINHOOD_RPC_URL
+    ?? target.chain.rpcUrls.default.http[0]
 }
 const deployerKey = rawKey.startsWith('0x') ? rawKey : `0x${rawKey}`
 const deployer = privateKeyToAccount(deployerKey)
 
 // The two SERVER keys. Generated once and kept in the game's .env; never the
 // same key, so one compromise is not both.
-const mmoEnvPath = join(MMO, '.env')
+// A rehearsal writes beside the real one, never over it.
+const mmoEnvPath = join(MMO, target.rehearsal ? '.env.fork' : '.env')
 const mmoEnv = readEnvFile(mmoEnvPath)
 const newKeys = {}
 const gameSignerKey = mmoEnv.BOX_SIGNER_PK ?? (newKeys.BOX_SIGNER_PK = generatePrivateKey())
@@ -208,6 +289,14 @@ log(`deployer  ${deployer.address}`)
 log(`game signer   ${gameSigner.address}${newKeys.BOX_SIGNER_PK ? '  (new)' : ''}`)
 log(`claim signer  ${claimSigner.address}${newKeys.REWARDS_SIGNER_PK ? '  (new)' : ''}`)
 log(`battle signer ${battleSigner.address}${newKeys.BATTLE_SIGNER_PK ? '  (new)' : ''}`)
+
+const REQUIRES_TOKEN = CHAIN_NAME !== 'anvil'
+const tokenArg = flag('token', null) ?? mmoEnv.SM_TOKEN_ADDRESS ?? process.env.SM_TOKEN_ADDRESS
+if (REQUIRES_TOKEN && !/^0x[0-9a-fA-F]{40}$/.test(tokenArg ?? '')) {
+  console.error('\nno token address. pons launches the token; this script only deploys the game around it.')
+  console.error('pass --token 0x… or set SM_TOKEN_ADDRESS in the game .env, then run again.')
+  process.exit(1)
+}
 
 const balance = await publicClient.getBalance({ address: deployer.address })
 log(`balance   ${formatEther(balance)} ETH`)
@@ -308,12 +397,9 @@ if (ONLY === 'pvp') {
     PARAMS.arena.dailyPayoutCap,
   ])
 
-  step('wiring')
-  const tokenContract = { address: tokenAddress, abi: artifact('StockmonstersToken').abi }
-  // Escrow contracts are not traders: a stake moving in or out must arrive
-  // whole, or the contract ends up owing more than it holds.
-  await send('token: gyms are tax-exempt', tokenContract, 'setTaxExempt', [gyms.address, true])
-  await send('token: the arena is tax-exempt', tokenContract, 'setTaxExempt', [arena.address, true])
+  // Nothing to wire on the token: a pons token has no owner and no tax, so
+  // there is no exemption to grant. The old token taxed transfers, and an
+  // escrow that received a stake short would end up owing more than it held.
 
   upsertEnv(mmoEnvPath, {
     ...newKeys,
@@ -343,20 +429,31 @@ if (ONLY === 'pvp') {
 }
 
 step('deploying')
-// The token's tax destinations cannot be their final values yet: neither
-// contract exists. Point them at the deployer and repoint below — the token is
-// not tradable until a pair is registered, so nothing is taxed in between.
-const token = await deploy('StockmonstersToken', [
-  PARAMS.token.name,
-  PARAMS.token.symbol,
-  PARAMS.token.supply,
-  deployer.address,
-  deployer.address,
-  PARAMS.token.logo,
-  PARAMS.token.description,
-])
-const rewards = await deploy('StockmonstersRewards', [token.address, claimSigner.address])
-const treasury = await deploy('StockmonstersTreasury', [token.address, rewards.address, deployer.address])
+/*
+ * The token is NOT deployed here. pons launched it, and its address is an
+ * input — everything below needs it, and nothing below can change it.
+ */
+const tokenAddress = getAddress(
+  flag('token', null) ?? mmoEnv.SM_TOKEN_ADDRESS ?? process.env.SM_TOKEN_ADDRESS ?? '',
+)
+log(`  token (launched by pons)  ${tokenAddress}`)
+
+/*
+ * Where the operating half of revenue is pushed.
+ *
+ * Deliberately NOT the deployer. The deployer owns every contract here and can
+ * upgrade all of them, and a key that both holds the upgrade authority and
+ * receives the money is one compromise away from losing both at once.
+ */
+const opsWallet = getAddress(contractsEnv.FEE_RECEIVER ?? process.env.FEE_RECEIVER ?? '')
+log(`  ops wallet                ${opsWallet}`)
+if (opsWallet.toLowerCase() === deployer.address.toLowerCase()) {
+  console.error('\nFEE_RECEIVER is the deployer. Use a separate wallet: the deployer can upgrade every contract.')
+  process.exit(1)
+}
+
+const rewards = await deploy('StockmonstersRewards', [tokenAddress, claimSigner.address])
+const treasury = await deploy('StockmonstersTreasury', [tokenAddress, rewards.address, opsWallet])
 const nft = await deploy('StockmonstersNFT', [
   gameSigner.address,
   PARAMS.nft.imageBaseURI,
@@ -364,38 +461,57 @@ const nft = await deploy('StockmonstersNFT', [
 ])
 const market = await deploy('StockmonstersMarket', [nft.address, treasury.address, PARAMS.marketFeeBps])
 const gyms = await deploy('StockmonstersGyms', [
-  token.address, treasury.address, battleSigner.address, PARAMS.gyms.minStake, PARAMS.gyms.maxStake,
+  tokenAddress, treasury.address, battleSigner.address, PARAMS.gyms.minStake, PARAMS.gyms.maxStake,
 ])
 const arena = await deploy('StockmonstersArena', [
-  token.address, treasury.address, battleSigner.address, PARAMS.arena.maxWager, PARAMS.arena.dailyPayoutCap,
+  tokenAddress, treasury.address, battleSigner.address, PARAMS.arena.maxWager, PARAMS.arena.dailyPayoutCap,
 ])
 
 step('wiring')
-await send('token: tax → rewards pool + treasury', token, 'setTaxDestinations', [rewards.address, treasury.address])
-await send('token: game contracts are tax-exempt (nft)', token, 'setTaxExempt', [nft.address, true])
-await send('token: game contracts are tax-exempt (market)', token, 'setTaxExempt', [market.address, true])
 await send('nft: fees → treasury', nft, 'setTreasury', [treasury.address])
-await send('nft: accepts $STONKSTER', nft, 'setAcceptedCurrency', [token.address, true])
+await send('nft: accepts the token', nft, 'setAcceptedCurrency', [tokenAddress, true])
 await send('nft: royalty → treasury', nft, 'setDefaultRoyalty', [treasury.address, PARAMS.royaltyBps])
 await send('nft: claim fee', nft, 'setClaimFee', [parseEther(PARAMS.claimFeeEth)])
-await send('market: accepts $STONKSTER', market, 'setAcceptedCurrency', [token.address, true])
-await send('token: gyms are tax-exempt', token, 'setTaxExempt', [gyms.address, true])
-await send('token: the arena is tax-exempt', token, 'setTaxExempt', [arena.address, true])
+await send('market: accepts the token', market, 'setAcceptedCurrency', [tokenAddress, true])
 
-step('funding the rewards pool')
-await send(
-  `token: ${formatEther(PARAMS.rewardsSeed)} $STONKSTER → rewards pool`,
-  token,
-  'transfer',
-  [rewards.address, PARAMS.rewardsSeed],
-)
-// Epochs are one UTC day each, counted from today. Funding a fortnight up
-// front means nobody has to remember to do it during a test week; topping up
-// later is `node tools/fund-epochs.mjs`.
+// Where the money now comes from, and how it gets back to players. Without
+// these two the treasury collects nothing and can buy nothing.
+await send('treasury: collects from the pons escrow', treasury, 'setPonsSources', [PONS.feeEscrow, PONS.memeHook])
+await send('treasury: buys back through the universal router', treasury, 'setRouter', [UNISWAP.universalRouter])
+
+step('the rewards pool')
+/*
+ * IT STARTS EMPTY, AND THAT IS THE CHANGE.
+ *
+ * The old deploy transferred 100,000,000 tokens into the pool, because we had
+ * minted the supply and could. pons mints the entire supply to the bonding
+ * curve, so we hold none of it and there is nothing to transfer. The pool is
+ * filled the only way left: revenue reaches the treasury as ETH, `buyback`
+ * spends the players' half of it on the open market, and every token bought
+ * lands here.
+ *
+ * The consequence to state out loud: until a buyback has run, a reward claim
+ * has nothing to pay from. Epoch budgets are a CEILING on what a signer may
+ * authorise, not a balance — funding fourteen of them against an empty pool
+ * would authorise payouts that cannot settle.
+ */
 const DAY0 = Math.floor(Date.now() / 86_400_000)
-const EPOCHS_AHEAD = 14
-for (let e = 1; e <= EPOCHS_AHEAD; e++) {
-  await send(`rewards: epoch ${e} funded`, rewards, 'fundEpoch', [BigInt(e), parseEther('1000000')])
+const poolBalance = await publicClient.readContract({
+  address: tokenAddress,
+  abi: [{ name: 'balanceOf', type: 'function', stateMutability: 'view',
+          inputs: [{ type: 'address' }], outputs: [{ type: 'uint256' }] }],
+  functionName: 'balanceOf',
+  args: [rewards.address],
+})
+log(`  pool holds ${formatEther(poolBalance)} tokens`)
+if (poolBalance === 0n) {
+  log('  no epochs funded — there is nothing to pay out yet.')
+  log('  fill it with a buyback, then: node tools/fund-epochs.mjs')
+} else {
+  const perEpoch = poolBalance / 14n
+  for (let e = 1; e <= 14; e++) {
+    await send(`rewards: epoch ${e} funded`, rewards, 'fundEpoch', [BigInt(e), perEpoch])
+  }
 }
 
 /* -------------------------------------------------------------- record ---*/
@@ -409,8 +525,12 @@ const deployment = {
   claimSigner: claimSigner.address,
   battleSigner: battleSigner.address,
   epochDay0: DAY0,
+  tokenLaunchedBy: 'pons',
+  pons: PONS,
+  uniswap: UNISWAP,
+  opsWallet,
   contracts: {
-    token: token.address,
+    token: tokenAddress,
     rewards: rewards.address,
     treasury: treasury.address,
     nft: nft.address,
@@ -447,7 +567,7 @@ const envUpdates = {
   SM_CHAIN_ID: String(target.chain.id),
   SM_EPOCH_DAY0: String(DAY0),
   SM_RPC_URL: target.rpc,
-  SM_TOKEN_ADDRESS: token.address,
+  SM_TOKEN_ADDRESS: tokenAddress,
   SM_REWARDS_ADDRESS: rewards.address,
   SM_TREASURY_ADDRESS: treasury.address,
   SM_MARKET_ADDRESS: market.address,
@@ -465,5 +585,12 @@ log(`updated ${mmoEnvPath} (${Object.keys(envUpdates).length} keys${
 })`)
 log('\nAddresses:')
 for (const [k, v] of Object.entries(deployment.contracts)) log(`  ${k.padEnd(10)} ${v}`)
-log(`\nExplorer: https://sepolia.etherscan.io/address/${token.address}`)
-log('\nNot verified on Etherscan — deliberate. Run forge verify-contract later if wanted.')
+const explorer = target.explorer ?? 'https://sepolia.etherscan.io'
+log(`\nExplorer: ${explorer}/address/${treasury.address}`)
+log('\nNot verified on a block explorer. Run forge verify-contract to publish the source.')
+
+log('\nTHE TOKEN IS NOT OURS TO CONFIGURE. Two things still have to happen by hand:')
+log(`  1. point the launch's creator fees at the treasury:`)
+log(`     pons factory ${PONS.factory} → transferCreatorFeeRecipient(${tokenAddress}, ${treasury.address})`)
+log('     callable only by the wallet that currently receives them.')
+log('  2. fill the rewards pool with a buyback once fees have accrued.')
