@@ -113,18 +113,29 @@ if (landed && landed.map !== 'exterior') {
    */
   let best = 0
   let escaped = null
+  let bounced = false
   for (const dir of ['up', 'left', 'right', 'down']) {
     const from = await read()
     await hold(dir, 700)
     await sleep(800)
     const to = await read()
-    if (!from || !to || to.map !== from.map) { escaped = dir; best = 999; break }
+    /*
+     * Leaving the map is NOT success here — it is the bug.
+     *
+     * The arrival used to sit one tile below the return warp, so the first
+     * step a player took sent them back where they came from. On a fresh
+     * login, where no arrival immunity has been recorded, that is a bounce
+     * with no way out. Landing somewhere you can walk AROUND is the point.
+     */
+    if (!from || !to || to.map !== from.map) { bounced = true; console.log(`    ${dir}: BOUNCED back to ${to?.map}`); break }
     const moved = Math.hypot(to.x - from.x, to.y - from.y)
     console.log(`    ${dir.padEnd(5)} moved ${Math.round(moved)}px`)
     if (moved > best) { best = moved; escaped = dir }
   }
+  check('the ferry does not drop us onto its own return tile',
+    !bounced, 'the first step took us straight back')
   check('we can WALK where the ferry left us — not wedged into a wall',
-    best > 8, best > 8 ? `moved ${Math.round(best)}px (${escaped})` : 'every direction blocked')
+    !bounced && best > 8, best > 8 ? `moved ${Math.round(best)}px (${escaped})` : 'every direction blocked')
 }
 
 await page.screenshot({ path: process.env.SHOT ?? 'ferry.png' })
