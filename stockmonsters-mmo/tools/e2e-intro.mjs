@@ -119,7 +119,20 @@ const done = await page.evaluate(async (n) => {
   // button between typing it and being registered.
   const readBack = document.querySelector('#sm-intro .line')?.textContent ?? ''
   document.querySelector('#sm-intro.choosing .choices button')?.click()
-  await new Promise((r) => setTimeout(r, 2500))
+  /*
+   * WAIT FOR THE LINE TO FINISH TYPING, don't sleep and hope.
+   *
+   * Kelby's lines are typed out a character at a time, so a fixed pause read
+   * the sign-off mid-word — "You are registered, Ky" — and reported that he
+   * had failed to use the name he had just been given. The assertion was
+   * right; the test was reading too early.
+   */
+  const deadline = Date.now() + 12_000
+  while (Date.now() < deadline) {
+    const line = document.querySelector('#sm-intro .line')?.textContent ?? ''
+    if (line.includes(n)) break
+    await new Promise((r) => setTimeout(r, 200))
+  }
   return {
     readBack,
     line: document.querySelector('#sm-intro .line')?.textContent ?? '',

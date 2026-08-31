@@ -388,10 +388,36 @@ export function mountChatUi(engine: Engine, socket: Socket) {
           if (confirmedName || modal.classList.contains('open')) return
           // A brand-new trader meets Kelby, who explains the game and asks
           // their name at the end of it — the original opening, restored.
-          // The bare modal stays as the fallback for a client where the intro
-          // failed to mount, and for changing a name later.
-          playIntro()
+          //
+          // AND IF HE CANNOT COME, ASK ANYWAY. `playIntro` declines when the
+          // conversation never mounted, and this was the only thing that ever
+          // asked a nameless player for a name — so on a client where it
+          // failed, nobody asked, ever, and the player kept the placeholder
+          // for good. The fallback the comment used to promise is now actually
+          // wired up.
+          if (!playIntro()) openNameModal()
         }, NAME_GRACE_MS)
+
+        /*
+         * THE BACKSTOP.
+         *
+         * Measured on the live server: of 34 players, 7 had no name, and one
+         * of them played for nine minutes as a placeholder. Every path above
+         * is conditional on something — a timer, a mount, a socket reply — and
+         * a question that is only sometimes asked is one that is sometimes
+         * never answered.
+         *
+         * So: long after every other path has had its chance, if there is
+         * still no confirmed name and nothing on screen asking for one, ask.
+         * This costs a named player nothing (the first condition is false for
+         * them) and it is the only check here that cannot itself be skipped.
+         */
+        setTimeout(function insist() {
+          if (confirmedName) return
+          const asking = modal.classList.contains('open') || introIsAsking()
+          if (!asking && !playIntro()) openNameModal()
+          setTimeout(insist, 30_000)
+        }, 45_000)
       })
     }
   }

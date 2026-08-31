@@ -306,8 +306,22 @@ export function introNameAccepted(name: string): void {
             choose: ['That is me', 'Let me fix it'],
             then: [[], []],
         } as Extract<Beat, { choose: [string, string] }>)
-        // Rewire the two buttons: this beat is not part of the script.
-        const [yes, no] = Array.from(choicesEl?.children ?? []) as HTMLButtonElement[]
+        /*
+         * REPLACE the two buttons; do not assign `.onclick` over them.
+         *
+         * `offer` binds each button with addEventListener, and assigning
+         * onclick does not remove that — so one click ran BOTH handlers. The
+         * script one fired first, found the script exhausted, and called
+         * `askName()` again, re-opening the very question the player had just
+         * answered, before the sign-off ran on top of it.
+         *
+         * Cloning drops every listener the old node carried, which is exactly
+         * what "this beat is not part of the script" was trying to say.
+         */
+        const old = Array.from(choicesEl?.children ?? []) as HTMLButtonElement[]
+        const fresh = old.map((b) => b.cloneNode(true) as HTMLButtonElement)
+        choicesEl?.replaceChildren(...fresh)
+        const [yes, no] = fresh
         if (yes) yes.onclick = () => { root?.classList.remove('choosing'); signOff() }
         if (no) no.onclick = () => {
             root?.classList.remove('choosing')
@@ -337,9 +351,18 @@ export function closeIntro(): void {
 /**
  * Play it. Safe to call twice — the second call is ignored while it is up,
  * and once a name is confirmed it never plays again.
+ *
+ * @returns whether the conversation is now on screen. THE RETURN VALUE IS THE
+ * POINT. This used to return nothing and decline silently when `mountIntro`
+ * had not run, and chat-ui called it as the ONLY way a new player is ever
+ * asked their name — so on any client where the intro failed to mount, nobody
+ * asked, and the player kept the placeholder name for the rest of their life.
+ * The comment beside that call already promised a fallback to the bare modal;
+ * there was no way for the caller to know it was needed.
  */
-export function playIntro(): void {
-    if (!root || isOpen() || finished) return
+export function playIntro(): boolean {
+    if (!root || finished) return false
+    if (isOpen()) return true
     step = 0
     queued = []
     pendingName = null
@@ -347,6 +370,7 @@ export function playIntro(): void {
     root.classList.remove('asking', 'choosing')
     root.classList.add('open')
     advance()
+    return true
 }
 
 export function mountIntro(engine: EngineLike): void {
