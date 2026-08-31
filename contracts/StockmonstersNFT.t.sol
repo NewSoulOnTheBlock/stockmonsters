@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {Deployers} from "./Deployers.sol";
+
 import {StockmonstersNFT} from "./StockmonstersNFT.sol";
 import {
     Vm,
@@ -31,7 +33,7 @@ contract StockmonstersNFTTest {
         "A sealed box from the Stockmonsters world. Something was caught and locked inside; only a keccak256 commitment of its attributes exists on-chain. The owner can open it at any time to reveal what is inside - permanently and publicly.";
 
     function setUp() public {
-        nft = new StockmonstersNFT(vm.addr(SIGNER_PK), "ipfs://images/", "ipfs://sealed-box.png");
+        nft = Deployers.nft(vm.addr(SIGNER_PK), "ipfs://images/", "ipfs://sealed-box.png", address(this));
         vm.deal(player, 10 ether);
         vm.deal(stranger, 10 ether);
     }

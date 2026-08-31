@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {UUPSUpgradeable} from "./Upgradeable.sol";
+
 interface IERC20Arena {
     function transfer(address to, uint256 value) external returns (bool);
     function transferFrom(address from, address to, uint256 value) external returns (bool);
@@ -48,10 +50,13 @@ interface IERC20Arena {
 ///
 /// **This is gambling in many places.** That is a decision to make before
 /// deploying it, not after.
-contract StockmonstersArena {
+contract StockmonstersArena is UUPSUpgradeable {
     string public constant name = "StockmonstersArena";
 
-    IERC20Arena public immutable token;
+    /// Not `immutable`: an immutable lives in the implementation's CODE, so
+    /// behind a proxy it would hold whatever that implementation was deployed
+    /// with rather than what this proxy was initialised with.
+    IERC20Arena public token;
 
     address public owner;
     address public pendingOwner;
@@ -61,7 +66,7 @@ contract StockmonstersArena {
     bool public paused;
 
     /// The rake, in basis points, taken from the pot on settlement.
-    uint16 public rakeBps = 300;
+    uint16 public rakeBps;
     uint16 public constant MAX_RAKE_BPS = 1000; // 10%, hard cap
 
     /// The largest single wager. Bounds one signature.
@@ -72,7 +77,7 @@ contract StockmonstersArena {
     uint64 public dayStartedAt;
 
     /// How long the server has to sign a result before either side may walk.
-    uint64 public resultWindow = 30 minutes;
+    uint64 public resultWindow;
 
     enum Status { None, Open, Settled, Refunded }
 
@@ -134,7 +139,9 @@ contract StockmonstersArena {
     );
     event MatchRefunded(bytes32 indexed matchId, address indexed player, uint256 amount);
 
-    uint256 private _lock = 1;
+    /// Set in `initialize`, NOT inline. An inline initializer runs in the
+    /// implementation's constructor and never touches the proxy's storage.
+    uint256 private _lock;
 
     modifier nonReentrant() {
         require(_lock == 1, "REENTRANCY");
@@ -148,21 +155,39 @@ contract StockmonstersArena {
         _;
     }
 
-    constructor(address _token, address _treasury, address _resultSigner, uint256 _maxWager, uint256 _dailyPayoutCap) {
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(
+        address _token,
+        address _treasury,
+        address _resultSigner,
+        uint256 _maxWager,
+        uint256 _dailyPayoutCap,
+        address _owner
+    ) external initializer {
         require(_token != address(0) && _treasury != address(0), "ZERO_ADDRESS");
         require(_maxWager > 0 && _dailyPayoutCap >= _maxWager, "BAD_LIMITS");
+        require(_owner != address(0), "ZERO_OWNER");
+        // Everything that used to be an inline field initializer.
+        rakeBps = 300;
+        resultWindow = 30 minutes;
+        _lock = 1;
         token = IERC20Arena(_token);
-        owner = msg.sender;
+        owner = _owner;
         treasury = _treasury;
         resultSigner = _resultSigner;
         maxWager = _maxWager;
         dailyPayoutCap = _dailyPayoutCap;
         dayStartedAt = uint64(block.timestamp);
-        emit OwnershipTransferred(address(0), msg.sender);
+        emit OwnershipTransferred(address(0), _owner);
         emit ResultSignerChanged(_resultSigner);
         emit TreasuryChanged(_treasury);
         emit LimitsChanged(_maxWager, _dailyPayoutCap, rakeBps);
     }
+
+    function _authorizeUpgrade(address) internal view override onlyOwner {}
 
     /* ------------------------------------------------------------ admin ---*/
 
@@ -413,4 +438,8 @@ contract StockmonstersArena {
         require(recovered != address(0), "BAD_SIGNATURE");
         return recovered;
     }
+
+    /// Room for state a later version adds. Append and shrink this by the same
+    /// number of slots; never reorder or retype what is above.
+    uint256[45] private __gap;
 }

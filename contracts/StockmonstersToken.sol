@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {UUPSUpgradeable} from "./Upgradeable.sol";
+
 /// @title StockmonstersToken — the game's currency, and a tax that pays players
 ///
 /// A plain ERC-20 with three deliberate properties:
@@ -27,7 +29,7 @@ pragma solidity ^0.8.24;
 /// `liquidityPool()` are readable on chain, so the game reads its own currency
 /// metadata from the token rather than from a config file. See
 /// stockmonsters-mmo/docs/token-economy.md.
-contract StockmonstersToken {
+contract StockmonstersToken is UUPSUpgradeable {
     // --- ERC-20 ---------------------------------------------------------
     string public name;
     string public symbol;
@@ -132,17 +134,32 @@ contract StockmonstersToken {
     event TaxExemptSet(address indexed account, bool exempt);
     event TaxCollected(address indexed from, address indexed to, uint256 toRewards, uint256 toTreasury);
 
-    constructor(
+    constructor() {
+        _disableInitializers();
+    }
+
+    /**
+     * @param _holder receives the entire supply — the deployer, who seeds
+     *        liquidity and funds the rewards pool.
+     *
+     * PASSED IN RATHER THAN `msg.sender`. Through a proxy this runs as a
+     * delegatecall from the proxy's constructor, and relying on who that makes
+     * `msg.sender` is exactly the kind of thing that is fine until the day
+     * something deploys through a factory.
+     */
+    function initialize(
         string memory _name,
         string memory _symbol,
         uint256 _supply,
         address _rewardsPool,
         address _treasury,
         string memory _logo,
-        string memory _description
-    ) {
+        string memory _description,
+        address _holder
+    ) external initializer {
         require(_rewardsPool != address(0) && _treasury != address(0), "ZERO_DESTINATION");
-        owner = msg.sender;
+        require(_holder != address(0), "ZERO_HOLDER");
+        owner = _holder;
         name = _name;
         symbol = _symbol;
         logo = _logo;
@@ -157,20 +174,33 @@ contract StockmonstersToken {
         // The whole supply goes to the deployer, who seeds liquidity and funds
         // the rewards pool. There is no mint function: this is all of it, ever.
         totalSupply = _supply;
-        balanceOf[msg.sender] = _supply;
+        balanceOf[_holder] = _supply;
 
         // Nothing internal to the game ever pays tax.
-        isTaxExempt[msg.sender] = true;
+        isTaxExempt[_holder] = true;
         isTaxExempt[_rewardsPool] = true;
         isTaxExempt[_treasury] = true;
         isTaxExempt[address(this)] = true;
 
-        emit OwnershipTransferred(address(0), msg.sender);
-        emit Transfer(address(0), msg.sender, _supply);
+        emit OwnershipTransferred(address(0), _holder);
+        emit Transfer(address(0), _holder, _supply);
         emit TaxChanged(200, 200);
         emit TaxSplitChanged(7500);
         emit TaxDestinationsChanged(_rewardsPool, _treasury);
     }
+
+    /**
+     * Only the owner may upgrade.
+     *
+     * READ THIS BEFORE MAINNET. An upgradeable token is a different promise
+     * from an immutable one: "fixed supply, no mint function" stops being a
+     * property of the code and becomes a promise by whoever holds this key,
+     * because an upgrade can add one. That is acceptable while the game's
+     * rules are still moving; it is not acceptable for a token people are
+     * asked to buy. Put this behind a timelock — or renounce it — before
+     * there is real money in it.
+     */
+    function _authorizeUpgrade(address) internal view override onlyOwner {}
 
     // --- admin ------------------------------------------------------------
 
@@ -311,4 +341,8 @@ contract StockmonstersToken {
         }
         emit Transfer(from, to, received);
     }
+
+    /// Room for state a later version adds. Append and shrink this by the same
+    /// number of slots; never reorder or retype what is above.
+    uint256[45] private __gap;
 }

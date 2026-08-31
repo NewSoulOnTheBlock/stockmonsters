@@ -33,7 +33,9 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createPublicClient, createWalletClient, http, parseEther, formatEther, getAddress } from 'viem'
+import {
+  createPublicClient, createWalletClient, http, parseEther, formatEther, getAddress, encodeFunctionData,
+} from 'viem'
 import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
 import { sepolia, foundry } from 'viem/chains'
 
@@ -139,8 +141,13 @@ function upsertEnv(path, updates) {
   writeFileSync(path, lines.join('\n').replace(/\n{3,}$/, '\n\n'))
 }
 
-function artifact(name) {
-  const path = join(OUT, `${name}.sol`, `${name}.json`)
+/**
+ * @param name the contract
+ * @param file the .sol it lives in, when that is not the same name — the proxy
+ *        is declared in Upgradeable.sol alongside the rest of the machinery.
+ */
+function artifact(name, file = name) {
+  const path = join(OUT, `${file}.sol`, `${name}.json`)
   if (!existsSync(path)) {
     console.error(`missing artifact ${path}\nrun: cd ../contracts && forge build`)
     process.exit(1)
@@ -203,13 +210,50 @@ if (DRY_RUN) {
   process.exit(0)
 }
 
-async function deploy(name, args_) {
+async function deployProxy(implAddress, initData, label) {
+  const { abi, bytecode } = artifact('StockmonstersProxy', 'Upgradeable')
+  const hash = await wallet.deployContract({ abi, bytecode, args: [implAddress, initData] })
+  const receipt = await publicClient.waitForTransactionReceipt({ hash })
+  if (receipt.status !== 'success') throw new Error(`${label} deployment reverted (${hash})`)
+  return { address: getAddress(receipt.contractAddress), gas: receipt.gasUsed }
+}
+
+async function deployRaw(name, args_, label = name) {
   const { abi, bytecode } = artifact(name)
   const hash = await wallet.deployContract({ abi, bytecode, args: args_ })
   const receipt = await publicClient.waitForTransactionReceipt({ hash })
-  if (receipt.status !== 'success') throw new Error(`${name} deployment reverted (${hash})`)
-  log(`  ${name.padEnd(22)} ${receipt.contractAddress}   gas ${receipt.gasUsed}`)
-  return { address: getAddress(receipt.contractAddress), abi }
+  if (receipt.status !== 'success') throw new Error(`${label} deployment reverted (${hash})`)
+  return { address: getAddress(receipt.contractAddress), abi, gas: receipt.gasUsed }
+}
+
+/**
+ * Deploy a contract BEHIND A PROXY, and initialise it in the same transaction.
+ *
+ * Everything the game owns is upgradeable now: the rules change every week and
+ * redeploying would strand every balance, every minted creature and every open
+ * order at the old address. What is returned is the PROXY — that is the address
+ * that holds the state, the address the game talks to, and the address every
+ * signature verifies against.
+ *
+ * `initialize` is called from inside the proxy's constructor rather than in a
+ * follow-up transaction. A proxy that exists uninitialised for even one block
+ * can be initialised by whoever is watching, and they become the owner.
+ *
+ * The initializer's last argument is always the owner, so it is appended here
+ * rather than repeated at seven call sites.
+ */
+async function deploy(name, initArgs) {
+  const impl = await deployRaw(name, [], `${name} implementation`)
+  const initData = encodeFunctionData({
+    abi: impl.abi,
+    functionName: 'initialize',
+    args: [...initArgs, deployer.address],
+  })
+  const proxy = await deployProxy(impl.address, initData, `${name} proxy`)
+  log(`  ${name.padEnd(22)} ${proxy.address}   impl ${impl.address}   gas ${impl.gas + proxy.gas}`)
+  // The ABI is the implementation's: that is what callers encode against, and
+  // the proxy forwards everything it does not understand, which is everything.
+  return { address: proxy.address, abi: impl.abi, implementation: impl.address }
 }
 
 async function send(label, contract, functionName, args_ = []) {

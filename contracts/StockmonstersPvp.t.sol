@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {Deployers} from "./Deployers.sol";
+
 import "./TestHelpers.sol";
 import "./StockmonstersToken.sol";
 import "./StockmonstersGyms.sol";
@@ -31,9 +33,9 @@ contract PvpBase {
     function _setUpToken() internal {
         alice = vm.addr(ALICE_PK);
         bob = vm.addr(BOB_PK);
-        token = new StockmonstersToken(
+        token = Deployers.token(
             "Stockmonsters", "SMON", 1_000_000 ether, address(0x1111), treasury, "", ""
-        );
+        , address(this));
         vm.warp(1_000_000);
         token.transfer(alice, 100_000 ether);
         token.transfer(bob, 100_000 ether);
@@ -56,7 +58,7 @@ contract GymsTest is PvpBase {
 
     function setUp() public {
         _setUpToken();
-        gyms = new StockmonstersGyms(address(token), treasury, vm.addr(SIGNER_PK), MIN_STAKE, MAX_STAKE);
+        gyms = Deployers.gyms(address(token), treasury, vm.addr(SIGNER_PK), MIN_STAKE, MAX_STAKE, address(this));
         token.setTaxExempt(address(gyms), true);
         vm.prank(alice);
         token.approve(address(gyms), type(uint256).max);
@@ -320,7 +322,7 @@ contract ArenaTest is PvpBase {
 
     function setUp() public {
         _setUpToken();
-        arena = new StockmonstersArena(address(token), treasury, vm.addr(SIGNER_PK), MAX_WAGER, DAILY_CAP);
+        arena = Deployers.arena(address(token), treasury, vm.addr(SIGNER_PK), MAX_WAGER, DAILY_CAP, address(this));
         token.setTaxExempt(address(arena), true);
         vm.prank(alice);
         token.approve(address(arena), type(uint256).max);

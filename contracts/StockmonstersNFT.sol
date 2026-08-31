@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {UUPSUpgradeable} from "./Upgradeable.sol";
+
 /// @title Stockmonsters NFT — sealed-box catch-to-mint ERC-721
 ///
 /// Design (see DESIGN.md):
@@ -30,7 +32,7 @@ interface IERC721Receiver {
         returns (bytes4);
 }
 
-contract StockmonstersNFT {
+contract StockmonstersNFT is UUPSUpgradeable {
     // --- ERC-721 core -------------------------------------------------
     string public constant name = "Stockmonsters";
     string public constant symbol = "STOCKMON";
@@ -191,7 +193,9 @@ contract StockmonstersNFT {
     address public gameSigner;
     string public imageBaseURI; // e.g. "ipfs://<cid>/" — "<ticker>/regular.png" is appended
     string public sealedImageURI; // one image for every sealed box
-    uint256 public claimFee = 0.01 ether; // advertised price; the SIGNED fee is authoritative
+    /// Set in `initialize`, NOT inline. An inline initializer runs in the
+    /// implementation's constructor and never touches the proxy's storage.
+    uint256 public claimFee; // advertised price; the SIGNED fee is authoritative
     /// Where claim fees end up. Set to StockmonstersTreasury, which splits
     /// them: half buys the game token back for the players, half funds
     /// operations. Zero means "hold here until someone sets it".
@@ -223,13 +227,26 @@ contract StockmonstersNFT {
     event CurrencyAccepted(address indexed currency, bool accepted);
     event Swept(uint256 ethAmount);
 
-    constructor(address _gameSigner, string memory _imageBaseURI, string memory _sealedImageURI) {
-        owner = msg.sender;
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(
+        address _gameSigner,
+        string memory _imageBaseURI,
+        string memory _sealedImageURI,
+        address _owner
+    ) external initializer {
+        require(_owner != address(0), "ZERO_OWNER");
+        owner = _owner;
         gameSigner = _gameSigner;
         imageBaseURI = _imageBaseURI;
         sealedImageURI = _sealedImageURI;
-        emit OwnershipTransferred(address(0), msg.sender);
+        claimFee = 0.01 ether;
+        emit OwnershipTransferred(address(0), _owner);
     }
+
+    function _authorizeUpgrade(address) internal view override onlyOwner {}
 
     function setGameSigner(address _signer) external onlyOwner {
         gameSigner = _signer;
@@ -740,4 +757,8 @@ contract StockmonstersNFT {
         }
         return string(result);
     }
+
+    /// Room for state a later version adds. Append and shrink this by the same
+    /// number of slots; never reorder or retype what is above.
+    uint256[45] private __gap;
 }

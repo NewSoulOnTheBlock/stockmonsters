@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {Deployers} from "./Deployers.sol";
+
 import "./TestHelpers.sol";
 import "./StockmonstersToken.sol";
 import "./StockmonstersRewards.sol";
@@ -97,19 +99,19 @@ contract EconomyTest {
         // pointed at the real pair immediately.
         address predictedRewards = address(0x1111);
         address predictedTreasury = address(0x2222);
-        token = new StockmonstersToken(
+        token = Deployers.token(
             "Stockmonsters", "SMON", SUPPLY, predictedRewards, predictedTreasury, "ipfs://logo.png", "The game token"
-        );
-        rewards = new StockmonstersRewards(address(token), vm.addr(CLAIM_SIGNER_PK));
-        treasury = new StockmonstersTreasury(address(token), address(rewards), ops);
+        , address(this));
+        rewards = Deployers.rewards(address(token), vm.addr(CLAIM_SIGNER_PK), address(this));
+        treasury = Deployers.treasury(address(token), address(rewards), ops, address(this));
         token.setTaxDestinations(address(rewards), address(treasury));
 
-        nft = new StockmonstersNFT(vm.addr(GAME_SIGNER_PK), "ipfs://images/", "ipfs://sealed.png");
+        nft = Deployers.nft(vm.addr(GAME_SIGNER_PK), "ipfs://images/", "ipfs://sealed.png", address(this));
         nft.setTreasury(address(treasury));
         nft.setAcceptedCurrency(address(token), true);
         nft.setDefaultRoyalty(royaltyReceiver, 500);
 
-        market = new StockmonstersMarket(address(nft), address(treasury), 250);
+        market = Deployers.market(address(nft), address(treasury), 250, address(this));
         market.setAcceptedCurrency(address(token), true);
 
         // Contracts never pay tax: they are not traders.
@@ -409,9 +411,9 @@ contract EconomyTest {
     }
 
     function test_mintingInAnUnvettedTokenIsRefused() public {
-        StockmonstersToken fake = new StockmonstersToken(
+        StockmonstersToken fake = Deployers.token(
             "Fake", "FAKE", 1_000 ether, address(rewards), address(treasury), "", ""
-        );
+        , address(this));
         bytes32 c = _commit(2, 10, 0, false, 1_756_000_000, SALT);
         bytes32 uid = bytes32(uint256(2));
         bytes memory sig = _signErc20Voucher(alice, c, uid, address(fake), 1 ether);
@@ -518,9 +520,9 @@ contract EconomyTest {
         uint256 id = _mintToSeller();
         vm.prank(seller);
         nft.setApprovalForAll(address(market), true);
-        StockmonstersToken fake = new StockmonstersToken(
+        StockmonstersToken fake = Deployers.token(
             "Fake", "FAKE", 1_000 ether, address(rewards), address(treasury), "", ""
-        );
+        , address(this));
         StockmonstersMarket.Order memory o = _order(id, 1 ether, address(fake));
         bytes memory sig = _sign(o);
         vm.expectRevert(bytes("CURRENCY_NOT_ACCEPTED"));

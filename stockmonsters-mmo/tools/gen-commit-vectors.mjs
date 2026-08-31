@@ -24,7 +24,8 @@
  * Running `--check` in CI catches "someone bumped viem" before it ships.
  *
  * Addresses are deterministic: the vectors are signed for the CREATE address
- * of DEPLOYER at nonce 0 (NFT) and nonce 1 (market), which the forge test
+ * of DEPLOYER at nonce 1 (the NFT proxy) and nonce 3 (the market proxy),
+ * which the forge test
  * reproduces with vm.setNonce + vm.startPrank.
  */
 import { getAddress, getContractAddress, hashTypedData } from 'viem'
@@ -51,8 +52,12 @@ const DEPLOYER = getAddress('0x00000000000000000000000000000000000d3910')
 const SIGNER_PK = '0x0000000000000000000000000000000000000000000000000000000000a11ce5'
 const SELLER_PK = '0x00000000000000000000000000000000000000000000000000000000000b0b00'
 
-const NFT_ADDRESS = getContractAddress({ from: DEPLOYER, nonce: 0n })
-const MARKET_ADDRESS = getContractAddress({ from: DEPLOYER, nonce: 1n })
+// Each contract is deployed twice now — the implementation, then the proxy
+// that holds the state and the address everything signs against. So DEPLOYER's
+// nonces run: 0 = NFT implementation, 1 = NFT PROXY, 2 = market
+// implementation, 3 = market PROXY. The proxies are the verifying contracts.
+const NFT_ADDRESS = getContractAddress({ from: DEPLOYER, nonce: 1n })
+const MARKET_ADDRESS = getContractAddress({ from: DEPLOYER, nonce: 3n })
 const signerAddr = privateKeyToAccount(SIGNER_PK).address
 const sellerAddr = privateKeyToAccount(SELLER_PK).address
 

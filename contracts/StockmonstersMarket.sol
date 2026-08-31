@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {UUPSUpgradeable} from "./Upgradeable.sol";
+
 /// @title StockmonstersMarket — off-chain signed orders, on-chain settlement
 ///
 /// Seaport-lite, deliberately small (see DESIGN.md for the full rationale):
@@ -34,10 +36,13 @@ interface IStockmonstersNFT {
     function safeTransferFrom(address from, address to, uint256 tokenId) external;
 }
 
-contract StockmonstersMarket {
+contract StockmonstersMarket is UUPSUpgradeable {
     string public constant name = "StockmonstersMarket";
 
-    IStockmonstersNFT public immutable collection;
+    /// Not `immutable`: an immutable lives in the implementation's CODE, so
+    /// behind a proxy it would hold whatever that implementation was deployed
+    /// with rather than what this proxy was initialised with.
+    IStockmonstersNFT public collection;
 
     // --- ownership (two-step) -----------------------------------------
     address public owner;
@@ -94,7 +99,11 @@ contract StockmonstersMarket {
     }
 
     // --- reentrancy guard -----------------------------------------------
-    uint256 private _lock = 1;
+    /// Set in `initialize`, NOT inline. An inline initializer runs in the
+    /// implementation's constructor and never touches the proxy's storage.
+    /// The re-entrancy guard's "unlocked" value. Left at zero it would make
+    /// the first guarded call look like a re-entry.
+    uint256 private _lock;
 
     modifier nonReentrant() {
         require(_lock == 1, "REENTRANCY");
@@ -160,17 +169,28 @@ contract StockmonstersMarket {
     event PaymentPending(address indexed to, uint256 amount);
     event PaymentWithdrawn(address indexed to, uint256 amount);
 
-    constructor(address _collection, address _feeRecipient, uint96 _feeBps) {
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(address _collection, address _feeRecipient, uint96 _feeBps, address _owner)
+        external
+        initializer
+    {
         require(_collection != address(0), "ZERO_COLLECTION");
         require(_feeBps <= MAX_FEE_BPS, "FEE_TOO_HIGH");
         require(_feeRecipient != address(0), "ZERO_RECIPIENT");
+        require(_owner != address(0), "ZERO_OWNER");
         collection = IStockmonstersNFT(_collection);
-        owner = msg.sender;
+        owner = _owner;
         feeRecipient = _feeRecipient;
         feeBps = _feeBps;
-        emit OwnershipTransferred(address(0), msg.sender);
+        _lock = 1;
+        emit OwnershipTransferred(address(0), _owner);
         emit FeeChanged(_feeRecipient, _feeBps);
     }
+
+    function _authorizeUpgrade(address) internal view override onlyOwner {}
 
     function DOMAIN_SEPARATOR() public view returns (bytes32) {
         return keccak256(abi.encode(DOMAIN_TYPEHASH, keccak256(bytes(name)), block.chainid, address(this)));
@@ -323,4 +343,8 @@ contract StockmonstersMarket {
         require(recovered != address(0), "BAD_SIGNATURE");
         return recovered;
     }
+
+    /// Room for state a later version adds. Append and shrink this by the same
+    /// number of slots; never reorder or retype what is above.
+    uint256[45] private __gap;
 }

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {Deployers} from "./Deployers.sol";
+
 import {StockmonstersNFT} from "./StockmonstersNFT.sol";
 import {StockmonstersMarket} from "./StockmonstersMarket.sol";
 import {CommitVectors} from "./CommitVectors.sol";
@@ -31,8 +33,8 @@ contract CommitVectorsTest {
         vm.chainId(CommitVectors.CHAIN_ID);
         vm.setNonce(CommitVectors.DEPLOYER, 0);
         vm.startPrank(CommitVectors.DEPLOYER);
-        nft = new StockmonstersNFT(CommitVectors.GAME_SIGNER, "ipfs://images/", "ipfs://sealed.png");
-        market = new StockmonstersMarket(address(nft), CommitVectors.DEPLOYER, 250);
+        nft = Deployers.nft(CommitVectors.GAME_SIGNER, "ipfs://images/", "ipfs://sealed.png", address(this));
+        market = Deployers.market(address(nft), CommitVectors.DEPLOYER, 250, address(this));
         vm.stopPrank();
         require(address(nft) == CommitVectors.NFT_ADDRESS, "NFT address drifted from the vectors");
         require(address(market) == CommitVectors.MARKET_ADDRESS, "market address drifted from the vectors");

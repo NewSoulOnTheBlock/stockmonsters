@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {Deployers} from "./Deployers.sol";
+
 import "./TestHelpers.sol";
 import "./StockmonstersToken.sol";
 import "./StockmonstersRewards.sol";
@@ -100,11 +102,11 @@ contract ForkTest {
             vm.skip(true);
             return;
         }
-        token = new StockmonstersToken(
+        token = Deployers.token(
             "Stockmonsters", "SMON", SUPPLY, address(0x1111), address(0x2222), "", "the game token"
-        );
-        rewards = new StockmonstersRewards(address(token), address(0x5169));
-        treasury = new StockmonstersTreasury(address(token), address(rewards), ops);
+        , address(this));
+        rewards = Deployers.rewards(address(token), address(0x5169), address(this));
+        treasury = Deployers.treasury(address(token), address(rewards), ops, address(this));
         token.setTaxDestinations(address(rewards), address(treasury));
 
         vm.deal(address(this), 1_000 ether);

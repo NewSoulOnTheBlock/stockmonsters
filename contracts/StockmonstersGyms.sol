@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {UUPSUpgradeable} from "./Upgradeable.sol";
+
 interface IERC20Gym {
     function transfer(address to, uint256 value) external returns (bool);
     function transferFrom(address from, address to, uint256 value) external returns (bool);
@@ -41,10 +43,13 @@ interface IERC20Gym {
 ///
 /// Nothing in here can take a holder's stake except losing a challenge that
 /// the holder's own gym accepted.
-contract StockmonstersGyms {
+contract StockmonstersGyms is UUPSUpgradeable {
     string public constant name = "StockmonstersGyms";
 
-    IERC20Gym public immutable token;
+    /// Not `immutable`: an immutable lives in the implementation's CODE, so
+    /// behind a proxy it would hold whatever that implementation was deployed
+    /// with rather than what this proxy was initialised with.
+    IERC20Gym public token;
 
     /* ------------------------------------------------------- ownership ---*/
     address public owner;
@@ -68,15 +73,15 @@ contract StockmonstersGyms {
     /// The largest. Bounds what one bad signature can move.
     uint256 public maxStake;
     /// The entry fee, as a share of the holder's stake. 500 = 5%.
-    uint16 public entryFeeBps = 500;
+    uint16 public entryFeeBps;
     /// Of a lost challenge's fee, what the holder keeps. The rest is treasury.
-    uint16 public holderShareBps = 7000;
+    uint16 public holderShareBps;
     /// What a winning challenger takes out of the old holder's stake.
-    uint16 public takeoverBountyBps = 2000;
+    uint16 public takeoverBountyBps;
     /// How long the server has to sign a result before the challenger may walk.
-    uint64 public resultWindow = 30 minutes;
+    uint64 public resultWindow;
     /// How long after a settled challenge a gym is safe from the next one.
-    uint64 public cooldown = 5 minutes;
+    uint64 public cooldown;
 
     uint16 public constant MAX_ENTRY_FEE_BPS = 2000; // 20%, hard cap
     uint16 public constant MAX_BOUNTY_BPS = 5000; // half a stake, hard cap
@@ -127,7 +132,9 @@ contract StockmonstersGyms {
     event ChallengeTimedOut(uint256 indexed gymId, address indexed challenger, uint256 refunded);
 
     /* ------------------------------------------------- reentrancy guard ---*/
-    uint256 private _lock = 1;
+    /// Set in `initialize`, NOT inline. An inline initializer runs in the
+    /// implementation's constructor and never touches the proxy's storage.
+    uint256 private _lock;
 
     modifier nonReentrant() {
         require(_lock == 1, "REENTRANCY");
@@ -136,19 +143,40 @@ contract StockmonstersGyms {
         _lock = 1;
     }
 
-    constructor(address _token, address _treasury, address _resultSigner, uint256 _minStake, uint256 _maxStake) {
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(
+        address _token,
+        address _treasury,
+        address _resultSigner,
+        uint256 _minStake,
+        uint256 _maxStake,
+        address _owner
+    ) external initializer {
         require(_token != address(0) && _treasury != address(0), "ZERO_ADDRESS");
         require(_minStake > 0 && _maxStake >= _minStake, "BAD_STAKE_RANGE");
+        require(_owner != address(0), "ZERO_OWNER");
+        // Everything that used to be an inline field initializer.
+        entryFeeBps = 500;
+        holderShareBps = 7000;
+        takeoverBountyBps = 2000;
+        resultWindow = 30 minutes;
+        cooldown = 5 minutes;
+        _lock = 1;
         token = IERC20Gym(_token);
-        owner = msg.sender;
+        owner = _owner;
         treasury = _treasury;
         resultSigner = _resultSigner;
         minStake = _minStake;
         maxStake = _maxStake;
-        emit OwnershipTransferred(address(0), msg.sender);
+        emit OwnershipTransferred(address(0), _owner);
         emit ResultSignerChanged(_resultSigner);
         emit TreasuryChanged(_treasury);
     }
+
+    function _authorizeUpgrade(address) internal view override onlyOwner {}
 
     /* ------------------------------------------------------------ admin ---*/
 
@@ -424,4 +452,8 @@ contract StockmonstersGyms {
         require(recovered != address(0), "BAD_SIGNATURE");
         return recovered;
     }
+
+    /// Room for state a later version adds. Append and shrink this by the same
+    /// number of slots; never reorder or retype what is above.
+    uint256[45] private __gap;
 }

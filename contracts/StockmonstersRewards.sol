@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {UUPSUpgradeable} from "./Upgradeable.sol";
+
 interface IERC20Minimal {
     function transfer(address to, uint256 value) external returns (bool);
     function balanceOf(address account) external view returns (uint256);
@@ -29,10 +31,13 @@ interface IERC20Minimal {
 ///
 /// The owner cannot take the pool's tokens for themselves: `sweep` refuses the
 /// reward token. The only way tokens leave is a claim inside a funded epoch.
-contract StockmonstersRewards {
+contract StockmonstersRewards is UUPSUpgradeable {
     string public constant name = "StockmonstersRewards";
 
-    IERC20Minimal public immutable token;
+    /// Not `immutable`: an immutable lives in the implementation's CODE, so
+    /// behind a proxy it would hold whatever that implementation was deployed
+    /// with rather than what this proxy was initialised with.
+    IERC20Minimal public token;
 
     address public owner;
     address public pendingOwner;
@@ -64,14 +69,21 @@ contract StockmonstersRewards {
         _;
     }
 
-    constructor(address _token, address _claimSigner) {
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(address _token, address _claimSigner, address _owner) external initializer {
         require(_token != address(0), "ZERO_TOKEN");
+        require(_owner != address(0), "ZERO_OWNER");
         token = IERC20Minimal(_token);
-        owner = msg.sender;
+        owner = _owner;
         claimSigner = _claimSigner;
-        emit OwnershipTransferred(address(0), msg.sender);
+        emit OwnershipTransferred(address(0), _owner);
         emit ClaimSignerChanged(_claimSigner);
     }
+
+    function _authorizeUpgrade(address) internal view override onlyOwner {}
 
     function transferOwnership(address newOwner) external onlyOwner {
         pendingOwner = newOwner;
@@ -163,4 +175,8 @@ contract StockmonstersRewards {
         require(recovered != address(0), "BAD_SIGNATURE");
         return recovered;
     }
+
+    /// Room for state a later version adds. Append and shrink this by the same
+    /// number of slots; never reorder or retype what is above.
+    uint256[45] private __gap;
 }

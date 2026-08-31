@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {Deployers} from "./Deployers.sol";
+
 import {StockmonstersNFT} from "./StockmonstersNFT.sol";
 import {StockmonstersMarket} from "./StockmonstersMarket.sol";
 import {Vm, EthRefuser} from "./TestHelpers.sol";
@@ -69,8 +71,8 @@ contract StockmonstersMarketTest {
 
     function setUp() public {
         seller = vm.addr(SELLER_PK);
-        nft = new StockmonstersNFT(vm.addr(SIGNER_PK), "ipfs://images/", "ipfs://sealed.png");
-        market = new StockmonstersMarket(address(nft), treasury, 250); // 2.5%
+        nft = Deployers.nft(vm.addr(SIGNER_PK), "ipfs://images/", "ipfs://sealed.png", address(this));
+        market = Deployers.market(address(nft), treasury, 250, address(this)); // 2.5%
         nft.setDefaultRoyalty(royaltyReceiver, 500); // 5%
 
         vm.deal(seller, 10 ether);
