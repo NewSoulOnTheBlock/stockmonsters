@@ -113,8 +113,13 @@ const PARAMS = {
     dailyPayoutCap: parseEther('20000000'),
   },
   nft: {
-    imageBaseURI: 'https://stockmonsters.game/dex/',
-    sealedImageURI: 'https://stockmonsters.game/dex/sealed.png',
+    // The pinned art, not a domain that has never resolved. `ipfs://` is what
+    // goes on chain — wallets resolve it themselves, no gateway required — and
+    // pointing at it here means a freshly deployed NFT shows the right picture
+    // from its first block rather than after a follow-up transaction.
+    // Re-pin and re-point with `node tools/ipfs.mjs set --cid <cid>`.
+    imageBaseURI: 'ipfs://bafybeickaanjlxwbmcxaccjylsedi7omexniy56euyuio2agmffw5w3zrm/',
+    sealedImageURI: 'ipfs://bafybeickaanjlxwbmcxaccjylsedi7omexniy56euyuio2agmffw5w3zrm/sealed.png',
   },
 }
 
@@ -417,7 +422,20 @@ const deployment = {
 const dir = join(MMO, 'deployments')
 mkdirSync(dir, { recursive: true })
 const file = join(dir, `${CHAIN_NAME}.json`)
-writeFileSync(file, JSON.stringify(deployment, null, 2) + '\n')
+/*
+ * BigInt-aware, and this is not decoration.
+ *
+ * Two of PARAMS's numbers are BigInts that nothing stringified — the gym stake
+ * range and the arena's limits — and JSON.stringify throws on those. It threw
+ * AFTER a completely successful deploy: seven contracts live, wired and
+ * funded, and then no record of a single address, because the last four lines
+ * of the script are where the addresses get written down. They had to be
+ * recovered by walking the deployer's nonces.
+ */
+writeFileSync(
+  file,
+  JSON.stringify(deployment, (_k, v) => (typeof v === 'bigint' ? v.toString() : v), 2) + '\n',
+)
 
 const envUpdates = {
   ...newKeys,

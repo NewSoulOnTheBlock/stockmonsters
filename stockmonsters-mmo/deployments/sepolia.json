@@ -1,18 +1,18 @@
 {
   "chainId": 11155111,
   "chain": "sepolia",
-  "deployedAt": "2026-08-26T03:46:49.230Z",
+  "deployedAt": "2026-08-31T16:18:27.309Z",
   "deployer": "0x9D1236f89C5f680B6d380612F2b4f210F668Bb1a",
   "gameSigner": "0x5dADa8e3cCA173a927A83b71d0Ba6d3c2C4616AD",
   "claimSigner": "0x71592eEbEd7b76b186230b35229C33d7ddAaE2a3",
   "contracts": {
-    "token": "0x9FF2cC8CdfC70d36e473Ae6cECCa0728D73c0580",
-    "rewards": "0xB16624Ebb621Fff77cFdfBFcC138ce94FAbA74Cf",
-    "treasury": "0x3313aa2f787cD4d8Ca158f7fB00beb9c67E1a577",
-    "nft": "0xB0B5219CD63E505269E7327F048E0976eDeD799B",
-    "market": "0x095bdB719e6c626b69C0ab0b5f9C6B657bedbe2E",
-    "gyms": "0x8d697Bf3c383fC90204E9279413Fd3849794B7f1",
-    "arena": "0x4B4b255E47B7dFaE8B99fd5E7C60089A5E81a6e2"
+    "token": "0xD8608dF8630c1F9f1681f46DAE094E576F386e7e",
+    "rewards": "0xD7B0eF4328d437dF36A4843C9960C80cBD247472",
+    "treasury": "0x06a2D1e68735c29ac7295F6665DBfF404E8a23d4",
+    "nft": "0xC0348d7b69b92bA4221359443a3A90cCFd4D90e4",
+    "market": "0x22f108c9B381A1dcE76dcaa8FfdAb2e25Ad2E751",
+    "gyms": "0x8eC43C95568C6ac4aDc449A1a11fF45596D6532E",
+    "arena": "0x38A85D927732FFf4530027ACe22fE6952eEcB030"
   },
   "params": {
     "token": {
@@ -27,8 +27,8 @@
     "royaltyBps": 500,
     "claimFeeEth": "0.0002",
     "nft": {
-      "imageBaseURI": "https://stockmonsters.game/dex/",
-      "sealedImageURI": "https://stockmonsters.game/dex/sealed.png"
+      "imageBaseURI": "ipfs://bafybeickaanjlxwbmcxaccjylsedi7omexniy56euyuio2agmffw5w3zrm/",
+      "sealedImageURI": "ipfs://bafybeickaanjlxwbmcxaccjylsedi7omexniy56euyuio2agmffw5w3zrm/sealed.png"
     },
     "gyms": {
       "minStake": "1000000000000000000000",
@@ -39,5 +39,28 @@
       "dailyPayoutCap": "20000000000000000000000000"
     }
   },
-  "battleSigner": "0xe84C2DCF55a25B2601C4520B76B6AAD5aE917fBC"
+  "battleSigner": "0xe84C2DCF55a25B2601C4520B76B6AAD5aE917fBC",
+  "upgradeable": "ERC-1967 proxies, UUPS. `contracts` are the PROXIES — the addresses that hold the state and that everything signs against. `implementations` is only what they currently point at.",
+  "epochDay0": 20696,
+  "implementations": {
+    "token": "0x320128Af308652E29439F066d7915905dbd9B8f3",
+    "rewards": "0x66ab4dB3ac950ead60D2D935505901b788FA55b2",
+    "treasury": "0xF35a14756D877172FF0a0327Dc69aC114DB743A9",
+    "nft": "0x0d3272aC49B24e3be9f4A629e64802B25aE4eAAD",
+    "market": "0x487489e0172ebD645Aea1431Db7B401b11e5CD72",
+    "gyms": "0x24c26e026397eDb91639E031D25a1f5eFC5A8b9f",
+    "arena": "0xD6Fa63964f5d4c849e0ae5A226E7b27D15d69CE6"
+  },
+  "previousDeployment": {
+    "note": "pre-proxy, no longer used by the game",
+    "contracts": {
+      "token": "0x9FF2cC8CdfC70d36e473Ae6cECCa0728D73c0580",
+      "rewards": "0xB16624Ebb621Fff77cFdfBFcC138ce94FAbA74Cf",
+      "treasury": "0x3313aa2f787cD4d8Ca158f7fB00beb9c67E1a577",
+      "nft": "0xB0B5219CD63E505269E7327F048E0976eDeD799B",
+      "market": "0x095bdB719e6c626b69C0ab0b5f9C6B657bedbe2E",
+      "gyms": "0x8d697Bf3c383fC90204E9279413Fd3849794B7f1",
+      "arena": "0x4B4b255E47B7dFaE8B99fd5E7C60089A5E81a6e2"
+    }
+  }
 }
