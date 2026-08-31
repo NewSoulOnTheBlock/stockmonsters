@@ -33,7 +33,7 @@ contract PvpBase {
     function _setUpToken() internal {
         alice = vm.addr(ALICE_PK);
         bob = vm.addr(BOB_PK);
-        token = Deployers.token("Stock Monsters", "$STONKSTER", 1_000_000 ether, address(this));
+        token = Deployers.token("Stock Monsters", "STONKSTERS", 1_000_000 ether, address(this));
         vm.warp(1_000_000);
         token.transfer(alice, 100_000 ether);
         token.transfer(bob, 100_000 ether);

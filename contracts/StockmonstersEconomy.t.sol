@@ -101,7 +101,7 @@ contract EconomyTest {
         // The token is launched by pons and hands us nothing to configure: no
         // tax destinations, no pair to mark, no exemptions. It is deployed
         // first here only because everything else needs its address.
-        token = Deployers.token("Stock Monsters", "$STONKSTER", SUPPLY, address(this));
+        token = Deployers.token("Stock Monsters", "STONKSTERS", SUPPLY, address(this));
         rewards = Deployers.rewards(address(token), vm.addr(CLAIM_SIGNER_PK), address(this));
         treasury = Deployers.treasury(address(token), address(rewards), ops, address(this));
 

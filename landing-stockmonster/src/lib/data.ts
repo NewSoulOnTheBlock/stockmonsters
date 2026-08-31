@@ -137,13 +137,14 @@ export const TWITTER_URL = "https://x.com/stonksters";
  * exists. If a feature seems to need new supply, it is an economy bug.
  */
 export const ECONOMY = {
-  /** Testnet today; the contracts move to mainnet unchanged. */
-  network: "Sepolia",
+  /** Live. The token and the game's contracts are both on Robinhood Chain. */
+  network: "Robinhood Chain",
   /**
-   * The token's ticker. The leading `$` is part of the symbol the token
-   * launches under, not a currency prefix — nothing should add another.
+   * The token's ticker, read off the deployed contract rather than the plan:
+   * it launched as STONKSTERS, with no leading `$` and a trailing S. Anything
+   * that renders a `$` in front of it is adding a currency prefix of its own.
    */
-  symbol: "$STONKSTER",
+  symbol: "STONKSTERS",
   /** The token's full name, as the launchpad deploys it. */
   name: "Stock Monsters",
   /**
@@ -157,15 +158,22 @@ export const ECONOMY = {
    * Typed `as string` on purpose — without it the literal `""` would narrow
    * and TypeScript would treat the deployed branch as dead code.
    */
-  address: "" as string,
+  address: "0xf30e4f2E1E715A77ceCade62F236c6d39dA0CE7a" as string,
   /** Where it launches. The chain id is 4663. */
   chain: "Robinhood Chain",
   chainId: 4663,
   supply: "1,000,000,000",
   /** Trading tax, buy and sell. Wallet-to-wallet is free. */
   taxPercent: 2,
-  /** Share of that tax that goes to the reward pool players are paid from. */
-  taxToPlayersPercent: 75,
+  /**
+   * Share of revenue that goes back to players. The treasury splits every
+   * pound it receives in half: one half buys the token on the open market and
+   * every token bought goes to the reward pool, the other funds operations.
+   * The split has a floor in the contract — players can never be cut below a
+   * quarter — and was 75 under the old self-issued token, which taxed
+   * transfers directly into the pool. It does not do that any more.
+   */
+  taxToPlayersPercent: 50,
   /** Marketplace protocol fee, hard-capped at 5% in the contract. */
   marketFeePercent: 2.5,
   /** Creator royalty on a secondary sale (ERC-2981). */

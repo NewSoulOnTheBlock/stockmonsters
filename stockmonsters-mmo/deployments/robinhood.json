@@ -1,0 +1,56 @@
+{
+  "chainId": 4663,
+  "chain": "robinhood",
+  "deployedAt": "2026-08-31T21:49:41.083Z",
+  "deployer": "0xd05FDA8be1F557010763B6E5c6236Af3F50845Ef",
+  "gameSigner": "0x5dADa8e3cCA173a927A83b71d0Ba6d3c2C4616AD",
+  "claimSigner": "0x71592eEbEd7b76b186230b35229C33d7ddAaE2a3",
+  "battleSigner": "0xe84C2DCF55a25B2601C4520B76B6AAD5aE917fBC",
+  "epochDay0": 20696,
+  "tokenLaunchedBy": "pons",
+  "pons": {
+    "factory": "0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e",
+    "feeEscrow": "0xd3AFEB2a57f70eF218Aa82451c51B2fb0416Ac9e",
+    "memeHook": "0xE5e702641Ea86F4ae6cC3cDaeD2B886f976Be044"
+  },
+  "uniswap": {
+    "poolManager": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+    "universalRouter": "0x8876789976dEcBfCbBbe364623C63652db8C0904",
+    "stateView": "0xF3334192D15450CdD385c8B70e03f9A6bD9E673b"
+  },
+  "opsWallet": "0x2dEcd2B26303E2053973b8992472Ae3FF8786A3d",
+  "contracts": {
+    "token": "0xf30e4f2E1E715A77ceCade62F236c6d39dA0CE7a",
+    "rewards": "0x4840391b1b6404b524528731BfDaAbA57C98F004",
+    "treasury": "0xc59fD025Ae22E2d31034e97aE7330c6763054C24",
+    "nft": "0xddB6264a5730039c10F5A56381EBeAA12B74d550",
+    "market": "0xe904A8541899822e0bB33b486849b6FcD4fE5d6e",
+    "gyms": "0x91f8F3097037044092075B1df8c16574a4df9BbD",
+    "arena": "0xed43C1a430E231D75B5085b13ED20213DCEEC3E0"
+  },
+  "params": {
+    "token": {
+      "name": "Stock Monsters",
+      "symbol": "$STONKSTER",
+      "supply": "1000000000000000000000000000",
+      "logo": "",
+      "description": "The currency of Stockmonsters: 254 tickers you can catch, trade and battle."
+    },
+    "rewardsSeed": "100000000000000000000000000",
+    "marketFeeBps": 250,
+    "royaltyBps": 500,
+    "claimFeeEth": "0.0002",
+    "gyms": {
+      "minStake": "1000000000000000000000",
+      "maxStake": "500000000000000000000000"
+    },
+    "arena": {
+      "maxWager": "1000000000000000000000000",
+      "dailyPayoutCap": "20000000000000000000000000"
+    },
+    "nft": {
+      "imageBaseURI": "ipfs://bafybeickaanjlxwbmcxaccjylsedi7omexniy56euyuio2agmffw5w3zrm/",
+      "sealedImageURI": "ipfs://bafybeickaanjlxwbmcxaccjylsedi7omexniy56euyuio2agmffw5w3zrm/sealed.png"
+    }
+  }
+}

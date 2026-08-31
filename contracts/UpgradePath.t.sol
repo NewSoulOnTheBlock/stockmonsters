@@ -55,7 +55,7 @@ contract UpgradePathTest {
     receive() external payable {}
 
     function setUp() public {
-        token = Deployers.token("Stock Monsters", "$STONKSTER", SUPPLY, holder);
+        token = Deployers.token("Stock Monsters", "STONKSTERS", SUPPLY, holder);
         treasury = Deployers.treasury(address(token), rewardsPool, ops, holder);
     }
 

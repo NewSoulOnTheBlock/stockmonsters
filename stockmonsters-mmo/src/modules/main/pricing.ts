@@ -89,7 +89,7 @@
  * describes itself on chain); this is the label the client shows before that
  * answer arrives, and in a build with no token configured at all.
  */
-export const TOKEN_SYMBOL = '$STONKSTER'
+export const TOKEN_SYMBOL = 'STONKSTERS'
 
 export const SUPPLY = 1_000_000_000
 export const DEFAULT_MARKET_CAP_USD = 200_000
