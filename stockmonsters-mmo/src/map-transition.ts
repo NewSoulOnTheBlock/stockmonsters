@@ -30,7 +30,19 @@
  * lifts anyway and the player gets their game back.
  */
 
-const MAX_MS = 6000
+/*
+ * The longest the curtain may ever stay up.
+ *
+ * Measured: the destination map is READY in 0.3–2.2 seconds, but the main
+ * thread then freezes for up to 1.6s in a single block while it finishes, so a
+ * timer set for N fires at N + up to 1.6s and the settle loop cannot run at
+ * all. The deadline is therefore what actually ends most transfers, and every
+ * second of it is a second of black screen on a map that is already there.
+ *
+ * Two seconds, because past that point showing a briefly frozen world beats
+ * showing a loading screen — the player can see where they are.
+ */
+const MAX_MS = 2000
 /** Two identical reads this far apart means the engine has stopped moving it. */
 const SETTLE_MS = 120
 const SETTLE_READS = 3
@@ -115,28 +127,22 @@ export function mountMapTransition(engine?: EngineLike): void {
   }
 
   /**
-   * Where the player was when the transfer began.
+   * When the curtain went up for THIS transfer.
    *
-   * This is the whole fix for "it throws me somewhere else the moment I move".
-   * After a transfer the client is still holding the coordinates from the map
-   * it just left, and those coordinates are perfectly STABLE — nothing moves
-   * them until the server's spawn lands or the player presses a key. Waiting
-   * for the position to stop changing therefore lifted the curtain instantly,
-   * on a character standing in the wrong place, and the jump happened in full
-   * view. Measured through the exterior door: the client reported (992,1030),
-   * the position it held outside, while the server had put the player at
-   * (912,1520) inside the hub.
-   *
-   * So the curtain waits for the position to become something ELSE first.
+   * The deadline is measured from here and is never extended. Both triggers —
+   * the engine's own signal and the map-id watcher — used to call `show()`,
+   * and every call re-armed the timeout, so a transfer whose second trigger
+   * landed two seconds in got two more seconds of black. Measured: the map was
+   * ready in 1.4s and the screen stayed dark for ten.
    */
-  let leftFrom: string | null = null
+  let shownAt = 0
 
   function show() {
+    if (root.classList.contains('on')) return // already up; do not extend it
     clearTimers()
-    leftFrom = positionOf(engine)
+    shownAt = Date.now()
     root.classList.remove('leaving')
     root.classList.add('on')
-    // THE DEADLINE. Nothing below is allowed to keep the curtain up past it.
     timers.push(setTimeout(hide, MAX_MS))
   }
 
@@ -150,12 +156,11 @@ export function mountMapTransition(engine?: EngineLike): void {
   function hideWhenSettled() {
     let last: string | null = null
     let stable = 0
-    const started = Date.now()
     const tick = () => {
-      if (Date.now() - started > MAX_MS) { hide(); return }
+      // From when the curtain went up, not from when this chain started —
+      // otherwise a second trigger restarts the clock.
+      if (Date.now() - (shownAt || Date.now()) > MAX_MS) { hide(); return }
       const now = positionOf(engine)
-      // Still the old map's coordinates: the spawn has not landed yet.
-      if (now !== null && now === leftFrom) { timers.push(setTimeout(tick, SETTLE_MS)); return }
       if (now && now === last) stable++
       else stable = 0
       last = now
@@ -187,7 +192,16 @@ export function mountMapTransition(engine?: EngineLike): void {
       const id = scene?.id ?? scene?.mapId ?? scene?.data?.id ?? null
       const seen = id == null ? null : String(id)
       if (seen !== null && lastMap !== null && seen !== lastMap) {
-        show()
+        /*
+         * ONLY IF THE CURTAIN IS NOT ALREADY UP.
+         *
+         * `show()` re-arms the deadline, and this watcher fires when the map id
+         * changes — which is a second or two INTO a transfer the subscription
+         * already covered. Measured: the map was ready in 1.4–2.4s and the
+         * black screen lasted 8.6–10s, because the deadline kept being pushed
+         * out from here.
+         */
+        if (!root.classList.contains('on')) show()
         hideWhenSettled()
       }
       if (seen !== null) lastMap = seen
