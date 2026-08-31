@@ -99,11 +99,76 @@ function elevatorEvent(mapId: string) {
   }
 }
 
+/**
+ * Which way the player is looking. It is a reactive signal in v5; the fakes in
+ * the specs use a plain string.
+ */
+const facing = (player: RpgPlayer): string => {
+  const d = (player as unknown as { direction?: unknown }).direction
+  const v = typeof d === 'function' ? (d as () => unknown)() : d
+  return typeof v === 'string' ? v : ''
+}
+
+/**
+ * DOORWAYS ARE TWO TILES WIDE AND THE PLAYER IS NOT ON A GRID.
+ *
+ * Movement in v5 is free, not tile-locked, so a player who has walked around
+ * for a while sits at, say, x=1008 — half a tile off. Stepping north from
+ * there puts part of them into the wall beside the door and they simply stop,
+ * a tile short of the trigger, in front of an opening they can plainly see.
+ * Reported as "I cannot get into this building"; reproduced at x=1008, where
+ * two and a half seconds of walking north moved nobody anywhere.
+ *
+ * So every door also listens on the tiles you approach it FROM — but only
+ * while you are facing it. Walking past a shop along the pavement crosses
+ * those tiles sideways all day and nothing happens; turning to the door and
+ * stepping toward it is enough, from either of the tiles in front of it.
+ */
+const TOWARD: Record<string, { dx: number; dy: number }> = {
+  up: { dx: 0, dy: -1 }, down: { dx: 0, dy: 1 }, left: { dx: -1, dy: 0 }, right: { dx: 1, dy: 0 },
+}
+
+function approachEvents(mapId: string, doors: Warp[]) {
+  const isDoor = new Set(doors.map((w) => `${w.x},${w.y}`))
+  const seen = new Set<string>()
+  const out: any[] = []
+  for (const w of doors) {
+    // Only real doors — a warp that lands on the same map is a staircase or a
+    // one-tile hop, and widening those would fire them from a tile away.
+    if (w.to === w.from) continue
+    for (const [dir, step] of Object.entries(TOWARD)) {
+      // The tile you would stand on to face the door this way.
+      const ax = w.x - step.dx
+      const ay = w.y - step.dy
+      const key = `${ax},${ay}:${dir}`
+      if (isDoor.has(`${ax},${ay}`) || seen.has(key)) continue
+      if (isBlocked(mapId, ax, ay)) continue
+      seen.add(key)
+      out.push({
+        x: ax * TILE,
+        y: ay * TILE,
+        event: {
+          // An event is SOLID by default, and one sitting on the pavement in
+          // front of a door is a wall you cannot walk past — measured: the
+          // player stopped dead a tile short and never reached the door at
+          // all. `through` is what makes it a trigger rather than an obstacle.
+          onInit(this: { through: boolean }) { this.through = true },
+          onPlayerTouch: (player: RpgPlayer) => {
+            if (process.env.SM_WARP_DEBUG === '1') console.log('[warp] approach', mapId, ax, ay, 'want', dir, 'facing', facing(player))
+            if (facing(player) !== dir) return
+            return go(player, w.to, w.toX, w.toY)
+          },
+        },
+      })
+    }
+  }
+  return out
+}
+
 /** Warp events for one map: extracted PSDK transfers + hand-written elevators. */
 export function warpEvents(mapId: string) {
-  const events: any[] = (warps as Warp[])
-    .filter((w) => w.from === mapId && !(mapId in ELEVATORS))
-    .map((w) => ({
+  const mine = (warps as Warp[]).filter((w) => w.from === mapId && !(mapId in ELEVATORS))
+  const events: any[] = mine.map((w) => ({
       x: w.x * TILE,
       y: w.y * TILE,
       event:
@@ -111,6 +176,7 @@ export function warpEvents(mapId: string) {
           ? { onAction: (player: RpgPlayer) => go(player, w.to, w.toX, w.toY) }
           : { onPlayerTouch: (player: RpgPlayer) => go(player, w.to, w.toX, w.toY) },
     }))
+  events.push(...approachEvents(mapId, mine.filter((w) => w.trigger !== 'action')))
   if (mapId in ELEVATORS) events.push(elevatorEvent(mapId))
   return events
 }
