@@ -22,23 +22,49 @@
  * ## The bounds are not optional
  *
  * A price is an input from outside the game, and every reward in the game is
- * denominated by it. A misplaced decimal in an env var — 0.0000005 instead of
- * 0.0005 — would make one quest pay two million tokens. So a payout is clamped
- * to a band on both sides, and the clamp is reported rather than silent: a
- * board quietly paying the floor is a bug somebody has to see.
+ * denominated by it. A misplaced decimal in an env var — 0.00000002 instead of
+ * 0.0002 — would make one quest pay fifty million tokens. So a payout is
+ * clamped to a band on both sides of the launch assumption.
  */
-
-/** Fallback price when nothing is configured. One SMON = 5 hundredths of a cent. */
-const DEFAULT_USD_PER_TOKEN = 0.0005
 
 /**
- * The band a single dollar may buy. With the default price a dollar is 2,000
- * tokens, so this allows the price to be wrong by 20x in either direction
- * before the clamp bites — wide enough never to interfere with a real
- * repricing, narrow enough that a typo cannot drain the pool.
+ * The assumption everything else is priced from, written the way a person can
+ * actually argue about it.
+ *
+ * THINK IN MARKET CAP, NOT IN PRICE. Supply is fixed at a billion, so the
+ * price is only the valuation divided by that — and the valuation is the
+ * number with an opinion in it:
+ *
+ *     $200k -> $0.0002      $1M -> $0.001      $10M -> $0.01
+ *
+ * $200k fully diluted is the launch assumption. It is deliberately modest: a
+ * quest is worth a dollar either way, and the token amount is what moves.
+ *
+ * This single number decides what every quest pays and what every box costs,
+ * so it is configuration (`SM_TOKEN_USD`) and it should be replaced by the
+ * live market price the moment there is one.
  */
-const MIN_TOKENS_PER_USD = 100
-const MAX_TOKENS_PER_USD = 40_000
+export const SUPPLY = 1_000_000_000
+export const DEFAULT_MARKET_CAP_USD = 200_000
+const DEFAULT_USD_PER_TOKEN = DEFAULT_MARKET_CAP_USD / SUPPLY
+
+/**
+ * How far the configured price may stray from that assumption before a payout
+ * is clamped: 20x in either direction.
+ *
+ * RELATIVE, NOT ABSOLUTE, and that is the whole point. These were two literal
+ * token counts, and the moment the default price moved they no longer had
+ * anything to do with it — moving the default from $0.01 to $0.0002 would have
+ * put the real value OUTSIDE its own band, quietly paying every quest and
+ * every box a flat 2.5x less with nothing to show for it. Derived from the
+ * default, the band follows it for free.
+ */
+export const CLAMP_FACTOR = 20
+const MIN_TOKENS_PER_USD = 1 / DEFAULT_USD_PER_TOKEN / CLAMP_FACTOR
+const MAX_TOKENS_PER_USD = (1 / DEFAULT_USD_PER_TOKEN) * CLAMP_FACTOR
+
+/** The band, for anything that needs to reason about the clamp. */
+export const clampBand = () => ({ min: MIN_TOKENS_PER_USD, max: MAX_TOKENS_PER_USD })
 
 let warned = false
 

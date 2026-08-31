@@ -46,7 +46,9 @@ const LOOP: Beat[] = [
       <>
         A catch lands in your box. Claiming it as an NFT is optional and costs a
         small fee. It arrives SEALED: what is inside is a commitment on chain, and
-        only opening it reveals what you caught.
+        only opening it reveals what you caught. Sealed boxes are sold outright
+        too — {ECONOMY.boxUsd[0]}, {ECONOMY.boxUsd[1]} and {ECONOMY.boxUsd[2]},
+        the dearer ones with better odds and a higher floor on every stat.
       </>
     ),
   },

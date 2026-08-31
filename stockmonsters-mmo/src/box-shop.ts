@@ -86,6 +86,8 @@ export interface BoxVoucher {
   /** ERC-20 the fee is priced in; null/absent = native ETH. */
   currency?: string | null
   priceTokens?: number | null
+  /** What the box costs in dollars. The two currencies are quoted from it. */
+  priceUsd?: number | null
 }
 export interface BoxContents {
   dexId: number; ticker: string | null; name: string; types: string[]; sprite: string | null
@@ -401,6 +403,7 @@ const CSS = `
 #sm-boxshop .bx-price { display: flex; align-items: baseline; gap: 5px;
   border-top: 2px solid rgba(246,193,119,.24); padding-top: 8px; }
 #sm-boxshop .bx-price .v { font-size: 17px; font-weight: 700; color: var(--accent); letter-spacing: .04em; }
+#sm-boxshop .bx-price .u.usd { color: #b9b2d6; opacity: .85; }
 #sm-boxshop .bx-price .u { font-size: 9px; color: var(--sm-muted); letter-spacing: .1em; }
 #sm-boxshop .bx-tier .smui-btn { width: 100%; padding: 9px 6px; font-size: 11px; }
 
@@ -612,6 +615,16 @@ export function mountBoxShop(
     payWith === 'token' && canPayInToken(t)
       ? { value: Number(t.priceTokens).toLocaleString('en-US'), unit: tokenSymbol() }
       : { value: formatEth(t.priceWei), unit: 'ETH' }
+  /**
+   * The same price in dollars, shown beside it.
+   *
+   * Both currencies are quoted from one dollar figure on the server, so this
+   * is what makes the two comparable at a glance — and it is worth showing,
+   * because paying in tokens used to be twenty-four times cheaper than paying
+   * in ether for the same box.
+   */
+  const priceUsdOf = (t: TierQuote): string =>
+    typeof t.priceUsd === 'number' && t.priceUsd > 0 ? `$${t.priceUsd.toLocaleString('en-US')}` : ''
   let boxes: BoxRow[] = []
   let clientSeed = randomSeed()
   let busy = false
@@ -927,6 +940,7 @@ export function mountBoxShop(
         el('div', { class: 'bx-price' }, [
           el('span', { class: 'v', text: priceOf(t).value }),
           el('span', { class: 'u', text: priceOf(t).unit }),
+          ...(priceUsdOf(t) ? [el('span', { class: 'u usd', text: priceUsdOf(t) })] : []),
         ]),
         buyBtn,
       ]))

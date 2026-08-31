@@ -155,4 +155,8 @@ export const ECONOMY = {
   questCount: 5,
   /** What the daily board is worth, in dollars, at target pricing. */
   questBoardUsd: "$7",
+  /** Sealed loot boxes, cheapest to dearest, at target pricing. */
+  boxUsd: ["$30", "$90", "$240"],
+  /** The launch valuation every in-game dollar figure is priced from. */
+  launchMarketCap: "$200k",
 } as const;

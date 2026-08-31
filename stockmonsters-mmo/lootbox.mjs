@@ -91,6 +91,70 @@ export const BANDS = [
   { id: 'elite', label: 'Elite', min: 531, max: 9999 },
 ]
 
+/*
+ * ---------------------------------------------------------------- pricing --
+ *
+ * A box has ONE price, in dollars, and the two currencies are quoted from it.
+ *
+ * It used to have two independent prices and they disagreed by a factor of
+ * twenty-four: 0.01 ETH, which is about $30, or 2,500 SMON, which is about
+ * $1.25. Nobody would ever have paid in ether. The ether price is the anchor —
+ * it is the one that was set deliberately — so the token price is derived from
+ * it. The token price is written as a MARKET CAP divided by the fixed billion
+ * supply — $200k fully diluted at launch — because that is the number anyone
+ * can have an opinion about. The old fixed 2,500 SMON silently assumed a token
+ * at about $0.012, i.e. a $12M valuation, which is why it looked so cheap.
+ *
+ * Both rates are configuration, because there is no market on a test network:
+ * `SM_ETH_USD` and `SM_TOKEN_USD`. The second is the same variable the quest
+ * board is priced from, so a box and a day's quests are always quoted against
+ * the same dollar.
+ *
+ * THE MIRROR. src/modules/main/pricing.ts does the same arithmetic for quests
+ * and is a TypeScript module bundled into the game server, which this plain
+ * .mjs cannot import. The clamp below is deliberately identical to the one
+ * there, and lootbox-pricing.spec.ts asserts the two agree — a divergence
+ * would mean a quest and a box valued the same dollar differently.
+ */
+const SUPPLY = 1_000_000_000
+const DEFAULT_MARKET_CAP_USD = 200_000
+const DEFAULT_USD_PER_TOKEN = DEFAULT_MARKET_CAP_USD / SUPPLY
+const DEFAULT_USD_PER_ETH = 3000
+const CLAMP_FACTOR = 20
+const MIN_TOKENS_PER_USD = 1 / DEFAULT_USD_PER_TOKEN / CLAMP_FACTOR
+const MAX_TOKENS_PER_USD = (1 / DEFAULT_USD_PER_TOKEN) * CLAMP_FACTOR
+
+const positiveEnv = (key, fallback) => {
+  const parsed = Number(process.env[key])
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
+}
+
+export const tokenUsd = () => positiveEnv('SM_TOKEN_USD', DEFAULT_USD_PER_TOKEN)
+export const ethUsd = () => positiveEnv('SM_ETH_USD', DEFAULT_USD_PER_ETH)
+
+/** Whole tokens one dollar buys, clamped exactly as pricing.ts clamps it. */
+export function tokensPerUsd() {
+  const per = 1 / tokenUsd()
+  if (per < MIN_TOKENS_PER_USD) return MIN_TOKENS_PER_USD
+  if (per > MAX_TOKENS_PER_USD) return MAX_TOKENS_PER_USD
+  return per
+}
+
+/** What a tier costs in dollars, read off its ether price. */
+export function tierUsd(tier) {
+  const wei = BigInt(TIERS[tier].priceWei)
+  // Two decimals of a cent is plenty and keeps this in integer arithmetic
+  // until the last step; 1e18 wei per ether.
+  return Number((wei * 10_000n) / 10n ** 18n) / 10_000 * ethUsd()
+}
+
+/** What a tier costs in whole game tokens, right now. */
+export function tierTokens(tier) {
+  const usd = tierUsd(tier)
+  if (!Number.isFinite(usd) || usd <= 0) return 0
+  return Math.max(1, Math.round(usd * tokensPerUsd()))
+}
+
 /**
  * Tiers. `bands` are per-ten-thousand and MUST sum to 10000 (asserted below).
  * `shinyOneIn` is the odds denominator; the wild-encounter rate in
@@ -102,10 +166,9 @@ export const TIERS = {
   standard: {
     id: 'standard',
     label: 'Standard',
+    // The anchor. The token price is derived from this — see the pricing note
+    // above — so there is one price per box and not two that disagree.
     priceWei: '10000000000000000', // 0.01 ETH
-    // ...or the same box in game tokens. Whole tokens; the decimals are read
-    // off the token itself at quote time, never assumed.
-    priceTokens: 2500,
     bands: { common: 7000, uncommon: 2000, rare: 900, elite: 100 },
     level: [5, 25],
     ivFloor: 0,
@@ -115,7 +178,6 @@ export const TIERS = {
     id: 'prime',
     label: 'Prime',
     priceWei: '30000000000000000', // 0.03 ETH
-    priceTokens: 7500,
     bands: { common: 4000, uncommon: 3000, rare: 2500, elite: 500 },
     level: [20, 45],
     ivFloor: 8,
@@ -125,7 +187,6 @@ export const TIERS = {
     id: 'apex',
     label: 'Apex',
     priceWei: '80000000000000000', // 0.08 ETH
-    priceTokens: 20000,
     bands: { common: 1500, uncommon: 2500, rare: 4500, elite: 1500 },
     level: [40, 70],
     ivFloor: 16,
@@ -326,7 +387,8 @@ export function quoteTiers() {
       id,
       label: t.label,
       priceWei: t.priceWei,
-      priceTokens: t.priceTokens ?? null,
+      priceTokens: tierTokens(id),
+      priceUsd: Number(tierUsd(id).toFixed(2)),
       level: t.level,
       ivFloor: t.ivFloor,
       shinyOneIn: t.shinyOneIn,
@@ -641,7 +703,7 @@ export function createBoxStore(opts = {}) {
       throw new BoxError(503, 'no-token', 'This server has no game token configured.')
     }
     const tokenAddress = payInToken ? tokens.address : null
-    const priceTokens = TIERS[tier].priceTokens
+    const priceTokens = tierTokens(tier)
     if (payInToken && !priceTokens) {
       throw new BoxError(400, 'no-token-price', 'That box cannot be bought with tokens.')
     }
