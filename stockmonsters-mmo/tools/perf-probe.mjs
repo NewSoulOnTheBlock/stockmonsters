@@ -22,6 +22,35 @@
  * "too fast" report is real. If px/s holds across an ~8x fps span, it is
  * time-stepped and the report is about something else (animation, camera, or
  * not reproducible).
+ *
+ * PROBE_MAPLOAD — the other stutter, and the one the walk test cannot see
+ *
+ *   PROBE_MAPLOAD=exterior,cave,river,beach node tools/perf-probe.mjs
+ *   PROBE_CPU=6 PROBE_MAPLOAD=exterior,cave node tools/perf-probe.mjs
+ *
+ * The long freezes are not in the walk, they are in the LOAD, and the walk
+ * test never sees one because it stays on a single map. This mode teleports
+ * the player around a list of maps (it needs the dev teleport, which
+ * startServer() turns on for its own server) and reports, per map, the
+ * wall-clock time until the world is on screen and the frame times across that
+ * window. The longest single blocked frame is the freeze a player feels.
+ *
+ * PROBE_CPU=n throttles the CPU through CDP. The stutter is reported on phones
+ * and old laptops; on the machine this runs on, a load costs ~1.1s of CPU
+ * spread over ~1.4s of wall clock and barely registers. x6 is roughly a
+ * mid-range phone and is where a change has to prove itself.
+ *
+ * WHAT THIS MODE HAS ALREADY RULED OUT
+ *
+ * The obvious suspect is layer count: @rpgjs/tiledmap's `rebuildParsedMap`
+ * clones the whole map and allocates a width*height array for EVERY tile
+ * layer, and it runs once per arriving chunk (~20 times per load). Folding the
+ * PSDK maps from 73-79 tile layers down to 13-28 (tools/merge-tile-layers.mjs)
+ * moved the numbers by about 5% of map-load CPU and nothing outside the noise
+ * on wall clock, at x1 and at x6. Instrumented directly, all of
+ * `rebuildParsedMap` costs 2-12ms per load — it was never the bill. The ~1.1s
+ * is diffuse, mostly inside canvasengine's signal-to-render chain, with no
+ * single frame owning it. Whatever the freeze is, it is not the layer count.
  */
 import { spawn } from 'node:child_process'
 import { mkdtempSync } from 'node:fs'
@@ -51,7 +80,9 @@ async function until(label, fn, { timeout = 30000, interval = 250 } = {}) {
 async function startServer() {
   const child = spawn(process.execPath, ['server.mjs'], {
     cwd: ROOT,
-    env: { ...process.env, PORT: String(PORT) },
+    // SM_DEV_TELEPORT lets PROBE_MAPLOAD put the player on a named map. It is
+    // a local, throwaway server; production's .env does not carry it.
+    env: { ...process.env, PORT: String(PORT), SM_DEV_TELEPORT: '1' },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
   const capture = (c) => { if (process.env.VERBOSE) process.stdout.write(`[server] ${c}`) }
@@ -196,9 +227,85 @@ async function recordFrameTimes(page, seconds = 30) {
   }
 }
 
+
+/**
+ * Teleport onto each map in turn and measure the freeze.
+ *
+ * Frame deltas are collected by a rAF loop that keeps running across the
+ * transition; a frame that takes 900ms means the main thread was blocked for
+ * 900ms, which is exactly the reported "it freezes when a map loads". The
+ * "settled" time is from asking for the map to the first 500ms window in which
+ * no frame took longer than 40ms, so it counts the whole load, not just the
+ * moment the id changes.
+ */
+async function mapLoadProbe(page, maps) {
+  const rows = []
+  for (const map of maps) {
+    const r = await page.evaluate(async (map) => {
+      const engine = window.__engine
+      const scene = () => (typeof engine?.sceneMap === 'function' ? engine.sceneMap() : engine?.sceneMap)
+      const readId = () => {
+        const s = scene()
+        const rd = (v) => { try { return typeof v === 'function' ? v() : v } catch { return undefined } }
+        return String(rd(s?.id) ?? '').replace(/^map-/, '')
+      }
+      const deltas = []
+      let last = 0
+      let stop = false
+      const loop = (t) => {
+        if (stop) return
+        if (last) deltas.push(t - last)
+        last = t
+        requestAnimationFrame(loop)
+      }
+      requestAnimationFrame(loop)
+      await new Promise((r) => setTimeout(r, 400)) // baseline frames
+      const from = readId()
+      const t0 = performance.now()
+      engine?.processAction?.('dev:goto', { map, x: 12, y: 12 })
+      let arrived = 0
+      const deadline = performance.now() + 25000
+      // quiet = 500ms with no frame over 40ms, measured AFTER the id changed
+      let quietFrom = 0
+      for (;;) {
+        await new Promise((r) => setTimeout(r, 100))
+        if (!arrived && readId() === map) arrived = performance.now()
+        if (arrived) {
+          const recent = deltas.slice(-8)
+          if (performance.now() - arrived > 300 && recent.every((d) => d < 40)) {
+            if (!quietFrom) quietFrom = performance.now()
+            if (performance.now() - quietFrom > 500) break
+          } else quietFrom = 0
+        }
+        if (performance.now() > deadline) break
+      }
+      const t1 = performance.now()
+      stop = true
+      const during = deltas.slice(Math.max(0, deltas.findIndex((_, i) => i > 20)))
+      return {
+        map, from,
+        arrivedMs: arrived ? Math.round(arrived - t0) : null,
+        settledMs: Math.round(t1 - t0),
+        worstFrame: Math.round(Math.max(0, ...during)),
+        blockedMs: Math.round(during.filter((d) => d > 50).reduce((a, b) => a + b, 0)),
+        framesOver50: during.filter((d) => d > 50).length,
+        framesOver200: during.filter((d) => d > 200).length,
+      }
+    }, map)
+    rows.push(r)
+    console.log(
+      `  ${r.map.padEnd(14)} arrived ${String(r.arrivedMs).padStart(5)}ms  settled ${String(r.settledMs).padStart(5)}ms` +
+        `  worst frame ${String(r.worstFrame).padStart(5)}ms  blocked ${String(r.blockedMs).padStart(5)}ms` +
+        `  (${r.framesOver50} frames >50ms, ${r.framesOver200} >200ms)`,
+    )
+    await sleep(500)
+  }
+  return rows
+}
+
 /* ----------------------------------------------------------- a session ---*/
 
-async function runSession(label, extraArgs, wallet, { stutter = false, hz = 0 } = {}) {
+async function runSession(label, extraArgs, wallet, { stutter = false, hz = 0, mapload = null } = {}) {
   console.log(`\n=== ${label} ===`)
   const browser = await puppeteer.launch({
     executablePath: CHROME,
@@ -240,6 +347,15 @@ async function runSession(label, extraArgs, wallet, { stutter = false, hz = 0 } 
         native(pump)
       }, hz)
     }
+    if (process.env.PROBE_CPU) {
+      // The stutter is reported on phones and old laptops, not on the machine
+      // this runs on. CDP's CPU throttle is the only honest way to see whether
+      // a change matters where it hurts: 1 is this machine, 6 is roughly a
+      // mid-range phone.
+      const cdp = await page.target().createCDPSession()
+      await cdp.send('Emulation.setCPUThrottlingRate', { rate: Number(process.env.PROBE_CPU) })
+      console.log(`  CPU throttled x${process.env.PROBE_CPU}`)
+    }
     await page.goto(BASE, { waitUntil: 'domcontentloaded' })
     await page.evaluate((w) => {
       localStorage.setItem('sm-wallet', JSON.stringify(w))
@@ -275,6 +391,12 @@ async function runSession(label, extraArgs, wallet, { stutter = false, hz = 0 } 
     const best = Math.max(...runs) // walls can only shorten a run, never lengthen it
     console.log(`  speed (best of ${runs.length}): ${best.toFixed(1)} px/s`)
 
+    let mapLoadReport = null
+    if (mapload) {
+      console.log('  teleporting between maps and timing each load...')
+      mapLoadReport = await mapLoadProbe(page, mapload)
+    }
+
     let frameReport = null
     if (stutter) {
       console.log('  recording 30s of frame times while walking...')
@@ -287,7 +409,7 @@ async function runSession(label, extraArgs, wallet, { stutter = false, hz = 0 } 
       await page.screenshot({ path: process.env.PROBE_SHOT })
       console.log(`  screenshot: ${process.env.PROBE_SHOT}`)
     }
-    return { fps, speed: best, runs, frameReport }
+    return { fps, speed: best, runs, frameReport, mapLoadReport }
   } finally {
     await browser.close()
   }
@@ -303,6 +425,18 @@ try {
 
   const sessions = []
   const UNCAP = ['--disable-frame-rate-limit', '--disable-gpu-vsync']
+  if (process.env.PROBE_MAPLOAD) {
+    const maps = process.env.PROBE_MAPLOAD.split(',').map((m) => m.trim()).filter(Boolean)
+    const r = await runSession('map loads (GPU)', [], wallet, { mapload: maps })
+    const rows = r.mapLoadReport ?? []
+    console.log('\n=== map-load verdict ===')
+    console.log(`  total settle ${rows.reduce((a, b) => a + b.settledMs, 0)}ms across ${rows.length} maps`)
+    console.log(`  total blocked (frames >50ms) ${rows.reduce((a, b) => a + b.blockedMs, 0)}ms`)
+    console.log(`  worst single frame ${Math.max(0, ...rows.map((b) => b.worstFrame))}ms`)
+    console.log(JSON.stringify(rows))
+    server.kill('SIGTERM')
+    process.exit(0)
+  }
   if (process.env.PROBE_QUICK) {
     // One GPU session, walks only — for iterating on the harness itself.
     await runSession('GPU quick', [], wallet)

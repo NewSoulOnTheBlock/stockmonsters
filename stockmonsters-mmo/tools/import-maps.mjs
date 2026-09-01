@@ -16,10 +16,16 @@
  *
  * They are dropped from the visual output here and reported, so the collision
  * conversion is a deliberate, visible step rather than silently missing.
+ *
+ * The last step folds the tile layers together (tools/merge-tile-layers.mjs).
+ * PSDK maps arrive with 73-79 of them where the rest of this game averages 5,
+ * and the renderer pays for every one; the fold is pixel-identical and lives
+ * here so a re-import cannot quietly undo it.
  */
 import { readFileSync, writeFileSync, copyFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs'
 import { basename, dirname, join, resolve } from 'node:path'
 import sharp from 'sharp'
+import { mergeTileLayers } from './merge-tile-layers.mjs'
 
 const GAME = resolve(import.meta.dirname, '../../Stockmonsters/Data/Tiled')
 const OUT = resolve(import.meta.dirname, '../src/tiled')
@@ -323,11 +329,34 @@ async function importMap(tmxName, seen) {
   // so dropping the dead cells is the only honest option.
   xml = sanitizeGids(xml, id)
 
+  /*
+   * Collapse the tile layers. RMXP paints every semantic thing on its own
+   * plane, so a PSDK map arrives with 73-79 tile layers against a median of 5
+   * for the RMXP-imported ones, a third of them holding not one tile. The
+   * renderer builds a container for each, and @rpgjs/tiledmap allocates a
+   * width*height array per layer and re-creates every sprite on EVERY map
+   * chunk that streams in, so the load cost is linear in this number.
+   *
+   * It runs LAST, on purpose:
+   *   - after the `above` group is inserted, because that group is the draw
+   *     order and each side of it has to be merged on its own;
+   *   - after sanitizeGids, because a layer whose only tiles were phantoms is
+   *     empty now and should be dropped rather than kept as a container of
+   *     zeroes.
+   * See tools/merge-tile-layers.mjs for why the rule cannot change a pixel and
+   * for the standalone verifier.
+   */
+  const folded = mergeTileLayers(xml)
+  xml = folded.xml
+
   if (hitboxes) writeFileSync(join(OUT, `${id}.hitboxes.json`), JSON.stringify(hitboxes))
 
   writeFileSync(join(OUT, `${id}.tmx`), xml)
   const size = xml.match(/\bwidth="(\d+)"\s+height="(\d+)"/)
-  console.log(`  ${id}  ${size ? `${size[1]}x${size[2]}` : ''}  tilesets: ${found.length}`)
+  console.log(
+    `  ${id}  ${size ? `${size[1]}x${size[2]}` : ''}  tilesets: ${found.length}` +
+      `  layers: ${folded.before} -> ${folded.after}`,
+  )
   return { id, meta }
 }
 
