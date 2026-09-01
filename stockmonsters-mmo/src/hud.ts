@@ -45,6 +45,14 @@ import { TOKEN_SYMBOL } from './modules/main/pricing'
 const CHART_URL =
   'https://dexscreener.com/robinhood/0x465cd3750726be76a3d6ee26592c7a6e4b5cc685ddde84dec7b0f2167110fad6'
 
+const X_URL = 'https://x.com/Stonksters'
+
+/** The X wordmark, the same path the landing page uses so the two agree. */
+const X_SVG =
+  '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">' +
+  '<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835' +
+  'L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'
+
 /* ---------------------------------------------------------------- types ---*/
 
 export interface HudChip {
@@ -66,7 +74,23 @@ export interface HudBanner {
    * frame instead of the dashed "nobody has bought this yet" one, and may
    * carry a link out.
    */
-  live?: { line: string; sub?: string; chartHref?: string }
+  live?: {
+    line: string
+    sub?: string
+    /** Where the button goes. Without one the slot is text only. */
+    href?: string
+    /** The button's mark: an image URL, or inline SVG for a brand glyph. */
+    iconSrc?: string
+    iconSvg?: string
+    /** What the link is for, read by a screen reader and shown on hover. */
+    label?: string
+    /**
+     * The pulsing green dot. It means "this is live right now" — put it on an
+     * announcement, never on a link. A follow button wearing it is claiming
+     * something it is not saying.
+     */
+    dot?: boolean
+  }
 }
 
 export interface HudModel {
@@ -239,9 +263,26 @@ export function demoHudModel(): HudModel {
         // the 168px slot once the chart button has taken 38 of it, and the
         // first render clipped it to "STONKSTERS IS" — which reads as a
         // sentence someone forgot to finish.
-        live: { line: TOKEN_SYMBOL, sub: 'IS LIVE NOW', chartHref: CHART_URL },
+        live: {
+          line: TOKEN_SYMBOL,
+          sub: 'IS LIVE NOW',
+          dot: true,
+          href: CHART_URL,
+          iconSrc: '/dex-screener-seeklogo.svg',
+          label: 'Open the chart on Dexscreener',
+        },
       },
-      { id: 'b2', caption: 'BANNER SLOT' },
+      {
+        id: 'x',
+        caption: 'FOLLOW ON X',
+        live: {
+          line: 'FOLLOW ON X',
+          sub: '@stonksters',
+          href: X_URL,
+          iconSvg: X_SVG,
+          label: 'Stockmonsters on X',
+        },
+      },
       { id: 'b3', caption: 'BANNER SLOT' },
     ],
   }
@@ -465,6 +506,9 @@ const CSS = `
 #sm-hud .hud-banner .live-chart img {
   width: 20px; height: 20px; object-fit: contain; image-rendering: auto;
 }
+/* An inline glyph draws in currentColor, unlike an <img>, so give it one. */
+#sm-hud .hud-banner .live-chart svg { color: var(--sm-border); }
+#sm-hud .hud-banner .live-chart:hover svg { color: #fff1c7; }
 /* The stick figure would sit on the tail of a stopped animation otherwise. */
 @media (prefers-reduced-motion: reduce) {
   #sm-hud .hud-banner.is-live .live-dot { animation: none; }
@@ -732,25 +776,25 @@ export function mountHud(engine?: EngineLike, socket?: SocketLike): HudApi {
         txt.append(
           el('div', {
             class: 'live-line',
-            html: '<span class="live-dot"></span>' + escapeHtml(b.live.line),
+            html: (b.live.dot ? '<span class="live-dot"></span>' : '') + escapeHtml(b.live.line),
           }),
           ...(b.live.sub ? [el('div', { class: 'live-sub', text: b.live.sub })] : []),
         )
         slot.appendChild(txt)
-        if (b.live.chartHref) {
+        if (b.live.href) {
           // An anchor, not a button with a click handler: middle-click and
-          // "open in new tab" are things people do with a chart link, and a
-          // button silently swallows both.
-          const chart = el('a', {
+          // "open in new tab" are things people do with a link like this, and
+          // a button silently swallows both.
+          const mark = b.live.iconSvg ?? (b.live.iconSrc ? `<img src="${b.live.iconSrc}" alt="">` : '')
+          slot.appendChild(el('a', {
             class: 'smui-btn live-chart',
-            href: b.live.chartHref,
+            href: b.live.href,
             target: '_blank',
             rel: 'noopener noreferrer',
-            title: `${b.live.line} — open the chart on Dexscreener`,
-            'aria-label': 'Open the chart on Dexscreener',
-            html: '<img src="/dex-screener-seeklogo.svg" alt="">',
-          })
-          slot.appendChild(chart)
+            title: b.live.label ?? b.live.line,
+            'aria-label': b.live.label ?? b.live.line,
+            html: mark,
+          }))
         }
       } else if (b.image) slot.appendChild(el('img', { src: b.image, alt: b.caption }))
       else slot.textContent = b.caption
