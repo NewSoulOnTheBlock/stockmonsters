@@ -3,13 +3,18 @@ node_modules
 .env
 
 # Screenshots that end-to-end tests drop in the project root.
-first-login.png
-live.png
-intro.png
-chat-bubble.png
-chat-bubble-long.png
-door-marker.png
-door-marker-inside.png
+# Screenshots the e2e tests drop in the repo root.
+#
+# This used to be a list of filenames, one per test, and every new test added
+# another stray PNG that nobody remembered to add — three of them (ferry,
+# wasd, chat-history) were committed before anyone noticed. A rule that has to
+# be extended by hand is a rule that will be out of date.
+#
+# Nothing real lives at the repo root as a .png: the game's art is under
+# public/ and src/, and both are matched by the negations below.
+/*.png
+!public/*.png
+!src/**/*.png
 
 # Ad-hoc map renders from tools/render-map-full.mjs.
 map-renders/
