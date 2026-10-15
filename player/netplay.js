@@ -185,6 +185,7 @@
       tag.hidden = !show;
       if (!show) continue;
       if (tag.textContent !== p.name) tag.textContent = p.name;
+      tag.classList.toggle("np-tag-voice", !!p.voice);
       tag.style.transform = `translate(${rect.left + x * rect.scale}px, ${rect.top + y * rect.scale}px) translate(-50%, -110%)`;
       tag.style.fontSize = `${Math.max(10, Math.round(rect.scale * 5))}px`;
     }
@@ -237,6 +238,7 @@
       helloName = "";
       const p = session()?.profile;
       hello(p?.name || "TRAINER", p?.gender ?? 0); // authenticate now, even before the game is linked
+      voice.reconnected();
       status(base >= 0 ? "linked" : "connected");
     };
     ws.onclose = () => { others.clear(); slotOf.clear(); trade.reset(); if (!authFailed) status("offline, retrying"); setTimeout(connect, 2000); };
@@ -246,7 +248,9 @@
       else if (m.t === "auth") { if (!m.ok) { authFailed = true; status("login expired, log out and back in"); } }
       else if (m.t === "snapshot") { others.clear(); for (const p of m.players) others.set(p.id, p); }
       else if (m.t === "pos" && m.id !== myId) others.set(m.id, m);
-      else if (m.t === "leave") others.delete(m.id);
+      else if (m.t === "leave") { others.delete(m.id); voice.drop(m.id); }
+      else if (m.t === "voice") voice.onVoice(m.id, m.on);
+      else if (m.t === "rtc") voice.onRtc(m.from, m.data);
       else if (m.t === "chat") chatLine(m.name + (m.scope === "map" ? " (here)" : ""), m.text);
       else if (m.t.startsWith("trade_")) trade.onMessage(m);
       else if (m.t.startsWith("battle_") || m.t.startsWith("link_")) battle.onMessage(m);
@@ -745,6 +749,154 @@
     return { init, scan, retry };
   })();
 
+  // ---- proximity voice -------------------------------------------------------
+  // Peer-to-peer WebRTC audio with players on the same map within RADIUS tiles.
+  // Volume falls off with distance and pans with left/right position, so a
+  // voice comes from where that trainer stands. The server only relays the
+  // handshakes ("rtc" messages). Uses the "perfect negotiation" pattern: the
+  // player with the lower id initiates; collisions resolve by id.
+  const voice = (() => {
+    const RADIUS = 12, HYSTERESIS = 3;
+    const ICE_SERVERS = [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }];
+    let on = false, muted = false, stream = null, ctx = null, lastMe = null;
+    const peers = new Map(); // id -> { pc, polite, makingOffer, ignoreOffer, gain, pan, el }
+
+    const sameMap = (p) => lastMe && p && p.g === lastMe.g && p.n === lastMe.n;
+    const dist = (p) => Math.hypot(p.x - lastMe.x, p.y - lastMe.y);
+    const eligible = (id) => { const p = others.get(id); return on && p?.voice && sameMap(p) && dist(p) <= RADIUS + HYSTERESIS; };
+
+    async function enable() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+      } catch (e) {
+        chatLine("Voice", "Microphone access was blocked. Allow it in the browser's site settings to talk.");
+        return;
+      }
+      ctx = new AudioContext();
+      on = true; muted = false;
+      sendMsg({ t: "voice", on: true });
+      chatLine("Voice", `Voice on. Players within ${RADIUS} tiles on your map can hear you.`);
+      render();
+    }
+    function disable() {
+      on = false;
+      for (const id of [...peers.keys()]) close(id);
+      stream?.getTracks().forEach((t) => t.stop());
+      stream = null;
+      ctx?.close();
+      ctx = null;
+      sendMsg({ t: "voice", on: false });
+      render();
+    }
+    function setMuted(m) {
+      muted = m;
+      stream?.getAudioTracks().forEach((t) => (t.enabled = !m));
+      render();
+    }
+
+    function open(id) {
+      if (peers.has(id) || !stream) return peers.get(id);
+      const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+      const peer = { pc, polite: Number(myId) > Number(id), makingOffer: false, ignoreOffer: false, gain: null, pan: null, el: null };
+      peers.set(id, peer);
+      stream.getTracks().forEach((t) => pc.addTrack(t, stream));
+      pc.onnegotiationneeded = async () => {
+        try {
+          peer.makingOffer = true;
+          await pc.setLocalDescription();
+          sendMsg({ t: "rtc", to: id, data: { sdp: pc.localDescription } });
+        } catch (e) { console.warn("[voice]", e); } finally { peer.makingOffer = false; }
+      };
+      pc.onicecandidate = ({ candidate }) => { if (candidate) sendMsg({ t: "rtc", to: id, data: { ice: candidate } }); };
+      pc.ontrack = ({ streams: [remote] }) => {
+        if (!remote || peer.gain) return;
+        // Chrome only feeds a remote WebRTC stream into WebAudio while some
+        // media element is playing it; keep a muted one attached.
+        const el = new Audio();
+        el.srcObject = remote; el.muted = true; el.play().catch(() => {});
+        const src = ctx.createMediaStreamSource(remote);
+        peer.gain = ctx.createGain();
+        peer.pan = ctx.createStereoPanner();
+        peer.gain.gain.value = 0;
+        src.connect(peer.gain).connect(peer.pan).connect(ctx.destination);
+        peer.el = el;
+        render();
+      };
+      pc.onconnectionstatechange = () => { if (pc.connectionState === "failed" || pc.connectionState === "closed") close(id); else render(); };
+      return peer;
+    }
+
+    function close(id) {
+      const peer = peers.get(id);
+      if (!peer) return;
+      peers.delete(id);
+      try { peer.pc.close(); } catch {}
+      try { peer.gain?.disconnect(); peer.pan?.disconnect(); } catch {}
+      if (peer.el) peer.el.srcObject = null;
+      render();
+    }
+
+    async function onRtc(from, data) {
+      if (!on || !data) return;
+      let peer = peers.get(from);
+      if (!peer) { if (!eligible(from)) return; peer = open(from); }
+      const pc = peer.pc;
+      try {
+        if (data.sdp) {
+          const collision = data.sdp.type === "offer" && (peer.makingOffer || pc.signalingState !== "stable");
+          peer.ignoreOffer = !peer.polite && collision;
+          if (peer.ignoreOffer) return;
+          await pc.setRemoteDescription(data.sdp);
+          if (data.sdp.type === "offer") {
+            await pc.setLocalDescription();
+            sendMsg({ t: "rtc", to: from, data: { sdp: pc.localDescription } });
+          }
+        } else if (data.ice) {
+          try { await pc.addIceCandidate(data.ice); } catch (e) { if (!peer.ignoreOffer) throw e; }
+        }
+      } catch (e) { console.warn("[voice]", e); }
+    }
+
+    // Called every netplay tick with this player's position.
+    function tick(me) {
+      lastMe = me;
+      if (!on) return;
+      if (ctx?.state === "suspended") ctx.resume().catch(() => {});
+      for (const [id, p] of others) {
+        if (!peers.has(id) && p.voice && sameMap(p) && dist(p) <= RADIUS && Number(myId) < Number(id)) open(id);
+      }
+      for (const [id, peer] of peers) {
+        const p = others.get(id);
+        if (!p || !p.voice || !sameMap(p) || dist(p) > RADIUS + HYSTERESIS) { close(id); continue; }
+        if (!peer.gain) continue;
+        const level = Math.max(0, 1 - dist(p) / RADIUS);
+        peer.gain.gain.setTargetAtTime(level * level, ctx.currentTime, 0.15);
+        peer.pan.pan.setTargetAtTime(Math.max(-1, Math.min(1, (p.x - me.x) / 8)) * 0.8, ctx.currentTime, 0.15);
+      }
+    }
+
+    function render() {
+      const b = $(".np-voice");
+      if (!b) return;
+      const live = [...peers.values()].filter((p) => p.pc.connectionState === "connected").length;
+      b.dataset.state = !on ? "off" : muted ? "muted" : "on";
+      b.textContent = !on ? "Voice" : muted ? `Muted · ${live}` : `Mic on · ${live}`;
+      b.title = !on ? "Join proximity voice chat" : "Click to mute/unmute. Right-click to leave voice.";
+    }
+
+    return {
+      get on() { return on; },
+      toggle() { if (!on) enable(); else setMuted(!muted); },
+      leave() { if (on) { disable(); chatLine("Voice", "Voice off."); } },
+      onRtc,
+      onVoice(id, isOn) { const p = others.get(id); if (p) p.voice = isOn; if (!isOn) close(id); },
+      drop: close,
+      reconnected() { if (on) { for (const id of [...peers.keys()]) close(id); sendMsg({ t: "voice", on: true }); } },
+      tick,
+      render,
+    };
+  })();
+
   // ---- main loop -----------------------------------------------------------
   let heartbeat = 0, lastFrame = -1, frameStallAt = 0;
 
@@ -762,6 +914,7 @@
 
       dv.setUint32(base + OFF.heartbeat, ++heartbeat >>> 0, true);
       sendLocal(me);
+      voice.tick(me);
       assignSlots(me);
       writeRemotes(dv);
       pollInteract(dv);
@@ -783,6 +936,7 @@
     <div class="np-bar">
       <div class="np-status"><span class="np-dot"></span><span class="np-text">starting</span></div>
       <span class="np-wallet"></span>
+      <button type="button" class="np-voice" data-state="off">Voice</button>
       <button type="button" class="np-nft" hidden></button>
       <button type="button" class="np-logout" hidden>Log out</button>
     </div>
@@ -795,6 +949,8 @@
   let statusText = "starting", hudMap = "", authFailed = false;
   $(".np-logout").addEventListener("click", () => window.StockmonstersLogout?.());
   $(".np-nft").addEventListener("click", () => nft.retry());
+  $(".np-voice").addEventListener("click", () => voice.toggle());
+  $(".np-voice").addEventListener("contextmenu", (e) => { e.preventDefault(); voice.leave(); });
 
   function status(t) { if (authFailed && !t.startsWith("login")) return; statusText = t; hud(); }
   function hud() {

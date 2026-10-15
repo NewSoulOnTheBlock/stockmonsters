@@ -24,6 +24,11 @@
   #netplay .np-nft { pointer-events: auto; padding: 3px 10px; border-radius: 999px; border: 1px solid #2ea043; cursor: pointer;
              background: #238636; color: #fff; font: 600 12px/1.35 system-ui, sans-serif; }
   #netplay .np-nft[hidden] { display: none; }
+  #netplay .np-voice { pointer-events: auto; padding: 3px 10px; border-radius: 999px; border: 1px solid #30363d; cursor: pointer;
+             background: rgba(13,17,23,.75); color: #e6edf3; font: 600 12px/1.35 system-ui, sans-serif; }
+  #netplay .np-voice[data-state="on"] { background: #238636; border-color: #2ea043; color: #fff; }
+  #netplay .np-voice[data-state="muted"] { background: #6e2a2a; border-color: #da3633; color: #fff; }
+  .np-tag.np-tag-voice { box-shadow: 0 0 0 2px #3fb950; }
   #netplay .np-log { max-height: 140px; overflow-y: auto; padding: 4px 8px; background: rgba(13,17,23,.6); border-radius: 6px 6px 0 0;
              text-shadow: 0 1px 1px #000; }
   #netplay .np-log:empty { display: none; }
