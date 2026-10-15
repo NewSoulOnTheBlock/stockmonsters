@@ -196,12 +196,20 @@
   const sendMsg = (m) => ws?.readyState === WebSocket.OPEN && ws.send(JSON.stringify(m));
   const SERVER = window.STOCKMONSTERS_SERVER || ""; // "" = same origin
   const session = () => window.StockmonstersSession;
+  const isGuest = () => !!session()?.guest; // no wallet: the server only lets guests listen
+  let guestNoticeAt = 0;
+  function guestNotice() {
+    if (performance.now() - guestNoticeAt < 3000) return;
+    guestNoticeAt = performance.now();
+    chatLine("Guest", "Connect a wallet to chat, trade and battle.");
+  }
   // login.js sets the session; nothing connects without one.
   const whenSession = () => new Promise((resolve) => {
     if (session()) return resolve(session());
     window.addEventListener("stockmonsters:session", () => resolve(session()), { once: true });
   });
   function hello(name, gender) {
+    if (isGuest()) return;
     sendMsg({ t: "hello", token: session()?.token, name, gender });
   }
   // Keep the stored profile in step with the save: name, gender, and the
@@ -210,7 +218,7 @@
   const isHometown = (m) => (m >= 88 && m <= 96) || m === 98;
   function saveProfile(name, gender, hometown) {
     const s = session(), key = `${name}|${gender}|${hometown}`;
-    if (!s || key === savedProfile) return;
+    if (!s || s.guest || key === savedProfile) return;
     const p = s.profile;
     const homeNew = isHometown(hometown) && p?.hometown == null;
     savedProfile = key;
@@ -247,7 +255,7 @@
   }
 
   function sendLocal(me) {
-    if (ws?.readyState !== WebSocket.OPEN) return;
+    if (ws?.readyState !== WebSocket.OPEN || isGuest()) return;
     if (me.name !== helloName) { helloName = me.name; hello(me.name, me.gender); }
     saveProfile(me.name, me.gender, me.hometown);
     const key = `${me.g}.${me.n}.${me.x}.${me.y}.${me.f}.${me.e}.${me.gfx}`;
@@ -393,6 +401,7 @@
       reset() { partner = null; incoming = null; state = null; signing = false; render(); },
       request(id) {
         // Mashing A on a player would otherwise send a request per press.
+        if (isGuest()) return guestNotice();
         if (!others.has(id) || partner || incoming || performance.now() - lastRequestAt < 3000) return;
         lastRequestAt = performance.now();
         sendMsg({ t: "trade_request", to: id });
@@ -537,6 +546,7 @@
 
     return {
       request(id) {
+        if (isGuest()) return guestNotice();
         if (session || incoming) return;
         sendMsg({ t: "battle_request", to: id });
       },
@@ -814,7 +824,8 @@
   $(".np-form").addEventListener("submit", (e) => {
     e.preventDefault();
     const raw = input.value.trim();
-    if (raw) {
+    if (raw && isGuest()) guestNotice();
+    else if (raw) {
       const local = raw.startsWith("/here ");
       sendMsg({ t: "chat", scope: local ? "map" : "global", text: local ? raw.slice(6) : raw });
     }
@@ -826,6 +837,13 @@
   }, true);
 
   whenSession().then((s) => {
+    if (s.guest) {
+      $(".np-wallet").textContent = "Guest";
+      $(".np-logout").textContent = "Connect wallet";
+      $(".np-logout").hidden = false;
+      input.placeholder = "Connect a wallet to chat";
+      return connect(); // watch other players; no NFTs without a wallet
+    }
     const w = s.wallet;
     $(".np-wallet").textContent = w.length > 8 ? `${w.slice(0, 4)}…${w.slice(-4)}` : w;
     $(".np-wallet").title = w;

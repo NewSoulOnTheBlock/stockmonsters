@@ -53,8 +53,8 @@
 <div id="game"></div>
 <script>
   // Where the game server lives (login, multiplayer, trades, battles, NFTs).
-  // Locally, play.ps1 serves this page from the server itself: same origin.
-  window.STOCKMONSTERS_SERVER = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)
+  // Locally (play.ps1) and on stockmonsters.app the server itself hosts this page: same origin.
+  window.STOCKMONSTERS_SERVER = /^(localhost|127\.0\.0\.1|\[::1\]|(www\.)?stockmonsters\.app)$/.test(location.hostname)
     ? "" : "https://stockmonsters-server.onrender.com";
   EJS_player = "#game";
   EJS_core = "gba";

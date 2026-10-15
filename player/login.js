@@ -4,6 +4,8 @@
 // Login only uses signMessage. Later, minting and updating a Stockmonster's NFT
 // asks the same wallet to sign a transaction (window.StockmonstersWallet); the
 // player approves each one in the wallet. Never keys or seeds.
+// "Play as guest" skips the wallet: { guest: true, wallet: null, token: null },
+// so the server treats the player as a listener (no chat, trades, battles, NFTs).
 // On success: window.StockmonstersSession = { wallet, token, profile }, the
 // "stockmonsters:session" event fires, and window.bootStockmonsters() runs.
 (() => {
@@ -151,10 +153,10 @@
   function start(s) {
     if (started) return;
     started = true;
-    window.StockmonstersSession = { wallet: s.wallet, token: s.token, profile: s.profile };
+    window.StockmonstersSession = { wallet: s.wallet, token: s.token, profile: s.profile, guest: !!s.guest };
     overlay.remove();
     window.dispatchEvent(new CustomEvent("stockmonsters:session", { detail: window.StockmonstersSession }));
-    window.bootStockmonsters?.(s.wallet);
+    window.bootStockmonsters?.(s.guest ? "guest" : s.wallet);
   }
 
   // Signs a serialized transaction with the logged-in wallet. A resumed
@@ -186,6 +188,7 @@
   };
 
   // ---- overlay -------------------------------------------------------------
+  const TOKEN_CA = "JAZWKW1smaRGRPqK9K2P8r97Jjy2fYxcPH7fcJteXpww";
   const css = document.createElement("style");
   css.textContent = `
     #sm-login { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px;
@@ -206,13 +209,19 @@
     #sm-login .ico img { width: 100%; height: 100%; object-fit: cover; }
     #sm-login .hint { margin: 14px 0 0; font-size: 13px; color: #8b949e; text-align: center; min-height: 1.2em; }
     #sm-login .err { color: #f85149; }
-    #sm-login .fine { margin: 16px 0 0; font-size: 12px; color: #6e7681; text-align: center; }`;
+    #sm-login .fine { margin: 16px 0 0; font-size: 12px; color: #6e7681; text-align: center; }
+    #sm-login .or { margin: 14px 0 8px; font-size: 12px; color: #6e7681; text-align: center; }
+    #sm-login button.guest { justify-content: center; color: #8b949e; }
+    #sm-login button.ca { display: block; margin: 0 0 16px; padding: 8px 10px; text-align: center; background: #161b22; }
+    #sm-login .ca .k { display: block; font-size: 11px; letter-spacing: .08em; color: #8b949e; }
+    #sm-login .ca code { font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; color: #3fb950; word-break: break-all; }`;
   document.head.appendChild(css);
 
   const overlay = document.createElement("div");
   overlay.id = "sm-login";
   overlay.innerHTML = `
     <div class="card" role="dialog" aria-labelledby="sm-login-title">
+      <button type="button" class="ca" title="Copy contract address"><span class="k">CA · tap to copy</span><code>${TOKEN_CA}</code></button>
       <h1 id="sm-login-title">STOCK MONSTERS</h1>
       <p class="sub">Connect a Solana wallet</p>
       <div class="list"></div>
@@ -221,6 +230,12 @@
     </div>`;
   document.body.appendChild(overlay);
   const list = overlay.querySelector(".list"), hint = overlay.querySelector(".hint");
+  const caLabel = overlay.querySelector(".ca .k");
+  overlay.querySelector(".ca").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(TOKEN_CA); caLabel.textContent = "COPIED"; }
+    catch { caLabel.textContent = "COPY FAILED, SELECT IT MANUALLY"; }
+    setTimeout(() => { caLabel.textContent = "CA · tap to copy"; }, 1500);
+  });
   let busy = false, ready = false;
 
   function icon(entry) {
@@ -245,7 +260,7 @@
         a.append(icon({ name }), document.createTextNode(`Get ${name}`));
         list.appendChild(a);
       }
-      return;
+      return guestButton();
     }
     if (!busy && !hint.classList.contains("err")) hint.textContent = "";
     for (const entry of found) {
@@ -255,6 +270,21 @@
       b.addEventListener("click", () => signIn(entry));
       list.appendChild(b);
     }
+    guestButton();
+  }
+
+  // Guests play offline-style: their save stays in this browser, and online
+  // features need a wallet. Not remembered, so a reload shows this screen again.
+  function guestButton() {
+    const or = document.createElement("p");
+    or.className = "or";
+    or.textContent = "or";
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "guest"; b.disabled = busy;
+    b.textContent = "Play as guest";
+    b.title = "No wallet: chat, trades, battles and NFTs stay off";
+    b.addEventListener("click", () => start({ guest: true, wallet: null, token: null, profile: null }));
+    list.append(or, b);
   }
 
   function setBusy(text, error) {
