@@ -886,7 +886,7 @@
 
     return {
       get on() { return on; },
-      toggle() { if (!on) enable(); else setMuted(!muted); },
+      toggle() { if (isGuest()) return guestNotice(); if (!on) enable(); else setMuted(!muted); },
       leave() { if (on) { disable(); chatLine("Voice", "Voice off."); } },
       onRtc,
       onVoice(id, isOn) { const p = others.get(id); if (p) p.voice = isOn; if (!isOn) close(id); },
