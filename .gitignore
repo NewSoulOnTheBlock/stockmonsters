@@ -5,3 +5,11 @@ Stockmonsters/.tiledmcp/
 *.log
 .DS_Store
 Thumbs.db
+
+# Stock Monsters online
+stockred.zip
+player/*.gba
+player/.vercel/
+harrow/node_modules/
+harrow/dist/
+**/.boost/

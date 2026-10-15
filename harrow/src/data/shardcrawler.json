@@ -1,0 +1,35 @@
+{
+  "frameWidth": 130,
+  "frameHeight": 88,
+  "columns": 6,
+  "anims": {
+    "idle": {
+      "start": 0,
+      "count": 6
+    },
+    "walk": {
+      "start": 6,
+      "count": 6
+    },
+    "run": {
+      "start": 12,
+      "count": 5
+    },
+    "lunge": {
+      "start": 18,
+      "count": 5
+    },
+    "spit": {
+      "start": 24,
+      "count": 4
+    },
+    "hurt": {
+      "start": 30,
+      "count": 4
+    },
+    "death": {
+      "start": 36,
+      "count": 6
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "frameWidth": 76,
+  "frameHeight": 106,
+  "columns": 8,
+  "anims": {
+    "idle": {
+      "start": 0,
+      "count": 7
+    },
+    "walk": {
+      "start": 8,
+      "count": 8
+    },
+    "run": {
+      "start": 16,
+      "count": 6
+    },
+    "crouch": {
+      "start": 24,
+      "count": 5
+    },
+    "jump": {
+      "start": 32,
+      "count": 5
+    },
+    "hurt": {
+      "start": 40,
+      "count": 2
+    },
+    "death": {
+      "start": 48,
+      "count": 4
+    }
+  }
+}

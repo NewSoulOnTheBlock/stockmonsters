@@ -1,0 +1,35 @@
+{
+  "frameWidth": 170,
+  "frameHeight": 118,
+  "columns": 7,
+  "anims": {
+    "idle": {
+      "start": 0,
+      "count": 7
+    },
+    "run": {
+      "start": 7,
+      "count": 6
+    },
+    "charge": {
+      "start": 14,
+      "count": 4
+    },
+    "fire": {
+      "start": 21,
+      "count": 5
+    },
+    "slam": {
+      "start": 28,
+      "count": 5
+    },
+    "hurt": {
+      "start": 35,
+      "count": 4
+    },
+    "death": {
+      "start": 42,
+      "count": 4
+    }
+  }
+}

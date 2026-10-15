@@ -1,0 +1,5 @@
+# The built ROM contains FireRed's code and assets - never commit or deploy it.
+*.gba
+*.sav
+
+.vercel

@@ -1,0 +1,6 @@
+[submodule "stockred"]
+	path = stockred
+	url = https://github.com/NewSoulOnTheBlock/stockmonsters-rom.git
+[submodule "netplay-server"]
+	path = netplay-server
+	url = https://github.com/NewSoulOnTheBlock/stockmonsters-server.git

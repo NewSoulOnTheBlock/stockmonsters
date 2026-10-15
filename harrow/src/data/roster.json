@@ -1,0 +1,14 @@
+[
+  { "id": "auroryx",    "dexId": 25,  "name": "Auroryx",    "types": ["Volt"],             "rarity": "starter",  "hp": 95,  "atk": 9,  "rate": 1.2, "range": 200, "speed": 170, "move": "chain",    "moveName": "Chain Arc" },
+  { "id": "carnivyre",  "dexId": 38,  "name": "Carnivyre",  "types": ["Tide"],             "rarity": "starter",  "hp": 130, "atk": 10, "rate": 1.0, "range": 180, "speed": 145, "move": "surge",    "moveName": "Tidal Surge" },
+  { "id": "bullwark",   "dexId": 35,  "name": "Bullwark",   "types": ["Terra"],            "rarity": "starter",  "hp": 165, "atk": 14, "rate": 0.8, "range": 44,  "speed": 135, "move": "quake",    "moveName": "Quake" },
+  { "id": "jabilisk",   "dexId": 92,  "name": "Jabilisk",   "types": ["Terra"],            "rarity": "common",   "hp": 125, "atk": 12, "rate": 1.1, "range": 44,  "speed": 165, "move": "pounce",   "moveName": "Mule Kick" },
+  { "id": "blackbriar", "dexId": 32,  "name": "Blackbriar", "types": ["Shadow", "Toxic"],  "rarity": "common",   "hp": 110, "atk": 11, "rate": 1.3, "range": 44,  "speed": 175, "move": "snare",    "moveName": "Thornbind" },
+  { "id": "elfyre",     "dexId": 61,  "name": "Elfyre",     "types": ["Fae"],              "rarity": "common",   "hp": 95,  "atk": 8,  "rate": 1.1, "range": 190, "speed": 160, "move": "ward",     "moveName": "Ward" },
+  { "id": "astrohound", "dexId": 228, "name": "Astrohound", "types": ["Blaze", "Shadow"],  "rarity": "uncommon", "hp": 110, "atk": 12, "rate": 1.2, "range": 44,  "speed": 185, "move": "flare",    "moveName": "Flare" },
+  { "id": "datahound",  "dexId": 57,  "name": "Datahound",  "types": ["Psionic"],          "rarity": "uncommon", "hp": 100, "atk": 11, "rate": 1.2, "range": 44,  "speed": 180, "move": "phase",    "moveName": "Blink Strike" },
+  { "id": "irendra",    "dexId": 91,  "name": "Irendra",    "types": ["Frost"],            "rarity": "uncommon", "hp": 105, "atk": 9,  "rate": 1.1, "range": 190, "speed": 150, "move": "freeze",   "moveName": "Deep Freeze" },
+  { "id": "howmetheus", "dexId": 82,  "name": "Howmetheus", "types": ["Alloy", "Volt"],    "rarity": "uncommon", "hp": 150, "atk": 10, "rate": 0.9, "range": 210, "speed": 125, "move": "bolt",     "moveName": "Rail Shot" },
+  { "id": "avgoliath",  "dexId": 27,  "name": "Avgoliath",  "types": ["Combat", "Alloy"],  "rarity": "rare",     "hp": 200, "atk": 15, "rate": 0.9, "range": 44,  "speed": 120, "move": "bulwark",  "moveName": "Bulwark" },
+  { "id": "hanguldra",  "dexId": 63,  "name": "Hanguldra",  "types": ["Psionic", "Wyrm"],  "rarity": "rare",     "hp": 120, "atk": 10, "rate": 1.0, "range": 180, "speed": 150, "move": "hijack",   "moveName": "Mind Seize" }
+]
