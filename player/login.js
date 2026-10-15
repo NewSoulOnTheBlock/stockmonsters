@@ -188,7 +188,7 @@
   };
 
   // ---- overlay -------------------------------------------------------------
-  const TOKEN_CA = "JAZWKW1smaRGRPqK9K2P8r97Jjy2fYxcPH7fcJteXpww";
+  const TOKEN_CA = "0x1b05d9458cbe691127a3f0de4f546aa32de7ffff";
   const css = document.createElement("style");
   css.textContent = `
     #sm-login { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px;
