@@ -1,0 +1,21 @@
+{
+  "name": "stockmonsters-contracts",
+  "version": "1.0.0",
+  "description": "StockMonsters ERC-721 on Ethereum mainnet",
+  "scripts": {
+    "build": "hardhat compile",
+    "test": "hardhat test",
+    "deploy": "hardhat run scripts/deploy.js --network mainnet",
+    "deploy:dry": "set DRY=1&& hardhat run scripts/deploy.js --network mainnet"
+  },
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.29.1"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.4.0"
+  },
+  "private": true
+}

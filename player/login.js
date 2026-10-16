@@ -1,9 +1,9 @@
-// Stockmonsters wallet login. Runs before the emulator exists: finds Solana
-// wallets (Wallet Standard + legacy injected providers), has the chosen one
-// sign a plain-text login message, and trades that for a server session.
-// Login only uses signMessage. Later, minting and updating a Stockmonster's NFT
-// asks the same wallet to sign a transaction (window.StockmonstersWallet); the
-// player approves each one in the wallet. Never keys or seeds.
+// Stockmonsters wallet login. Runs before the emulator exists: finds Ethereum
+// wallets (EIP-6963 + window.ethereum), has the chosen one sign a plain-text
+// login message (personal_sign), and trades that for a server session.
+// Later, minting a Stockmonster's NFT or trading one asks the same wallet to
+// send a transaction or sign a swap (window.StockmonstersWallet); the player
+// approves each one in the wallet. Never keys or seeds.
 // "Play as guest" skips the wallet: { guest: true, wallet: null, token: null },
 // so the server treats the player as a listener (no chat, trades, battles, NFTs).
 // On success: window.StockmonstersSession = { wallet, token, profile }, the
@@ -15,103 +15,57 @@
     get() { try { return localStorage.getItem(WALLET_KEY); } catch { return null; } },
     set(v) { try { localStorage.setItem(WALLET_KEY, v); } catch {} },
   };
-  let activeConn = null; // { address, sign, signTransaction } once connected this page load
+  let activeConn = null; // { address, provider, name } once connected this page load
   const store = {
     get() { try { return localStorage.getItem(TOKEN_KEY); } catch { return null; } },
     set(v) { try { localStorage.setItem(TOKEN_KEY, v); } catch {} },
     clear() { try { localStorage.removeItem(TOKEN_KEY); } catch {} },
   };
-  const short = (w) => (w.length > 8 ? `${w.slice(0, 4)}…${w.slice(-4)}` : w);
-
-  // ---- base58 encode (only for wallets that hand us raw key bytes) ---------
-  const B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-  function base58(bytes) {
-    const digits = []; // little-endian base-58
-    for (const b of bytes) {
-      let carry = b;
-      for (let i = 0; i < digits.length; i++) { carry += digits[i] * 256; digits[i] = carry % 58; carry = Math.floor(carry / 58); }
-      while (carry) { digits.push(carry % 58); carry = Math.floor(carry / 58); }
-    }
-    let s = "";
-    for (const b of bytes) { if (b) break; s += "1"; }
-    for (let i = digits.length - 1; i >= 0; i--) s += B58[digits[i]];
-    return s;
-  }
-  const b64 = (bytes) => { let s = ""; for (const b of bytes) s += String.fromCharCode(b); return btoa(s); };
-  const keyString = (pk) => !pk ? "" : typeof pk === "string" ? pk : pk.toBase58 ? pk.toBase58() : pk instanceof Uint8Array ? base58(pk) : String(pk);
+  const short = (w) => (w.length > 12 ? `${w.slice(0, 6)}…${w.slice(-4)}` : w);
+  const sameAddr = (a, b) => !!a && !!b && a.toLowerCase() === b.toLowerCase();
+  const utf8Hex = (s) => "0x" + Array.from(new TextEncoder().encode(s), (b) => b.toString(16).padStart(2, "0")).join("");
 
   // ---- wallet discovery ----------------------------------------------------
-  const found = []; // { name, icon, kind: "standard"|"legacy", wallet|provider }
+  // EIP-6963: every installed wallet announces itself, so MetaMask, Rabby,
+  // Coinbase, Trust... all show up side by side instead of fighting over
+  // window.ethereum.
+  const found = []; // { name, icon, rdns, provider }
   const seen = (name) => found.some((w) => w.name.toLowerCase() === name.toLowerCase());
 
-  function addStandard(w) {
+  window.addEventListener("eip6963:announceProvider", (e) => {
     try {
-      const f = w.features || {};
-      const solana = (w.chains || []).some((c) => String(c).startsWith("solana:"));
-      if (!solana || !f["solana:signMessage"] || !f["standard:connect"] || seen(w.name)) return;
-      found.push({ name: w.name, icon: w.icon, kind: "standard", wallet: w });
+      const { info, provider } = e.detail || {};
+      if (!info?.name || !provider?.request || seen(info.name)) return;
+      found.push({ name: info.name, icon: info.icon, rdns: info.rdns, provider });
       render();
     } catch {}
-  }
-
-  // Wallet Standard, by hand: wallets that loaded first answer app-ready;
-  // wallets that load later announce themselves with register-wallet.
-  const registerApi = Object.freeze({
-    register(...wallets) { wallets.forEach(addStandard); return () => {}; },
   });
-  window.addEventListener("wallet-standard:register-wallet", (e) => {
-    try { e.detail(registerApi); } catch {}
-  });
-  try { window.dispatchEvent(new CustomEvent("wallet-standard:app-ready", { detail: registerApi })); } catch {}
+  try { window.dispatchEvent(new Event("eip6963:requestProvider")); } catch {}
 
+  // Older wallets only inject window.ethereum.
   function addLegacy() {
-    const legacy = [
-      ["Phantom", window.phantom?.solana?.isPhantom ? window.phantom.solana : null],
-      ["Solflare", window.solflare?.isSolflare || window.solflare?.signMessage ? window.solflare : null],
-      ["Backpack", window.backpack?.signMessage ? window.backpack : null],
-    ];
-    for (const [name, provider] of legacy) if (provider && !seen(name)) found.push({ name, icon: null, kind: "legacy", provider });
+    const p = window.ethereum;
+    if (!p?.request || found.some((w) => w.provider === p)) return;
+    const name = p.isMetaMask ? "MetaMask" : p.isCoinbaseWallet ? "Coinbase Wallet" : p.isTrust ? "Trust Wallet" : "Browser wallet";
+    if (!seen(name)) found.push({ name, icon: null, provider: p });
   }
 
   // ---- connect + sign ------------------------------------------------------
   async function connectWallet(entry) {
-    if (entry.kind === "standard") {
-      const w = entry.wallet;
-      const sign = w.features["solana:signMessage"];
-      const res = await w.features["standard:connect"].connect();
-      const accounts = res?.accounts?.length ? res.accounts : w.accounts || [];
-      const account = accounts.find((a) => !a.chains || a.chains.some((c) => String(c).startsWith("solana:"))) || accounts[0];
-      if (!account) throw new Error("The wallet didn't share an account.");
-      return {
-        address: account.address || keyString(account.publicKey),
-        sign: async (msg) => {
-          const out = await sign.signMessage({ account, message: new TextEncoder().encode(msg) });
-          const r = Array.isArray(out) ? out[0] : out;
-          return { signature: r.signature, signed: r.signedMessage ? new TextDecoder().decode(r.signedMessage) : msg };
-        },
-        signTransaction: async (bytes, chain) => {
-          const f = w.features["solana:signTransaction"];
-          if (!f) throw new Error(`${w.name} can't sign transactions here; log in with another wallet.`);
-          const out = await f.signTransaction({ account, transaction: bytes, chain });
-          const r = Array.isArray(out) ? out[0] : out;
-          return r.signedTransaction;
-        },
-      };
-    }
     const p = entry.provider;
-    const res = await p.connect();
-    const address = keyString(res?.publicKey ?? p.publicKey);
-    if (!address) throw new Error("The wallet didn't share an address.");
-    return {
-      address,
-      sign: async (msg) => {
-        const out = await p.signMessage(new TextEncoder().encode(msg), "utf8");
-        return { signature: out?.signature ?? out, signed: msg };
-      },
-      signTransaction: async () => {
-        throw new Error("This wallet connection can't sign game transactions; log in with a wallet from the list that supports Wallet Standard.");
-      },
-    };
+    const accounts = await p.request({ method: "eth_requestAccounts" });
+    const address = accounts?.[0];
+    if (!address) throw new Error("The wallet didn't share an account.");
+    return { address, provider: p, name: entry.name };
+  }
+
+  // Wallets reject a request on the wrong network; move them to the game's.
+  async function ensureChain(conn, chainId) {
+    const want = "0x" + Number(chainId).toString(16);
+    const have = await conn.provider.request({ method: "eth_chainId" });
+    if (String(have).toLowerCase() === want) return;
+    try { await conn.provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: want }] }); }
+    catch { throw new Error(Number(chainId) === 1 ? "Switch your wallet to Ethereum mainnet and try again." : `Switch your wallet to chain ${chainId} and try again.`); }
   }
 
   async function api(path, opts = {}) {
@@ -134,11 +88,11 @@
       const { nonce } = await api(`/auth/nonce?wallet=${encodeURIComponent(conn.address)}`);
       const message = `Stock Monsters login\nWallet: ${conn.address}\nNonce: ${nonce}\nIssued: ${new Date().toISOString()}`;
       setBusy(`Approve the sign-in message in ${entry.name}.`);
-      const { signature, signed } = await conn.sign(message);
+      const signature = await conn.provider.request({ method: "personal_sign", params: [utf8Hex(message), conn.address] });
       setBusy("Checking signature…");
       const s = await api("/auth/verify", {
         method: "POST",
-        body: JSON.stringify({ wallet: conn.address, message: signed, signature: b64(new Uint8Array(signature)) }),
+        body: JSON.stringify({ wallet: conn.address, message, signature }),
       });
       store.set(s.token);
       start(s);
@@ -159,24 +113,37 @@
     window.bootStockmonsters?.(s.guest ? "guest" : s.wallet);
   }
 
-  // Signs a serialized transaction with the logged-in wallet. A resumed
-  // session has no live connection yet, so reconnect the remembered wallet.
-  window.StockmonstersWallet = {
-    async signTransaction(bytes, chain) {
-      if (!activeConn) {
-        const name = remember.get();
-        let entry = null;
-        for (let i = 0; i < 20 && !entry; i++) {
-          entry = found.find((w) => name ? w.name === name : true) || null;
-          if (!entry) await new Promise((r) => setTimeout(r, 100));
-        }
-        if (!entry) throw new Error("Your wallet isn't available in this browser right now.");
-        activeConn = await connectWallet(entry);
+  // The logged-in wallet, for NFT mints and trades. A resumed session has no
+  // live connection yet, so reconnect the remembered wallet first.
+  async function liveConn() {
+    if (!activeConn) {
+      const name = remember.get();
+      let entry = null;
+      for (let i = 0; i < 20 && !entry; i++) {
+        entry = found.find((w) => name ? w.name === name : true) || null;
+        if (!entry) await new Promise((r) => setTimeout(r, 100));
       }
-      const wallet = window.StockmonstersSession?.wallet;
-      if (wallet && activeConn.address !== wallet)
-        throw new Error(`Switch your wallet to ${short(wallet)}, the account you logged in with.`);
-      return activeConn.signTransaction(bytes, chain);
+      if (!entry) throw new Error("Your wallet isn't available in this browser right now.");
+      activeConn = await connectWallet(entry);
+    }
+    const wallet = window.StockmonstersSession?.wallet;
+    if (wallet && !sameAddr(activeConn.address, wallet))
+      throw new Error(`Switch your wallet to ${short(wallet)}, the account you logged in with.`);
+    return activeConn;
+  }
+
+  window.StockmonstersWallet = {
+    /** Sends { to, data, chainId } from the logged-in wallet; resolves to the tx hash. */
+    async sendTransaction(tx) {
+      const conn = await liveConn();
+      await ensureChain(conn, tx.chainId);
+      return conn.provider.request({ method: "eth_sendTransaction", params: [{ from: conn.address, to: tx.to, data: tx.data }] });
+    },
+    /** EIP-712 signature (eth_signTypedData_v4) over a wallet-ready payload. */
+    async signTypedData(typedData) {
+      const conn = await liveConn();
+      await ensureChain(conn, typedData.domain.chainId);
+      return conn.provider.request({ method: "eth_signTypedData_v4", params: [conn.address, JSON.stringify(typedData)] });
     },
   };
 
@@ -223,7 +190,7 @@
     <div class="card" role="dialog" aria-labelledby="sm-login-title">
       <button type="button" class="ca" title="Copy contract address"><span class="k">CA · tap to copy</span><code>${TOKEN_CA}</code></button>
       <h1 id="sm-login-title">STOCK MONSTERS</h1>
-      <p class="sub">Connect a Solana wallet</p>
+      <p class="sub">Connect an Ethereum wallet</p>
       <div class="list"></div>
       <p class="hint" aria-live="polite"></p>
       <p class="fine">You only sign a login message. No transaction, no fees, and never your seed phrase.</p>
@@ -253,8 +220,8 @@
     if (started || !ready) return;
     list.replaceChildren();
     if (!found.length) {
-      hint.textContent = "No Solana wallet found in this browser. Install one, then reload:";
-      for (const [name, url] of [["Phantom", "https://phantom.com/download"], ["Solflare", "https://solflare.com/download"], ["Backpack", "https://backpack.app/download"]]) {
+      hint.textContent = "No Ethereum wallet found in this browser. Install one, then reload:";
+      for (const [name, url] of [["MetaMask", "https://metamask.io/download/"], ["Rabby", "https://rabby.io/"], ["Coinbase Wallet", "https://www.coinbase.com/wallet/downloads"]]) {
         const a = document.createElement("a");
         a.className = "w"; a.href = url; a.target = "_blank"; a.rel = "noopener";
         a.append(icon({ name }), document.createTextNode(`Get ${name}`));

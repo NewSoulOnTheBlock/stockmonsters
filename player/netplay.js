@@ -311,7 +311,8 @@
     let state = null;      // last trade_update
     let party = [];
     let lastRequestAt = -Infinity;
-    let signing = false;   // waiting on this wallet to sign the NFT swap
+    let signing = null;    // wallet step in progress: "sign" | "send" | null
+    let waitText = null;   // what the server says we're waiting on
 
     const el = document.createElement("div");
     el.id = "np-trade";
@@ -350,8 +351,10 @@
       const theirs = document.createElement("p"); theirs.innerHTML = "<b>You get:</b> ";
       theirs.append(monLine(state?.theirs));
       const flags = document.createElement("p"); flags.className = "np-muted";
-      flags.textContent = signing ? "Approve the NFT swap in your wallet…"
-        : state?.theyConfirmed && state?.iConfirmed ? "Swapping the NFTs…"
+      flags.textContent = signing === "sign" ? "Approve the swap in your wallet (free, no gas)…"
+        : signing === "send" ? "Confirm the swap transaction in your wallet (you pay the gas)…"
+        : waitText ? waitText
+        : state?.theyConfirmed && state?.iConfirmed ? "Setting up the NFT swap…"
         : state?.theyConfirmed ? `${partner.name} confirmed.` : state?.iConfirmed ? `Waiting for ${partner.name}…` : "Pick a monster, then confirm.";
       const row = document.createElement("div"); row.className = "np-row";
       const confirm = button("Confirm trade", () => sendMsg({ t: "trade_confirm" }), "primary");
@@ -373,21 +376,35 @@
       if (dv && base >= 0) party = readParty(dv);
     }
 
-    // Both wallets sign one transaction that swaps the two NFTs.
+    // NFT swap on Ethereum: the partner signs an EIP-712 swap (free), then
+    // the player who asked for the trade sends it and pays the gas.
+    const declined = (e) => e?.code === 4001 || /reject|denied|cancel/i.test(e?.message || "");
     async function signSwap(m) {
-      signing = true;
+      signing = "sign"; waitText = null;
       render();
       try {
-        const bytes = Uint8Array.from(atob(m.tx), (c) => c.charCodeAt(0));
-        const chainId = m.cluster === "mainnet-beta" ? "solana:mainnet" : "solana:devnet";
-        const signed = new Uint8Array(await window.StockmonstersWallet.signTransaction(bytes, chainId));
-        let b = ""; for (const x of signed) b += String.fromCharCode(x);
-        sendMsg({ t: "trade_signed", tx: btoa(b) });
+        const signature = await window.StockmonstersWallet.signTypedData(m.typedData);
+        sendMsg({ t: "trade_signed", signature });
       } catch (e) {
-        chatLine("Trade", e?.code === 4001 || /reject|denied|cancel/i.test(e?.message || "") ? "You declined the NFT swap." : e?.message || String(e));
+        chatLine("Trade", declined(e) ? "You declined the NFT swap." : e?.message || String(e));
         sendMsg({ t: "trade_cancel" });
       } finally {
-        signing = false;
+        signing = null;
+        render();
+      }
+    }
+    async function sendSwap(m) {
+      signing = "send"; waitText = null;
+      render();
+      try {
+        const hash = await window.StockmonstersWallet.sendTransaction(m.tx);
+        waitText = "Swapping on Ethereum… (usually under a minute)";
+        sendMsg({ t: "trade_sent", hash });
+      } catch (e) {
+        chatLine("Trade", declined(e) ? "You declined the swap transaction." : e?.message || String(e));
+        sendMsg({ t: "trade_cancel" });
+      } finally {
+        signing = null;
         render();
       }
     }
@@ -402,7 +419,7 @@
     }
 
     return {
-      reset() { partner = null; incoming = null; state = null; signing = false; render(); },
+      reset() { partner = null; incoming = null; state = null; signing = null; waitText = null; render(); },
       request(id) {
         // Mashing A on a player would otherwise send a request per press.
         if (isGuest()) return guestNotice();
@@ -417,11 +434,13 @@
           case "trade_open": partner = m.partner; state = null; refreshParty(); break;
           case "trade_update": state = m; refreshParty(); break;
           case "trade_sign": signSwap(m); break;
+          case "trade_send": sendSwap(m); break;
+          case "trade_wait": waitText = m.text; break;
           case "trade_exec": execute(m); break;
           case "trade_error": chatLine("Trade", m.reason); break;
           case "trade_closed":
             chatLine("Trade", m.reason === "complete" ? `Trade with ${partner?.name ?? "partner"} complete!` : m.reason);
-            partner = null; state = null; break;
+            partner = null; state = null; waitText = null; break;
         }
         render();
       },
@@ -614,9 +633,10 @@
   }
 
   // ---- NFTs ----------------------------------------------------------------
-  // Every party monster is an NFT in the player's wallet. New monster -> mint;
-  // level went up -> resync its traits. The server builds and co-signs each
-  // transaction, the wallet signs as fee payer, the server sends it.
+  // Every party monster is an ERC-721 on Ethereum in the player's wallet.
+  // New monster -> mint: the server signs a voucher, the wallet sends the mint
+  // and pays gas, the server confirms the receipt. Level went up -> resync its
+  // traits: off-chain, so no wallet and no gas.
   const nft = (() => {
     let cfg = null, lastScan = 0, busy = false;
     const owned = new Map();   // key -> { asset, level }
@@ -632,9 +652,6 @@
       if (!res.ok) throw Object.assign(new Error(out.error || `server error ${res.status}`), { status: res.status });
       return out;
     }
-    const b64ToBytes = (b) => Uint8Array.from(atob(b), (c) => c.charCodeAt(0));
-    const bytesToB64 = (u) => { let s = ""; for (const x of u) s += String.fromCharCode(x); return btoa(s); };
-    const chain = () => (cfg?.cluster === "mainnet-beta" ? "solana:mainnet" : "solana:devnet");
 
     async function init() {
       try {
@@ -715,12 +732,20 @@
       busy = true;
       try {
         status(w.kind === "mint" ? `minting ${w.name}` : `syncing ${w.name}`);
-        const op = await call(w.kind === "mint" ? "/nft/prepare-mint" : "/nft/prepare-sync", { mon: w.hex });
-        const signed = await window.StockmonstersWallet.signTransaction(b64ToBytes(op.tx), chain());
-        const done = await call("/nft/submit", { opId: op.opId, tx: bytesToB64(new Uint8Array(signed)) });
-        owned.set(key, { asset: done.asset, level: done.level });
+        let done;
+        if (w.kind === "sync") done = await call("/nft/sync", { mon: w.hex });
+        else {
+          const op = await call("/nft/prepare-mint", { mon: w.hex });
+          if (op.done) done = op; // already on-chain in this wallet
+          else {
+            const hash = await window.StockmonstersWallet.sendTransaction(op.tx);
+            chatLine("NFT", `Minting ${w.name} on Ethereum…`);
+            done = await call("/nft/submit", { opId: op.opId, hash });
+          }
+        }
+        owned.set(key, { tokenId: done.tokenId, level: done.level });
         wanted.delete(key);
-        chatLine("NFT", w.kind === "mint" ? `${w.name} is now an NFT in your wallet.` : `${w.name}'s NFT updated to Lv ${done.level}.`);
+        if (w.kind === "mint") chatLine("NFT", `${w.name} is now an NFT in your wallet.`);
       } catch (e) {
         const msg = e?.message || String(e);
         if (e?.code === 4001 || /reject|denied|cancel|declin/i.test(msg)) w.declined = true;
@@ -739,7 +764,7 @@
       const n = [...wanted.values()].filter((w) => w.declined).length;
       const b = $(".np-nft");
       b.hidden = n === 0;
-      b.textContent = n === 1 ? "1 NFT to sign" : `${n} NFTs to sign`;
+      b.textContent = n === 1 ? "1 NFT to mint" : `${n} NFTs to mint`;
     }
     function retry() {
       for (const w of wanted.values()) w.declined = false;
